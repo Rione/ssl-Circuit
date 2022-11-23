@@ -21153,7 +21153,7 @@ Source:
 <pinref part="JP1" gate="A" pin="3"/>
 </segment>
 </net>
-<net name="KICK2" class="1">
+<net name="KICK2" class="0">
 <segment>
 <pinref part="U4" gate="G$1" pin="LOGIC_I/P_A"/>
 <wire x1="91.44" y1="-17.78" x2="86.36" y2="-17.78" width="0.1524" layer="91"/>
@@ -21189,7 +21189,7 @@ Source:
 <label x="91.44" y="27.94" size="0.762" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
-<net name="KICK1" class="1">
+<net name="KICK1" class="0">
 <segment>
 <pinref part="U3" gate="G$1" pin="LOGIC_I/P_A"/>
 <wire x1="91.44" y1="0" x2="86.36" y2="0" width="0.1524" layer="91"/>
