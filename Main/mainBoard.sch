@@ -8887,11 +8887,9 @@ LED</description>
 <classes>
 <class number="0" name="default" width="0.3" drill="0">
 </class>
-<class number="1" name="New" width="0.7" drill="0">
-<clearance class="1" value="0.2032"/>
+<class number="1" name="New" width="0.3" drill="0">
 </class>
-<class number="2" name="n" width="0.7" drill="0">
-<clearance class="2" value="0.2032"/>
+<class number="2" name="n" width="0.3" drill="0">
 </class>
 </classes>
 <parts>
@@ -9852,6 +9850,12 @@ LED</description>
 <label x="182.88" y="132.08" size="0.762" layer="95" xref="yes"/>
 <pinref part="CAN" gate="G$1" pin="4"/>
 </segment>
+<segment>
+<pinref part="CHK" gate="G$1" pin="1"/>
+<wire x1="144.78" y1="121.92" x2="147.32" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="147.32" y1="121.92" x2="147.32" y2="116.84" width="0.1524" layer="91"/>
+<label x="147.32" y="116.84" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="3V3" class="0">
 <segment>
@@ -9894,14 +9898,6 @@ LED</description>
 <wire x1="40.64" y1="121.92" x2="27.94" y2="121.92" width="0.1524" layer="91"/>
 <label x="27.94" y="121.92" size="0.762" layer="95" rot="R180" xref="yes"/>
 <pinref part="JP2" gate="A" pin="5"/>
-</segment>
-</net>
-<net name="VCC" class="0">
-<segment>
-<pinref part="CHK" gate="G$1" pin="1"/>
-<wire x1="144.78" y1="121.92" x2="147.32" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="147.32" y1="121.92" x2="147.32" y2="116.84" width="0.1524" layer="91"/>
-<label x="147.32" y="116.84" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="PHOTO" class="0">
