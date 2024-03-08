@@ -3424,203 +3424,6 @@
 				)
 			)
 		)
-		(symbol "Connector_Generic:Conn_01x04"
-			(pin_names
-				(offset 1.016) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "J"
-				(at 0 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "Conn_01x04"
-				(at 0 -7.62 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "connector"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "Connector*:*_1x??_*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "Conn_01x04_1_1"
-				(rectangle
-					(start -1.27 -4.953)
-					(end 0 -5.207)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 -2.413)
-					(end 0 -2.667)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 0.127)
-					(end 0 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 2.667)
-					(end 0 2.413)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 3.81)
-					(end 1.27 -6.35)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(pin passive line
-					(at -5.08 2.54 0)
-					(length 3.81)
-					(name "Pin_1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 3.81)
-					(name "Pin_2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 -2.54 0)
-					(length 3.81)
-					(name "Pin_3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 -5.08 0)
-					(length 3.81)
-					(name "Pin_4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "Device:C"
 			(pin_numbers hide)
 			(pin_names
@@ -10559,18 +10362,6 @@
 		(uuid "5f864b85-4a45-4f14-ab76-e66192a05289")
 	)
 	(junction
-		(at 252.73 222.25)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "624f2cbc-54c4-4067-9b03-88dfe9c4954f")
-	)
-	(junction
-		(at 252.73 224.79)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "6448f014-ba70-412c-a052-3d311739d07f")
-	)
-	(junction
 		(at 337.82 68.58)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -10593,12 +10384,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "6e3dacad-d876-48b8-955f-b4b317b7f060")
-	)
-	(junction
-		(at 252.73 219.71)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "872cd1a6-fcd7-411c-b45f-186b0633bf78")
 	)
 	(junction
 		(at 247.65 44.45)
@@ -10757,16 +10542,6 @@
 	(no_connect
 		(at 100.33 134.62)
 		(uuid "dafe3a67-fe51-4e86-a5d0-4fd26a143e84")
-	)
-	(wire
-		(pts
-			(xy 252.73 217.17) (xy 252.73 219.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "00b97855-8a3d-42aa-be7c-b098e7dc793d")
 	)
 	(wire
 		(pts
@@ -11160,16 +10935,6 @@
 	)
 	(wire
 		(pts
-			(xy 252.73 219.71) (xy 259.08 219.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1ce3d996-e29d-4274-8ffc-8e9cbfe27569")
-	)
-	(wire
-		(pts
 			(xy 134.62 120.65) (xy 140.97 120.65)
 		)
 		(stroke
@@ -11337,16 +11102,6 @@
 			(type default)
 		)
 		(uuid "2ba5fb90-9488-4b7f-b1de-bc40301824d4")
-	)
-	(wire
-		(pts
-			(xy 337.82 34.29) (xy 337.82 36.83)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2bd818f4-4ad4-498f-99b5-63f8606c897d")
 	)
 	(wire
 		(pts
@@ -11850,16 +11605,6 @@
 	)
 	(wire
 		(pts
-			(xy 252.73 222.25) (xy 252.73 224.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5c6b6709-b993-4f3f-b048-76364a959641")
-	)
-	(wire
-		(pts
 			(xy 21.59 39.37) (xy 21.59 45.72)
 		)
 		(stroke
@@ -12077,16 +11822,6 @@
 			(type default)
 		)
 		(uuid "70a6d8e4-6c45-4758-be64-b2fe3d162037")
-	)
-	(wire
-		(pts
-			(xy 259.08 217.17) (xy 252.73 217.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "70f06d68-69d5-4189-8928-289cd2766b58")
 	)
 	(wire
 		(pts
@@ -12590,6 +12325,16 @@
 	)
 	(wire
 		(pts
+			(xy 337.82 34.29) (xy 337.82 36.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9f9c4dec-7131-4d46-bc5e-dc8abf7b44a4")
+	)
+	(wire
+		(pts
 			(xy 250.19 31.75) (xy 255.27 31.75)
 		)
 		(stroke
@@ -12847,16 +12592,6 @@
 			(type default)
 		)
 		(uuid "bc62b386-5d84-4177-ae4f-96232a89eeef")
-	)
-	(wire
-		(pts
-			(xy 252.73 224.79) (xy 252.73 227.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bd46408f-4081-482e-a358-0d49c354f44f")
 	)
 	(wire
 		(pts
@@ -13120,16 +12855,6 @@
 	)
 	(wire
 		(pts
-			(xy 252.73 224.79) (xy 259.08 224.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d9221eab-af0e-449f-a22e-0ce7ff5277ee")
-	)
-	(wire
-		(pts
 			(xy 39.37 87.63) (xy 50.8 87.63)
 		)
 		(stroke
@@ -13177,16 +12902,6 @@
 			(type default)
 		)
 		(uuid "de78355e-f151-471a-ae5f-649362c8c98f")
-	)
-	(wire
-		(pts
-			(xy 252.73 219.71) (xy 252.73 222.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "debae840-39b2-4d69-b7b6-fe817cba7f93")
 	)
 	(wire
 		(pts
@@ -13367,16 +13082,6 @@
 			(type default)
 		)
 		(uuid "ebd5453b-76c5-4995-8f7c-ee1016dea5e5")
-	)
-	(wire
-		(pts
-			(xy 252.73 222.25) (xy 259.08 222.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ebe0e0b2-39a6-4905-bfab-d24743da12ca")
 	)
 	(wire
 		(pts
@@ -15551,7 +15256,7 @@
 		(dnp no)
 		(uuid "0e70d408-9612-4230-acb2-f63eaacaf6b1")
 		(property "Reference" "R7"
-			(at 345.44 48.26 90)
+			(at 345.44 57.15 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15559,7 +15264,7 @@
 			)
 		)
 		(property "Value" "100k"
-			(at 346.71 50.8 90)
+			(at 344.932 59.69 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15740,6 +15445,74 @@
 			(project "UI.1.5"
 				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
 					(reference "#PWR09")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Switch:SW_Omron_B3FS")
+		(at 142.24 74.93 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1142fdb6-118e-433c-9696-8fcfcf1143a5")
+		(property "Reference" "SW4"
+			(at 142.24 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "NRST"
+			(at 142.24 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Button_Switch_SMD:SW_SPST_Omron_B3FS-100xP"
+			(at 142.24 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://omronfs.omron.com/en_US/ecb/products/pdf/en-b3fs.pdf"
+			(at 142.24 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Omron B3FS 6x6mm single pole normally-open tactile switch"
+			(at 142.24 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "6d140609-6583-4d6a-94a7-afc0260ffe04")
+		)
+		(pin "1"
+			(uuid "44619e7b-8284-455e-9570-973c662a3f26")
+		)
+		(instances
+			(project "UI.1.5"
+				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
+					(reference "SW4")
 					(unit 1)
 				)
 			)
@@ -16414,6 +16187,76 @@
 	)
 	(symbol
 		(lib_id "Device:R")
+		(at 337.82 40.64 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "29040748-9f7e-4f62-8eb3-769b92d87779")
+		(property "Reference" "R8"
+			(at 340.36 40.132 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "R"
+			(at 331.47 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 336.042 40.64 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 337.82 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 337.82 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0f5e0e20-92c4-471b-969e-f85ebc90075f")
+		)
+		(pin "2"
+			(uuid "b197bd53-1985-422a-925a-c4debd44d0a9")
+		)
+		(instances
+			(project "UI.1.5"
+				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
+					(reference "R8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
 		(at 189.23 63.5 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -16575,7 +16418,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "LED"
+		(property "Value" "LED_Ras1"
 			(at 331.47 49.8474 90)
 			(effects
 				(font
@@ -16694,72 +16537,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 252.73 227.33 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "2ebad536-4a1d-4978-bbb5-9be2e05409a1")
-		(property "Reference" "#PWR01"
-			(at 252.73 233.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 252.73 232.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 252.73 227.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 252.73 227.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 252.73 227.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "98d77b00-caa3-4384-9f17-8b2d506515fc")
-		)
-		(instances
-			(project "UI.1.5"
-				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
-					(reference "#PWR01")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Connector:Raspberry_Pi_2_3")
 		(at 67.31 217.17 0)
 		(unit 1)
@@ -16787,7 +16564,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x20_P2.54mm_Vertical"
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_2x20_P2.54mm_Vertical"
 			(at 67.31 217.17 0)
 			(effects
 				(font
@@ -17381,7 +17158,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x06_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_S6B-XH-A_1x06_P2.50mm_Horizontal"
 			(at 53.34 50.8 0)
 			(effects
 				(font
@@ -18471,76 +18248,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 327.66 54.61 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "7bca77f8-9c1f-4d31-ad84-8ffef4d5ddbd")
-		(property "Reference" "LED_Ras1"
-			(at 330.2 54.102 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "R"
-			(at 321.31 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 325.882 54.61 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 327.66 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 327.66 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "7fd08790-ebbe-41bd-a9c2-9e1d2ad3ef5e")
-		)
-		(pin "2"
-			(uuid "41c1233d-640e-44c1-8fbe-1b003607558d")
-		)
-		(instances
-			(project "UI.1.5"
-				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
-					(reference "LED_Ras1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 142.24 82.55 270)
 		(unit 1)
@@ -19018,82 +18725,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x04")
-		(at 264.16 219.71 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "93e50919-3f28-44e2-bde7-bebf30a48d4c")
-		(property "Reference" "TFT3"
-			(at 266.7 220.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "~"
-			(at 266.7 222.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
-			(at 264.16 219.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 264.16 219.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 264.16 219.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "b549cf6c-b443-4d79-a7f0-3601a3ba8c53")
-		)
-		(pin "2"
-			(uuid "8c6eea3e-9e4b-4c32-bbb2-3b5dbaede16d")
-		)
-		(pin "3"
-			(uuid "edf4b7bf-3414-4fdd-b891-8b1677a53031")
-		)
-		(pin "4"
-			(uuid "e23c4fa3-8ad6-4460-b21c-cb7633031c1f")
-		)
-		(instances
-			(project "UI.1.5"
-				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
-					(reference "TFT3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 355.6 199.39 0)
 		(unit 1)
@@ -19104,7 +18735,7 @@
 		(fields_autoplaced yes)
 		(uuid "94b80812-4822-440b-aaba-393cf7d74d5c")
 		(property "Reference" "R2"
-			(at 358.14 198.12 0)
+			(at 358.14 198.1199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19112,8 +18743,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "600R"
-			(at 358.14 200.66 0)
+		(property "Value" "300"
+			(at 358.14 200.6599 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20373,76 +20004,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 337.82 48.26 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "c9ffc057-8d5a-486e-929c-da359750826e")
-		(property "Reference" "LED_main"
-			(at 340.36 47.244 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "R"
-			(at 340.36 49.784 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 336.042 48.26 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 337.82 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 337.82 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "4bb2236d-0f6f-48b8-9286-5ed2fb1b1713")
-		)
-		(pin "2"
-			(uuid "8b3dcf1e-aa6b-4058-a4ae-9c25a554d48f")
-		)
-		(instances
-			(project "UI.1.5"
-				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
-					(reference "LED_main")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Connector:Conn_01x03_Pin")
 		(at 35.56 125.73 0)
 		(unit 1)
@@ -20642,74 +20203,6 @@
 			(project "UI.1.5"
 				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
 					(reference "#PWR029")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Switch:SW_Omron_B3FS")
-		(at 142.24 74.93 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d5e09dca-07ad-474a-abfd-212388f28935")
-		(property "Reference" "SW4"
-			(at 142.24 67.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "NRST"
-			(at 142.24 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 142.24 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://omronfs.omron.com/en_US/ecb/products/pdf/en-b3fs.pdf"
-			(at 142.24 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Omron B3FS 6x6mm single pole normally-open tactile switch"
-			(at 142.24 74.93 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "51726cde-02c6-429e-8d29-36f3f91b224a")
-		)
-		(pin "2"
-			(uuid "4e1f18c6-ad36-4093-b880-d6ddf842c683")
-		)
-		(instances
-			(project "UI.1.5"
-				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
-					(reference "SW4")
 					(unit 1)
 				)
 			)
@@ -20921,16 +20414,15 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 337.82 40.64 90)
+		(at 337.82 48.26 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "de9d60de-28c9-410a-b517-d510e5b9c093")
 		(property "Reference" "D1"
-			(at 341.63 40.9574 90)
+			(at 341.122 43.688 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20938,8 +20430,8 @@
 				(justify right)
 			)
 		)
-		(property "Value" "LED"
-			(at 341.63 43.4974 90)
+		(property "Value" "LED_main"
+			(at 339.09 45.72 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20948,7 +20440,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder"
-			(at 337.82 40.64 0)
+			(at 337.82 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20957,7 +20449,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 337.82 40.64 0)
+			(at 337.82 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20966,7 +20458,7 @@
 			)
 		)
 		(property "Description" "Light emitting diode"
-			(at 337.82 40.64 0)
+			(at 337.82 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21390,7 +20882,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical"
 			(at 229.87 232.41 0)
 			(effects
 				(font
@@ -21566,6 +21058,76 @@
 			(project "UI.1.5"
 				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
 					(reference "#PWR037")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 327.66 54.61 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f409fde7-2a9c-4220-a11e-565a86364b2b")
+		(property "Reference" "R15"
+			(at 330.2 54.102 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "R"
+			(at 321.31 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 325.882 54.61 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 327.66 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 327.66 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8ae0579a-2a56-485f-bcdb-44fc71641717")
+		)
+		(pin "2"
+			(uuid "cb1d64f8-495d-4181-a5ce-250a3e4bca22")
+		)
+		(instances
+			(project "UI.1.5"
+				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
+					(reference "R15")
 					(unit 1)
 				)
 			)
@@ -21793,7 +21355,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical"
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical"
 			(at 231.14 205.74 0)
 			(effects
 				(font
