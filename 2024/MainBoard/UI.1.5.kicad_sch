@@ -3850,10 +3850,9 @@
 				)
 			)
 		)
-		(symbol "Diode:SS210"
+		(symbol "Diode:1N4148W"
 			(pin_numbers hide)
-			(pin_names
-				(offset 1.016) hide)
+			(pin_names hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -3865,7 +3864,7 @@
 					)
 				)
 			)
-			(property "Value" "SS210"
+			(property "Value" "1N4148W"
 				(at 0 -2.54 0)
 				(effects
 					(font
@@ -3873,7 +3872,7 @@
 					)
 				)
 			)
-			(property "Footprint" "Diode_SMD:D_SMA"
+			(property "Footprint" "Diode_SMD:D_SOD-123"
 				(at 0 -4.445 0)
 				(effects
 					(font
@@ -3882,7 +3881,7 @@
 					(hide yes)
 				)
 			)
-			(property "Datasheet" "https://www.wontop.com/uploadfiles/56/sort_excel/pdf/ss22.pdf"
+			(property "Datasheet" "https://www.vishay.com/docs/85748/1n4148w.pdf"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3891,7 +3890,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "100V 2A Schottky Diode, SMA"
+			(property "Description" "75V 0.15A Fast Switching Diode, SOD-123"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3900,7 +3899,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "diode Schottky"
+			(property "Sim.Device" "D"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3909,7 +3908,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_fp_filters" "D*SMA*"
+			(property "Sim.Pins" "1=K 2=A"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3918,7 +3917,37 @@
 					(hide yes)
 				)
 			)
-			(symbol "SS210_0_1"
+			(property "ki_keywords" "diode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "D*SOD?123*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "1N4148W_0_1"
+				(polyline
+					(pts
+						(xy -1.27 1.27) (xy -1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
 				(polyline
 					(pts
 						(xy 1.27 0) (xy -1.27 0)
@@ -3943,20 +3972,8 @@
 						(type none)
 					)
 				)
-				(polyline
-					(pts
-						(xy -1.905 0.635) (xy -1.905 1.27) (xy -1.27 1.27) (xy -1.27 -1.27) (xy -0.635 -1.27) (xy -0.635 -0.635)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
 			)
-			(symbol "SS210_1_1"
+			(symbol "1N4148W_1_1"
 				(pin passive line
 					(at -3.81 0 0)
 					(length 2.54)
@@ -8198,7 +8215,7 @@
 				)
 			)
 		)
-		(symbol "Switch:SW_Coded_SH-7050"
+		(symbol "Switch:SW_Coded_SH-7070"
 			(pin_names hide)
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -8212,7 +8229,7 @@
 					(justify left)
 				)
 			)
-			(property "Value" "SW_Coded_SH-7050"
+			(property "Value" "SW_Coded_SH-7070"
 				(at -7.62 -8.89 0)
 				(effects
 					(font
@@ -8240,7 +8257,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Rotary switch, 4-bit encoding, 16 positions, Real code"
+			(property "Description" "Rotary switch, 4-bit encoding, 16 positions, Complementary code"
 				(at 0 0 0)
 				(effects
 					(font
@@ -8249,7 +8266,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "rotary hex Real"
+			(property "ki_keywords" "rotary hex Complementary"
 				(at 0 0 0)
 				(effects
 					(font
@@ -8267,7 +8284,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "SW_Coded_SH-7050_0_0"
+			(symbol "SW_Coded_SH-7070_0_0"
 				(text "0"
 					(at 5.715 0 2700)
 					(effects
@@ -8397,7 +8414,7 @@
 					)
 				)
 			)
-			(symbol "SW_Coded_SH-7050_0_1"
+			(symbol "SW_Coded_SH-7070_0_1"
 				(polyline
 					(pts
 						(xy -0.254 -2.54) (xy -0.254 2.032) (xy -0.762 1.524) (xy -1.27 1.524) (xy 0 2.794) (xy 1.27 1.524)
@@ -8434,7 +8451,7 @@
 					)
 				)
 			)
-			(symbol "SW_Coded_SH-7050_1_1"
+			(symbol "SW_Coded_SH-7070_1_1"
 				(pin passive line
 					(at 10.16 2.54 180)
 					(length 2.54)
@@ -15271,7 +15288,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 346.71 56.388 90)
 			(effects
 				(font
@@ -15476,7 +15493,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_Omron_B3FS-100xP"
+		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm_H7.3mm"
 			(at 142.24 69.85 0)
 			(effects
 				(font
@@ -16119,73 +16136,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Diode:SS210")
-		(at 325.12 154.94 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "24cde4c0-0aaa-4dc2-8c7e-66bb2310c3af")
-		(property "Reference" "D4"
-			(at 322.072 159.004 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SS210"
-			(at 322.072 161.544 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Diode_SMD:D_SMA"
-			(at 325.12 159.385 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.wontop.com/uploadfiles/56/sort_excel/pdf/ss22.pdf"
-			(at 325.12 154.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "100V 2A Schottky Diode, SMA"
-			(at 325.12 154.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "5951b331-2d94-48fd-824a-fe4cc5807537")
-		)
-		(pin "1"
-			(uuid "ef9d082d-8d6a-4c6b-8932-71de0dcfa6a0")
-		)
-		(instances
-			(project "UI.1.5"
-				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
-					(reference "D4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 337.82 40.64 0)
 		(unit 1)
@@ -16203,7 +16153,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "300"
 			(at 331.47 41.91 0)
 			(effects
 				(font
@@ -16213,7 +16163,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 336.042 40.64 90)
 			(effects
 				(font
@@ -16273,7 +16223,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "120"
+		(property "Value" "300"
 			(at 191.77 64.7699 0)
 			(effects
 				(font
@@ -16283,7 +16233,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 187.452 63.5 90)
 			(effects
 				(font
@@ -16881,7 +16831,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 224.4852 129.54 0)
 			(effects
 				(font
@@ -16941,7 +16891,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "300"
 			(at 312.42 62.23 0)
 			(effects
 				(font
@@ -16951,7 +16901,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 316.992 60.96 90)
 			(effects
 				(font
@@ -17020,7 +16970,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 240.9952 39.37 0)
 			(effects
 				(font
@@ -17089,7 +17039,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 154.94 102.5652 0)
 			(effects
 				(font
@@ -17237,7 +17187,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 337.82 94.742 90)
 			(effects
 				(font
@@ -17363,84 +17313,6 @@
 			(project "UI.1.5"
 				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
 					(reference "U2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Switch:SW_Coded_SH-7050")
-		(at 120.65 195.58 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "44182e14-ecd0-414b-8fff-2130c4b1f7a8")
-		(property "Reference" "SW1"
-			(at 120.65 182.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SW_Coded_SH-7050"
-			(at 120.65 185.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Button_Switch_SMD:Nidec_Copal_SH-7010A"
-			(at 113.03 207.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.nidec-copal-electronics.com/e/catalog/switch/sh-7000.pdf"
-			(at 120.65 195.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Rotary switch, 4-bit encoding, 16 positions, Real code"
-			(at 120.65 195.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ddac794b-0bdf-43d9-bed4-96f7be7f4130")
-		)
-		(pin "4"
-			(uuid "bc0e9211-27f5-4b54-81b3-65df466c39ad")
-		)
-		(pin "8"
-			(uuid "f2100d20-3ce9-4261-b5f9-50fab097eb32")
-		)
-		(pin "C"
-			(uuid "a0622476-0072-496b-9e54-e7dbf8cb0547")
-		)
-		(pin "2"
-			(uuid "ff29c643-5a60-49a4-ace3-04eca1c4cd74")
-		)
-		(instances
-			(project "UI.1.5"
-				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
-					(reference "SW1")
 					(unit 1)
 				)
 			)
@@ -17723,7 +17595,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 251.1552 39.37 0)
 			(effects
 				(font
@@ -17760,6 +17632,92 @@
 			(project "UI.1.5"
 				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
 					(reference "C7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode:1N4148W")
+		(at 325.12 149.86 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "51439bdf-7d51-49e0-814b-8d0da78f8822")
+		(property "Reference" "D3"
+			(at 325.12 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1N4148W"
+			(at 325.12 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SOD-123"
+			(at 325.12 145.415 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.vishay.com/docs/85748/1n4148w.pdf"
+			(at 325.12 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "75V 0.15A Fast Switching Diode, SOD-123"
+			(at 325.12 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 325.12 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 325.12 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e96c8cde-f126-4e99-bda5-9215c6c09937")
+		)
+		(pin "2"
+			(uuid "d733483c-417a-4999-be08-e41bcfcf804f")
+		)
+		(instances
+			(project "UI.1.5"
+				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
+					(reference "D3")
 					(unit 1)
 				)
 			)
@@ -17859,7 +17817,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 235.9152 39.37 0)
 			(effects
 				(font
@@ -17920,7 +17878,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7uF"
+		(property "Value" "4.7u"
 			(at 219.71 33.0199 0)
 			(effects
 				(font
@@ -17929,7 +17887,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 216.8652 35.56 0)
 			(effects
 				(font
@@ -17997,7 +17955,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_Omron_B3FS-100xP"
+		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm_H7.3mm"
 			(at 134.62 213.36 0)
 			(effects
 				(font
@@ -18067,7 +18025,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 356.108 48.26 90)
 			(effects
 				(font
@@ -18110,144 +18068,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Diode:SS210")
-		(at 354.33 60.96 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "6c916905-bc8e-4687-8c22-d14c25e3cc13")
-		(property "Reference" "D2"
-			(at 356.87 59.3724 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "SS210"
-			(at 356.87 61.9124 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Diode_SMD:D_SMA"
-			(at 349.885 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.wontop.com/uploadfiles/56/sort_excel/pdf/ss22.pdf"
-			(at 354.33 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "100V 2A Schottky Diode, SMA"
-			(at 354.33 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "dfb2c1a9-7cca-4617-9913-872d851cc3db")
-		)
-		(pin "1"
-			(uuid "f338d904-cab8-4a9b-9dfc-7e476dd0c931")
-		)
-		(instances
-			(project "UI.1.5"
-				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
-					(reference "D2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Diode:SS210")
-		(at 325.12 149.86 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "7529f6b8-ce99-4773-8bc3-4c5044f889dd")
-		(property "Reference" "D3"
-			(at 324.8025 143.51 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SS210"
-			(at 324.8025 146.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Diode_SMD:D_SMA"
-			(at 325.12 154.305 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.wontop.com/uploadfiles/56/sort_excel/pdf/ss22.pdf"
-			(at 325.12 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "100V 2A Schottky Diode, SMA"
-			(at 325.12 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "3d29229e-122a-47cc-b1b9-44bfeab6b918")
-		)
-		(pin "1"
-			(uuid "360e99ae-eacc-45ed-80c6-8dde1625f151")
-		)
-		(instances
-			(project "UI.1.5"
-				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
-					(reference "D3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 142.24 82.55 270)
 		(unit 1)
@@ -18274,7 +18094,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 138.43 83.5152 0)
 			(effects
 				(font
@@ -18402,7 +18222,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1kR"
+		(property "Value" "1k"
 			(at 344.17 137.16 0)
 			(effects
 				(font
@@ -18411,7 +18231,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 339.852 135.89 90)
 			(effects
 				(font
@@ -18743,7 +18563,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "300"
+		(property "Value" "470"
 			(at 358.14 200.6599 0)
 			(effects
 				(font
@@ -18752,7 +18572,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 353.822 199.39 90)
 			(effects
 				(font
@@ -18916,7 +18736,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 256.2352 39.37 0)
 			(effects
 				(font
@@ -19318,7 +19138,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 107.95 113.538 90)
 			(effects
 				(font
@@ -19487,7 +19307,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 246.0752 39.37 0)
 			(effects
 				(font
@@ -19524,6 +19344,84 @@
 			(project "UI.1.5"
 				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
 					(reference "C6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Switch:SW_Coded_SH-7070")
+		(at 120.65 195.58 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b039abdd-8262-4c98-b988-6739a544249e")
+		(property "Reference" "SW1"
+			(at 120.65 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SW_Coded_SH-7070"
+			(at 120.65 185.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Button_Switch_THT:Nidec_Copal_SH-7010C"
+			(at 113.03 207.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.nidec-copal-electronics.com/e/catalog/switch/sh-7000.pdf"
+			(at 120.65 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Rotary switch, 4-bit encoding, 16 positions, Complementary code"
+			(at 120.65 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "8"
+			(uuid "7262c2d1-b4b2-47a4-be2b-7b93d05750f0")
+		)
+		(pin "C"
+			(uuid "eee69eaf-c923-4fb4-b0ae-6cfd12712c90")
+		)
+		(pin "1"
+			(uuid "b0017602-9fa7-40b3-9ebc-7fa8f5a1d157")
+		)
+		(pin "2"
+			(uuid "3f4f991f-78d8-4796-aaf5-3d1352301d8f")
+		)
+		(pin "4"
+			(uuid "329d7fdf-bc09-48a3-b2a3-e56287996d4c")
+		)
+		(instances
+			(project "UI.1.5"
+				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
+					(reference "SW1")
 					(unit 1)
 				)
 			)
@@ -19590,6 +19488,91 @@
 			(project "UI.1.5"
 				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
 					(reference "#PWR04")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode:1N4148W")
+		(at 325.12 154.94 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "b2b6758b-a8ff-47bb-964d-2a9d9ce76f00")
+		(property "Reference" "D4"
+			(at 325.882 157.988 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1N4148W"
+			(at 325.882 160.528 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SOD-123"
+			(at 325.12 150.495 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.vishay.com/docs/85748/1n4148w.pdf"
+			(at 325.12 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "75V 0.15A Fast Switching Diode, SOD-123"
+			(at 325.12 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 325.12 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 325.12 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "959c40fe-67d0-464a-84b5-cac30b299a8e")
+		)
+		(pin "2"
+			(uuid "9201e2c4-a8cb-448a-ab81-e57ba5309c3a")
+		)
+		(instances
+			(project "UI.1.5"
+				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
+					(reference "D4")
 					(unit 1)
 				)
 			)
@@ -19688,7 +19671,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 123.952 55.88 90)
 			(effects
 				(font
@@ -19814,7 +19797,7 @@
 				)
 			)
 		)
-		(property "Value" "120"
+		(property "Value" "470"
 			(at 168.9101 130.81 0)
 			(effects
 				(font
@@ -19824,7 +19807,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 170.18 126.492 90)
 			(effects
 				(font
@@ -20216,7 +20199,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "d6de429e-a178-4948-9780-42ca929f9e6a")
 		(property "Reference" "R11"
 			(at 111.76 100.33 90)
@@ -20226,17 +20208,16 @@
 				)
 			)
 		)
-		(property "Value" "120"
-			(at 110.4901 106.68 0)
+		(property "Value" "470"
+			(at 110.744 106.934 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 111.76 102.362 90)
 			(effects
 				(font
@@ -20303,7 +20284,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 337.82 90.932 90)
 			(effects
 				(font
@@ -20788,6 +20769,94 @@
 		)
 	)
 	(symbol
+		(lib_id "Diode:1N4148W")
+		(at 354.33 60.96 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "ef0ab3f3-89b3-423d-8e07-ea8e876061bb")
+		(property "Reference" "D2"
+			(at 356.87 59.6899 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "1N4148W"
+			(at 356.87 62.2299 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SOD-123"
+			(at 358.775 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.vishay.com/docs/85748/1n4148w.pdf"
+			(at 354.33 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "75V 0.15A Fast Switching Diode, SOD-123"
+			(at 354.33 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 354.33 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 354.33 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1b6ff85b-fecd-4dab-a85e-222b9607f587")
+		)
+		(pin "2"
+			(uuid "c158cedd-0bb2-45d2-8934-467b15493ab3")
+		)
+		(instances
+			(project "UI.1.5"
+				(path "/7a3dd4ec-2b07-4a3e-b13f-b3886791130e"
+					(reference "D2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Switch:SW_Omron_B3FS")
 		(at 134.62 228.6 0)
 		(unit 1)
@@ -20813,7 +20882,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_Omron_B3FS-100xP"
+		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm_H7.3mm"
 			(at 134.62 223.52 0)
 			(effects
 				(font
@@ -21081,7 +21150,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "300"
 			(at 321.31 55.88 0)
 			(effects
 				(font
@@ -21091,7 +21160,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 325.882 54.61 90)
 			(effects
 				(font
@@ -21897,7 +21966,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 107.95 110.998 90)
 			(effects
 				(font
