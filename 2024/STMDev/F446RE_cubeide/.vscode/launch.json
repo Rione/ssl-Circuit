@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Cortex Debug",
+      "cwd": "${workspaceRoot}",
+      "executable": "./build/F446RE_cubeide.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "device": "STM32F446RE",
+      "configFiles": [
+        "interface/stlink.cfg",
+        "target/stm32f4x.cfg"
+      ],
+      "svdFile": "./STM32F446.svd",
+      "liveWatch": {
+        "enabled": true,
+        "samplesPerSecond": 4
+      }
+    },
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/tomixrm/Documents/Dev/Robots/ssl-Circuit/2024/STMDev/F446RE_cubeide/Core/Src",
+      "program": "/Users/tomixrm/Documents/Dev/Robots/ssl-Circuit/2024/STMDev/F446RE_cubeide/Core/Src/build/Debug/outDebug"
+    }
+  ]
+}
