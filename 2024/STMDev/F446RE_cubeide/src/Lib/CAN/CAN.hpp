@@ -49,6 +49,7 @@ class CANBus {
             HAL_CAN_AddTxMessage(hcan, &txHeader, canData.data, &TxMailbox);
             // printf("Mailbox:%d\n", TxMailbox);
         }
+        printf("send\n");
     }
 
     void recv(CANData &canData) {
