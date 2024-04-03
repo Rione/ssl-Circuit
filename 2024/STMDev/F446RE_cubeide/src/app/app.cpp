@@ -28,9 +28,9 @@ void setup() {
 void main_app() {
     setup();
     while (1) {
-        HAL_Delay(100);
         HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
         printf("Toggle\n");
         can.send(canRecvData);
+        HAL_Delay(100);
     }
 }

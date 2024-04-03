@@ -47,7 +47,7 @@ class CANBus {
             txHeader.DLC = 8;
             txHeader.TransmitGlobalTime = DISABLE;
             HAL_CAN_AddTxMessage(hcan, &txHeader, canData.data, &TxMailbox);
-            // printf("Mailbox:%d\n", TxMailbox);
+            printf("Mailbox:%ld\n", TxMailbox);
         }
         printf("send\n");
     }
