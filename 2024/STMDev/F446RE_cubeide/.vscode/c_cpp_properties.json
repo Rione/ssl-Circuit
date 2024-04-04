@@ -1,0 +1,26 @@
+{
+  "configurations": [
+    {
+      "name": "STM32F446RE",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE",
+        "USE_HAL_DRIVER",
+        "STM32F446xx"
+      ],
+      "intelliSenseMode": "gcc-arm",
+      "compilerPath": "/opt/homebrew/bin/arm-none-eabi-gcc",
+      "compilerArgs": [
+        "-mcpu=cortex-m4",
+        "mthumb"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++17"
+    }
+  ],
+  "version": 4
+}
