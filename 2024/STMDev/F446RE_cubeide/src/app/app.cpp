@@ -31,6 +31,6 @@ void main_app() {
         HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
         printf("Toggle\n");
         can.send(canRecvData);
-        HAL_Delay(100);
+        HAL_Delay(1000);
     }
 }
