@@ -8470,9 +8470,9 @@
   )
 
   (symbol (lib_id "Connector:Conn_01x03_Socket") (at 483.87 99.06 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board no) (dnp no) (fields_autoplaced)
     (uuid 7918a813-32d8-421c-b8dd-35aa2b0a149e)
-    (property "Reference" "J9" (at 485.14 97.79 0)
+    (property "Reference" "//J9" (at 485.14 97.79 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "ADC2" (at 485.14 100.33 0)
@@ -8490,7 +8490,7 @@
     (instances
       (project "MainBoard"
         (path "/0f1369eb-a284-48b8-a3ed-798a8062c1cf"
-          (reference "J9") (unit 1)
+          (reference "//J9") (unit 1)
         )
       )
     )
@@ -9923,9 +9923,9 @@
   )
 
   (symbol (lib_id "Connector:Conn_01x03_Socket") (at 514.35 78.74 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board no) (dnp no) (fields_autoplaced)
     (uuid c3dd8238-5c70-4ae5-88f1-d6b4b16726e6)
-    (property "Reference" "J8" (at 515.62 77.47 0)
+    (property "Reference" "//J8" (at 515.62 77.47 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "ADC1" (at 515.62 80.01 0)
@@ -9943,7 +9943,7 @@
     (instances
       (project "MainBoard"
         (path "/0f1369eb-a284-48b8-a3ed-798a8062c1cf"
-          (reference "J8") (unit 1)
+          (reference "//J8") (unit 1)
         )
       )
     )
@@ -10179,9 +10179,9 @@
   )
 
   (symbol (lib_id "Connector:Conn_01x03_Socket") (at 514.35 99.06 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board no) (dnp no) (fields_autoplaced)
     (uuid d7604a00-0b1f-447b-b683-ca9c333b9e96)
-    (property "Reference" "J10" (at 515.62 97.79 0)
+    (property "Reference" "///J10" (at 515.62 97.79 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "ADC3" (at 515.62 100.33 0)
@@ -10199,7 +10199,7 @@
     (instances
       (project "MainBoard"
         (path "/0f1369eb-a284-48b8-a3ed-798a8062c1cf"
-          (reference "J10") (unit 1)
+          (reference "///J10") (unit 1)
         )
       )
     )
@@ -10677,9 +10677,9 @@
   )
 
   (symbol (lib_id "Connector:Conn_01x02_Socket") (at 514.35 58.42 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board no) (dnp no) (fields_autoplaced)
     (uuid ed8680fe-cfc9-4a8d-a084-605d6ad59a9c)
-    (property "Reference" "J4" (at 515.62 58.42 0)
+    (property "Reference" "//J4" (at 515.62 58.42 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "CAN_CON" (at 515.62 60.96 0)
@@ -10696,7 +10696,7 @@
     (instances
       (project "MainBoard"
         (path "/0f1369eb-a284-48b8-a3ed-798a8062c1cf"
-          (reference "J4") (unit 1)
+          (reference "//J4") (unit 1)
         )
       )
     )
