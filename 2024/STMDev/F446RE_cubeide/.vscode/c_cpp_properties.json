@@ -1,7 +1,7 @@
 {
   "configurations": [
     {
-      "name": "STM32F446RE",
+      "name": "macos-clang-arm64",
       "includePath": [
         "${workspaceFolder}/**"
       ],
@@ -12,14 +12,14 @@
         "USE_HAL_DRIVER",
         "STM32F446xx"
       ],
-      "intelliSenseMode": "gcc-arm",
-      "compilerPath": "/opt/homebrew/bin/arm-none-eabi-gcc",
+      "intelliSenseMode": "macos-clang-arm64",
+      "compilerPath": "/usr/bin/clang",
       "compilerArgs": [
         "-mcpu=cortex-m4",
         "mthumb"
       ],
-      "cStandard": "c11",
-      "cppStandard": "c++17"
+      "cStandard": "${default}",
+      "cppStandard": "${default}"
     }
   ],
   "version": 4

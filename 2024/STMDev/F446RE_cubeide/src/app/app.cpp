@@ -3,9 +3,6 @@
 #include "Lib/DMAStream/DMAStream.h"
 #include "Lib/CAN/CAN.hpp"
 
-int data = 0;
-float fdata = 0.0;
-
 CANBus can(&hcan1, 0x100);
 CANBus::CANData canRecvData = {
     .stdId = 0x555,
@@ -21,16 +18,12 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 }
 
 void setup() {
-    can.init();
-    printfDMA("Init!!\n");
 }
 
 void main_app() {
     setup();
     while (1) {
-        HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-        printf("Toggle\n");
-        can.send(canRecvData);
+        HAL_I2C_Master_Transmit(&hi2c1, 0x50 << 1, (uint8_t *)"Hello", 5, 1000);
         HAL_Delay(1000);
     }
 }
