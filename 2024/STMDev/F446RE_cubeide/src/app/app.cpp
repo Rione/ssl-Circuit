@@ -169,20 +169,6 @@ void BNO055Check() {
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf
     // Page 60 4.3.1 CHIP_ID
     uint8_t data;
-    /**
-     * HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout)
-     * @brief  Read an amount of data in blocking mode from a specific memory address
-     * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
-     *                the configuration information for the specified I2C.
-     * @param  DevAddress Target device address: The device 7 bits address value
-     *         in datasheet must be shifted to the left before calling the interface
-     * @param  MemAddress Internal memory address
-     * @param  MemAddSize Size of internal memory address
-     * @param  pData Pointer to data buffer
-     * @param  Size Amount of data to be sent
-     * @param  Timeout Timeout duration
-     * @retval HAL status
-     */
     HAL_I2C_Mem_Read(&hi2c1, BNOAddress, BNO055_CHIP_ID_ADDR, I2C_MEMADD_SIZE_8BIT, &data, 1, 100);
     if (data != 0xA0) {
         printf("BNO055 not found\n");
@@ -249,9 +235,7 @@ void BNO055SetUnit() {
 
 void BNO055readEuler() {
     uint8_t data[6];
-    uint8_t addr[1] = {BNO055_EULER_H_LSB_ADDR};
-    HAL_I2C_Master_Transmit(&hi2c1, BNOAddress, addr, 1, 100);
-    HAL_I2C_Master_Receive(&hi2c1, BNOAddress + 1, data, 6, 100);
+    HAL_I2C_Mem_Read(&hi2c1, BNOAddress, BNO055_EULER_H_LSB_ADDR, I2C_MEMADD_SIZE_8BIT, data, 6, 100);
     // 1deg→16  1rad→900
     float angle_scale = 1.0f / 900.0f;
     float yaw = int16_t(data[1] << 8 | data[0]) * angle_scale;
@@ -262,9 +246,7 @@ void BNO055readEuler() {
 
 void BNO055ReadAcc() {
     uint8_t data[6];
-    uint8_t addr[1] = {BNO055_ACCEL_DATA_X_LSB_ADDR};
-    HAL_I2C_Master_Transmit(&hi2c1, BNOAddress, addr, 1, 100);
-    HAL_I2C_Master_Receive(&hi2c1, BNOAddress + 1, data, 6, 100);
+    HAL_I2C_Mem_Read(&hi2c1, BNOAddress, BNO055_ACCEL_DATA_X_LSB_ADDR, I2C_MEMADD_SIZE_8BIT, data, 6, 100);
     // 1m/s^2→100 1mg→1
     float accel_scale = 1.0f / 100.0f;
     float x = int16_t(data[1] << 8 | data[0]) * accel_scale;
@@ -275,9 +257,7 @@ void BNO055ReadAcc() {
 
 void BNO055ReadGyro() {
     uint8_t data[6];
-    uint8_t addr[1] = {BNO055_GYRO_DATA_X_LSB_ADDR};
-    HAL_I2C_Master_Transmit(&hi2c1, BNOAddress, addr, 1, 100);
-    HAL_I2C_Master_Receive(&hi2c1, BNOAddress + 1, data, 6, 100);
+    HAL_I2C_Mem_Read(&hi2c1, BNOAddress, BNO055_GYRO_DATA_X_LSB_ADDR, I2C_MEMADD_SIZE_8BIT, data, 6, 100);
     // 1deg/s→16 1rad/s→900
     float rate_scale = 1.0f / 900.0f;
     float x = int16_t(data[1] << 8 | data[0]) * rate_scale;
@@ -316,8 +296,8 @@ void main_app() {
 
     while (1) {
         BNO055readEuler();
-        // BNO055ReadAcc();
-        // BNO055ReadGyro();
-        HAL_Delay(10);
+        BNO055ReadAcc();
+        BNO055ReadGyro();
+        HAL_Delay(50);
     }
 }
