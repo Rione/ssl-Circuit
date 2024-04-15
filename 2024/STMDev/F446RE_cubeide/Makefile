@@ -228,6 +228,7 @@ $(BUILD_DIR):
 #######################################
 clean:
 	-rm -fR $(BUILD_DIR)
+	echo "shell stmw"
 
 #######################################
 # dependencies
