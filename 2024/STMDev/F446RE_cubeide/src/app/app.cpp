@@ -1,7 +1,8 @@
 #include "app.h"
 #include "main.h"
-#include "Lib/DMAStream/DMAStream.h"
-#include "Lib/CAN/CAN.hpp"
+#include "DMAStream.h"
+#include "CAN.hpp"
+#include "Timer.hpp"
 #include "i2c.h"
 
 #define BNOAddress (0x28 << 1) // GY-BNO055=0x29,Normal=0x28
@@ -149,11 +150,15 @@
 #define OPERATION_MODE_NDOF_FMC_OFF 0x0B
 #define OPERATION_MODE_NDOF 0x0C
 
+Timer timer;
+
 CANBus can(&hcan1, 0x100);
 CANBus::CANData canRecvData = {
     .stdId = 0x555,
     .data = {1, 2, 0, 0, 0, 0, 0, 0},
 };
+
+// Timer interval;
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (can.getHcan() == &hcan1) {
@@ -192,7 +197,7 @@ void BNO055Init() {
     printf("bootload: %d\n", rx[6]);
 
     tx[0] = 1;
-    HAL_I2C_Mem_Read(&hi2c1, BNOAddress, BNO055_PAGE_ID_ADDR, I2C_MEMADD_SIZE_8BIT, tx, 1, 100);
+    HAL_I2C_Mem_Write(&hi2c1, BNOAddress, BNO055_PAGE_ID_ADDR, I2C_MEMADD_SIZE_8BIT, tx, 1, 100);
 
     tx[0] = BNO055_UNIQUE_ID_ADDR;
     HAL_I2C_Master_Transmit(&hi2c1, BNOAddress, tx, 1, 100);
@@ -201,7 +206,7 @@ void BNO055Init() {
     printf("UID: %d\n", rx[0]);
 
     tx[0] = 0;
-    HAL_I2C_Mem_Read(&hi2c1, BNOAddress, BNO055_PAGE_ID_ADDR, I2C_MEMADD_SIZE_8BIT, tx, 1, 100);
+    HAL_I2C_Mem_Write(&hi2c1, BNOAddress, BNO055_PAGE_ID_ADDR, I2C_MEMADD_SIZE_8BIT, tx, 1, 100);
 }
 
 void BNO055SetPowerModeAsNormal() {
@@ -211,6 +216,11 @@ void BNO055SetPowerModeAsNormal() {
 
 void BNO055SetOperationModeAsNDOF() {
     uint8_t tx[1] = {OPERATION_MODE_NDOF};
+    HAL_I2C_Mem_Write(&hi2c1, BNOAddress, BNO055_OPR_MODE_ADDR, I2C_MEMADD_SIZE_8BIT, tx, 1, 100);
+}
+
+void BNO055SetOperationModeAsAMG() {
+    uint8_t tx[1] = {OPERATION_MODE_AMG};
     HAL_I2C_Mem_Write(&hi2c1, BNOAddress, BNO055_OPR_MODE_ADDR, I2C_MEMADD_SIZE_8BIT, tx, 1, 100);
 }
 
@@ -233,7 +243,8 @@ void BNO055SetUnit() {
     HAL_I2C_Mem_Write(&hi2c1, BNOAddress, BNO055_UNIT_SEL_ADDR, I2C_MEMADD_SIZE_8BIT, tx, 1, 100);
 }
 
-void BNO055readEuler() {
+void BNO055ReadEuler() {
+    timer.reset();
     uint8_t data[6];
     HAL_I2C_Mem_Read(&hi2c1, BNOAddress, BNO055_EULER_H_LSB_ADDR, I2C_MEMADD_SIZE_8BIT, data, 6, 100);
     // 1deg→16  1rad→900
@@ -241,10 +252,11 @@ void BNO055readEuler() {
     float yaw = int16_t(data[1] << 8 | data[0]) * angle_scale;
     float roll = int16_t(data[3] << 8 | data[2]) * angle_scale;
     float pitch = int16_t(data[5] << 8 | data[4]) * angle_scale;
-    printf("Euler: %.2f %.2f %.2f\n", yaw, roll, pitch);
+    printfDMA("Euler: %.2f %.2f %.2f time:%ld\n", yaw, roll, pitch, timer.read_us());
 }
 
 void BNO055ReadAcc() {
+    timer.reset();
     uint8_t data[6];
     HAL_I2C_Mem_Read(&hi2c1, BNOAddress, BNO055_ACCEL_DATA_X_LSB_ADDR, I2C_MEMADD_SIZE_8BIT, data, 6, 100);
     // 1m/s^2→100 1mg→1
@@ -252,10 +264,11 @@ void BNO055ReadAcc() {
     float x = int16_t(data[1] << 8 | data[0]) * accel_scale;
     float y = int16_t(data[3] << 8 | data[2]) * accel_scale;
     float z = int16_t(data[5] << 8 | data[4]) * accel_scale;
-    printf("Accel: %.2f %.2f %.2f\n", x, y, z);
+    printfDMA("Accel: %.2f %.2f %.2f\n", x, y, z);
 }
 
 void BNO055ReadGyro() {
+    timer.reset();
     uint8_t data[6];
     HAL_I2C_Mem_Read(&hi2c1, BNOAddress, BNO055_GYRO_DATA_X_LSB_ADDR, I2C_MEMADD_SIZE_8BIT, data, 6, 100);
     // 1deg/s→16 1rad/s→900
@@ -263,7 +276,21 @@ void BNO055ReadGyro() {
     float x = int16_t(data[1] << 8 | data[0]) * rate_scale;
     float y = int16_t(data[3] << 8 | data[2]) * rate_scale;
     float z = int16_t(data[5] << 8 | data[4]) * rate_scale;
-    printf("Gyro: %.2f %.2f %.2f\n", x, y, z);
+    printfDMA("Gyro: %.2f %.2f %.2f time:%ld\n", x, y, z, timer.read_us());
+}
+
+void BNO055AccConfig() {
+    // Page Change to 1
+    uint8_t tx = 1;
+    HAL_I2C_Mem_Write(&hi2c1, BNOAddress, BNO055_PAGE_ID_ADDR, I2C_MEMADD_SIZE_8BIT, &tx, 1, 100);
+
+    // Range:16G Bandwidth:62.5Hz
+    tx = 0b00001111;
+    HAL_I2C_Mem_Write(&hi2c1, BNOAddress, 0x08, I2C_MEMADD_SIZE_8BIT, &tx, 1, 100);
+
+    // Page Change to 1
+    tx = 1;
+    HAL_I2C_Mem_Write(&hi2c1, BNOAddress, BNO055_PAGE_ID_ADDR, I2C_MEMADD_SIZE_8BIT, &tx, 1, 100);
 }
 
 void BNO055GetCalibration() {
@@ -285,19 +312,23 @@ void setup() {
 }
 
 void main_app() {
+
     setup();
     for (size_t i = 0; i < 10; i++) {
         BNO055Check();
     }
-    BNO055SetUnit();                // 単位を設定
-    BNO055SetPowerModeAsNormal();   // 通常モードに設定
-    BNO055SetOperationModeAsNDOF(); // FusionモードのNDOFに設定
+    BNO055SetUnit();              // 単位を設定
+    BNO055SetPowerModeAsNormal(); // 通常モードに設定
+    // BNO055SetOperationModeAsNDOF(); // FusionモードのNDOFに設定
+    BNO055SetOperationModeAsAMG();
+    BNO055AccConfig();
     BNO055Init();
 
     while (1) {
-        BNO055readEuler();
+
+        // BNO055ReadEuler();
         BNO055ReadAcc();
-        BNO055ReadGyro();
-        HAL_Delay(50);
+        // BNO055ReadGyro();
+        HAL_Delay(2);
     }
 }
