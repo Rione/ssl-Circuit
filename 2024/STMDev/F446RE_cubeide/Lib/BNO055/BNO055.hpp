@@ -1,9 +1,11 @@
-#ifndef _LGIMU_V2_H_
-#define _LGIMU_V2_H_
+#ifndef __BNO055__
+#define __BNO055__
 
-#include "mbed.h"
-//
-#define BNOAddress (0x28 << 1) // GY-BNO055=0x29,Normal=0x28
+#include "main.h"
+#include "i2c.h"
+
+#define BNOAddress (0x28 << 1)
+
 // Register definitions
 /* Page id register definition */
 #define BNO055_PAGE_ID_ADDR 0x07
@@ -148,147 +150,11 @@
 #define OPERATION_MODE_NDOF_FMC_OFF 0x0B
 #define OPERATION_MODE_NDOF 0x0C
 
-typedef struct values {
-    int16_t rawx, rawy, rawz;
-    float x, y, z;
-} values;
-
-typedef struct angles {
-    int16_t rawroll, rawpitch, rawyaw;
-    float roll, pitch, yaw;
-} angles;
-
-typedef struct quaternion {
-    int16_t raww, rawx, rawy, rawz;
-    float w, x, y, z;
-} quaternion;
-
-typedef struct chip {
-    char id;
-    char accel;
-    char gyro;
-    char mag;
-    char sw[2];
-    char bootload;
-    char serial[16];
-} chip;
-
-/** Class for operating Bosch BNO055 sensor over I2C **/
 class BNO055 {
   public:
-    /** Create BNO055 instance **/
-    // BNO055(PinName SDA, PinName SCL);
-    BNO055(I2C *i2c);
-    /** Perform a power-on reset of the BNO055 **/
-    void reset();
-    /** Check that the BNO055 is connected and download the software details
-       and serial number of chip and store in ID structure **/
-    bool check();
-    /** Turn the external timing crystal on/off **/
-    void SetExternalCrystal(bool yn);
-    /** Set the operation mode of the sensor **/
-    void setmode(char mode);
-    /** Set the power mode of the sensor **/
-    void setpowermode(char mode);
-
-    /** Set the output units from the accelerometer, either MPERSPERS or MILLIG
-     * **/
-    void set_accel_units(char units);
-    /** Set the output units from the gyroscope, either DEG_PER_SEC or
-     * RAD_PER_SEC **/
-    void set_anglerate_units(char units);
-    /** Set the output units from the IMU, either DEGREES or RADIANS **/
-    void set_angle_units(char units);
-    /** Set the output units from the temperature sensor, either CENTIGRADE or
-     * FAHRENHEIT **/
-    void set_temp_units(char units);
-    /** Set the data output format to either WINDOWS or ANDROID **/
-    void set_orientation(char units);
-    /** Set the mapping of the exes/directions as per page 25 of datasheet
-        range 0-7, any value outside this will set the orientation to P1
-       (default at power up) **/
-    void set_mapping(char orient);
-
-    /** Get the current values from the accelerometer **/
-    void get_accel(void);
-    /** Get the current values from the gyroscope **/
-    void get_gyro(void);
-    /** Get the current values from the magnetometer **/
-    void get_mag(void);
-    /** Get the corrected linear acceleration **/
-    void get_lia(void);
-    /** Get the current gravity vector **/
-    void get_grv(void);
-    /** Get the output quaternion **/
-    void get_quat(void);
-    /** Get the current Euler angles **/
-    void get_angles(void);
-    /** Get the current temperature **/
-    void get_temp(void);
-
-    /** Read the calibration status register and store the result in the calib
-     * variable **/
-    void get_calib(void);
-    /** Read the offset and radius values into the calibration array**/
-    void read_calibration_data(void);
-    /** Write the contents of the calibration array into the registers **/
-    void write_calibration_data(void);
-
-    void init(void);
-
-    int16_t degBetween_signed(int16_t deg1, int16_t deg2);
-
-    float getDeg(void);
-
-    void setZero(void);
-
-    void setDeg(int16_t deg);
-    /** Structures containing 3-axis data for acceleration, rate of turn and
-       magnetic field. x,y,z are the scale floating point values and
-        rawx, rawy, rawz are the int16_t values read from the sensors **/
-    values accel, gyro, mag, lia, gravity;
-    /** Stucture containing the Euler angles as yaw, pitch, roll as scaled
-       floating point and rawyaw, rawroll & rollpitch as the int16_t values
-       loaded from the registers **/
-    angles euler;
-    /** Quaternion values as w,x,y,z (scaled floating point) and raww etc... as
-       int16_t loaded from the registers **/
-    quaternion quat;
-
-    /** Current contents of calibration status register **/
-    char calib;
-    /** Contents of the 22 registers containing offset and radius values used as
-     * calibration by the sensor **/
-    char calibration[22];
-    /** Structure containing sensor numbers, software version and chip UID **/
-    chip ID;
-    /** Current temperature **/
-    int temperature;
-
-    int16_t deg, front;
-    uint8_t velocity;
+    BNO055(I2C_HandleTypeDef *hi2c);
 
   private:
-    I2C *_i2c;
-    char rx, tx[2], address; // I2C variables
-    char rawdata[22];        // Temporary array for input data values
-    char op_mode;
-    char pwr_mode;
-    float accel_scale, rate_scale, angle_scale;
-    int temp_scale;
-
-    void readchar(char location) {
-        tx[0] = location;
-        _i2c->write(address, tx, 1, true);
-        _i2c->read(address, &rx, 1, false);
-    }
-
-    void writechar(char location, char value) {
-        tx[0] = location;
-        tx[1] = value;
-        _i2c->write(address, tx, 2);
-    }
-
-    void setpage(char value) { writechar(BNO055_PAGE_ID_ADDR, value); }
+    I2C_HandleTypeDef *_hi2c;
 };
 #endif
