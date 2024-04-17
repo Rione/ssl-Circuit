@@ -9,6 +9,8 @@
 #   2015-07-22 - first version
 # ------------------------------------------------
 
+.PHONY: show-includes
+
 ######################################
 # target
 ######################################
@@ -68,10 +70,13 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_adc.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c_ex.c \
-Core/Src/tim.c
+Core/Src/tim.c \
+$(wildcard Lib/**/*.c)
 
-
-CXX_SOURCES = $(wildcard src/**/*.cpp)
+# CPP sources
+CXX_SOURCES = $(wildcard src/**/*.cpp) \
+$(wildcard Lib/**/*.cpp)
+# ヘッダーファイルの検索パスを設定
 
 # ASM sources
 ASM_SOURCES =  \
@@ -140,12 +145,17 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include \
 -Isrc/app \
 -Isrc/ \
--Isrc/Lib/
+-ILib/\
+
+C_INCLUDES += $(shell find Lib -type d | sed 's/^/-I/') 
+
 
 # C++ includes
 CXX_INCLUDES = \
 $(C_INCLUDES) \
 -Iinclude/ \
+
+CXX_INCLUDES += $(shell find Lib -type d | sed 's/^/-I/') 
 
 
 # compile gcc flags
@@ -164,9 +174,9 @@ endif
 
 	
 
-# list of C++ objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(CXX_SOURCES:.cpp=.o)))
-vpath %.cpp $(sort $(dir $(CXX_SOURCES)))
+# # list of C++ objects
+# OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(CXX_SOURCES:.cpp=.o)))
+# vpath %.cpp $(sort $(dir $(CXX_SOURCES)))
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
@@ -203,8 +213,10 @@ vpath %.cpp $(sort $(dir $(CXX_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+# $(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR)
+# 	$(CXX) -c $(CXXFLAGS) -o $@ $<
 $(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR)
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 $(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
@@ -228,8 +240,10 @@ $(BUILD_DIR):
 #######################################
 clean:
 	-rm -fR $(BUILD_DIR)
-	echo "shell stmw"
 
+show-includes:
+	@echo "Included directories"
+	@echo $(CXX_INCLUDES)
 #######################################
 # dependencies
 #######################################
