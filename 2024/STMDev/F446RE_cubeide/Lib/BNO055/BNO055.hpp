@@ -2,6 +2,8 @@
 #define __BNO055__
 
 #include "main.h"
+#include "stdio.h"
+#include "Timer.hpp"
 #include "i2c.h"
 
 #define BNOAddress (0x28 << 1)
@@ -150,11 +152,47 @@
 #define OPERATION_MODE_NDOF_FMC_OFF 0x0B
 #define OPERATION_MODE_NDOF 0x0C
 
+typedef struct {
+    float yaw;
+    float pitch;
+    float roll;
+} euler_t;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} acc_t;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} gyro_t;
+
+typedef struct {
+    uint8_t sys;
+    uint8_t gyr;
+    uint8_t acc;
+    uint8_t mag;
+} calib_t;
+
 class BNO055 {
   public:
     BNO055(I2C_HandleTypeDef *hi2c);
+    void check();
+    void init();
+    void setPowerMode();
+    void setOperaitonMode(uint8_t mode);
+    void getCalibration();
+    void setUnit(bool acc, bool gyro, bool euler, bool temp);
+    void accConfig();
+    euler_t getEuler();
+    acc_t getAcc();
+    gyro_t getGyro();
 
   private:
     I2C_HandleTypeDef *_hi2c;
+    Timer _timer;
 };
 #endif

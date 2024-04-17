@@ -70,15 +70,13 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_adc.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c_ex.c \
-Core/Src/tim.c
+Core/Src/tim.c \
+$(wildcard Lib/**/*.c)
 
 # CPP sources
 CXX_SOURCES = $(wildcard src/**/*.cpp) \
 $(wildcard Lib/**/*.cpp)
 # ヘッダーファイルの検索パスを設定
-
-
-
 
 # ASM sources
 ASM_SOURCES =  \
@@ -149,6 +147,7 @@ C_INCLUDES =  \
 -Isrc/ \
 -ILib/\
 
+C_INCLUDES += $(shell find Lib -type d | sed 's/^/-I/') 
 
 
 # C++ includes
