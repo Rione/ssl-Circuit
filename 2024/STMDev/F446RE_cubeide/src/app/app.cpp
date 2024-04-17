@@ -33,11 +33,6 @@ void setup() {
     bno.setOperaitonMode(OPERATION_MODE_AMG);
     bno.accConfig();
     bno.init();
-
-    for (size_t i = 0; i < 100; i++) {
-        bno.getCalibration();
-        HAL_Delay(100);
-    }
 }
 
 void main_app() {
@@ -45,7 +40,7 @@ void main_app() {
     while (1) {
         timer.reset();
         acc_t acc = bno.getAcc();
-        printf("Acc: %.2f %.2f %.2f time:%ld\n", acc.x, acc.y, acc.z, timer.read_us());
+        printfDMA("Acc: %.2f %.2f %.2f time:%ld\n", acc.x, acc.y, acc.z, timer.read_us());
         HAL_Delay(20);
     }
 }

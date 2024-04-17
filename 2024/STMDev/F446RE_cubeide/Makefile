@@ -71,11 +71,11 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_adc.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c_ex.c \
 Core/Src/tim.c \
-$(wildcard Lib/**/*.c)
+$(wildcard Lib/**/*.c) \
 
 # CPP sources
 CXX_SOURCES = $(wildcard src/**/*.cpp) \
-$(wildcard Lib/**/*.cpp)
+$(wildcard Lib/**/*.cpp) \
 # ヘッダーファイルの検索パスを設定
 
 # ASM sources
@@ -242,8 +242,10 @@ clean:
 	-rm -fR $(BUILD_DIR)
 
 show-includes:
-	@echo "Included directories"
+	@echo "Included directories CPP"
 	@echo $(CXX_INCLUDES)
+	@echo "Included directories C"
+	@echo $(C_INCLUDES)
 #######################################
 # dependencies
 #######################################
