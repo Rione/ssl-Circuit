@@ -40,7 +40,7 @@ void main_app() {
     while (1) {
         timer.reset();
         acc_t acc = bno.getAcc();
-        printfDMA("Acc: %.2f %.2f %.2f time:%ld\n", acc.x, acc.y, acc.z, timer.read_us());
+        // printfDMA("Acc: %.2f %.2f %.2f time:%ld\n", acc.x, acc.y, acc.z, timer.read_us());
         HAL_Delay(20);
     }
 }

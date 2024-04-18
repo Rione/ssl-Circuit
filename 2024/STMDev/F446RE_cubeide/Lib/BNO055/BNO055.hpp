@@ -5,6 +5,7 @@
 #include "stdio.h"
 #include "Timer.hpp"
 #include "i2c.h"
+#include "DMAStream.h"
 
 #define BNOAddress (0x28 << 1)
 

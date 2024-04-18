@@ -117,7 +117,7 @@ euler_t BNO055::getEuler() {
     euler.yaw = int16_t(data[1] << 8 | data[0]) * angle_scale;
     euler.roll = int16_t(data[3] << 8 | data[2]) * angle_scale;
     euler.pitch = int16_t(data[5] << 8 | data[4]) * angle_scale;
-    // printf("Euler: %.2f %.2f %.2f time:%ld\n", euler.yaw, euler.roll, euler.pitch, _timer.read_us());
+    // printf("Euler: %.2f %.2f %.2f\n", euler.yaw, euler.roll, euler.pitch);
     return euler;
 }
 
@@ -128,7 +128,7 @@ acc_t BNO055::getAcc() {
     acc.x = int16_t(data[1] << 8 | data[0]) / 100.0f;
     acc.y = int16_t(data[3] << 8 | data[2]) / 100.0f;
     acc.z = int16_t(data[5] << 8 | data[4]) / 100.0f;
-    // printf("Acc: %.2f %.2f %.2f time:%ld\n", acc.x, acc.y, acc.z, _timer.read_us());
+    // printfDMA("Acc: %.2f %.2f %.2f\n", acc.x, acc.y, acc.z);
     return acc;
 }
 
@@ -139,7 +139,7 @@ gyro_t BNO055::getGyro() {
     gyro.x = int16_t(data[1] << 8 | data[0]) / 16.0f;
     gyro.y = int16_t(data[3] << 8 | data[2]) / 16.0f;
     gyro.z = int16_t(data[5] << 8 | data[4]) / 16.0f;
-    // printf("Gyro: %.2f %.2f %.2f time:%ld\n", gyro.x, gyro.y, gyro.z, _timer.read_us());
+    // printf("Gyro: %.2f %.2f %.2f\n", gyro.x, gyro.y, gyro.z);
     return gyro;
 }
 
