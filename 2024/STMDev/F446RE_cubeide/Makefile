@@ -250,6 +250,9 @@ show-includes:
 	@echo "Included directories C"
 	@echo $(C_INCLUDES)
 
+run:
+	make -j12
+	sh SerialFlash.sh
 
 
 #######################################
