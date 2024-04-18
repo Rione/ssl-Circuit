@@ -19,7 +19,7 @@ asm(".global _printf_float");
 
 static char dma_tx_buffer[USART2_TX_DMA_BUFFER_SIZE] = {0};
 
-static void printfDMA(const char *format, ...) {
+inline void printfDMA(const char *format, ...) {
     va_list args;
     va_start(args, format);
     vsnprintf(dma_tx_buffer, USART2_TX_DMA_BUFFER_SIZE, format, args);
