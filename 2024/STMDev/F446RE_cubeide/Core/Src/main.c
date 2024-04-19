@@ -120,8 +120,9 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM8_Init();
+  MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_TIM_Base_Start_IT(&htim10); // ハートビート用タイマー割り込みスタート
   /* USER CODE END 2 */
 
   /* Infinite loop */
