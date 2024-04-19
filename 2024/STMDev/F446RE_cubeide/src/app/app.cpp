@@ -7,6 +7,7 @@
 #include "BNO055.hpp"
 #include "DigitalInOut.hpp"
 
+
 CANBus can(&hcan1, 0x100);
 DigitalOut led0(LED0_GPIO_Port, LED0_Pin);
 DigitalOut led1(LED1_GPIO_Port, LED1_Pin);
@@ -48,7 +49,6 @@ void main_app() {
         can.send(canRecvData);
         led1 = !led1;
         led2 = !led2;
-        ledH = !ledH;
         printfDMA("Hello\n");
         HAL_Delay(100);
     }
