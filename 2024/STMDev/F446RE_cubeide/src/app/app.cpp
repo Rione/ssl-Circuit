@@ -10,9 +10,10 @@
 CANBus can(&hcan1, 0x100);
 DigitalOut led0(LED0_GPIO_Port, LED0_Pin);
 DigitalOut led1(LED1_GPIO_Port, LED1_Pin);
+
 CANBus::CANData canRecvData = {
     .stdId = 0x555,
-    .data = {1, 2, 0, 0, 0, 0, 0, 0},
+    .data = {100, 200, 0, 0, 0, 0, 0, 8},
 };
 
 BNO055 bno(&hi2c1);
@@ -23,6 +24,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         can.recv(canRecvData);
         canRecvData.stdId = 0x555;
         can.send(canRecvData);
+        led0 = !led0;
     }
 }
 
@@ -36,16 +38,19 @@ void setup() {
     bno.setOperaitonMode(OPERATION_MODE_AMG);
     bno.accConfig();
     bno.init();
+    can.init();
 }
 
 void main_app() {
     setup();
     while (1) {
-        timer.reset();
-        acc_t acc = bno.getAcc();
-        printfDMA("Acc: %.2f %.2f %.2f time:%ld\n", acc.x, acc.y, acc.z, timer.read_us());
-        HAL_Delay(20);
+        can.send(canRecvData);
+        // timer.reset();
+        // acc_t acc = bno.getAcc();
+        // printfDMA("Acc: %.2f %.2f %.2f time:%ld\n", acc.x, acc.y, acc.z, timer.read_us());
+        HAL_Delay(100);
         led1 = !led1;
+
         // HAL_Delay(100);
         // printfDMA("Hello\n");
     }
