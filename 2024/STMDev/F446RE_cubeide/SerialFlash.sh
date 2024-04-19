@@ -3,7 +3,7 @@
 # Macの場合
 if [[ $(uname) == "Darwin" ]]; then
     # /devディレクトリ内のシリアルポートを取得
-    serial_ports=$(ls /dev/cu.* /dev/tty.* 2>/dev/null)
+    serial_ports=$(ls /dev/cu.usb*  2>/dev/null)
 else
     # Ubuntuの場合
     serial_ports=$(ls /dev/ttyS* /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
@@ -31,4 +31,4 @@ echo $DIR_NAME
 binary_path="$CURRENT/build/$DIR_NAME.bin"
 
 # STM32_Programmer_CLIを使用して書き込みを行う
-STM32_Programmer_CLI -c port="$selected_port" -w "$binary_path" 0x08000000 -s
+STM32_Programmer_CLI -c port="$selected_port" br=460800 -w "$binary_path" 0x08000000 -s
