@@ -10,6 +10,7 @@
 CANBus can(&hcan1, 0x100);
 DigitalOut led0(LED0_GPIO_Port, LED0_Pin);
 DigitalOut led1(LED1_GPIO_Port, LED1_Pin);
+DigitalOut led2(LED2_GPIO_Port, LED2_Pin);
 
 CANBus::CANData canRecvData = {
     .stdId = 0x555,
@@ -45,13 +46,10 @@ void main_app() {
     setup();
     while (1) {
         can.send(canRecvData);
-        // timer.reset();
-        // acc_t acc = bno.getAcc();
-        // printfDMA("Acc: %.2f %.2f %.2f time:%ld\n", acc.x, acc.y, acc.z, timer.read_us());
-        HAL_Delay(100);
         led1 = !led1;
-
-        // HAL_Delay(100);
-        // printfDMA("Hello\n");
+        led2 = !led2;
+        ledH = !ledH;
+        printfDMA("Hello\n");
+        HAL_Delay(100);
     }
 }
