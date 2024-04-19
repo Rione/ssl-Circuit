@@ -5,8 +5,11 @@
 #include "Timer.hpp"
 #include "i2c.h"
 #include "BNO055.hpp"
+#include "DigitalInOut.hpp"
 
 CANBus can(&hcan1, 0x100);
+DigitalOut led0(LED0_GPIO_Port, LED0_Pin);
+DigitalOut led1(LED1_GPIO_Port, LED1_Pin);
 CANBus::CANData canRecvData = {
     .stdId = 0x555,
     .data = {1, 2, 0, 0, 0, 0, 0, 0},
@@ -42,5 +45,8 @@ void main_app() {
         acc_t acc = bno.getAcc();
         printfDMA("Acc: %.2f %.2f %.2f time:%ld\n", acc.x, acc.y, acc.z, timer.read_us());
         HAL_Delay(20);
+        led1 = !led1;
+        // HAL_Delay(100);
+        // printfDMA("Hello\n");
     }
 }
