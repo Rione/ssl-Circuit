@@ -1,4 +1,4 @@
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 1
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -51,87 +51,87 @@ ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 1
   21:Core/Src/main.c **** #include "usart.h"
   22:Core/Src/main.c **** #include "gpio.h"
   23:Core/Src/main.c **** 
-  24:Core/Src/main.c **** 
-  25:Core/Src/main.c **** /* Private includes ----------------------------------------------------------*/
-  26:Core/Src/main.c **** /* USER CODE BEGIN Includes */
-  27:Core/Src/main.c **** #include "app.hpp"
-  28:Core/Src/main.c **** /* USER CODE END Includes */
-  29:Core/Src/main.c **** 
-  30:Core/Src/main.c **** /* Private typedef -----------------------------------------------------------*/
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 2
+  24:Core/Src/main.c **** /* Private includes ----------------------------------------------------------*/
+  25:Core/Src/main.c **** /* USER CODE BEGIN Includes */
+  26:Core/Src/main.c **** #include "app.hpp"
+  27:Core/Src/main.c **** /* USER CODE END Includes */
+  28:Core/Src/main.c **** 
+  29:Core/Src/main.c **** /* Private typedef -----------------------------------------------------------*/
+  30:Core/Src/main.c **** /* USER CODE BEGIN PTD */
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 2
 
 
-  31:Core/Src/main.c **** /* USER CODE BEGIN PTD */
-  32:Core/Src/main.c **** 
-  33:Core/Src/main.c **** /* USER CODE END PTD */
-  34:Core/Src/main.c **** 
-  35:Core/Src/main.c **** /* Private define ------------------------------------------------------------*/
-  36:Core/Src/main.c **** /* USER CODE BEGIN PD */
-  37:Core/Src/main.c **** 
-  38:Core/Src/main.c **** /* USER CODE END PD */
-  39:Core/Src/main.c **** 
-  40:Core/Src/main.c **** /* Private macro -------------------------------------------------------------*/
-  41:Core/Src/main.c **** /* USER CODE BEGIN PM */
-  42:Core/Src/main.c **** 
-  43:Core/Src/main.c **** /* USER CODE END PM */
-  44:Core/Src/main.c **** 
-  45:Core/Src/main.c **** /* Private variables ---------------------------------------------------------*/
-  46:Core/Src/main.c **** 
-  47:Core/Src/main.c **** /* USER CODE BEGIN PV */
-  48:Core/Src/main.c **** 
-  49:Core/Src/main.c **** /* USER CODE END PV */
-  50:Core/Src/main.c **** 
-  51:Core/Src/main.c **** /* Private function prototypes -----------------------------------------------*/
-  52:Core/Src/main.c **** void SystemClock_Config(void);
-  53:Core/Src/main.c **** /* USER CODE BEGIN PFP */
-  54:Core/Src/main.c **** 
-  55:Core/Src/main.c **** /* USER CODE END PFP */
-  56:Core/Src/main.c **** 
-  57:Core/Src/main.c **** /* Private user code ---------------------------------------------------------*/
-  58:Core/Src/main.c **** /* USER CODE BEGIN 0 */
-  59:Core/Src/main.c **** 
-  60:Core/Src/main.c **** /* USER CODE END 0 */
-  61:Core/Src/main.c **** 
-  62:Core/Src/main.c **** /**
-  63:Core/Src/main.c ****  * @brief  The application entry point.
-  64:Core/Src/main.c ****  * @retval int
-  65:Core/Src/main.c ****  */
-  66:Core/Src/main.c **** int main(void) {
-  67:Core/Src/main.c ****     /* USER CODE BEGIN 1 */
-  68:Core/Src/main.c **** 
-  69:Core/Src/main.c ****     /* USER CODE END 1 */
-  70:Core/Src/main.c **** 
-  71:Core/Src/main.c ****     /* MCU Configuration--------------------------------------------------------*/
-  72:Core/Src/main.c **** 
-  73:Core/Src/main.c ****     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  74:Core/Src/main.c ****     HAL_Init();
-  75:Core/Src/main.c **** 
-  76:Core/Src/main.c ****     /* USER CODE BEGIN Init */
-  77:Core/Src/main.c **** 
-  78:Core/Src/main.c ****     /* USER CODE END Init */
-  79:Core/Src/main.c **** 
-  80:Core/Src/main.c ****     /* Configure the system clock */
-  81:Core/Src/main.c ****     SystemClock_Config();
-  82:Core/Src/main.c **** 
-  83:Core/Src/main.c ****     /* USER CODE BEGIN SysInit */
-  84:Core/Src/main.c **** 
-  85:Core/Src/main.c ****     /* USER CODE END SysInit */
-  86:Core/Src/main.c **** 
-  87:Core/Src/main.c ****     /* Initialize all configured peripherals */
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 3
+  31:Core/Src/main.c **** 
+  32:Core/Src/main.c **** /* USER CODE END PTD */
+  33:Core/Src/main.c **** 
+  34:Core/Src/main.c **** /* Private define ------------------------------------------------------------*/
+  35:Core/Src/main.c **** /* USER CODE BEGIN PD */
+  36:Core/Src/main.c **** 
+  37:Core/Src/main.c **** /* USER CODE END PD */
+  38:Core/Src/main.c **** 
+  39:Core/Src/main.c **** /* Private macro -------------------------------------------------------------*/
+  40:Core/Src/main.c **** /* USER CODE BEGIN PM */
+  41:Core/Src/main.c **** 
+  42:Core/Src/main.c **** /* USER CODE END PM */
+  43:Core/Src/main.c **** 
+  44:Core/Src/main.c **** /* Private variables ---------------------------------------------------------*/
+  45:Core/Src/main.c **** 
+  46:Core/Src/main.c **** /* USER CODE BEGIN PV */
+  47:Core/Src/main.c **** 
+  48:Core/Src/main.c **** /* USER CODE END PV */
+  49:Core/Src/main.c **** 
+  50:Core/Src/main.c **** /* Private function prototypes -----------------------------------------------*/
+  51:Core/Src/main.c **** void SystemClock_Config(void);
+  52:Core/Src/main.c **** /* USER CODE BEGIN PFP */
+  53:Core/Src/main.c **** 
+  54:Core/Src/main.c **** /* USER CODE END PFP */
+  55:Core/Src/main.c **** 
+  56:Core/Src/main.c **** /* Private user code ---------------------------------------------------------*/
+  57:Core/Src/main.c **** /* USER CODE BEGIN 0 */
+  58:Core/Src/main.c **** int data = 0;
+  59:Core/Src/main.c **** /* USER CODE END 0 */
+  60:Core/Src/main.c **** 
+  61:Core/Src/main.c **** /**
+  62:Core/Src/main.c ****  * @brief  The application entry point.
+  63:Core/Src/main.c ****  * @retval int
+  64:Core/Src/main.c ****  */
+  65:Core/Src/main.c **** int main(void) {
+  66:Core/Src/main.c ****     /* USER CODE BEGIN 1 */
+  67:Core/Src/main.c **** 
+  68:Core/Src/main.c ****     /* USER CODE END 1 */
+  69:Core/Src/main.c **** 
+  70:Core/Src/main.c ****     /* MCU Configuration--------------------------------------------------------*/
+  71:Core/Src/main.c **** 
+  72:Core/Src/main.c ****     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  73:Core/Src/main.c ****     HAL_Init();
+  74:Core/Src/main.c **** 
+  75:Core/Src/main.c ****     /* USER CODE BEGIN Init */
+  76:Core/Src/main.c **** 
+  77:Core/Src/main.c ****     /* USER CODE END Init */
+  78:Core/Src/main.c **** 
+  79:Core/Src/main.c ****     /* Configure the system clock */
+  80:Core/Src/main.c ****     SystemClock_Config();
+  81:Core/Src/main.c **** 
+  82:Core/Src/main.c ****     /* USER CODE BEGIN SysInit */
+  83:Core/Src/main.c **** 
+  84:Core/Src/main.c ****     /* USER CODE END SysInit */
+  85:Core/Src/main.c **** 
+  86:Core/Src/main.c ****     /* Initialize all configured peripherals */
+  87:Core/Src/main.c ****     MX_GPIO_Init();
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 3
 
 
-  88:Core/Src/main.c ****     MX_GPIO_Init();
-  89:Core/Src/main.c ****     MX_USART2_UART_Init();
-  90:Core/Src/main.c ****     /* USER CODE BEGIN 2 */
-  91:Core/Src/main.c **** 
-  92:Core/Src/main.c ****     /* USER CODE END 2 */
-  93:Core/Src/main.c **** 
-  94:Core/Src/main.c ****     /* Infinite loop */
-  95:Core/Src/main.c ****     /* USER CODE BEGIN WHILE */
-  96:Core/Src/main.c ****     while (1) {
-  97:Core/Src/main.c ****         HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-  98:Core/Src/main.c ****         HAL_Delay(500);
+  88:Core/Src/main.c ****     MX_USART2_UART_Init();
+  89:Core/Src/main.c ****     /* USER CODE BEGIN 2 */
+  90:Core/Src/main.c **** 
+  91:Core/Src/main.c ****     /* USER CODE END 2 */
+  92:Core/Src/main.c **** 
+  93:Core/Src/main.c ****     /* Infinite loop */
+  94:Core/Src/main.c ****     /* USER CODE BEGIN WHILE */
+  95:Core/Src/main.c ****     while (1) {
+  96:Core/Src/main.c ****         HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+  97:Core/Src/main.c ****         HAL_Delay(500);
+  98:Core/Src/main.c ****         data++;
   99:Core/Src/main.c ****         /* USER CODE END WHILE */
  100:Core/Src/main.c **** 
  101:Core/Src/main.c ****         /* USER CODE BEGIN 3 */
@@ -178,7 +178,7 @@ ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 1
  142:Core/Src/main.c **** /* USER CODE END 4 */
  143:Core/Src/main.c **** 
  144:Core/Src/main.c **** /**
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 4
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 4
 
 
  145:Core/Src/main.c ****  * @brief  This function is executed in case of error occurrence.
@@ -238,7 +238,7 @@ ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 1
   38:Drivers/CMSIS/Include/cmsis_gcc.h **** 
   39:Drivers/CMSIS/Include/cmsis_gcc.h **** /* CMSIS compiler specific defines */
   40:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __ASM
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 5
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 5
 
 
   41:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __ASM                                  __asm
@@ -298,7 +298,7 @@ ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 1
   95:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
   96:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
   97:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 6
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 6
 
 
   98:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_WRITE { uint32_t v; };
@@ -358,7 +358,7 @@ ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 1
   48              	.L2:
   49              	.LBE5:
   50              	.LBE4:
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 7
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 7
 
 
  152:Core/Src/main.c ****     while (1) {
@@ -418,7 +418,7 @@ ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 1
   97 001c 0693     		str	r3, [sp, #24]
  118:Core/Src/main.c ****     RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   98              		.loc 1 118 5 is_stmt 1 view .LVU14
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 8
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 8
 
 
  118:Core/Src/main.c ****     RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
@@ -478,7 +478,7 @@ ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 1
  134              		.loc 1 132 38 is_stmt 0 view .LVU33
  135 0042 4FF48062 		mov	r2, #1024
  136 0046 0492     		str	r2, [sp, #16]
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 9
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 9
 
 
  133:Core/Src/main.c **** 
@@ -527,8 +527,8 @@ ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 1
  173              		.fpu fpv4-sp-d16
  175              	main:
  176              	.LFB123:
-  66:Core/Src/main.c ****     /* USER CODE BEGIN 1 */
- 177              		.loc 1 66 16 view -0
+  65:Core/Src/main.c ****     /* USER CODE BEGIN 1 */
+ 177              		.loc 1 65 16 view -0
  178              		.cfi_startproc
  179              		@ Volatile: function does not return.
  180              		@ args = 0, pretend = 0, frame = 0
@@ -538,72 +538,92 @@ ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 1
  184              		.cfi_def_cfa_offset 8
  185              		.cfi_offset 3, -8
  186              		.cfi_offset 14, -4
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 10
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 10
 
 
-  74:Core/Src/main.c **** 
- 187              		.loc 1 74 5 view .LVU43
+  73:Core/Src/main.c **** 
+ 187              		.loc 1 73 5 view .LVU43
  188 0002 FFF7FEFF 		bl	HAL_Init
  189              	.LVL5:
-  81:Core/Src/main.c **** 
- 190              		.loc 1 81 5 view .LVU44
+  80:Core/Src/main.c **** 
+ 190              		.loc 1 80 5 view .LVU44
  191 0006 FFF7FEFF 		bl	SystemClock_Config
  192              	.LVL6:
-  88:Core/Src/main.c ****     MX_USART2_UART_Init();
- 193              		.loc 1 88 5 view .LVU45
+  87:Core/Src/main.c ****     MX_USART2_UART_Init();
+ 193              		.loc 1 87 5 view .LVU45
  194 000a FFF7FEFF 		bl	MX_GPIO_Init
  195              	.LVL7:
-  89:Core/Src/main.c ****     /* USER CODE BEGIN 2 */
- 196              		.loc 1 89 5 view .LVU46
+  88:Core/Src/main.c ****     /* USER CODE BEGIN 2 */
+ 196              		.loc 1 88 5 view .LVU46
  197 000e FFF7FEFF 		bl	MX_USART2_UART_Init
  198              	.LVL8:
  199              	.L10:
-  96:Core/Src/main.c ****         HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
- 200              		.loc 1 96 5 discriminator 1 view .LVU47
-  97:Core/Src/main.c ****         HAL_Delay(500);
- 201              		.loc 1 97 9 discriminator 1 view .LVU48
+  95:Core/Src/main.c ****         HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+ 200              		.loc 1 95 5 discriminator 1 view .LVU47
+  96:Core/Src/main.c ****         HAL_Delay(500);
+ 201              		.loc 1 96 9 discriminator 1 view .LVU48
  202 0012 0821     		movs	r1, #8
- 203 0014 0348     		ldr	r0, .L12
+ 203 0014 0548     		ldr	r0, .L12
  204 0016 FFF7FEFF 		bl	HAL_GPIO_TogglePin
  205              	.LVL9:
-  98:Core/Src/main.c ****         /* USER CODE END WHILE */
- 206              		.loc 1 98 9 discriminator 1 view .LVU49
+  97:Core/Src/main.c ****         data++;
+ 206              		.loc 1 97 9 discriminator 1 view .LVU49
  207 001a 4FF4FA70 		mov	r0, #500
  208 001e FFF7FEFF 		bl	HAL_Delay
  209              	.LVL10:
-  96:Core/Src/main.c ****         HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
- 210              		.loc 1 96 11 discriminator 1 view .LVU50
- 211 0022 F6E7     		b	.L10
- 212              	.L13:
- 213              		.align	2
- 214              	.L12:
- 215 0024 00040048 		.word	1207960576
- 216              		.cfi_endproc
- 217              	.LFE123:
- 219              		.text
- 220              	.Letext0:
- 221              		.file 3 "/opt/homebrew/Cellar/arm-none-eabi-gcc/10.3-2021.07/gcc/arm-none-eabi/include/machine/_de
- 222              		.file 4 "/opt/homebrew/Cellar/arm-none-eabi-gcc/10.3-2021.07/gcc/arm-none-eabi/include/sys/_stdint
- 223              		.file 5 "Drivers/CMSIS/Device/ST/STM32F3xx/Include/stm32f303x8.h"
- 224              		.file 6 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_rcc.h"
- 225              		.file 7 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h"
- 226              		.file 8 "Core/Inc/gpio.h"
- 227              		.file 9 "Core/Inc/usart.h"
- 228              		.file 10 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_gpio.h"
- 229              		.file 11 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_def.h"
- 230              		.file 12 "<built-in>"
-ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s 			page 11
+  98:Core/Src/main.c ****         /* USER CODE END WHILE */
+ 210              		.loc 1 98 9 discriminator 1 view .LVU50
+  98:Core/Src/main.c ****         /* USER CODE END WHILE */
+ 211              		.loc 1 98 13 is_stmt 0 discriminator 1 view .LVU51
+ 212 0022 034A     		ldr	r2, .L12+4
+ 213 0024 1368     		ldr	r3, [r2]
+ 214 0026 0133     		adds	r3, r3, #1
+ 215 0028 1360     		str	r3, [r2]
+  95:Core/Src/main.c ****         HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+ 216              		.loc 1 95 11 is_stmt 1 discriminator 1 view .LVU52
+ 217 002a F2E7     		b	.L10
+ 218              	.L13:
+ 219              		.align	2
+ 220              	.L12:
+ 221 002c 00040048 		.word	1207960576
+ 222 0030 00000000 		.word	.LANCHOR0
+ 223              		.cfi_endproc
+ 224              	.LFE123:
+ 226              		.global	data
+ 227              		.section	.bss.data,"aw",%nobits
+ 228              		.align	2
+ 229              		.set	.LANCHOR0,. + 0
+ 232              	data:
+ 233 0000 00000000 		.space	4
+ 234              		.text
+ 235              	.Letext0:
+ 236              		.file 3 "/opt/homebrew/Cellar/arm-none-eabi-gcc/10.3-2021.07/gcc/arm-none-eabi/include/machine/_de
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 11
+
+
+ 237              		.file 4 "/opt/homebrew/Cellar/arm-none-eabi-gcc/10.3-2021.07/gcc/arm-none-eabi/include/sys/_stdint
+ 238              		.file 5 "Drivers/CMSIS/Device/ST/STM32F3xx/Include/stm32f303x8.h"
+ 239              		.file 6 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_rcc.h"
+ 240              		.file 7 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h"
+ 241              		.file 8 "Core/Inc/gpio.h"
+ 242              		.file 9 "Core/Inc/usart.h"
+ 243              		.file 10 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_gpio.h"
+ 244              		.file 11 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_def.h"
+ 245              		.file 12 "<built-in>"
+ARM GAS  /var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s 			page 12
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 main.c
-/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s:18     .text.Error_Handler:0000000000000000 $t
-/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s:26     .text.Error_Handler:0000000000000000 Error_Handler
-/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s:59     .text.SystemClock_Config:0000000000000000 $t
-/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s:66     .text.SystemClock_Config:0000000000000000 SystemClock_Config
-/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s:168    .text.main:0000000000000000 $t
-/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s:175    .text.main:0000000000000000 main
-/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccdQyyzy.s:215    .text.main:0000000000000024 $d
+/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s:18     .text.Error_Handler:0000000000000000 $t
+/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s:26     .text.Error_Handler:0000000000000000 Error_Handler
+/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s:59     .text.SystemClock_Config:0000000000000000 $t
+/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s:66     .text.SystemClock_Config:0000000000000000 SystemClock_Config
+/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s:168    .text.main:0000000000000000 $t
+/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s:175    .text.main:0000000000000000 main
+/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s:221    .text.main:000000000000002c $d
+/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s:232    .bss.data:0000000000000000 data
+/var/folders/b2/rtzlkgjs6wl305mj2grjyhj80000gn/T//ccZPugnk.s:228    .bss.data:0000000000000000 $d
 
 UNDEFINED SYMBOLS
 memset

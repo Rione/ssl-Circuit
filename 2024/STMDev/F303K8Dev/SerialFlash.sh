@@ -28,7 +28,7 @@ CURRENT=$(cd $(dirname $0);pwd)
 echo $CURRENT
 DIR_NAME=`echo "$CURRENT" | sed -e 's/.*\/\([^\/]*\)$/\1/'`
 echo $DIR_NAME
-binary_path="$CURRENT/build/$DIR_NAME.bin"
+binary_path="$CURRENT/build/$DIR_NAME.elf"
 
 # STM32_Programmer_CLIを使用して書き込みを行う
 

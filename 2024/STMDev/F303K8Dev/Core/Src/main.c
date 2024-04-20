@@ -21,7 +21,6 @@
 #include "usart.h"
 #include "gpio.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "app.hpp"
@@ -56,7 +55,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int data = 0;
 /* USER CODE END 0 */
 
 /**
@@ -96,6 +95,7 @@ int main(void) {
     while (1) {
         HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
         HAL_Delay(500);
+        data++;
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
