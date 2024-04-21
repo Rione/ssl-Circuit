@@ -35,7 +35,7 @@ class CANBus {
         };
         if (HAL_CAN_ConfigFilter(hcan, &filter) != HAL_OK) Error_Handler();                             // フィルター設定
         if (HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK) Error_Handler(); // 受信割り込み設定
-        printf("- CAN init\n");
+        // printf("- CAN init\n");
     }
 
     void send(CANData &canData) {
@@ -47,9 +47,9 @@ class CANBus {
             txHeader.DLC = 8;
             txHeader.TransmitGlobalTime = DISABLE;
             HAL_CAN_AddTxMessage(hcan, &txHeader, canData.data, &TxMailbox);
-            printf("Mailbox:%ld\n", TxMailbox);
+            // printf("Mailbox:%ld\n", TxMailbox);
         }
-        printf("send\n");
+        // printf("send\n");
     }
 
     void recv(CANData &canData) {

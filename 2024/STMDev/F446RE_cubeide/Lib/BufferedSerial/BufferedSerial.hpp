@@ -10,6 +10,7 @@
  Initの順番をDMAが先になるようにする
  - MX_DMA_Init();
  - MX_USART2_UART_Init();
+ - DMAはCircularモードにする
 */
 
 class BufferedSerial {
@@ -39,15 +40,12 @@ class BufferedSerial {
         }
         uint8_t data = _rxBuf[rxBtm];
         rxBtm = (rxBtm + 1) % _rxBufSize;
+        // printf("top:%d btm:%d NDTR:%d data:%d\n", rxTop, rxBtm, _huart->hdmarx->Instance->NDTR, data);
         return data;
     }
 
     void write(uint8_t data) {
         HAL_UART_Transmit(_huart, &data, 1, 100);
-    }
-
-    void write(const char *data) {
-        HAL_UART_Transmit(_huart, (uint8_t *)data, strlen(data), 100);
     }
 
     void write(const uint8_t *data, uint16_t len) {
