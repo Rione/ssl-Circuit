@@ -67,8 +67,8 @@ void setup() {
 void main_app() {
     setup();
     while (1) {
-        if (serial5.available()) {
-            uint8_t data = serial5.read();
+        if (serial4.available()) {
+            uint8_t data = serial4.read();
             printfDMA("recive:%c\n", data); // なぜかDMAStreamを使わないとprintfが使えない
             led0 = !led0;
         }
