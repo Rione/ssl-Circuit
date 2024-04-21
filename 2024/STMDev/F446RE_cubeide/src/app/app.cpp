@@ -14,7 +14,9 @@ DigitalOut led0(LED0_GPIO_Port, LED0_Pin);
 DigitalOut led1(LED1_GPIO_Port, LED1_Pin);
 DigitalOut led2(LED2_GPIO_Port, LED2_Pin);
 PwmSingleOut ledH(&htim1, TIM_CHANNEL_1);
-BufferedSerial serial(&huart1, 128);
+BufferedSerial serial1(&huart1, 128);
+BufferedSerial serial4(&huart4, 128);
+BufferedSerial serial5(&huart5, 128);
 
 CANBus::CANData canRecvData = {
     .stdId = 0x555,
@@ -55,7 +57,9 @@ void setup() {
     bno.accConfig();
     bno.init();
     can.init();
-    serial.init();
+    serial1.init();
+    serial4.init();
+    serial5.init();
     ledH.init();
     printf("Hello World\n");
 }
@@ -63,8 +67,8 @@ void setup() {
 void main_app() {
     setup();
     while (1) {
-        if (serial.available()) {
-            uint8_t data = serial.read();
+        if (serial5.available()) {
+            uint8_t data = serial5.read();
             printfDMA("recive:%c\n", data); // なぜかDMAStreamを使わないとprintfが使えない
             led0 = !led0;
         }
