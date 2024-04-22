@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "app.hpp"
+#include "app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +55,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int data = 0;
 /* USER CODE END 0 */
 
 /**
@@ -92,10 +91,8 @@ int main(void) {
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
+    main_app();
     while (1) {
-        HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-        HAL_Delay(500);
-        data++;
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
