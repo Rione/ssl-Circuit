@@ -26,22 +26,29 @@ void setup() {
 void main_app() {
     setup();
     printf("starttt\n\r");
-
+    charge = 0;
     while (1) {
-        HAL_ADC_Start(&hadc1);
-        HAL_ADC_PollForConversion(&hadc1, 1000);
-        adc_Value = HAL_ADC_GetValue(&hadc1);
-        printf("adc_Value = %d", adc_Value);
-        HAL_UART_Transmit(&huart1, (uint8_t *)adc_Value, 1, 100);
-        HAL_Delay(50);
+        // HAL_ADC_Start(&hadc1);
+        // HAL_ADC_PollForConversion(&hadc1, 1000);
+        // adc_Value = HAL_ADC_GetValue(&hadc1);
+        // printf("adc_Value = %d", adc_Value);
+        // HAL_UART_Transmit(&huart1, (uint8_t *)adc_Value, 1, 100);
+        // HAL_Delay(50);
 
-        straightkicker.write(0.2);
-        chipkicker.write(0.3);
-        dribbler.write(0.08);
-        charge = 0;
+        // straightkicker.write(0.2);
+        // chipkicker.write(0.3);
+        // dribbler.write(0.08);
+        // charge = 0;
+        // debugled = !debugled;
+        // canled = !canled;
+        // HAL_Delay(500);
+        // data++;
+
+        dribbler.write(0.1);
         debugled = !debugled;
-        canled = !canled;
-        HAL_Delay(500);
-        data++;
+        HAL_Delay(1000);
+        dribbler.write(0.05);
+        debugled = !debugled;
+        HAL_Delay(1000);
     }
 }
