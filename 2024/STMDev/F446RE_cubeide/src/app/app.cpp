@@ -19,7 +19,7 @@ DigitalOut led2(LED2_GPIO_Port, LED2_Pin);
 PwmSingleOut ledH(&htim1, TIM_CHANNEL_1);
 BufferedSerial serial1(&huart1, 128); //pc
 BufferedSerial serial4(&huart4, 128); //xiao
-BufferedSerial serial5(&huart5, 128); //RasPi
+BufferedSerial serial5(&huart5, 256); //RasPi
 BNO055 bno(&hi2c1);
 
 
@@ -119,7 +119,7 @@ void RasRecvSerial() {
     const uint8_t dataSize = 10;         // データのサイズ
     static bool headerReceived = false; // ヘッダを受信したかどうか
     static uint8_t index = 0;           // 受信したデータのインデックスカウンター
-    static int8_t data[dataSize] = {0}; // 受信したデータ
+    static uint8_t data[dataSize] = {0}; // 受信したデータ
     
 
     while (serial5.available()) {
@@ -141,6 +141,7 @@ void RasRecvSerial() {
             if (index < dataSize) {
                 // データ受信
                 data[index] = receivedByte;
+                printf("data[%d]: %d\n", index, data[index]);
                 index++;
 
                 if(index==dataSize){
@@ -157,9 +158,11 @@ void RasRecvSerial() {
                     info.imuStatus = data[8];
                     info.emergency = data[9];
 
-                    printf("Ras Recieved:\n");
+                    // printf("Ras Recieved:\n");
+                    printf("motor[0]: %3d motor[1]: %3d motor[2]: %3d motor[3]: %3d\n", info.motor[0], info.motor[1], info.motor[2], info.motor[3]);
 
                     headerReceived = false; // 次のヘッダを待つ準備をする
+                    index = 0;               // インデックスをリセット
                 }
             } 
         }
@@ -185,7 +188,6 @@ void RasSendSerial(RobotInfo &info) {
     serial5.write(buffer, dataSize);
 
     printf("Ras Send:\n");
-    timer.reset();
 }
 
 void getSensors(RobotInfo &info) {
@@ -213,27 +215,38 @@ uint32_t readADC1() {
     return HAL_ADC_GetValue(&hadc1);
 }
 
+//can検証用
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+    if (can.getHcan() == &hcan1) {
+        can.recv(canRecvData);
+        canRecvData.stdId = 0x555;
+        can.send(canRecvData);
+        led0 = !led0;
+    }
+}
+
 
 //MD
 CANBus::CANData canSend_Date;
 static bool emergency = false;
 motorsVel motors;
 
-void sendMotorValues(){
+void sendMotorValues(motorsVel* motors){
     if(emergency==true){
-        motors.M1.vel = 0;
-        motors.M2.vel = 0;
-        motors.M3.vel = 0;
-        motors.M4.vel = 0;
+        motors->M1.vel = 0;
+        motors->M2.vel = 0;
+        motors->M3.vel = 0;
+        motors->M4.vel = 0;
     }
-    canSend_Date.data[0] = motors.M1.vel8_t.L;
-    canSend_Date.data[1] = motors.M1.vel8_t.H;
-    canSend_Date.data[2] = motors.M2.vel8_t.L;
-    canSend_Date.data[3] = motors.M2.vel8_t.H;
-    canSend_Date.data[4] = motors.M3.vel8_t.L;
-    canSend_Date.data[5] = motors.M3.vel8_t.H;
-    canSend_Date.data[6] = motors.M4.vel8_t.L;
-    canSend_Date.data[7] = motors.M4.vel8_t.H;
+    canSend_Date.stdId = 0x1AA;
+    canSend_Date.data[0] = motors->M1.vel8_t.L;
+    canSend_Date.data[1] = motors->M1.vel8_t.H;
+    canSend_Date.data[2] = motors->M2.vel8_t.L;
+    canSend_Date.data[3] = motors->M2.vel8_t.H;
+    canSend_Date.data[4] = motors->M3.vel8_t.L;
+    canSend_Date.data[5] = motors->M3.vel8_t.H;
+    canSend_Date.data[6] = motors->M4.vel8_t.L;
+    canSend_Date.data[7] = motors->M4.vel8_t.H;
 
     can.send(canSend_Date);
 }
@@ -243,17 +256,25 @@ void setVelocityZero() {
     motors.M2.vel = 0;
     motors.M3.vel = 0;
     motors.M4.vel = 0;
-    sendMotorValues();
+    sendMotorValues(&motors);
 }
 
 void setVelocity(RobotInfo &info, int8_t turn) {
-
+    
+    
     motors.M1.vel = info.motor[0] + turn;
     motors.M2.vel = info.motor[1] + turn;
     motors.M3.vel = info.motor[2] + turn;
     motors.M4.vel = info.motor[3] + turn;
+    
+    
+    // motors.M1.vel = 30;
+    // motors.M2.vel = 30;
+    // motors.M3.vel = 30;
+    // motors.M4.vel = 30;
 
-    sendMotorValues();
+    // printf("Motor[0]: %3d Motor[1]: %3d Motor[2]: %3d Motor[3]: %3d\n", motors.M1.vel, motors.M2.vel, motors.M3.vel, motors.M4.vel);
+    sendMotorValues(&motors);
 }
 
 
@@ -271,6 +292,7 @@ void setup() {
     serial5.init();
     ledH.init();
     printf("Hello World\n");
+
     setVelocityZero();
     timer.reset();
 
@@ -280,26 +302,32 @@ void setup() {
 void main_app() {
     setup();
     led0 = 1;
+    emergency = false;
 
     double voltage = 0;
     while (1) {
-        
-        /*
+
         if(timer.read_ms() > 15.0){
             RasSendSerial(info);
+            timer.reset();
         }   
         RasRecvSerial();
         setVelocity(info, 0);
-        */
-         
+        wait_ms(10);
+
+        /*
         voltage = readADC1() * 3.3 / 4095 *5.7;
         printf("ADC1: %f\n", voltage);
         HAL_Delay(1000);
+        */ 
 
+        // setVelocity(info, 0);
+        // led0 = !led0;
+        // // printf("%d\n", motors.M1.vel);
+        // HAL_Delay(1);
+    
 
-
-        
-        //printf("Hello World\n");
+        // printf("Hello World\n");
         // if (serial4.available()) {
         //     uint8_t data = serial4.read();
         //     printfDMA("recive:%c\n", data); // なぜかDMAStreamを使わないとprintfが使えない
