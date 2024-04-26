@@ -181,7 +181,7 @@ typedef struct {
 class BNO055 {
   public:
     BNO055(I2C_HandleTypeDef *hi2c);
-    void check();
+    bool check();
     void init();
     void setPowerMode();
     void setOperaitonMode(uint8_t mode);
