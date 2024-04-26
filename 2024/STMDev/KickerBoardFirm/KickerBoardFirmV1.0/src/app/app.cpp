@@ -16,17 +16,18 @@ DigitalOut canled(CAN_LED_GPIO_Port, CAN_LED_Pin);
 DigitalOut charge(CHARGE_GPIO_Port, CHARGE_Pin);
 PwmSingleOut straightkicker(&htim15, TIM_CHANNEL_2);
 PwmSingleOut chipkicker(&htim3, TIM_CHANNEL_2);
+PwmSingleOut chip(&htim15, TIM_CHANNEL_2);
 PwmSingleOutN dribbler(&htim1, TIM_CHANNEL_2);
 Timer timer;
 
 CANBus::CANData canRecvData = {
-    .stdId = 0x555,
-    .data = {0, 0, 0, 0, 0, 0, 0, 8},
+    .stdId = 0x01,
+    .data = {0, 0, 0, 0, 0, 0, 0, 0},
 };
 
 CANBus::CANData canPhotoData = {
-    .stdId = 0x555,
-    .data = {0, 0, 0, 0, 0, 0, 0, 8},
+    .stdId = 0x01,
+    .data = {0, 0, 0, 0, 0, 0, 0, 0},
 };
 
 void setup() {
@@ -35,62 +36,6 @@ void setup() {
     dribbler.init();
     can.init();
 }
-
-// typedef enum {
-//     IDLE,
-//     STRAIGHT_KICK_START,
-//     STRAIGHT_KICK_END,
-//     CHIP_KICK_START,
-//     DRIBBLE_START,
-//     DRIBBLE_MID,
-//     DRIBBLE_END
-// } KickState;
-
-// volatile int kickState = canRecvData.data[2];
-// volatile uint32_t tickCount = 0;
-
-// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-// if (htim->Instance == &htim6) {
-//     tickCount++;
-
-//     switch (kickState) {
-//     case 0x01:
-//         if (tickCount >= 20) { // 200ms後
-//             straightkicker.write(0);
-//             debugled = 1;
-//             tickCount = 0;
-//         }
-//         break;
-//     case 0x02:
-//         if (tickCount >= 100) { // 1000ms後
-//             chipkicker.write(0.5);
-//             tickCount = 0;
-//         }
-//         break;
-//     case 0x03:
-//         if (tickCount >= 50) { // 500ms後
-//             chipkicker.write(0);
-//             kickState = IDLE;
-//         }
-//         break;
-//     case 0x04:
-//         if (tickCount >= 100) { // 1000ms後
-//             dribbler.write(0.05);
-//             debugled = !debugled;
-//             tickCount = 0;
-//             kickState = DRIBBLE_MID;
-//         }
-//         break;
-//     case 0x05:
-//         if (tickCount >= 100) { // 1000ms後
-//             kickState = IDLE;
-//         }
-//         break;
-//     default:
-//         break;
-//     }
-// }
-// }
 
 void processData(int data) {
 }
@@ -102,14 +47,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     canled = !canled;
 }
 
-// void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-//     if (can.getHcan() == hcan) {
-//         can.recv(canRecvData);
-
-//     can.send(canRecvData);
-//     canled = !canled;
-// }
-
 void main_app() {
     setup();
     printf("starttt\n\r");
@@ -117,42 +54,27 @@ void main_app() {
     readADC();
     timer.reset();
     while (1) {
-        // processData(data);
         can.send(canPhotoData);
         uint8_t adcValue = readADC();
         updatePhotoDetection(adcValue);
-
-        // debugled = !debugled;
-        // HAL_Delay(300);
-        printfDMA("Std:%d\n",canRecvData.stdId);
         switch (canRecvData.stdId) {
         case 0x10:
-            // charge = 1;
             chargeDevice();
-            // debugled = !debugled;
             break;
         case 0x11:
             straightkick();
-            // debugled = !debugled;
-            // straightkicker.write(0.5);
             break;
         case 0x12:
-            debugled = 1;
             chipkick();
-            // chipkicker.write(0.5);
             break;
         case 0x13:
             dribble();
-            // dribbler.write(0.05);
-            //  debugled = !debugled;
             break;
-
         default:
             deactivateAll();
-   
+
             break;
         }
-        // printfDMA("%d\n", canRecvData.data[0]);
         HAL_Delay(100);
     }
 }
@@ -161,8 +83,8 @@ void chargeDevice() {
     if (timer.read_ms() > 5000) {
         charge = 1;
         printfDMA("charge start\n");
-        debugled = 1;
         HAL_Delay(3000);
+        charge = 0;
         timer.reset();
     }
 }
@@ -190,31 +112,32 @@ void updatePhotoDetection(int adcValue) {
 void straightkick() {
     if (timer.read_ms() > 3000) {
         straightkicker.write(0.5);
+        debugled = 1;
         printfDMA("straight\n");
-        HAL_Delay(200);
+        HAL_Delay(100);
+        straightkicker.write(0);
+        debugled = 0;
         timer.reset();
     }
 }
 
 void chipkick() {
     if (timer.read_ms() > 3000) {
-        chipkicker.write(0.5);
+        chipkicker.write(1);
+        debugled = 1;
         printfDMA("chipkick\n");
-        HAL_Delay(200);
+        HAL_Delay(100);
+        chipkicker.write(0);
+        debugled = 0;
         timer.reset();
     }
-    // chipkicker.write(0);
 }
 
 void dribble() {
     if (timer.read_ms() > 3000) {
         dribbler.write(0.1);
         printfDMA("Dribble\n");
-        // debugled = !debugled;
         HAL_Delay(100);
-        // dribbler.write(0.05);
-        // debugled = !debugled;
-        // HAL_Delay(1000);
         timer.reset();
     }
 }
