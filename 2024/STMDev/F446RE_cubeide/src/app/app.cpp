@@ -65,7 +65,9 @@ CANBus::CANData canRecvData = {
     .stdId = 0x555,
     .data = {100, 200, 0, 0, 0, 0, 0, 8},
 };
-Timer timer;
+
+Timer raspSendTimer;
+Timer mdSendTimer;
 
 inline __attribute__((always_inline)) void heartBeat() {
     static int i = 0;
@@ -263,11 +265,15 @@ void setVelocity(RobotInfo &info, int8_t turn) {
 }
 
 void setup() {
-    bno.check();
+    for (size_t i = 0; i < 10; i++) {
+        led1 = bno.check();
+        HAL_Delay(50);
+    }
     bno.setUnit(1, 1, 1, 0);
     bno.setPowerMode();
-    bno.setOperaitonMode(OPERATION_MODE_AMG);
-    bno.accConfig();
+    // bno.setOperaitonMode(OPERATION_MODE_AMG);
+    bno.setOperaitonMode(OPERATION_MODE_NDOF);
+    // bno.accConfig();
     bno.init();
     can.init();
     serial1.init();
@@ -277,46 +283,40 @@ void setup() {
     printf("Hello World\n");
 
     setVelocityZero();
-    timer.reset();
+    raspSendTimer.reset();
+    mdSendTimer.reset();
 }
 
 void main_app() {
     setup();
-    led0 = 1;
+    led0 = 0;
     emergency = false;
-
     double voltage = 0;
     while (1) {
-
-        if (timer.read_ms() > 15.0) {
+        if (raspSendTimer.read_ms() > 15.0) {
             RasSendSerial(info);
-            timer.reset();
+            raspSendTimer.reset();
         }
         RasRecvSerial();
-        setVelocity(info, 10);
-        wait_ms(10);
 
-        /*
-        voltage = readADC1() * 3.3 / 4095 *5.7;
-        printf("ADC1: %f\n", voltage);
-        HAL_Delay(1000);
-        */
+        voltage = readADC1() * 3.3 / 4095 * 5.7;
+        info.volt = (uint8_t)voltage;
+        info.photoSensor = 0;
+        info.isHoldBall = false;
 
-        // setVelocity(info, 0);
-        // led0 = !led0;
-        // // printf("%d\n", motors.M1.vel);
-        // HAL_Delay(1);
+        euler_t euler = bno.getEuler();
+        // info.imuDir = euler.yaw * RAD_TO_DEG;
+        float angle = (0 - euler.yaw);
+        if (angle < -PI) angle += TWO_PI;
 
-        // printf("Hello World\n");
-        // if (serial4.available()) {
-        //     uint8_t data = serial4.read();
-        //     printfDMA("recive:%c\n", data); // なぜかDMAStreamを使わないとprintfが使えない
-        //     led0 = !led0;
-        // }
-        // HAL_Delay(100);
-        // printf("Hello World\n");
+        int16_t turn = angle * 80;
+        if (turn > 100) turn = 80;
+        if (turn < -100) turn = -80;
+        printf("yaw:%f angle:%f turn:%d\n", euler.yaw, angle, (int8_t)turn);
 
-        // sensor
-        //
+        if (mdSendTimer.read_ms() > 10.0) {
+            setVelocity(info, turn);
+            mdSendTimer.reset();
+        }
     }
 }
