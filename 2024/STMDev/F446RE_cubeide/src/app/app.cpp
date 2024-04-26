@@ -10,30 +10,64 @@
 #include "CAN.hpp"
 #include "BNO055.hpp"
 
+#include "adc.h"
+
 CANBus can(&hcan1, 0x100);
 DigitalOut led0(LED0_GPIO_Port, LED0_Pin);
 DigitalOut led1(LED1_GPIO_Port, LED1_Pin);
 DigitalOut led2(LED2_GPIO_Port, LED2_Pin);
 PwmSingleOut ledH(&htim1, TIM_CHANNEL_1);
-BufferedSerial serial1(&huart1, 128);
-BufferedSerial serial4(&huart4, 128);
-BufferedSerial serial5(&huart5, 128);
+BufferedSerial serial1(&huart1, 128); // pc
+BufferedSerial serial4(&huart4, 128); // xiao
+BufferedSerial serial5(&huart5, 256); // RasPi
 BNO055 bno(&hi2c1);
+
+typedef struct {
+    int16_t motor[4];
+    // モータの速度,なぜかMDが2byte受信なのでint16_tにしている
+    float driblePower;
+    // ドリブルの強さ(速さ),getするデータはuint8_tだが、ハードウェアAPIが　floatになっているのでfloat型
+    float kickerPower[2];
+    // キッカーの強さ,getするデータはuint8_tだが、ハードウェアAPIが　floatになっているのでfloat型
+    volatile uint8_t volt;
+    // バッテリー電圧
+    uint16_t photoSensor;
+    // フォトセンサの1000分率
+    bool isHoldBall;
+    // ボールを持っているか
+    float imuDir;
+    float imuDirPrev;
+    // PID制御するためにfloat型である必要がある。
+    float imuTargetDir;
+    // PID制御するためにfloat型である必要がある。
+    bool emergency;
+    // 危険信号。ロボットに止まって欲しい時にtrueにする
+    uint8_t imuStatus;
+    // 0:正の角度 1:負の角度 2:IMU0度設定
+} RobotInfo;
+
+typedef union {
+    int16_t vel; // main value
+    struct {
+        char L : 8; // LOW byte
+        char H : 8; // High byte
+    } vel8_t;
+} moterOrder;
+
+typedef struct {
+    moterOrder M1;
+    moterOrder M2;
+    moterOrder M3;
+    moterOrder M4;
+} motorsVel;
 
 CANBus::CANData canRecvData = {
     .stdId = 0x555,
     .data = {100, 200, 0, 0, 0, 0, 0, 8},
 };
-Timer timer;
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-    if (can.getHcan() == &hcan1) {
-        can.recv(canRecvData);
-        canRecvData.stdId = 0x555;
-        can.send(canRecvData);
-        led0 = !led0;
-    }
-}
+Timer raspSendTimer;
+Timer mdSendTimer;
 
 inline __attribute__((always_inline)) void heartBeat() {
     static int i = 0;
@@ -49,33 +83,44 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     }
 }
 
+RobotInfo info = {
+    .motor = {0, 0, 0, 0},
+    .driblePower = 0,
+    .kickerPower = {0, 0},
+    .volt = 0,
+    .photoSensor = 0,
+    .isHoldBall = 0,
+    .imuDir = 0,
+    .emergency = 0,
+};
+
 // シリアルで受信したデータを処理するサンプル
 uint8_t dataFlame[8] = {0};
-void processPacket() {
+void RasRecvSerial() {
     /*
     0. ヘッダ0xAAを受信
-    1.
-    2.
-    3.
-    4.
-    5.
-    6.
-    7.
-    8.
-    9. チェックサムを受信
+    1. モーター1
+    2. モーター2
+    3. モーター3
+    4. モーター4
+    5. ドリブラー
+    6. ストレートキック
+    7. チップキック
+    8. imuターゲット
+    9. imu状態
+    10.emergency
      */
-    const uint8_t HEADER = 0xAA;        // 仮のヘッダ
-    const uint8_t dataSize = 8;         // データのサイズ
-    static bool headerReceived = false; // ヘッダを受信したかどうか
-    static uint8_t sum = 0;             // チェックサム計算用
-    static uint8_t index = 0;           // 受信したデータのインデックスカウンター
-    static int8_t data[dataSize] = {0}; // 受信したデータ
+    const uint8_t HEADER = 0xFF;         // 仮のヘッダ
+    const uint8_t dataSize = 10;         // データのサイズ
+    static bool headerReceived = false;  // ヘッダを受信したかどうか
+    static uint8_t index = 0;            // 受信したデータのインデックスカウンター
+    static uint8_t data[dataSize] = {0}; // 受信したデータ
 
-    while (serial1.available()) {
+    while (serial5.available()) {
         // 1バイト読み込み
-        uint8_t receivedByte = serial1.read();
+        uint8_t receivedByte = serial5.read();
+        printf("received %d\n ", receivedByte);
 
-        printf("headerReceived:%d, index:%d receivedByte:%d\n", headerReceived, index, receivedByte);
         if (!headerReceived) {
             index = 0;
             if (receivedByte == HEADER) {
@@ -90,33 +135,145 @@ void processPacket() {
             if (index < dataSize) {
                 // データ受信
                 data[index] = receivedByte;
+                printf("data[%d]: %d\n", index, data[index]);
                 index++;
-                // checksum
-                sum += receivedByte;
-            } else { // データ受信完了
-                // チェックサムの処理
-                uint8_t checksum = receivedByte;
-                if (sum == checksum) {
-                    // 受信成功
-                    printf("success: Check sum match %d == %d\n", sum, checksum);
-                    printf("data:{%3d %3d %3d %3d %3d %3d %3d %3d}\n", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
-                    memcpy(dataFlame, data, dataSize); // 受信データをコピー
-                } else {
-                    // 受信失敗
-                    printf("error: Check sum doesn't match %d != %d\n", sum, checksum);
+
+                if (index == dataSize) {
+                    // データ受信完了
+                    info.motor[0] = (int16_t)data[0] - 100.0;
+                    info.motor[1] = (int16_t)data[1] - 100.0;
+                    info.motor[2] = (int16_t)data[2] - 100.0;
+                    info.motor[3] = (int16_t)data[3] - 100.0;
+                    info.driblePower = (float)data[4] / 100;
+                    info.kickerPower[0] = (float)data[5] / 10; // ストレート
+                    info.kickerPower[1] = (float)data[6] / 10; // チップ
+                    info.imuTargetDir = (float)((int16_t)(data[7] * (data[8] % 2 == 1 ? -1 : 1)));
+
+                    info.imuStatus = data[8];
+                    info.emergency = data[9];
+
+                    // printf("Ras Recieved:\n");
+                    printf("motor[0]: %3d motor[1]: %3d motor[2]: %3d motor[3]: %3d\n", info.motor[0], info.motor[1], info.motor[2], info.motor[3]);
+
+                    headerReceived = false; // 次のヘッダを待つ準備をする
+                    index = 0;              // インデックスをリセット
                 }
-                headerReceived = false; // 次のヘッダを待つ準備をする
             }
         }
     }
 }
 
+void RasSendSerial(RobotInfo &info) {
+    const uint8_t dataSize = 6;     // データのサイズ
+    uint8_t buffer[dataSize] = {0}; // データ
+    uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
+
+    buffer[0] = info.volt;                 //
+    buffer[1] = info.photoSensor >> 8;     //
+    buffer[2] = info.photoSensor & 0x00FF; // LSB
+    buffer[3] = info.isHoldBall;
+    buffer[4] = (int16_t)(info.imuDir) >> 8;     // MSB
+    buffer[5] = (int16_t)(info.imuDir) & 0x00FF; // LSB
+
+    serial5.write(startBytes, 4);
+    serial5.write(buffer, dataSize);
+
+    printf("Ras Send:\n");
+}
+
+void getSensors(RobotInfo &info) {
+    // バッテリー電圧
+    info.volt = 160;
+    // フォトセンサ
+    info.photoSensor = 0;
+    // ボールを持っているか
+    info.isHoldBall = 0;
+    // IMUの角度
+    info.imuDir = 0;
+    // IMUの角度の変化
+    info.imuDirPrev = info.imuDir;
+    // IMUの目標角度
+    info.imuTargetDir = 0;
+    // IMUの状態
+    info.imuStatus = 0;
+}
+
+uint32_t readADC1() {
+    // ADCの値を読み取る
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 100);
+    return HAL_ADC_GetValue(&hadc1);
+}
+
+// can検証用
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+    if (can.getHcan() == &hcan1) {
+        can.recv(canRecvData);
+        canRecvData.stdId = 0x555;
+        can.send(canRecvData);
+        led0 = !led0;
+    }
+}
+
+// MD
+CANBus::CANData canSend_Date;
+static bool emergency = false;
+motorsVel motors;
+
+void sendMotorValues(motorsVel *motors) {
+    if (emergency == true) {
+        motors->M1.vel = 0;
+        motors->M2.vel = 0;
+        motors->M3.vel = 0;
+        motors->M4.vel = 0;
+    }
+    canSend_Date.stdId = 0x1AA;
+    canSend_Date.data[0] = motors->M1.vel8_t.L;
+    canSend_Date.data[1] = motors->M1.vel8_t.H;
+    canSend_Date.data[2] = motors->M2.vel8_t.L;
+    canSend_Date.data[3] = motors->M2.vel8_t.H;
+    canSend_Date.data[4] = motors->M3.vel8_t.L;
+    canSend_Date.data[5] = motors->M3.vel8_t.H;
+    canSend_Date.data[6] = motors->M4.vel8_t.L;
+    canSend_Date.data[7] = motors->M4.vel8_t.H;
+
+    can.send(canSend_Date);
+}
+
+void setVelocityZero() {
+    motors.M1.vel = 0;
+    motors.M2.vel = 0;
+    motors.M3.vel = 0;
+    motors.M4.vel = 0;
+    sendMotorValues(&motors);
+}
+
+void setVelocity(RobotInfo &info, int8_t turn) {
+
+    motors.M1.vel = info.motor[0] + turn;
+    motors.M2.vel = info.motor[1] + turn;
+    motors.M3.vel = info.motor[2] + turn;
+    motors.M4.vel = info.motor[3] + turn;
+
+    // motors.M1.vel = 30;
+    // motors.M2.vel = 30;
+    // motors.M3.vel = 30;
+    // motors.M4.vel = 30;
+
+    // printf("Motor[0]: %3d Motor[1]: %3d Motor[2]: %3d Motor[3]: %3d\n", motors.M1.vel, motors.M2.vel, motors.M3.vel, motors.M4.vel);
+    sendMotorValues(&motors);
+}
+
 void setup() {
-    bno.check();
+    for (size_t i = 0; i < 10; i++) {
+        led1 = bno.check();
+        HAL_Delay(50);
+    }
     bno.setUnit(1, 1, 1, 0);
     bno.setPowerMode();
-    bno.setOperaitonMode(OPERATION_MODE_AMG);
-    bno.accConfig();
+    // bno.setOperaitonMode(OPERATION_MODE_AMG);
+    bno.setOperaitonMode(OPERATION_MODE_NDOF);
+    // bno.accConfig();
     bno.init();
     can.init();
     serial1.init();
@@ -124,17 +281,42 @@ void setup() {
     serial5.init();
     ledH.init();
     printf("Hello World\n");
+
+    setVelocityZero();
+    raspSendTimer.reset();
+    mdSendTimer.reset();
 }
 
 void main_app() {
     setup();
+    led0 = 0;
+    emergency = false;
+    double voltage = 0;
     while (1) {
-        if (serial4.available()) {
-            uint8_t data = serial4.read();
-            printfDMA("recive:%c\n", data); // なぜかDMAStreamを使わないとprintfが使えない
-            led0 = !led0;
+        if (raspSendTimer.read_ms() > 15.0) {
+            RasSendSerial(info);
+            raspSendTimer.reset();
         }
-        HAL_Delay(100);
-        // printf("Hello World\n");
+        RasRecvSerial();
+
+        voltage = readADC1() * 3.3 / 4095 * 5.7;
+        info.volt = (uint8_t)voltage;
+        info.photoSensor = 0;
+        info.isHoldBall = false;
+
+        euler_t euler = bno.getEuler();
+        // info.imuDir = euler.yaw * RAD_TO_DEG;
+        float angle = (0 - euler.yaw);
+        if (angle < -PI) angle += TWO_PI;
+
+        int16_t turn = angle * 80;
+        if (turn > 100) turn = 80;
+        if (turn < -100) turn = -80;
+        printf("yaw:%f angle:%f turn:%d\n", euler.yaw, angle, (int8_t)turn);
+
+        if (mdSendTimer.read_ms() > 10.0) {
+            setVelocity(info, turn);
+            mdSendTimer.reset();
+        }
     }
 }

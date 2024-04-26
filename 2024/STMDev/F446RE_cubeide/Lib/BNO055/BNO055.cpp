@@ -3,13 +3,15 @@
 BNO055::BNO055(I2C_HandleTypeDef *hi2c) : _hi2c(hi2c) {
 }
 
-void BNO055::check() {
+bool BNO055::check() {
     uint8_t data;
     HAL_I2C_Mem_Read(_hi2c, BNOAddress, BNO055_CHIP_ID_ADDR, I2C_MEMADD_SIZE_8BIT, &data, 1, 100);
     if (data != 0xA0) {
         printf("BNO055 not found\n");
+        return false;
     } else {
         printf("BNO055 found\n");
+        return true;
     }
 }
 
