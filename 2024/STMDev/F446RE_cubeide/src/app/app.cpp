@@ -17,24 +17,22 @@ DigitalOut led0(LED0_GPIO_Port, LED0_Pin);
 DigitalOut led1(LED1_GPIO_Port, LED1_Pin);
 DigitalOut led2(LED2_GPIO_Port, LED2_Pin);
 PwmSingleOut ledH(&htim1, TIM_CHANNEL_1);
-BufferedSerial serial1(&huart1, 128); //pc
-BufferedSerial serial4(&huart4, 128); //xiao
-BufferedSerial serial5(&huart5, 256); //RasPi
+BufferedSerial serial1(&huart1, 128); // pc
+BufferedSerial serial4(&huart4, 128); // xiao
+BufferedSerial serial5(&huart5, 256); // RasPi
 BNO055 bno(&hi2c1);
-
-
 
 typedef struct {
     int16_t motor[4];
-    //モータの速度,なぜかMDが2byte受信なのでint16_tにしている
+    // モータの速度,なぜかMDが2byte受信なのでint16_tにしている
     float driblePower;
-    //ドリブルの強さ(速さ),getするデータはuint8_tだが、ハードウェアAPIが　floatになっているのでfloat型
+    // ドリブルの強さ(速さ),getするデータはuint8_tだが、ハードウェアAPIが　floatになっているのでfloat型
     float kickerPower[2];
     // キッカーの強さ,getするデータはuint8_tだが、ハードウェアAPIが　floatになっているのでfloat型
     volatile uint8_t volt;
-    //バッテリー電圧
+    // バッテリー電圧
     uint16_t photoSensor;
-    //フォトセンサの1000分率
+    // フォトセンサの1000分率
     bool isHoldBall;
     // ボールを持っているか
     float imuDir;
@@ -43,7 +41,7 @@ typedef struct {
     float imuTargetDir;
     // PID制御するためにfloat型である必要がある。
     bool emergency;
-    //危険信号。ロボットに止まって欲しい時にtrueにする
+    // 危険信号。ロボットに止まって欲しい時にtrueにする
     uint8_t imuStatus;
     // 0:正の角度 1:負の角度 2:IMU0度設定
 } RobotInfo;
@@ -63,13 +61,11 @@ typedef struct {
     moterOrder M4;
 } motorsVel;
 
-
 CANBus::CANData canRecvData = {
     .stdId = 0x555,
     .data = {100, 200, 0, 0, 0, 0, 0, 8},
 };
 Timer timer;
-
 
 inline __attribute__((always_inline)) void heartBeat() {
     static int i = 0;
@@ -85,19 +81,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     }
 }
 
-
 RobotInfo info = {
-      .motor = {0, 0, 0, 0},
-      .driblePower = 0,
-      .kickerPower = {0, 0},
-      .volt = 0,
-      .photoSensor = 0,
-      .isHoldBall = 0,
-      .imuDir = 0,
-      .emergency = 0, 
+    .motor = {0, 0, 0, 0},
+    .driblePower = 0,
+    .kickerPower = {0, 0},
+    .volt = 0,
+    .photoSensor = 0,
+    .isHoldBall = 0,
+    .imuDir = 0,
+    .emergency = 0,
 };
-
-
 
 // シリアルで受信したデータを処理するサンプル
 uint8_t dataFlame[8] = {0};
@@ -115,12 +108,11 @@ void RasRecvSerial() {
     9. imu状態
     10.emergency
      */
-    const uint8_t HEADER = 0xFF;        // 仮のヘッダ
+    const uint8_t HEADER = 0xFF;         // 仮のヘッダ
     const uint8_t dataSize = 10;         // データのサイズ
-    static bool headerReceived = false; // ヘッダを受信したかどうか
-    static uint8_t index = 0;           // 受信したデータのインデックスカウンター
+    static bool headerReceived = false;  // ヘッダを受信したかどうか
+    static uint8_t index = 0;            // 受信したデータのインデックスカウンター
     static uint8_t data[dataSize] = {0}; // 受信したデータ
-    
 
     while (serial5.available()) {
         // 1バイト読み込み
@@ -144,15 +136,15 @@ void RasRecvSerial() {
                 printf("data[%d]: %d\n", index, data[index]);
                 index++;
 
-                if(index==dataSize){
-                    // データ受信完了 
+                if (index == dataSize) {
+                    // データ受信完了
                     info.motor[0] = (int16_t)data[0] - 100.0;
                     info.motor[1] = (int16_t)data[1] - 100.0;
                     info.motor[2] = (int16_t)data[2] - 100.0;
                     info.motor[3] = (int16_t)data[3] - 100.0;
-                    info.driblePower = (float)data[4]/100;
-                    info.kickerPower[0] = (float)data[5]/10; //ストレート
-                    info.kickerPower[1] = (float)data[6]/10; //チップ
+                    info.driblePower = (float)data[4] / 100;
+                    info.kickerPower[0] = (float)data[5] / 10; // ストレート
+                    info.kickerPower[1] = (float)data[6] / 10; // チップ
                     info.imuTargetDir = (float)((int16_t)(data[7] * (data[8] % 2 == 1 ? -1 : 1)));
 
                     info.imuStatus = data[8];
@@ -162,27 +154,24 @@ void RasRecvSerial() {
                     printf("motor[0]: %3d motor[1]: %3d motor[2]: %3d motor[3]: %3d\n", info.motor[0], info.motor[1], info.motor[2], info.motor[3]);
 
                     headerReceived = false; // 次のヘッダを待つ準備をする
-                    index = 0;               // インデックスをリセット
+                    index = 0;              // インデックスをリセット
                 }
-            } 
+            }
         }
-        
-       
     }
 }
 
 void RasSendSerial(RobotInfo &info) {
-    const uint8_t dataSize = 6; //データのサイズ
-    uint8_t buffer[dataSize] = {0}; //データ
+    const uint8_t dataSize = 6;     // データのサイズ
+    uint8_t buffer[dataSize] = {0}; // データ
     uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
 
-    buffer[0] = info.volt; //
-    buffer[1] = info.photoSensor >> 8; //
+    buffer[0] = info.volt;                 //
+    buffer[1] = info.photoSensor >> 8;     //
     buffer[2] = info.photoSensor & 0x00FF; // LSB
     buffer[3] = info.isHoldBall;
     buffer[4] = (int16_t)(info.imuDir) >> 8;     // MSB
     buffer[5] = (int16_t)(info.imuDir) & 0x00FF; // LSB
-
 
     serial5.write(startBytes, 4);
     serial5.write(buffer, dataSize);
@@ -205,7 +194,6 @@ void getSensors(RobotInfo &info) {
     info.imuTargetDir = 0;
     // IMUの状態
     info.imuStatus = 0;
-
 }
 
 uint32_t readADC1() {
@@ -215,7 +203,7 @@ uint32_t readADC1() {
     return HAL_ADC_GetValue(&hadc1);
 }
 
-//can検証用
+// can検証用
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (can.getHcan() == &hcan1) {
         can.recv(canRecvData);
@@ -225,14 +213,13 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     }
 }
 
-
-//MD
+// MD
 CANBus::CANData canSend_Date;
 static bool emergency = false;
 motorsVel motors;
 
-void sendMotorValues(motorsVel* motors){
-    if(emergency==true){
+void sendMotorValues(motorsVel *motors) {
+    if (emergency == true) {
         motors->M1.vel = 0;
         motors->M2.vel = 0;
         motors->M3.vel = 0;
@@ -260,14 +247,12 @@ void setVelocityZero() {
 }
 
 void setVelocity(RobotInfo &info, int8_t turn) {
-    
-    
+
     motors.M1.vel = info.motor[0] + turn;
     motors.M2.vel = info.motor[1] + turn;
     motors.M3.vel = info.motor[2] + turn;
     motors.M4.vel = info.motor[3] + turn;
-    
-    
+
     // motors.M1.vel = 30;
     // motors.M2.vel = 30;
     // motors.M3.vel = 30;
@@ -276,8 +261,6 @@ void setVelocity(RobotInfo &info, int8_t turn) {
     // printf("Motor[0]: %3d Motor[1]: %3d Motor[2]: %3d Motor[3]: %3d\n", motors.M1.vel, motors.M2.vel, motors.M3.vel, motors.M4.vel);
     sendMotorValues(&motors);
 }
-
-
 
 void setup() {
     bno.check();
@@ -295,8 +278,6 @@ void setup() {
 
     setVelocityZero();
     timer.reset();
-
-
 }
 
 void main_app() {
@@ -307,25 +288,24 @@ void main_app() {
     double voltage = 0;
     while (1) {
 
-        if(timer.read_ms() > 15.0){
+        if (timer.read_ms() > 15.0) {
             RasSendSerial(info);
             timer.reset();
-        }   
+        }
         RasRecvSerial();
-        setVelocity(info, 0);
+        setVelocity(info, 10);
         wait_ms(10);
 
         /*
         voltage = readADC1() * 3.3 / 4095 *5.7;
         printf("ADC1: %f\n", voltage);
         HAL_Delay(1000);
-        */ 
+        */
 
         // setVelocity(info, 0);
         // led0 = !led0;
         // // printf("%d\n", motors.M1.vel);
         // HAL_Delay(1);
-    
 
         // printf("Hello World\n");
         // if (serial4.available()) {
@@ -336,8 +316,7 @@ void main_app() {
         // HAL_Delay(100);
         // printf("Hello World\n");
 
-
-        //sensor
+        // sensor
         //
     }
 }
