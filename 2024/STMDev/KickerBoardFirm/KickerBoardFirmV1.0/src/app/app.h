@@ -17,6 +17,8 @@ void dribble();
 void deactivateAll();
 int readADC();
 void updatePhotoDetection(int adcValue);
+void dribblestop();
+// void select();
 #ifdef __cplusplus
 }
 #endif

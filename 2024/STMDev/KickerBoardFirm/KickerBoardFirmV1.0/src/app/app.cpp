@@ -26,7 +26,7 @@ CANBus::CANData canRecvData = {
 };
 
 CANBus::CANData canPhotoData = {
-    .stdId = 0x01,
+    .stdId = 0x03,
     .data = {0, 0, 0, 0, 0, 0, 0, 0},
 };
 
@@ -49,15 +49,17 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 
 void main_app() {
     setup();
-    printf("starttt\n\r");
+    // printf("starttt\n\r");
     charge = 0;
     readADC();
     timer.reset();
     while (1) {
-        can.send(canPhotoData);
         uint8_t adcValue = readADC();
-        updatePhotoDetection(adcValue);
-        switch (canRecvData.stdId) {
+        // printfDMA("adcValue: %d\n", adcValue);
+        canPhotoData.data[2] = adcValue;
+        can.send(canPhotoData);
+        //  updatePhotoDetection(adcValue);
+        switch (canRecvData.data[3]) {
         case 0x10:
             chargeDevice();
             break;
@@ -70,9 +72,8 @@ void main_app() {
         case 0x13:
             dribble();
             break;
-        default:
-            deactivateAll();
-
+        case 0x14:
+            dribblestop();
             break;
         }
         HAL_Delay(100);
@@ -111,7 +112,7 @@ void updatePhotoDetection(int adcValue) {
 
 void straightkick() {
     if (timer.read_ms() > 3000) {
-        straightkicker.write(0.5);
+        straightkicker.write(1);
         debugled = 1;
         printfDMA("straight\n");
         HAL_Delay(100);
@@ -137,6 +138,17 @@ void dribble() {
     if (timer.read_ms() > 3000) {
         dribbler.write(0.1);
         printfDMA("Dribble\n");
+        HAL_Delay(1000);
+        dribbler.write(0.5);
+        HAL_Delay(1000);
+        timer.reset();
+    }
+}
+
+void dribblestop() {
+    if (timer.read_ms() > 3000) {
+        dribbler.write(0);
+        printfDMA("Dribblestop\n");
         HAL_Delay(100);
         timer.reset();
     }
