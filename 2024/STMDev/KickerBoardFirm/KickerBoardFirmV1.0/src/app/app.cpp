@@ -20,6 +20,13 @@ PwmSingleOut chip(&htim15, TIM_CHANNEL_2);
 PwmSingleOutN dribbler(&htim1, TIM_CHANNEL_2);
 Timer timer;
 Timer timer2;
+Timer statusSenderTimer;
+
+bool chargeFlag = false;
+bool straightFlag = false;
+bool chipFlag = false;
+bool dribbleFlag = false;
+bool dribbleStopFlag = false;
 
 CANBus::CANData canRecvData = {
     .stdId = 0x01,
@@ -45,6 +52,25 @@ void processData(int data) {
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (can.getHcan() == hcan) {
         can.recv(canRecvData);
+        switch (canRecvData.stdId) {
+        case 0x10:
+            chargeFlag = true;
+            break;
+        case 0x11:
+            straightFlag = true;
+            break;
+        case 0x12:
+            chipFlag = true;
+            break;
+        case 0x13:
+            dribbleFlag = true;
+            break;
+        case 0x14:
+            dribbleStopFlag = true;
+            break;
+        default:
+            break;
+        }
     }
     canled = !canled;
 }
@@ -56,30 +82,56 @@ void main_app() {
     readADC();
     timer.reset();
     timer2.reset();
+    statusSenderTimer.reset();
     while (1) {
         uint8_t adcValue = readADC();
         // printfDMA("adcValue: %d\n", adcValue);
-        canPhotoData.data[2] = adcValue;
-        can.send(canPhotoData);
-        //  updatePhotoDetection(adcValue);
-        switch (canRecvData.data[3]) {
-        case 0x10: // 16
-            chargeDevice();
-            break;
-        case 0x11: // 17
-            straightkick();
-            break;
-        case 0x12: // 18
-            chipkick();
-            break;
-        case 0x13: // 19
-            dribble();
-            break;
-        case 0x14: // 20
-            dribblestop();
-            break;
+        if (statusSenderTimer.read_ms() > 10) {
+            // 10msに1回送信
+            canPhotoData.stdId = 0x123;
+            canPhotoData.data[0] = adcValue;
+            can.send(canPhotoData);
+            statusSenderTimer.reset();
         }
-        HAL_Delay(100);
+        //  updatePhotoDetection(adcValue);
+        // switch (canRecvData.stdId) {
+        // case 0x10: // 16
+        //     chargeDevice();
+        //     break;
+        // case 0x11: // 17
+        //     straightkick();
+        //     break;
+        // case 0x12: // 18
+        //     chipkick();
+        //     break;
+        // case 0x13: // 19
+        //     dribble();
+        //     break;
+        // case 0x14: // 20
+        //     dribblestop();
+        //     break;
+        // }
+        if (chargeFlag) {
+            chargeDevice();
+            chargeFlag = false;
+        }
+        if (straightFlag) {
+            straightkick();
+            straightFlag = false;
+        }
+        if (chipFlag) {
+            chipkick();
+            chipFlag = false;
+        }
+        if (dribbleFlag) {
+            dribble();
+            dribbleFlag = false;
+        }
+        if (dribbleStopFlag) {
+            dribblestop();
+            dribbleStopFlag = false;
+        }
+        // HAL_Delay(100);
     }
 }
 
