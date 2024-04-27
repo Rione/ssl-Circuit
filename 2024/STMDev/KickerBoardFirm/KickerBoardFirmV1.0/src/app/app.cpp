@@ -19,6 +19,7 @@ PwmSingleOut chipkicker(&htim3, TIM_CHANNEL_2);
 PwmSingleOut chip(&htim15, TIM_CHANNEL_2);
 PwmSingleOutN dribbler(&htim1, TIM_CHANNEL_2);
 Timer timer;
+Timer timer2;
 
 CANBus::CANData canRecvData = {
     .stdId = 0x01,
@@ -54,6 +55,7 @@ void main_app() {
     charge = 0;
     readADC();
     timer.reset();
+    timer2.reset();
     while (1) {
         uint8_t adcValue = readADC();
         // printfDMA("adcValue: %d\n", adcValue);
@@ -61,19 +63,19 @@ void main_app() {
         can.send(canPhotoData);
         //  updatePhotoDetection(adcValue);
         switch (canRecvData.data[3]) {
-        case 0x10:
+        case 0x10: // 16
             chargeDevice();
             break;
-        case 0x11:
+        case 0x11: // 17
             straightkick();
             break;
-        case 0x12:
+        case 0x12: // 18
             chipkick();
             break;
-        case 0x13:
+        case 0x13: // 19
             dribble();
             break;
-        case 0x14:
+        case 0x14: // 20
             dribblestop();
             break;
         }
@@ -112,33 +114,31 @@ void updatePhotoDetection(int adcValue) {
 }
 
 void straightkick() {
-    if (timer.read_ms() > 3000) {
+    if (timer2.read_ms() > 3000) {
         straightkicker.write(1);
         debugled = 1;
         printfDMA("straight\n");
         HAL_Delay(100);
         straightkicker.write(0);
         debugled = 0;
-        timer.reset();
+        timer2.reset();
     }
 }
 
 void chipkick() {
-    if (timer.read_ms() > 3000) {
+    if (timer2.read_ms() > 3000) {
         chipkicker.write(1);
         debugled = 1;
         printfDMA("chipkick\n");
         HAL_Delay(100);
         chipkicker.write(0);
         debugled = 0;
-        timer.reset();
+        timer2.reset();
     }
 }
 
 void dribble() {
-    if (timer.read_ms() > 1000) {
-        dribbler.write(0.09);
-    }
+    dribbler.write(0.08);
 }
 
 void dribbleinit() {
@@ -151,12 +151,8 @@ void dribbleinit() {
 }
 
 void dribblestop() {
-    if (timer.read_ms() > 3000) {
-        dribbler.write(0);
-        printfDMA("Dribblestop\n");
-        HAL_Delay(100);
-        timer.reset();
-    }
+    dribbler.write(0.025);
+    printfDMA("Dribblestop\n");
 }
 
 void deactivateAll() {
