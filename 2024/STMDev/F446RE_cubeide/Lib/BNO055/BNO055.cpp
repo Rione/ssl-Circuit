@@ -167,14 +167,14 @@ float BNO055::getAttitude(){
     float attitude = euler.yaw - frontRadians;
     while (attitude < 0)
         attitude += TWO_PI;
-    while (attitude > TWO_PI)
+    while (attitude > PI)
         attitude -= TWO_PI;
     attitude = -attitude;
     return attitude;
 }
 
 // この関数を呼び出した時点で向いていた角度を正面の角度として設定する
-void setAttitudeZero(){
+void BNO055:: setAttitudeZero(){
     euler_t euler = getEuler();
     frontRadians = euler.yaw;
 }

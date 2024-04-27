@@ -333,6 +333,7 @@ void main_app() {
         info.volt = (uint8_t)voltage;
         info.photoSensor = 0;
         info.isHoldBall = false;
+        printf("Voltage: %d\n", info.volt);
 
         // euler_t euler = bno.getEuler();
         // // info.imuDir = euler.yaw * RAD_TO_DEG;
