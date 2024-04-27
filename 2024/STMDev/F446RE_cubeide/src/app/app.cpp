@@ -68,6 +68,10 @@ CANBus::CANData canRecvData = {
 
 Timer raspSendTimer;
 Timer mdSendTimer;
+Timer chargeTimer;
+
+bool isKicked = false;
+uint8_t photoSensorValue = 0;
 
 inline __attribute__((always_inline)) void heartBeat() {
     static int i = 0;
@@ -80,6 +84,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
         heartBeat(); // 1ms
     } else {
         // pass
+    }
+}
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+    if (can.getHcan() == hcan) {
+        can.recv(canRecvData);
+        led0 = !led0;
+
+        switch (canRecvData.stdId) {
+        case 0x123: // フォトセンサの値
+            photoSensorValue = canRecvData.data[0];
+            break;
+
+        default:
+            break;
+        }
     }
 }
 
@@ -140,10 +160,10 @@ void RasRecvSerial() {
 
                 if (index == dataSize) {
                     // データ受信完了
-                    info.motor[0] = ((int16_t)data[0] - 100.0) * 5/2; //-100 ~ 100 → -250 ~ 250
-                    info.motor[1] = ((int16_t)data[1] - 100.0) * 5/2;
-                    info.motor[2] = ((int16_t)data[2] - 100.0) * 5/2;
-                    info.motor[3] = ((int16_t)data[3] - 100.0) * 5/2;
+                    info.motor[0] = ((int16_t)data[0] - 100.0) * 5 / 2; //-100 ~ 100 → -250 ~ 250
+                    info.motor[1] = ((int16_t)data[1] - 100.0) * 5 / 2;
+                    info.motor[2] = ((int16_t)data[2] - 100.0) * 5 / 2;
+                    info.motor[3] = ((int16_t)data[3] - 100.0) * 5 / 2;
                     info.driblePower = (float)data[4] / 100;
                     info.kickerPower[0] = (float)data[5] / 10; // ストレート
                     info.kickerPower[1] = (float)data[6] / 10; // チップ
@@ -162,8 +182,6 @@ void RasRecvSerial() {
         }
     }
 }
-
-
 
 void RasSendSerial(RobotInfo &info) {
     const uint8_t dataSize = 6;     // データのサイズ
@@ -266,22 +284,54 @@ void setVelocity(RobotInfo &info, int8_t turn) {
     sendMotorValues(&motors);
 }
 
+// SubBoard functions
+
 uint8_t getCAN_TEC() {
     // CAN エラーステータスレジスタ(CAN_ESR)
     // 250回エラーが起きると止まる
     return ((hcan1.Instance->ESR) >> 16) & 0xFF;
 }
 
-void resetCAN_TEC_REC() {
-    // 31~16bitを0にする、それ以外は保持
-    // printf("reset:%d", (hcan1.Instance->ESR << 16) >> 16);
-    // hcan1.Instance->ESR = (hcan1.Instance->ESR << 16) >> 16;
-    // reset CANBUS
+void sendBoosterChargeStart() {
+    CANBus::CANData canSubBoardData = {
+        .stdId = 0x10,
+        .data = {0},
+    };
+    can.send(canSubBoardData);
 }
 
-void configureCAN() {
-    // 自動再送の無効化
-    // CLEAR_BIT(hcan1.Instance->MCR, CAN_MCR_NART);
+void sendKickPowerStraight(float power) {
+    CANBus::CANData canSubBoardData = {
+        .stdId = 0x12,
+        .data = {0},
+    };
+    can.send(canSubBoardData);
+    isKicked = true;
+}
+
+void sendKickPowerChip(float power) {
+    CANBus::CANData canSubBoardData = {
+        .stdId = 0x11,
+        .data = {0},
+    };
+    can.send(canSubBoardData);
+    isKicked = true;
+}
+
+void sendDribblePower(float power) {
+    CANBus::CANData canSubBoardData;
+    if (power > 0.5) {
+        canSubBoardData = {
+            .stdId = 0x13,
+            .data = {0},
+        };
+    } else {
+        canSubBoardData = {
+            .stdId = 0x14,
+            .data = {0},
+        };
+    }
+    can.send(canSubBoardData);
 }
 
 void setup() {
@@ -295,7 +345,6 @@ void setup() {
     bno.setOperaitonMode(OPERATION_MODE_NDOF);
     // bno.accConfig();
     bno.init();
-    configureCAN();
     can.init();
 
     serial1.init();
@@ -307,8 +356,12 @@ void setup() {
     setVelocityZero();
     raspSendTimer.reset();
     mdSendTimer.reset();
+    chargeTimer.reset();
 
     bno.setAttitudeZero();
+
+    wait_ms(1000);
+    sendBoosterChargeStart();
 }
 
 void main_app() {
@@ -317,6 +370,12 @@ void main_app() {
     emergency = false;
     double voltage = 0;
     while (1) {
+        info.photoSensor = photoSensorValue;
+        if (photoSensorValue < 250) {
+            info.isHoldBall = true;
+        } else {
+            info.isHoldBall = false;
+        }
         if (raspSendTimer.read_ms() > 15.0) {
             RasSendSerial(info);
             raspSendTimer.reset();
@@ -325,7 +384,7 @@ void main_app() {
         RasRecvSerial();
 
         // IMUの状態が2の時、IMUをリセットする
-        if (info.imuStatus == 2){
+        if (info.imuStatus == 2) {
             bno.setAttitudeZero();
         }
 
@@ -335,15 +394,11 @@ void main_app() {
         info.isHoldBall = false;
         printf("Voltage: %d\n", info.volt);
 
-        // euler_t euler = bno.getEuler();
-        // // info.imuDir = euler.yaw * RAD_TO_DEG;
-        // float angle = (0 - euler.yaw);
-        // if (angle < -PI) angle += TWO_PI;
         float angle = bno.getAttitude();
         int16_t turn = angle * 80;
         if (turn > 100) turn = 80;
         if (turn < -100) turn = -80;
-        printf("angle:%f turn:%d\n",angle, (int8_t)turn);
+        printf("angle:%f turn:%d\n", angle, (int8_t)turn);
 
         if (mdSendTimer.read_ms() > 2.0) {
             setVelocity(info, turn);
@@ -360,5 +415,25 @@ void main_app() {
             // }
             // printf("\n");
         }
+
+        // Kicker
+        if (info.kickerPower[0] > 0 || info.kickerPower[1] > 0) {
+            // キック。ストレートを優先したい
+            if (info.kickerPower[0] > 0) { // ストレート
+                sendKickPowerStraight(info.kickerPower[0]);
+            } else if (info.kickerPower[1] > 0) { // チップ
+                sendKickPowerChip(info.kickerPower[1]);
+            }
+            chargeTimer.reset();
+            isKicked = true;
+        }
+        // 充電
+        if (isKicked && chargeTimer.read_ms() > 500) {
+            sendBoosterChargeStart();
+            isKicked = false;
+        }
+
+        // ドリブル
+        sendDribblePower(info.driblePower);
     }
 }
