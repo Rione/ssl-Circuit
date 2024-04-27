@@ -140,10 +140,10 @@ void RasRecvSerial() {
 
                 if (index == dataSize) {
                     // データ受信完了
-                    info.motor[0] = (int16_t)data[0] - 100.0;
-                    info.motor[1] = (int16_t)data[1] - 100.0;
-                    info.motor[2] = (int16_t)data[2] - 100.0;
-                    info.motor[3] = (int16_t)data[3] - 100.0;
+                    info.motor[0] = ((int16_t)data[0] - 100.0) * 5/2; //-100 ~ 100 → -250 ~ 250
+                    info.motor[1] = ((int16_t)data[1] - 100.0) * 5/2;
+                    info.motor[2] = ((int16_t)data[2] - 100.0) * 5/2;
+                    info.motor[3] = ((int16_t)data[3] - 100.0) * 5/2;
                     info.driblePower = (float)data[4] / 100;
                     info.kickerPower[0] = (float)data[5] / 10; // ストレート
                     info.kickerPower[1] = (float)data[6] / 10; // チップ
@@ -162,6 +162,8 @@ void RasRecvSerial() {
         }
     }
 }
+
+
 
 void RasSendSerial(RobotInfo &info) {
     const uint8_t dataSize = 6;     // データのサイズ
@@ -183,7 +185,7 @@ void RasSendSerial(RobotInfo &info) {
 
 void getSensors(RobotInfo &info) {
     // バッテリー電圧
-    info.volt = 160;
+    info.volt = 0;
     // フォトセンサ
     info.photoSensor = 0;
     // ボールを持っているか
@@ -305,6 +307,8 @@ void setup() {
     setVelocityZero();
     raspSendTimer.reset();
     mdSendTimer.reset();
+
+    bno.setAttitudeZero();
 }
 
 void main_app() {
@@ -317,37 +321,43 @@ void main_app() {
             RasSendSerial(info);
             raspSendTimer.reset();
         }
+
         RasRecvSerial();
 
-        voltage = readADC1() * 3.3 / 4095 * 5.7;
+        // IMUの状態が2の時、IMUをリセットする
+        if (info.imuStatus == 2){
+            bno.setAttitudeZero();
+        }
+
+        voltage = readADC1() * 3.3 / 4095 * 57;
         info.volt = (uint8_t)voltage;
         info.photoSensor = 0;
         info.isHoldBall = false;
 
-        euler_t euler = bno.getEuler();
-        // info.imuDir = euler.yaw * RAD_TO_DEG;
-        float angle = (0 - euler.yaw);
-        if (angle < -PI) angle += TWO_PI;
-
+        // euler_t euler = bno.getEuler();
+        // // info.imuDir = euler.yaw * RAD_TO_DEG;
+        // float angle = (0 - euler.yaw);
+        // if (angle < -PI) angle += TWO_PI;
+        float angle = bno.getAttitude();
         int16_t turn = angle * 80;
         if (turn > 100) turn = 80;
         if (turn < -100) turn = -80;
-        printf("yaw:%f angle:%f turn:%d\n", euler.yaw, angle, (int8_t)turn);
+        printf("angle:%f turn:%d\n",angle, (int8_t)turn);
 
         if (mdSendTimer.read_ms() > 2.0) {
             setVelocity(info, turn);
             mdSendTimer.reset();
             // print CAN TEX(23bit to 16bit)を取り出して表示
-            printf("TEC:%d\n", getCAN_TEC());
+            // printf("TEC:%d\n", getCAN_TEC());
             // print REC as bit
-            if (getCAN_TEC() > 230) {
-                resetCAN_TEC_REC();
-            }
-            printf("TECb:\n");
-            for (int i = 0; i < 32; i++) {
-                printf("%d", (hcan1.Instance->ESR >> i) & 1);
-            }
-            printf("\n");
+            // if (getCAN_TEC() > 230) {
+            //     resetCAN_TEC_REC();
+            // }
+            // printf("TECb:\n");
+            // for (int i = 0; i < 32; i++) {
+            //     printf("%d", (hcan1.Instance->ESR >> i) & 1);
+            // }
+            // printf("\n");
         }
     }
 }
