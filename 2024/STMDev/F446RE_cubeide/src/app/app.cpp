@@ -119,23 +119,23 @@ void RasRecvSerial() {
     while (serial5.available()) {
         // 1バイト読み込み
         uint8_t receivedByte = serial5.read();
-        printf("received %d\n ", receivedByte);
+        // printf("received %d\n ", receivedByte);
 
         if (!headerReceived) {
             index = 0;
             if (receivedByte == HEADER) {
                 // ヘッダを受信したらデータの受信を開始
                 headerReceived = true; // ヘッダを受信したフラグを立てる
-                printf("header received %d\n ", receivedByte);
+                // printf("header received %d\n ", receivedByte);
             } else {
                 headerReceived = false; // ヘッダではないのでフラグをリセット
-                printf("error: Header is not received %d\n", receivedByte);
+                // printf("error: Header is not received %d\n", receivedByte);
             }
         } else { // ヘッダを受信した後の処理
             if (index < dataSize) {
                 // データ受信
                 data[index] = receivedByte;
-                printf("data[%d]: %d\n", index, data[index]);
+                // printf("data[%d]: %d\n", index, data[index]);
                 index++;
 
                 if (index == dataSize) {
@@ -178,7 +178,7 @@ void RasSendSerial(RobotInfo &info) {
     serial5.write(startBytes, 4);
     serial5.write(buffer, dataSize);
 
-    printf("Ras Send:\n");
+    // printf("Ras Send:\n");
 }
 
 void getSensors(RobotInfo &info) {
@@ -264,6 +264,17 @@ void setVelocity(RobotInfo &info, int8_t turn) {
     sendMotorValues(&motors);
 }
 
+uint8_t getCAN_TEC() {
+    // CAN エラーステータスレジスタ(CAN_ESR)
+    // 250回エラーが起きると止まる
+    return ((hcan1.Instance->ESR) >> 16) & 0xFF;
+}
+
+void configureCAN() {
+    // 自動再送の無効化
+    // CLEAR_BIT(hcan1.Instance->MCR, CAN_MCR_NART);
+}
+
 void setup() {
     for (size_t i = 0; i < 10; i++) {
         led1 = bno.check();
@@ -275,7 +286,9 @@ void setup() {
     bno.setOperaitonMode(OPERATION_MODE_NDOF);
     // bno.accConfig();
     bno.init();
+    configureCAN();
     can.init();
+
     serial1.init();
     serial4.init();
     serial5.init();
@@ -317,6 +330,8 @@ void main_app() {
         if (mdSendTimer.read_ms() > 10.0) {
             setVelocity(info, turn);
             mdSendTimer.reset();
+            // print CAN TEX(23bit to 16bit)を取り出して表示
+            printf("TEC:%d\n", );
         }
     }
 }
