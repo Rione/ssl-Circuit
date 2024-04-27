@@ -35,6 +35,7 @@ void setup() {
     chipkicker.init();
     dribbler.init();
     can.init();
+    dribbleinit();
 }
 
 void processData(int data) {
@@ -135,14 +136,18 @@ void chipkick() {
 }
 
 void dribble() {
-    if (timer.read_ms() > 3000) {
-        dribbler.write(0.1);
-        printfDMA("Dribble\n");
-        HAL_Delay(1000);
-        dribbler.write(0.5);
-        HAL_Delay(1000);
-        timer.reset();
+    if (timer.read_ms() > 1000) {
+        dribbler.write(0.09);
     }
+}
+
+void dribbleinit() {
+    dribbler.write(0.1);
+    debugled = !debugled;
+    HAL_Delay(1000);
+    dribbler.write(0.05);
+    debugled = !debugled;
+    HAL_Delay(1000);
 }
 
 void dribblestop() {
