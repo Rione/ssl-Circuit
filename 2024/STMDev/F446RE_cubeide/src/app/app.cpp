@@ -270,6 +270,14 @@ uint8_t getCAN_TEC() {
     return ((hcan1.Instance->ESR) >> 16) & 0xFF;
 }
 
+void resetCAN_TEC_REC() {
+    // 31~16bitを0にする、それ以外は保持
+    // printf("reset:%d", (hcan1.Instance->ESR << 16) >> 16);
+    // hcan1.Instance->ESR = (hcan1.Instance->ESR << 16) >> 16;
+    // reset CANBUS
+    
+}
+
 void configureCAN() {
     // 自動再送の無効化
     // CLEAR_BIT(hcan1.Instance->MCR, CAN_MCR_NART);
@@ -331,7 +339,16 @@ void main_app() {
             setVelocity(info, turn);
             mdSendTimer.reset();
             // print CAN TEX(23bit to 16bit)を取り出して表示
-            printf("TEC:%d\n", );
+            printf("TEC:%d\n", getCAN_TEC());
+            // print REC as bit
+            if (getCAN_TEC() > 230) {
+                resetCAN_TEC_REC();
+            }
+            printf("TECb:\n");
+            for (int i = 0; i < 32; i++) {
+                printf("%d", (hcan1.Instance->ESR >> i) & 1);
+            }
+            printf("\n");
         }
     }
 }
