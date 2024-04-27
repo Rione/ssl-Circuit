@@ -275,7 +275,6 @@ void resetCAN_TEC_REC() {
     // printf("reset:%d", (hcan1.Instance->ESR << 16) >> 16);
     // hcan1.Instance->ESR = (hcan1.Instance->ESR << 16) >> 16;
     // reset CANBUS
-    
 }
 
 void configureCAN() {
@@ -335,7 +334,7 @@ void main_app() {
         if (turn < -100) turn = -80;
         printf("yaw:%f angle:%f turn:%d\n", euler.yaw, angle, (int8_t)turn);
 
-        if (mdSendTimer.read_ms() > 10.0) {
+        if (mdSendTimer.read_ms() > 2.0) {
             setVelocity(info, turn);
             mdSendTimer.reset();
             // print CAN TEX(23bit to 16bit)を取り出して表示
