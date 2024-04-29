@@ -71,8 +71,10 @@ void Error_Handler(void);
 #define SWCLK_GPIO_Port GPIOA
 #define CAN_LED_Pin GPIO_PIN_15
 #define CAN_LED_GPIO_Port GPIOA
-#define LED0_Pin GPIO_PIN_3
-#define LED0_GPIO_Port GPIOB
+#define DEBUG_LED_Pin GPIO_PIN_3
+#define DEBUG_LED_GPIO_Port GPIOB
+#define CHARGE_Pin GPIO_PIN_7
+#define CHARGE_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
