@@ -159,3 +159,26 @@ void BNO055::getCalibration() {
     calib.mag = (data >> 0) & 0x03;
     printf("Calibration sys:%d gyr:%d acc:%d mag:%d\n", calib.sys, calib.gyr, calib.acc, calib.mag);
 }
+
+// setAttitudeで設定した正面の角度を基準に相対角度を出す
+float BNO055::getAttitude(){
+    //frontとの差
+    euler_t euler = getEuler();
+    float attitude = euler.yaw - frontRadians;
+    while (attitude < 0)
+        attitude += TWO_PI;
+    while (attitude > PI)
+        attitude -= TWO_PI;
+    attitude = -attitude;
+    return attitude;
+}
+
+// この関数を呼び出した時点で向いていた角度を正面の角度として設定する
+void BNO055:: setAttitudeZero(){
+    euler_t euler = getEuler();
+    frontRadians = euler.yaw;
+}
+
+void BNO055::setAngle(float rad){
+    frontRadians = getAttitude() + rad;
+}

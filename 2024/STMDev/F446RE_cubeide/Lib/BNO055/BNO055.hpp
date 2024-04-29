@@ -6,6 +6,7 @@
 #include "Timer.hpp"
 #include "i2c.h"
 #include "DMAStream.h"
+#include "MyMath.hpp"
 
 #define BNOAddress (0x28 << 1)
 
@@ -188,9 +189,16 @@ class BNO055 {
     void getCalibration();
     void setUnit(bool acc, bool gyro, bool euler, bool temp);
     void accConfig();
+
     euler_t getEuler();
     acc_t getAcc();
     gyro_t getGyro();
+
+    float getAttitude();
+    void setAttitudeZero();
+    void setAngle(float rad);
+
+    float frontRadians;
 
   private:
     I2C_HandleTypeDef *_hi2c;
