@@ -72,6 +72,7 @@ Timer chargeTimer;
 
 bool isKicked = false;
 uint8_t photoSensorValue = 0;
+bool imuDirEnable = true;
 
 inline __attribute__((always_inline)) void heartBeat() {
     static int i = 0;
@@ -225,15 +226,15 @@ uint32_t readADC1() {
     return HAL_ADC_GetValue(&hadc1);
 }
 
-// can検証用
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-    if (can.getHcan() == &hcan1) {
-        can.recv(canRecvData);
-        canRecvData.stdId = 0x555;
-        can.send(canRecvData);
-        led0 = !led0;
-    }
-}
+// // can検証用
+// void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+//     if (can.getHcan() == &hcan1) {
+//         can.recv(canRecvData);
+//         canRecvData.stdId = 0x555;
+//         can.send(canRecvData);
+//         led0 = !led0;
+//     }
+// }
 
 // MD
 CANBus::CANData canSend_Date;
@@ -371,6 +372,7 @@ void main_app() {
     double voltage = 0;
     while (1) {
         info.photoSensor = photoSensorValue;
+        // printf("%d\n",info.photoSensor);
         if (photoSensorValue < 250) {
             info.isHoldBall = true;
         } else {
@@ -387,12 +389,21 @@ void main_app() {
         if (info.imuStatus == 2) {
             bno.setAttitudeZero();
         }
+        if(info.imuStatus == 9){
+            imuDirEnable = false;
+        }else{
+            imuDirEnable = true;
+        }
 
-        voltage = readADC1() * 3.3 / 4095 * 57;
-        info.volt = (uint8_t)voltage;
-        info.photoSensor = 0;
-        info.isHoldBall = false;
-        printf("Voltage: %d\n", info.volt);
+        if(info.imuStatus == 2 || info.imuStatus == 3){
+            bno.setAngle(info.imuTargetDir);
+        }
+
+        // voltage = readADC1() * 3.3 / 4095 * 57;
+        // info.volt = (uint8_t)voltage;
+        // info.photoSensor = 0;
+        // info.isHoldBall = false;
+        // printf("Voltage: %d\n", info.volt);
 
         float angle = bno.getAttitude();
         int16_t turn = angle * 80;
@@ -417,23 +428,30 @@ void main_app() {
         }
 
         // Kicker
-        if (info.kickerPower[0] > 0 || info.kickerPower[1] > 0) {
-            // キック。ストレートを優先したい
-            if (info.kickerPower[0] > 0) { // ストレート
-                sendKickPowerStraight(info.kickerPower[0]);
-            } else if (info.kickerPower[1] > 0) { // チップ
-                sendKickPowerChip(info.kickerPower[1]);
-            }
-            chargeTimer.reset();
-            isKicked = true;
-        }
-        // 充電
-        if (isKicked && chargeTimer.read_ms() > 500) {
-            sendBoosterChargeStart();
-            isKicked = false;
-        }
+        // if (info.kickerPower[0] > 0 || info.kickerPower[1] > 0) {
+        //     // キック。ストレートを優先したい
+        //     if (info.kickerPower[0] > 0) { // ストレート
+        //         sendKickPowerStraight(info.kickerPower[0]);
+        //     } else if (info.kickerPower[1] > 0) { // チップ
+        //         sendKickPowerChip(info.kickerPower[1]);
+        //     }
+        //     chargeTimer.reset();
+        //     isKicked = true;
+        // }
+        // // 充電
+        // if (isKicked && chargeTimer.read_ms() > 500) {
+        //     sendBoosterChargeStart();
+        //     isKicked = false;
+        // }
 
-        // ドリブル
+        // // ドリブル
         sendDribblePower(info.driblePower);
+
+        // HAL_Delay(10000);
+        // sendKickPowerStraight(1.0);
+        // printf("kick");
+        // isKicked = true;
+
+        
     }
 }
