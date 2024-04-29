@@ -196,6 +196,7 @@ class BNO055 {
 
     float getAttitude();
     void setAttitudeZero();
+    void setAngle(float rad);
 
     float frontRadians;
 

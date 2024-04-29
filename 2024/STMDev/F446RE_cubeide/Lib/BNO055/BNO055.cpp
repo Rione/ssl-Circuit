@@ -178,3 +178,7 @@ void BNO055:: setAttitudeZero(){
     euler_t euler = getEuler();
     frontRadians = euler.yaw;
 }
+
+void BNO055::setAngle(float rad){
+    frontRadians = getAttitude() + rad;
+}

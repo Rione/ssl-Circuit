@@ -106,16 +106,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     }
 }
 
-// // can検証用
-// void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-//     if (can.getHcan() == &hcan1) {
-//         can.recv(canRecvData);
-//         canRecvData.stdId = 0x555;
-//         can.send(canRecvData);
-//         led0 = !led0;
-//     }
-// }
-
 RobotInfo info = {
     .motor = {0, 0, 0, 0},
     .driblePower = 0,
@@ -385,12 +375,15 @@ void main_app() {
         if (info.imuStatus == 2) {
             bno.setAttitudeZero();
         }
+        if(info.imuStatus == 9){
+            imuDirEnable = false;
+        }else{
+            imuDirEnable = true;
+        }
 
-        voltage = readADC1() * 3.3 / 4095 * 57;
-        info.volt = (uint8_t)voltage;
-        info.photoSensor = 0;
-        info.isHoldBall = false;
-        printf("Voltage: %d\n", info.volt);
+        if(info.imuStatus == 2 || info.imuStatus == 3){
+            bno.setAngle(info.imuTargetDir);
+        }
 
         float angle = bno.getAttitude();
         int16_t turn = angle * 80;
