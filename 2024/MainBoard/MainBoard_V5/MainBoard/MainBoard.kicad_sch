@@ -7514,9 +7514,9 @@
   )
 
   (symbol (lib_id "Device:R") (at 527.05 201.93 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom yes) (on_board no) (dnp no)
     (uuid 1110465d-eb8a-4f57-9229-482e5521a9be)
-    (property "Reference" "R14" (at 528.32 203.2 0)
+    (property "Reference" "//R14" (at 528.32 203.2 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1k" (at 528.32 205.74 0)
@@ -7533,7 +7533,7 @@
     (instances
       (project "MainBoard"
         (path "/0f1369eb-a284-48b8-a3ed-798a8062c1cf"
-          (reference "R14") (unit 1)
+          (reference "//R14") (unit 1)
         )
       )
     )
@@ -7996,12 +7996,12 @@
   )
 
   (symbol (lib_id "Connector:Conn_01x03_Socket") (at 483.87 119.38 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board no) (dnp no) (fields_autoplaced)
     (uuid 2ddb7cd5-6268-40e9-a594-595ef3a2c599)
     (property "Reference" "J11" (at 485.14 118.11 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "ADC2" (at 485.14 120.65 0)
+    (property "Value" "//ADC2" (at 485.14 120.65 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Connector_JST:JST_PH_S3B-PH-K_1x03_P2.00mm_Horizontal" (at 483.87 119.38 0)
@@ -10023,12 +10023,12 @@
   )
 
   (symbol (lib_id "Connector:Conn_01x03_Socket") (at 514.35 119.38 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board no) (dnp no) (fields_autoplaced)
     (uuid 940bc4f5-89e1-4cfd-a6ee-4c3a29494c51)
     (property "Reference" "J12" (at 515.62 118.11 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "ADC2" (at 515.62 120.65 0)
+    (property "Value" "//ADC2" (at 515.62 120.65 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Connector_JST:JST_PH_S3B-PH-K_1x03_P2.00mm_Horizontal" (at 514.35 119.38 0)
@@ -10358,12 +10358,12 @@
   )
 
   (symbol (lib_id "Connector:Conn_01x03_Socket") (at 483.87 78.74 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board no) (dnp no) (fields_autoplaced)
     (uuid a5fa55b5-98ff-4f1e-85f8-6127d96cbf02)
     (property "Reference" "J7" (at 485.14 77.47 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "ADC0" (at 485.14 80.01 0)
+    (property "Value" "//ADC0" (at 485.14 80.01 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Connector_JST:JST_PH_S3B-PH-K_1x03_P2.00mm_Horizontal" (at 483.87 78.74 0)
@@ -10411,9 +10411,9 @@
   )
 
   (symbol (lib_id "Device:LED") (at 527.05 193.04 90) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom yes) (on_board no) (dnp no)
     (uuid a7d54709-fe84-4b22-9e28-c0da02611a83)
-    (property "Reference" "D9" (at 529.59 193.04 90)
+    (property "Reference" "//D9" (at 529.59 193.04 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "LED" (at 529.59 195.58 90)
@@ -10430,7 +10430,7 @@
     (instances
       (project "MainBoard"
         (path "/0f1369eb-a284-48b8-a3ed-798a8062c1cf"
-          (reference "D9") (unit 1)
+          (reference "//D9") (unit 1)
         )
       )
     )
