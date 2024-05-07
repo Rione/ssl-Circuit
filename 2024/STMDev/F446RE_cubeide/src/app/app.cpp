@@ -119,21 +119,30 @@ RobotInfo info = {
 
 // シリアルで受信したデータを処理するサンプル
 uint8_t dataFlame[8] = {0};
+
 void RasRecvSerial() {
-    /*
-    0. ヘッダ0xAAを受信
-    1. モーター1
-    2. モーター2
-    3. モーター3
-    4. モーター4
-    5. ドリブラー
-    6. ストレートキック
-    7. チップキック
-    8. imuターゲット
-    9. imu状態
-    10.emergency
-     */
-    const uint8_t HEADER = 0xFF;         // 仮のヘッダ
+    //     /*
+    //     0. ヘッダ0xFFを受信
+    //     1. velX[LSB]
+    //     2. velX[MSB]
+    //     3. velY[LSB]
+    //     4. velY[MSB]
+    //     5. velAngler[LSB]
+    //     6. velAngler[MSB]
+    //     7. dribblePower[0~100]
+    //     8. kickerPowerStraight[0~100]
+    //     9. kickerPowerChip[0~100]
+    //     10.status
+    //       . bit0: emergencyStop
+    //       . bit1: doDirectKick
+    //       . bit2: doDirectChipKick
+    //       . bit3: reserved
+    //       . bit4: reserved
+    //       . bit5: reserved
+    //       . bit6: reserved
+    //       . bit7: parity
+    //      */
+    const uint8_t HEADER = 0xFF;         // ヘッダ
     const uint8_t dataSize = 10;         // データのサイズ
     static bool headerReceived = false;  // ヘッダを受信したかどうか
     static uint8_t index = 0;            // 受信したデータのインデックスカウンター
@@ -375,13 +384,13 @@ void main_app() {
         if (info.imuStatus == 2) {
             bno.setAttitudeZero();
         }
-        if(info.imuStatus == 9){
+        if (info.imuStatus == 9) {
             imuDirEnable = false;
-        }else{
+        } else {
             imuDirEnable = true;
         }
 
-        if(info.imuStatus == 2 || info.imuStatus == 3){
+        if (info.imuStatus == 2 || info.imuStatus == 3) {
             bno.setAngle(info.imuTargetDir);
         }
 
