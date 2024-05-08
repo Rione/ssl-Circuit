@@ -213,23 +213,6 @@ void RasSendSerial(RobotInfo &info) {
     // printf("Ras Send:\n");
 }
 
-void getSensors(RobotInfo &info) {
-    // バッテリー電圧
-    info.volt = 0;
-    // フォトセンサ
-    info.photoSensor = 0;
-    // ボールを持っているか
-    info.isHoldBall = 0;
-    // IMUの角度
-    info.imuDir = 0;
-    // IMUの角度の変化
-    info.imuDirPrev = info.imuDir;
-    // IMUの目標角度
-    info.imuTargetDir = 0;
-    // IMUの状態
-    info.imuStatus = 0;
-}
-
 uint32_t readADC1() {
     // ADCの値を読み取る
     HAL_ADC_Start(&hadc1);
@@ -366,6 +349,7 @@ void main_app() {
     led0 = 0;
     emergency = false;
     double voltage = 0;
+    bool imuDirEnable = true;
     while (1) {
         info.photoSensor = photoSensorValue;
         if (photoSensorValue < 250) {
