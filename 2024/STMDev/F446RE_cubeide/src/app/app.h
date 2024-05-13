@@ -2,7 +2,7 @@
 #define __APP__
 #ifdef __cplusplus
 
-
+#include "main.h"
 
 extern "C" {
 #endif

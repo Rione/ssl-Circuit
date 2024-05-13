@@ -165,7 +165,7 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 
 CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 CFLAGS += -std=c11
-CXXFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(CXX_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CXXFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(CXX_INCLUDES) $(OPT) -Wall -Wextra -fdata-sections -ffunction-sections
 CXXFLAGS += -std=c++17
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2

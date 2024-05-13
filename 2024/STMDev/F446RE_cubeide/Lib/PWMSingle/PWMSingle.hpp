@@ -10,7 +10,7 @@ extern "C" {
 class PwmSingleOut {
   public:
     PwmSingleOut(TIM_HandleTypeDef *htim, uint32_t channel)
-        : _htim(htim), _channel(channel), _maxValue(0) {
+        : _htim(htim), _channel(channel), _maxValue(_htim->Init.Period) {
     }
 
     void init() {
