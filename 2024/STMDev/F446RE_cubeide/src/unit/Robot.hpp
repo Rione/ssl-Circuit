@@ -11,6 +11,8 @@
 #include "BNO055.hpp"
 #include "Timer.hpp"
 
+#include "MotorDriver.hpp"
+
 #include "adc.h"
 
 typedef struct {
@@ -101,6 +103,8 @@ class Robot {
     BufferedSerial serial4 = BufferedSerial(&huart4, 128); // xiao
     BufferedSerial serial5 = BufferedSerial(&huart5, 256); // RasPi
     BNO055 bno = BNO055(&hi2c1);
+
+    MotorDriver motorDriver = MotorDriver(&can, &bno);
 
     void hardwareInit();
     void rasRecvSerial();

@@ -10,25 +10,21 @@
 
 class MotorDriver {
   public:
-    MotorDriver(CANBus *_canBus, BNO055 *bno);
+    MotorDriver(CANBus *canBus, BNO055 *bno);
 
     void init();
 
-    void setVelocityFF(float velX, float velY, float velZ);
+    void setVelocityFF(int16_t velX, int16_t velY, float velAng);
 
-    void setVelocity(float velX, float velY, float velZ);
+    // void setVelocity(int16_t velX, int16_t velY, float velAng);
 
-    void setPositionOfMotor(float pos1, float pos2, float pos3, float pos4);
+    // void setPositionOfMotor(float pos1, float pos2, float pos3, float pos4);
 
-    void setPIDGain(float kp, float ki, float kd);
+    // void setPIDGain(float kp, float ki, float kd);
 
-    // canBus,imu
-
-    // - VelX,VelY,VelZ
-    //
   private:
-    CANBus *canBus;
-    BNO055 *bno;
+    CANBus *_canBus;
+    BNO055 *_bno;
 };
 
 #endif
