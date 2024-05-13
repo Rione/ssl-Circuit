@@ -12,6 +12,8 @@
 
 #include "adc.h"
 
+#include <Mode.hpp>
+
 CANBus can(&hcan1, 0x100);
 DigitalOut led0(LED0_GPIO_Port, LED0_Pin);
 DigitalOut led1(LED1_GPIO_Port, LED1_Pin);
