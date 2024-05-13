@@ -258,3 +258,11 @@ float MyMath::sqrt(float x) {
 
     return last;
 }
+
+void MyMath::printBit(char c) {
+    printf("0b");
+    for (int i = 7; i >= 0; i--) {
+        printf("%d", (c >> i) & 0x01);
+    }
+    printf("\n");
+}

@@ -3,6 +3,11 @@
 
 #include "CAN.hpp"
 #include "BNO055.hpp"
+
+// 単位について
+// vel [m/s]
+// angler [rad/s]
+
 class MotorDriver {
   public:
     MotorDriver(CANBus *_canBus, BNO055 *bno);
