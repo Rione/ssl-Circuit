@@ -122,7 +122,7 @@ float MyMath::sinDeg(int deg) {
 }
 
 float MyMath::cosDeg(int deg) {
-    return sin(deg + 90);
+    return sinDeg(deg + 90);
 }
 
 float MyMath::tanDeg(int deg) {

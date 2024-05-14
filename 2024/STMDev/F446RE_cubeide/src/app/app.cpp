@@ -38,5 +38,7 @@ void main_app() {
     setup();
     while (1) {
         mainMode.loop();
+        // serial5.write('H');
+        HAL_Delay(10);
     }
 }

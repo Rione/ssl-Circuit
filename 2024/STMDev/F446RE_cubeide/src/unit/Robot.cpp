@@ -108,4 +108,5 @@ void Robot::rasSendSerial(RobotInfo &info) {
     };
     serial5.write(startBytes, 4);
     serial5.write(buffer, dataSize);
+    // serial5.write('F');
 }

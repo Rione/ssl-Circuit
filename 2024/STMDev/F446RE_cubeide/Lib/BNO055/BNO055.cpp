@@ -61,7 +61,7 @@ void BNO055::setOperaitonMode(uint8_t mode) {
     // OPERATION_MODE_M4G           0x0A
     // OPERATION_MODE_NDOF_FMC_OFF  0x0B
     // OPERATION_MODE_NDOF          0x0C
-    if (mode < 0x00 || mode > 0x0C) {
+    if (mode > 0x0C) {
         printf("Invalid mode\n");
         return;
     }

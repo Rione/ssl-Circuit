@@ -8,30 +8,39 @@ void MotorDriver::init() {
 
 void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, float velAng) {
 
+    printf("%d, %d, %f\n", velX, velY, velAng);
+    float _velX = (float)(velX);
+    float _velY = (float)(velY);
     /*================unit==============*/
     // velX, velY [mm/s]
     // velAng [rad/s]
 
     /*==============constans============*/
     // gear ratio 56：15
-    static constexpr float gearRatio = (56 / 15);
+    static constexpr float gearRatio = (56.0 / 15.0);
     // wheel diameter 55mm
-    const uint8_t wheelDiameter = 54;
+    static constexpr float wheelDiameter = 54;
     // robot wheel base diameter
-    const uint8_t wheelBaseDiameter = 170;
+    static constexpr float wheelBaseDiameter = 170;
     // robot spins → wheelRotate → motorRotate convert Ratio constant
     static constexpr float robotSpinToMotorRotateRatio = (wheelDiameter / wheelBaseDiameter) * gearRatio;
     // robot moves XY → wheelRotate → motoRotate convert constant
-    static constexpr float velXYToMotorRotateRatio = gearRatio / (wheelDiameter * 3.141592653589);
+    static constexpr float velXYToMotorRotateRatio = gearRatio / wheelDiameter * 3.141592653589;
 
     /*==============calculation============*/
-    int16_t M0 = ((float)velX * MyMath::sinDeg(35) - (float)velY * MyMath::cosDeg(35)) * velXYToMotorRotateRatio + velAng * robotSpinToMotorRotateRatio;
-    int16_t M1 = ((float)velX * MyMath::sinDeg(115) - (float)velY * MyMath::cosDeg(115)) * velXYToMotorRotateRatio + velAng * robotSpinToMotorRotateRatio;
-    int16_t M2 = ((float)velX * MyMath::sinDeg(225) - (float)velY * MyMath::cosDeg(225)) * velXYToMotorRotateRatio + velAng * robotSpinToMotorRotateRatio;
-    int16_t M3 = ((float)velX * MyMath::sinDeg(315) - (float)velY * MyMath::cosDeg(315)) * velXYToMotorRotateRatio + velAng * robotSpinToMotorRotateRatio;
+    int16_t M0 = (_velX * MyMath::sinDeg(55) - _velY * MyMath::cosDeg(55)) * velXYToMotorRotateRatio - velAng * robotSpinToMotorRotateRatio;
+    int16_t M1 = (_velX * MyMath::sinDeg(135) - _velY * MyMath::cosDeg(135)) * velXYToMotorRotateRatio - velAng * robotSpinToMotorRotateRatio;
+    int16_t M2 = (_velX * MyMath::sinDeg(-135) - _velY * MyMath::cosDeg(-135)) * velXYToMotorRotateRatio - velAng * robotSpinToMotorRotateRatio;
+    int16_t M3 = (_velX * MyMath::sinDeg(-55) - _velY * MyMath::cosDeg(-55)) * velXYToMotorRotateRatio - velAng * robotSpinToMotorRotateRatio;
 
     /*==============send data============*/
+    printf("%f, %f, %f\n", _velX, _velY, velAng);
+    printf("%f, %f, %f\n", gearRatio, robotSpinToMotorRotateRatio, velXYToMotorRotateRatio);
     printf("%d, %d, %d, %d\n", M0, M1, M2, M3);
+    setMotors(M0, M1, M2, M3);
+}
+
+void MotorDriver::setMotors(int16_t M0, int16_t M1, int16_t M2, int16_t M3) {
     CANBus::CANData data = {
         .stdId = 0x1AA,
         .data = {
@@ -45,5 +54,5 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, float velAng) {
             (uint8_t)((M3 >> 8) & 0xFF),
         },
     };
-    // _canBus->send(data);
+    _canBus->send(data);
 }
