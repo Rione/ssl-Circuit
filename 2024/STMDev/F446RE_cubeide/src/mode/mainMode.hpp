@@ -8,10 +8,12 @@ class MainMode : public Mode {
     }
 
     void loop() {
+        robot->rasSendSerial();
         robot->rasRecvSerial();
         robot->motorDriver.setVelocityFF(robot->info.velX.vel,
                                          robot->info.velY.vel,
                                          (float)(robot->info.velAngler.vel) * 0.001);
+        // velAngulerがどうしても16bitで送られてくるので、どうしたらいいのかわからない。取り合えず0.001をかけている。
 
         printf("velX: %d, velY: %d, velAngler: %d\n", robot->info.velX.vel, robot->info.velY.vel, robot->info.velAngler.vel);
     }

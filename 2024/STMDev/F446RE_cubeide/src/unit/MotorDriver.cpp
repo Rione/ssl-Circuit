@@ -31,7 +31,7 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, float velAng) {
     int16_t M3 = ((float)velX * MyMath::sinDeg(315) - (float)velY * MyMath::cosDeg(315)) * velXYToMotorRotateRatio + velAng * robotSpinToMotorRotateRatio;
 
     /*==============send data============*/
-
+    printf("%d, %d, %d, %d\n", M0, M1, M2, M3);
     CANBus::CANData data = {
         .stdId = 0x1AA,
         .data = {
@@ -45,7 +45,5 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, float velAng) {
             (uint8_t)((M3 >> 8) & 0xFF),
         },
     };
-    _canBus->send(data);
+    // _canBus->send(data);
 }
-
-

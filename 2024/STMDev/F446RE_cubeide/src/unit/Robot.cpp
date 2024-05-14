@@ -16,7 +16,7 @@ void Robot::hardwareInit() {
     serial1.init();
     serial4.init();
     serial5.init();
-    
+
     ledH.init();
     printf("Hello World\n");
 
@@ -95,14 +95,16 @@ void Robot::rasRecvSerial() {
 }
 
 void Robot::rasSendSerial(RobotInfo &info) {
-    static const uint8_t dataSize = 4; // データのサイズ
+    static const uint8_t dataSize = 6; // データのサイズ
     uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
 
     uint8_t buffer[dataSize] = {
         info.batteryVoltage,
-        (uint8_t)(info.photoSensorValue & 0x00FF),
+        (uint8_t)(info.photoSensorValue & 0xFF),
         (uint8_t)(info.photoSensorValue >> 8),
         info.isHoldBall,
+        0,
+        0,
     };
     serial5.write(startBytes, 4);
     serial5.write(buffer, dataSize);
