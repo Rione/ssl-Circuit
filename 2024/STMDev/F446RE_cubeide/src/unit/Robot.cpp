@@ -4,13 +4,13 @@ Robot::Robot() {
 }
 
 void Robot::hardwareInit() {
-    led1 = bno.check();
-    bno.setUnit(1, 1, 1, 0);
-    bno.setPowerMode();
-    // bno.setOperaitonMode(OPERATION_MODE_AMG);
-    bno.setOperaitonMode(OPERATION_MODE_NDOF);
-    // bno.accConfig();
-    bno.init();
+    // led1 = bno.check();
+    // bno.setUnit(1, 1, 1, 0);
+    // bno.setPowerMode();
+    // // bno.setOperaitonMode(OPERATION_MODE_AMG);
+    // bno.setOperaitonMode(OPERATION_MODE_NDOF);
+    // // bno.accConfig();
+    // bno.init();
     can.init();
 
     serial1.init();
@@ -20,8 +20,8 @@ void Robot::hardwareInit() {
     ledH.init();
     printf("Hello World\n");
 
-    bno.setAttitudeZero();
-    wait_ms(1000);
+    // bno.setAttitudeZero();
+    // HAL_Delay(1000);
 }
 
 void Robot::rasRecvSerial() {
@@ -94,10 +94,14 @@ void Robot::rasRecvSerial() {
     }
 }
 
-void Robot::rasSendSerial(RobotInfo &info) {
-    static const uint8_t dataSize = 6; // データのサイズ
-    uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
+void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
 
+    static const uint8_t dataSize = 6; // データのサイズ
+    static const uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
+
+    if (rasSendInterval.read_ms() < interval) {
+        return;
+    }
     uint8_t buffer[dataSize] = {
         info.batteryVoltage,
         (uint8_t)(info.photoSensorValue & 0xFF),
@@ -108,5 +112,5 @@ void Robot::rasSendSerial(RobotInfo &info) {
     };
     serial5.write(startBytes, 4);
     serial5.write(buffer, dataSize);
-    // serial5.write('F');
+    rasSendInterval.reset();
 }

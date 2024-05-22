@@ -106,9 +106,11 @@ class Robot {
 
     MotorDriver motorDriver = MotorDriver(&can, &bno);
 
+    Timer rasSendInterval = Timer();
+
     void hardwareInit();
     void rasRecvSerial();
-    void rasSendSerial(RobotInfo &info);
+    void rasSendSerial(RobotInfo &info, uint16_t interval);
 
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;
