@@ -32,21 +32,29 @@ void Robot::rasRecvSerial() {
     // 4. velY[MSB]
     // 5. velAngler[LSB]
     // 6. velAngler[MSB]
-    // 7. dribblePower[0~100]
-    // 8. kickerPowerStraight[0~100]
-    // 9. kickerPowerChip[0~100]
-    // 10.status
+    // 7. dribblePower[0~100] [uint8_t]
+    // 8. kickerPowerStraight[0~100] [uint8_t]
+    // 9. kickerPowerChip[0~100] [uint8_t]
+    // 10. relativePositionX[LSB]
+    // 11. relativePositionX[MSB]
+    // 12. relativePositionY[LSB]
+    // 13. relativePositionY[MSB]
+    // 14. relativeTheta[LSB]
+    // 15. relativeTheta[MSB]
+    // 16. cameraX [uint8_t]
+    // 17. cameraY [uint8_t]
+    // 18.status
     //   . bit0: emergencyStop
     //   . bit1: doDirectKick
     //   . bit2: doDirectChipKick
     //   . bit3: reserved
     //   . bit4: reserved
     //   . bit5: reserved
-    //   . bit6: reserved
+    //   . bit6: isCtrlByRobot (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
     //   . bit7: parity
 
     static const uint8_t HEADER = 0xFF;  // ヘッダ
-    static const uint8_t dataSize = 10;  // データのサイズ
+    static const uint8_t dataSize = 18;  // データのサイズ
     static bool headerReceived = false;  // ヘッダを受信したかどうか
     static uint8_t index = 0;            // 受信したデータのインデックスカウンター
     static uint8_t data[dataSize] = {0}; // 受信したデータ
@@ -82,9 +90,19 @@ void Robot::rasRecvSerial() {
                     info.velAngler.L = data[4];
                     info.velAngler.H = data[5];
                     info.dribblePower = data[6];
-                    info.kickerPowerStraight = data[7];
-                    info.kickerPowerChip = data[8];
-                    info.status.data = data[9];
+                    info.kicker.straight = data[7];
+                    info.kicker.chip = data[8];
+
+                    info.relativePositionX.L = data[9];
+                    info.relativePositionX.H = data[10];
+                    info.relativePositionY.L = data[11];
+                    info.relativePositionY.H = data[12];
+                    info.relativeTheta.L = data[13];
+                    info.relativeTheta.H = data[14];
+                    info.camera.x = data[15];
+                    info.camera.y = data[16];
+
+                    info.status.data = data[17];
 
                     headerReceived = false; // 次のヘッダを待つ準備をする
                     index = 0;              // インデックスをリセット
