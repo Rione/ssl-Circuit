@@ -3,6 +3,8 @@
 
 #ifdef __cplusplus
 
+#include <cstdio>
+
 extern "C" {
 
 #define PI 3.1415926535897932384626433832795
@@ -20,7 +22,7 @@ extern "C" {
 #define abs(x) ((x) > 0 ? (x) : -(x))
 #define Range(a, x, b) ((a) <= (x) && (x) <= (b))
 #define Constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
-#define Round(x) ((x) >= 0 ? (long)((x) + 0.5) : (long)((x)-0.5))
+#define Round(x) ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
 #define Radians(deg) ((deg) * DEG_TO_RAD)
 #define Degrees(rad) ((rad) * RAD_TO_DEG)
 
@@ -131,6 +133,7 @@ int gapDegrees(int deg1, int deg2);
 float gapRadians180(float rad1, float rad2);
 float gapRadians(float rad1, float rad2);
 float sqrt(float x);
+void printBit(char c);
 } // namespace MyMath
 }
 #endif

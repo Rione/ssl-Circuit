@@ -122,7 +122,7 @@ float MyMath::sinDeg(int deg) {
 }
 
 float MyMath::cosDeg(int deg) {
-    return sin(deg + 90);
+    return sinDeg(deg + 90);
 }
 
 float MyMath::tanDeg(int deg) {
@@ -257,4 +257,12 @@ float MyMath::sqrt(float x) {
     } while (s < last);
 
     return last;
+}
+
+void MyMath::printBit(char c) {
+    printf("0b");
+    for (int i = 7; i >= 0; i--) {
+        printf("%d", (c >> i) & 0x01);
+    }
+    printf("\n");
 }
