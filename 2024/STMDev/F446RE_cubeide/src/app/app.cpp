@@ -2,11 +2,14 @@
 
 #include "Robot.hpp"
 #include "mainMode.hpp"
+#include "MPU9250.hpp"
 
 Robot robot;
 CANBus::CANData canRecvData;
 
 MainMode mainMode('M', "Main Mode", &robot);
+
+MPU9250 imu(&hspi2, SPI2_CS0_GPIO_Port, SPI2_CS0_Pin);
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim == &htim10) {
@@ -37,6 +40,6 @@ void setup() {
 void main_app() {
     setup();
     while (1) {
-        mainMode.loop();
+        // mainMode.loop();
     }
 }
