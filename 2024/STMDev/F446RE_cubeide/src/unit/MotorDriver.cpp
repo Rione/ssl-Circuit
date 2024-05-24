@@ -23,7 +23,7 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
     // robot wheel base diameter
     static constexpr float wheelBaseDiameter = 170;
     // robot spins → wheelRotate → motorRotate convert Ratio constant
-    static constexpr float robotSpinToMotorRotateRatio = (wheelDiameter / wheelBaseDiameter) * gearRatio;
+    static constexpr float robotSpinToMotorRotateRatio = (wheelBaseDiameter / wheelDiameter) * gearRatio;
     // robot moves XY → wheelRotate → motoRotate convert constant
     static constexpr float velXYToMotorRotateRatio = gearRatio / wheelDiameter * 3.141592653589;
 
