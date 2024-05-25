@@ -83,10 +83,10 @@ void MPU9250::toggleCS() {
 /// @param pAddr Pointer to address to be written to
 /// @param pVal Pointer of value to write at given address
 void MPU9250::REG_WRITE(uint8_t *pAddr, uint8_t *pVal) {
-    toggleCS();
+    HAL_GPIO_WritePin(_pCSport, _CSpin, GPIO_PIN_RESET);
     HAL_SPI_Transmit(_pSPI, pAddr, 1, SPI_TIMOUT_MS);
     HAL_SPI_Transmit(_pSPI, pVal, 1, SPI_TIMOUT_MS);
-    toggleCS();
+    HAL_GPIO_WritePin(_pCSport, _CSpin, GPIO_PIN_SET);
 }
 
 /// @brief Read a specific registry address
@@ -94,17 +94,17 @@ void MPU9250::REG_WRITE(uint8_t *pAddr, uint8_t *pVal) {
 /// @param pRxData Pointer to data buffer
 /// @param RxSize Size of data buffer
 void MPU9250::REG_READ(uint8_t addr, uint8_t *pRxData, uint16_t RxSize) {
-    toggleCS();
+    HAL_GPIO_WritePin(_pCSport, _CSpin, GPIO_PIN_RESET);
     uint8_t writeAddr = addr | READWRITE;
     HAL_SPI_Transmit(_pSPI, &writeAddr, 1, SPI_TIMOUT_MS);
     HAL_SPI_Receive(_pSPI, pRxData, RxSize, SPI_TIMOUT_MS);
-    toggleCS();
+    HAL_GPIO_WritePin(_pCSport, _CSpin, GPIO_PIN_SET);
 }
 
 /// @brief Set the gyroscope full scale range
 /// @param gFSR Set 0 for ±250°/s, 1 for ±500°/s, 2 for ±1000°/s, and 3 for ±2000°/s
 void MPU9250::writeGyroFullScaleRange(uint8_t gFSR) {
-    // Variable init
+    // Variable init 
     uint8_t addr = GYRO_CONFIG;
     uint8_t val;
 
