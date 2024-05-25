@@ -87,6 +87,8 @@ void Error_Handler(void);
 #define ADC_SUB2_GPIO_Port GPIOC
 #define ADC_SUB3_Pin GPIO_PIN_5
 #define ADC_SUB3_GPIO_Port GPIOC
+#define SPI2_CS0_Pin GPIO_PIN_12
+#define SPI2_CS0_GPIO_Port GPIOB
 #define HEART_BEAT_LED_Pin GPIO_PIN_8
 #define HEART_BEAT_LED_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13

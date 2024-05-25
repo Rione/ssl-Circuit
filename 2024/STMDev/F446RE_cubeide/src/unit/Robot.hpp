@@ -151,6 +151,7 @@ class Robot {
     void hardwareInit();
     void rasRecvSerial();
     void rasSendSerial(RobotInfo &info, uint16_t interval);
+    void getSensors(RobotInfo &info);
 
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;

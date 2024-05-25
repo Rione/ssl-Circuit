@@ -128,3 +128,12 @@ void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
     serial5.write(buffer, dataSize);
     rasSendInterval.reset();
 }
+
+void Robot::getSensors(RobotInfo &info) {
+    // バッテリー電圧
+
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 100);
+    uint32_t batt = HAL_ADC_GetValue(&hadc1);
+    info.batteryVoltage = (float)(batt) * 3.3 / 4095.0 * 58.5;
+}
