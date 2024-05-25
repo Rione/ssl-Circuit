@@ -65,6 +65,8 @@ void Error_Handler(void);
 #define DRI_SIGNAL_N_GPIO_Port GPIOB
 #define TR_SIGNAL_Pin GPIO_PIN_1
 #define TR_SIGNAL_GPIO_Port GPIOB
+#define SW2_Pin GPIO_PIN_8
+#define SW2_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14
@@ -73,6 +75,8 @@ void Error_Handler(void);
 #define CAN_LED_GPIO_Port GPIOA
 #define DEBUG_LED_Pin GPIO_PIN_3
 #define DEBUG_LED_GPIO_Port GPIOB
+#define SW1_Pin GPIO_PIN_5
+#define SW1_GPIO_Port GPIOB
 #define CHARGE_Pin GPIO_PIN_7
 #define CHARGE_GPIO_Port GPIOB
 

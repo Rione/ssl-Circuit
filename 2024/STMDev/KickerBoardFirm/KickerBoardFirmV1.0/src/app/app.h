@@ -10,6 +10,7 @@ void setup();
 void main_app();
 void processData(int data);
 void chargeDevice();
+void discharge();
 int detectphoto(int adc_value);
 void straightkick();
 void chipkick();

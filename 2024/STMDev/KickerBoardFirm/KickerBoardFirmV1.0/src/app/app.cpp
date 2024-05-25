@@ -14,6 +14,8 @@ CANBus can(&hcan, 0x100);
 DigitalOut debugled(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin);
 DigitalOut canled(CAN_LED_GPIO_Port, CAN_LED_Pin);
 DigitalOut charge(CHARGE_GPIO_Port, CHARGE_Pin);
+DigitalIn sw1(SW1_GPIO_Port, SW1_Pin);
+DigitalIn sw2(SW2_GPIO_Port, SW2_Pin);
 PwmSingleOut straightkicker(&htim15, TIM_CHANNEL_2);
 PwmSingleOut chipkicker(&htim3, TIM_CHANNEL_2);
 PwmSingleOut chip(&htim15, TIM_CHANNEL_2);
@@ -21,12 +23,16 @@ PwmSingleOutN dribbler(&htim1, TIM_CHANNEL_2);
 Timer timer;
 Timer timer2;
 Timer statusSenderTimer;
+Timer sw1Timer;
+Timer dischargeTime;
 
 bool chargeFlag = false;
 bool straightFlag = false;
 bool chipFlag = false;
 bool dribbleFlag = false;
 bool dribbleStopFlag = false;
+
+bool sw1Pressed = false;
 
 CANBus::CANData canRecvData = {
     .stdId = 0x01,
@@ -131,18 +137,52 @@ void main_app() {
             dribblestop();
             dribbleStopFlag = false;
         }
-        // HAL_Delay(100);
+
+        if (sw1.read() == 0) {
+            if (sw1Pressed == false) {
+                sw1Timer.reset();
+                sw1Pressed = true;
+            }
+        } else {
+            if (sw1Pressed) {
+                if (sw1Timer.read_ms() > 1000) {
+                    discharge();
+                    dischargeTime.reset();
+                } else {
+                    if (dischargeTime.read_ms() > 1000) {
+                        chargeFlag = true;
+                    }
+                }
+                sw1Pressed = false;
+            }
+        }
+        if (sw2.read() == 0) {
+            straightFlag = true;
+        }
+        printfDMA("adcValue: %d %d %d\n", adcValue, sw1.read(), sw2.read());
+        HAL_Delay(10);
     }
 }
 
 void chargeDevice() {
-    if (timer.read_ms() > 5000) {
+    if (timer.read_ms() > 1000) {
         charge = 1;
         printfDMA("charge start\n");
         HAL_Delay(3000);
         charge = 0;
         timer.reset();
     }
+}
+
+void discharge() {
+    printfDMA("discharge start\n");
+    for (size_t i = 0; i < 100; i++) {
+        straightkicker.write(0.2);
+        HAL_Delay(15);
+        straightkicker.write(0.0);
+        HAL_Delay(15);
+    }
+    printfDMA("discharge end\n");
 }
 
 int readADC() {
@@ -167,7 +207,7 @@ void updatePhotoDetection(int adcValue) {
 
 void straightkick() {
     if (timer2.read_ms() > 3000) {
-        straightkicker.write(1);
+        straightkicker.write(0.3);
         debugled = 1;
         printfDMA("straight\n");
         HAL_Delay(100);
