@@ -38,13 +38,46 @@ void setup() {
 }
 
 void main_app() {
+    acc_at acc;
+    gyro_at gyro;
+    
+    float mpu_time[2]={0};
+    float mpu_time_diff=0;    
+
     setup();
     while (1) {
-        // if (mpu.init() == 0) {
-        //     robot.led0 = !robot.led0;
-        //     printf("MPU6500 init failed\n");
-        // }
-        // wait_ms(100);
-        mainMode.loop();
+        if (mpu.init() == 0) {
+            robot.led0 = !robot.led0;
+            printf("MPU6500 init failed\n");
+        }else{
+            
+            mpu_time[0] = HAL_GetTick();
+
+            mpu.readAccGyro(&acc, &gyro);
+
+            mpu_time[1] = HAL_GetTick();
+            
+            mpu_time_diff = mpu_time[1] - mpu_time[0];
+
+            printf("%f\n", mpu_time_diff);
+
+
+
+            // acc.x /= 2048;
+            // acc.y /= 2048;
+            // acc.z /= 2048;
+
+            // printf("acc: %.2f, %.2f, %.2f\n", acc.x, acc.y, acc.z);
+
+            // gyro.x /= 16.4;
+            // gyro.y /= 16.4;
+            // gyro.z /= 16.4;
+
+            // printf("gyro: %.2f, %.2f, %.2f\n", gyro.x, gyro.y, gyro.z);
+        }
+
+        HAL_Delay(1000);
+
+        // mainMode.loop();
     }
 }

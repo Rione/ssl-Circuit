@@ -95,13 +95,19 @@ typedef struct {
     float x;
     float y;
     float z;
-} xyz_t;
+} acc_at;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} gyro_at;
 
 class MPU6500 {
-  public:
+  public:   
     MPU6500(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port, uint16_t cs_pin);
     bool init(); // return 1 if success, -1 if fail
-    void readAccMag(xyz_t *acc, xyz_t *mag);
+    void readAccGyro(acc_at *acc, gyro_at *gyro);
     void setSampleRateDrivider(uint8_t div);
     void setGyroFullScaleRange(uint8_t range);
 
@@ -110,18 +116,22 @@ class MPU6500 {
     GPIO_TypeDef *_cs_port;
     uint16_t _cs_pin;
 
-    void read_reg(uint8_t reg, uint8_t *data) {
-        uint8_t tx_data[2];
-        uint8_t rx_data[2];
+    void read_reg(uint8_t reg, uint8_t *data, size_t length) {
+        uint8_t tx_data[length + 1];
+        uint8_t rx_data[length + 1];
 
         tx_data[0] = reg | READ_FLAG;
-        tx_data[1] = 0x00; // dummy data for reading
+        for (size_t i = 1; i <= length; i++) {
+            tx_data[i] = 0x00; // dummy data for reading
+        }
 
         HAL_GPIO_WritePin(_cs_port, _cs_pin, GPIO_PIN_RESET);
-        HAL_SPI_TransmitReceive(_spi, tx_data, rx_data, 2, 1);
+        HAL_SPI_TransmitReceive(_spi, tx_data, rx_data, length+1, 1);
         HAL_GPIO_WritePin(_cs_port, _cs_pin, GPIO_PIN_SET);
 
-        data[0] = rx_data[1];
+        for (size_t i = 0; i < length; i++) {
+            data[i] = rx_data[i+1];
+        }
     }
 
     void write_reg(uint8_t reg, uint8_t data) {
