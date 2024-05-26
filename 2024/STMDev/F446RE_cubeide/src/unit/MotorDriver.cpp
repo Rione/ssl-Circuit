@@ -8,7 +8,7 @@ void MotorDriver::init() {
 
 void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
 
-    printf("%d, %d, %d\n", velX, velY, velAng);
+    // printf("%d, %d, %d\n", velX, velY, velAng);
     float _velX = (float)(velX);
     float _velY = (float)(velY);
     float _velAng = (float)(velAng) / 1000.0;
@@ -25,7 +25,8 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
     // robot spins → wheelRotate → motorRotate convert Ratio constant
     static constexpr float robotSpinToMotorRotateRatio = (wheelBaseDiameter / wheelDiameter) * gearRatio;
     // robot moves XY → wheelRotate → motoRotate convert constant
-    static constexpr float velXYToMotorRotateRatio = gearRatio / wheelDiameter * 3.141592653589;
+    // static constexpr float velXYToMotorRotateRatio = gearRatio / wheelDiameter * 3.141592653589;
+    static constexpr float velXYToMotorRotateRatio = gearRatio / (wheelDiameter/2);
 
     /*==============calculation============*/
     int16_t M0 = (_velX * MyMath::sinDeg(55) - _velY * MyMath::cosDeg(55)) * velXYToMotorRotateRatio - _velAng * robotSpinToMotorRotateRatio;
@@ -35,7 +36,7 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
 
     /*==============send data============*/
     printf("%f, %f, %f\n", _velX, _velY, _velAng);
-    printf("%f, %f, %f\n", gearRatio, robotSpinToMotorRotateRatio, velXYToMotorRotateRatio);
+    // printf("%f, %f, %f\n", gearRatio, robotSpinToMotorRotateRatio, velXYToMotorRotateRatio);
     printf("%d, %d, %d, %d\n", M0, M1, M2, M3);
     setMotors(M0, M1, M2, M3);
 }
