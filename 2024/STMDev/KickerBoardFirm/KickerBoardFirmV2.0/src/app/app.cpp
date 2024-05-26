@@ -23,6 +23,8 @@ Kicker chipKicker(&htim3, TIM_CHANNEL_2, 50, 1000);
 
 Booster booster(CHARGE_GPIO_Port, CHARGE_Pin, &straightKicker);
 
+Timer canTransmitIntervalTimer;
+
 void TimInterrupt500hz() {
     sw1.update();
     sw2.update();
@@ -41,10 +43,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             booster.setChargeEnable();
             break;
         case 0x11: // kick
-            straightKick();
+            straightKick((float)(canRecvData.data[0]) / 100);
             break;
         case 0x12: // chip kick
-            chipKick();
+            chipKick((float)(canRecvData.data[0]) / 100);
             break;
         case 0x13:
             // dribbleFlag = true;
@@ -58,16 +60,22 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     }
 }
 
-void chipKick() {
+void chipKick(float power) {
     straightKicker.disable();
-    chipKicker.kick(1.0);
+    chipKicker.kick(power);
     straightKicker.enable();
 }
 
-void straightKick() {
+void straightKick(float power) {
     chipKicker.disable();
-    straightKicker.kick(1.0);
+    straightKicker.kick(power);
     chipKicker.enable();
+}
+
+uint16_t readPhotoADC() {
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 10);
+    return HAL_ADC_GetValue(&hadc1);
 }
 
 void setup() {
@@ -84,16 +92,17 @@ void setup() {
 void main_app() {
     setup();
     while (1) {
-        printf("sw1:%d sw2:%d\n", sw1.readPressedTime(), sw2.readPressedTime());
+        uint16_t photoValue = readPhotoADC();
+        printf("sw1:%d sw2:%d Photo:%d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue);
 
         if (sw1.isRelease()) {
             if (sw1.readPressedTime() > 500) {
                 printf("DISCHARGE\n");
-                HAL_Delay(500);
                 booster.setChargeDisable();
+                HAL_Delay(500);
                 straightKicker.disCharge();
             } else {
-                chipKick();
+                chipKick(0.5);
             }
         }
 
@@ -103,8 +112,17 @@ void main_app() {
                 HAL_Delay(500);
                 booster.setChargeEnable();
             } else {
-                straightKick();
+                straightKick(0.5);
             }
+        }
+
+        if (canTransmitIntervalTimer.read_ms() > 10) {
+            CANBus::CANData canPhotoData = {
+                .stdId = 0x123,
+                .data = {(uint8_t)(photoValue & 0xFF),
+                         (uint8_t)((photoValue >> 8) & 0xFF)}};
+            can.send(canPhotoData);
+            canTransmitIntervalTimer.reset();
         }
     }
 }
