@@ -11,9 +11,47 @@ MainMode mainMode('M', "Main Mode", &robot);
 
 MPU6500 mpu(&hspi2, SPI2_CS0_GPIO_Port, SPI2_CS0_Pin);
 
+Timer time;
+int cnt = 0;
+
+
+void mpuget(){
+    acc_at acc;
+    gyro_at gyro;
+    
+    
+    int mpu_time_diff = 0;  
+
+    mpu.readAccGyro(&acc, &gyro);
+
+    acc.x /= 2048;
+    acc.y /= 2048;
+    acc.z /= 2048;
+    // printfDMA("acc: %.2f, %.2f, %.2f\n", acc.x, acc.y, acc.z);
+
+    gyro.x /= 16.4;
+    gyro.y /= 16.4;
+    gyro.z /= 16.4;
+    // printfDMA("gyro: %.2f, %.2f, %.2f\n", gyro.x, gyro.y, gyro.z);
+
+    cnt++;
+
+    if(time.read_ms() > 1000){
+        printf("cnt : %d\n", cnt);
+        cnt = 0;
+        time.reset();
+    }
+    
+    // printf("time : %d\n", mpu_time_diff);  
+
+}
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim == &htim10) {
         robot.heartBeat();
+    } else if(htim == &htim3) {
+        // 4KHz
+        mpuget();
     } else {
         // pass
     }
@@ -38,46 +76,17 @@ void setup() {
 }
 
 void main_app() {
-    acc_at acc;
-    gyro_at gyro;
-    
-    float mpu_time[2]={0};
-    float mpu_time_diff=0;    
 
     setup();
-    while (1) {
-        if (mpu.init() == 0) {
+
+    while(mpu.init() == 0) {
             robot.led0 = !robot.led0;
             printf("MPU6500 init failed\n");
-        }else{
-            
-            mpu_time[0] = HAL_GetTick();
+    }
 
-            mpu.readAccGyro(&acc, &gyro);
-
-            mpu_time[1] = HAL_GetTick();
-            
-            mpu_time_diff = mpu_time[1] - mpu_time[0];
-
-            printf("%f\n", mpu_time_diff);
-
-
-
-            // acc.x /= 2048;
-            // acc.y /= 2048;
-            // acc.z /= 2048;
-
-            // printf("acc: %.2f, %.2f, %.2f\n", acc.x, acc.y, acc.z);
-
-            // gyro.x /= 16.4;
-            // gyro.y /= 16.4;
-            // gyro.z /= 16.4;
-
-            // printf("gyro: %.2f, %.2f, %.2f\n", gyro.x, gyro.y, gyro.z);
-        }
-
+    while (1) {
+        robot.led1 = !robot.led1;
         HAL_Delay(1000);
-
         // mainMode.loop();
     }
 }
