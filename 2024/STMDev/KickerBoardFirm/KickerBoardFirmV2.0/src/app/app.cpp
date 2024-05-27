@@ -1,16 +1,12 @@
 #include "app.h"
-#include "DigitalInOut.hpp"
 
-#include "PWMSingle.hpp"
-#include "PWMSingleN.hpp"
 #include "CAN.hpp"
-#include "DMAStream.h"
 #include "Timer.hpp"
-#include "adc.h"
 
 #include "Button.hpp"
 #include "Kicker.hpp"
 #include "Booster.hpp"
+#include "Dribbler.hpp"
 
 CANBus can(&hcan, 0x100);
 CANBus::CANData canRecvData;
@@ -22,6 +18,8 @@ Kicker straightKicker(&htim15, TIM_CHANNEL_2, 50, 1000);
 Kicker chipKicker(&htim3, TIM_CHANNEL_2, 50, 1000);
 
 Booster booster(CHARGE_GPIO_Port, CHARGE_Pin);
+
+Dribbler dribbler(&htim1, TIM_CHANNEL_2);
 
 Timer canTransmitIntervalTimer;
 
@@ -77,7 +75,10 @@ void setup() {
     chipKicker.addRelatedKicker(&straightKicker);
     // booster
     booster.setChargeInterval(1000);
-    booster.setChargeEnable();
+    booster.setChargeEnable(); // charge start
+
+    // dribbler
+    dribbler.init();
     printf("Hello World\n");
 }
 
