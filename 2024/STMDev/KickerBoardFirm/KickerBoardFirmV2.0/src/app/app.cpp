@@ -23,6 +23,8 @@ Dribbler dribbler(&htim1, TIM_CHANNEL_2);
 
 Timer canTransmitIntervalTimer;
 
+bool dischargeFlag = false;
+
 void TimInterrupt500hz() {
     sw1.update();
     sw2.update();
@@ -37,20 +39,23 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (can.getHcan() == hcan) {
         can.recv(canRecvData);
         switch (canRecvData.stdId) {
-        case 0x10: // charge
+        case 0x10: // charge Enable
             booster.setChargeEnable();
             break;
-        case 0x11: // kick
+        case 0x11: // charge Disable
+            dischargeFlag = true;
+            break;
+        case 0x12: // kick
             straightKicker.kick((float)(canRecvData.data[0]) / 100);
             break;
-        case 0x12: // chip kick
+        case 0x13: // chip kick
             chipKicker.kick((float)(canRecvData.data[0]) / 100);
             break;
-        case 0x13:
-            // dribbleFlag = true;
+        case 0x14: // dribbler run
+            dribbler.run();
             break;
-        case 0x14:
-            // dribbleStopFlag = true;
+        case 0x15: // dribbler stop
+            dribbler.stop();
             break;
         default:
             break;
@@ -87,6 +92,13 @@ void main_app() {
     while (1) {
         uint16_t photoValue = readPhotoADC();
         printf("sw1:%4dms sw2:%4dms Photo:%4d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue);
+        if (dischargeFlag) {
+            printf("DISCHARGE\n");
+            booster.setChargeDisable();
+            HAL_Delay(500);
+            straightKicker.disCharge();
+            dischargeFlag = false;
+        }
 
         if (sw1.isRelease()) {
             if (sw1.readPressedTime() > 500) {
