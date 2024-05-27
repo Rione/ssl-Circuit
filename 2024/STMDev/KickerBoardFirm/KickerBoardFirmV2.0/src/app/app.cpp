@@ -21,7 +21,7 @@ Button sw2(SW2_GPIO_Port, SW2_Pin);
 Kicker straightKicker(&htim15, TIM_CHANNEL_2, 50, 1000);
 Kicker chipKicker(&htim3, TIM_CHANNEL_2, 50, 1000);
 
-Booster booster(CHARGE_GPIO_Port, CHARGE_Pin, &straightKicker);
+Booster booster(CHARGE_GPIO_Port, CHARGE_Pin);
 
 Timer canTransmitIntervalTimer;
 
@@ -43,10 +43,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             booster.setChargeEnable();
             break;
         case 0x11: // kick
-            straightKick((float)(canRecvData.data[0]) / 100);
+            straightKicker.kick((float)(canRecvData.data[0]) / 100);
             break;
         case 0x12: // chip kick
-            chipKick((float)(canRecvData.data[0]) / 100);
+            chipKicker.kick((float)(canRecvData.data[0]) / 100);
             break;
         case 0x13:
             // dribbleFlag = true;
@@ -60,18 +60,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     }
 }
 
-void chipKick(float power) {
-    straightKicker.disable();
-    chipKicker.kick(power);
-    straightKicker.enable();
-}
-
-void straightKick(float power) {
-    chipKicker.disable();
-    straightKicker.kick(power);
-    chipKicker.enable();
-}
-
 uint16_t readPhotoADC() {
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, 10);
@@ -83,6 +71,10 @@ void setup() {
     // kickers
     straightKicker.init();
     chipKicker.init();
+
+    // add related kicker for mutual exclusion
+    straightKicker.addRelatedKicker(&chipKicker);
+    chipKicker.addRelatedKicker(&straightKicker);
     // booster
     booster.setChargeInterval(1000);
     booster.setChargeEnable();
@@ -93,7 +85,7 @@ void main_app() {
     setup();
     while (1) {
         uint16_t photoValue = readPhotoADC();
-        printf("sw1:%d sw2:%d Photo:%d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue);
+        printf("sw1:%4dms sw2:%4dms Photo:%4d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue);
 
         if (sw1.isRelease()) {
             if (sw1.readPressedTime() > 500) {
@@ -102,7 +94,8 @@ void main_app() {
                 HAL_Delay(500);
                 straightKicker.disCharge();
             } else {
-                chipKick(0.5);
+                chipKicker.kick(0.5);
+                printf("CHIP\n");
             }
         }
 
@@ -112,7 +105,8 @@ void main_app() {
                 HAL_Delay(500);
                 booster.setChargeEnable();
             } else {
-                straightKick(0.5);
+                straightKicker.kick(0.5);
+                printf("STRAIGHT\n");
             }
         }
 

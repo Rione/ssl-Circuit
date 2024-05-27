@@ -8,7 +8,7 @@
 
 class Booster {
   public:
-    Booster(GPIO_TypeDef *port, uint16_t pin, Kicker *straightKicker);
+    Booster(GPIO_TypeDef *port, uint16_t pin);
 
     void setChargeInterval(uint16_t interval);
     void setChargeEnable();
@@ -20,7 +20,6 @@ class Booster {
 
   private:
     DigitalOut chargePin;
-    Kicker *straightKicker;
 
     Timer chargeIntervalTimer;
     Timer chargePinTurnOffTimer;

@@ -12,6 +12,8 @@ class Kicker {
     void disable();
     void enable();
 
+    void addRelatedKicker(Kicker *kicker);
+
     void kick(float power);
     void update();
 
@@ -26,6 +28,9 @@ class Kicker {
     Timer _intervalTimer;
 
     bool available;
+    bool isDischarging;
+
+    Kicker *relatedKicker;
 };
 
 #endif

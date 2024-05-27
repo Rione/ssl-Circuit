@@ -2,8 +2,8 @@
 
 #include "Booster.hpp"
 
-Booster::Booster(GPIO_TypeDef *port, uint16_t pin, Kicker *straightKicker)
-    : chargePin(port, pin), straightKicker(straightKicker), doCharge(false), chargePinState(false), chargeInterval(5000), chargePinTurnOffInterval(2500) {
+Booster::Booster(GPIO_TypeDef *port, uint16_t pin)
+    : chargePin(port, pin), doCharge(false), chargePinState(false), chargeInterval(5000), chargePinTurnOffInterval(2500) {
 }
 
 void Booster::setChargeInterval(uint16_t interval) {
