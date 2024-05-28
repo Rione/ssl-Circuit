@@ -8,7 +8,6 @@
 #include "BufferedSerial.hpp"
 #include "DMAStream.h"
 #include "CAN.hpp"
-#include "BNO055.hpp"
 #include "Timer.hpp"
 
 #include "MotorDriver.hpp"
@@ -142,9 +141,8 @@ class Robot {
     BufferedSerial serial1 = BufferedSerial(&huart1, 128); // pc
     BufferedSerial serial4 = BufferedSerial(&huart4, 128); // xiao
     BufferedSerial serial5 = BufferedSerial(&huart5, 256); // RasPi
-    BNO055 bno = BNO055(&hi2c1);
 
-    MotorDriver motorDriver = MotorDriver(&can, &bno);
+    MotorDriver motorDriver = MotorDriver(&can);
 
     Timer rasSendInterval = Timer();
 

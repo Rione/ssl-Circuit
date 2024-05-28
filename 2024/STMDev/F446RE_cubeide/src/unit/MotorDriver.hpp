@@ -10,7 +10,7 @@
 
 class MotorDriver {
   public:
-    MotorDriver(CANBus *canBus, BNO055 *bno);
+    MotorDriver(CANBus *canBus);
 
     void init();
 
@@ -25,7 +25,6 @@ class MotorDriver {
 
   private:
     CANBus *_canBus;
-    BNO055 *_bno;
 };
 
 #endif

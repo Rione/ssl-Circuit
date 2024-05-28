@@ -91,25 +91,22 @@
 
 #define READ_FLAG 0x80
 
-typedef struct {
-    float x;
-    float y;
-    float z;
-} acc_at;
-
-typedef struct {
-    float x;
-    float y;
-    float z;
-} gyro_at;
-
 class MPU6500 {
-  public:   
+  public:
+    typedef struct {
+        float x;
+        float y;
+        float z;
+    } acc_t;
+
+    typedef struct {
+        float x;
+        float y;
+        float z;
+    } gyro_t;
     MPU6500(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port, uint16_t cs_pin);
     bool init(); // return 1 if success, -1 if fail
-    void readAccGyro(acc_at *acc, gyro_at *gyro);
-    void setSampleRateDrivider(uint8_t div);
-    void setGyroFullScaleRange(uint8_t range);
+    void readAccGyro(acc_t *acc, gyro_t *gyro);
 
   private:
     SPI_HandleTypeDef *_spi;
@@ -126,11 +123,11 @@ class MPU6500 {
         }
 
         HAL_GPIO_WritePin(_cs_port, _cs_pin, GPIO_PIN_RESET);
-        HAL_SPI_TransmitReceive(_spi, tx_data, rx_data, length+1, 1);
+        HAL_SPI_TransmitReceive(_spi, tx_data, rx_data, length + 1, 1);
         HAL_GPIO_WritePin(_cs_port, _cs_pin, GPIO_PIN_SET);
 
         for (size_t i = 0; i < length; i++) {
-            data[i] = rx_data[i+1];
+            data[i] = rx_data[i + 1];
         }
     }
 

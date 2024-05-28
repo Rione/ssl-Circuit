@@ -1,6 +1,6 @@
 #include <MotorDriver.hpp>
 
-MotorDriver::MotorDriver(CANBus *canBus, BNO055 *bno) : _canBus(canBus), _bno(bno) {
+MotorDriver::MotorDriver(CANBus *canBus) : _canBus(canBus) {
 }
 
 void MotorDriver::init() {
