@@ -28,18 +28,15 @@ void mpuget() {
     }
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    if (htim == &htim10) {
-        robot.heartBeat();
-    } else if (htim == &htim3) {
-        // 4KHz
-        mpuget();
-    } else {
-        // pass
-    }
+void TimInterrupt1khz() {
+    robot.heartBeat();
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+void TimInterrupt4khz() {
+    mpuget();
+}
+
+void canRxInterrupt(CAN_HandleTypeDef *hcan) {
     if (robot.can.getHcan() == hcan) {
         robot.can.recv(canRecvData);
         robot.led0 = !robot.led0;
