@@ -17,10 +17,12 @@ MPU6500::gyro_t gyro;
 
 void mpuget() {
 
-    mpu.readAccGyro(&acc, &gyro);
-    printf("ax,%.6f,ay,%.6f,az,%.6f,  ", acc.x, acc.y, acc.z);
-    printf("gx,%.6f,gy, %.6f,gz,%.6f", gyro.x, gyro.y, gyro.z);
-    printf("\n");
+    if(mpu.calib == true){
+        mpu.getAccGyro(&acc, &gyro);
+        printf("ax,%.6f,ay,%.6f,az,%.6f,  ", acc.x, acc.y, acc.z);
+        printf("gx,%.6f,gy, %.6f,gz,%.6f", gyro.x, gyro.y, gyro.z);
+        printf("\n");
+    }
 
     // vel.x += acc.x;
     // vel.y += acc.y;
@@ -50,10 +52,18 @@ void canRxInterrupt(CAN_HandleTypeDef *hcan) {
 }
 
 void setup() {
+    mpu.calib = false;
+
     while (mpu.init() == 0) {
         robot.led0 = !robot.led0;
         printf("MPU6500 init failed\n");
     }
+
+    if (mpu.init() == 1){
+        printf("MPU6500 init success\n");
+        mpu.calibrateAccGyro(&acc, &gyro);
+    }
+    
     robot.hardwareInit();
 }
 
