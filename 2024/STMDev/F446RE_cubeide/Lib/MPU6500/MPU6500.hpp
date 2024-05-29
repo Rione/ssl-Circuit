@@ -104,6 +104,13 @@ class MPU6500 {
         float y;
         float z;
     } gyro_t;
+
+    typedef struct {
+        float x;
+        float y;
+        float z;
+    } xyz_t;
+
     MPU6500(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port, uint16_t cs_pin);
     bool init(); // return 1 if success, -1 if fail
     void readAccGyro(acc_t *acc, gyro_t *gyro);

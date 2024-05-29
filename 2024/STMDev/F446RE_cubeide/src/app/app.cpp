@@ -11,21 +11,20 @@ MainMode mainMode('M', "Main Mode", &robot);
 
 MPU6500 mpu(&hspi2, SPI2_CS0_GPIO_Port, SPI2_CS0_Pin);
 
-Timer time;
-int cnt = 0;
+MPU6500::xyz_t vel;
+MPU6500::acc_t acc;
+MPU6500::gyro_t gyro;
 
 void mpuget() {
-    MPU6500::acc_t acc;
-    MPU6500::gyro_t gyro;
 
     mpu.readAccGyro(&acc, &gyro);
-    cnt++;
+    printf("ax,%.6f,ay,%.6f,az,%.6f,  ", acc.x, acc.y, acc.z);
+    printf("gx,%.6f,gy, %.6f,gz,%.6f", gyro.x, gyro.y, gyro.z);
+    printf("\n");
 
-    if (time.read_ms() > 1000) {
-        printf("cnt : %d\n", cnt);
-        cnt = 0;
-        time.reset();
-    }
+    // vel.x += acc.x;
+    // vel.y += acc.y;
+    // vel.z += acc.z;
 }
 
 void TimInterrupt1khz() {
@@ -61,8 +60,10 @@ void setup() {
 void main_app() {
     setup();
     while (1) {
-        robot.led1 = !robot.led1;
-        HAL_Delay(1000);
+        // printf("x: %.2f, y: %.2f, z: %.2f ", vel.x, vel.y, vel.z);
+
+        wait_ms(10);
+
         // mainMode.loop();
     }
 }
