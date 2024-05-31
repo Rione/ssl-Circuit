@@ -126,6 +126,7 @@ float sin(float rad);
 float cos(float rad);
 float tan(float rad);
 int atan2(int _y, int _x);
+
 int normalizeDegrees(int theta);
 float normalizeRadians(float theta);
 int gapDegrees180(int deg1, int deg2);

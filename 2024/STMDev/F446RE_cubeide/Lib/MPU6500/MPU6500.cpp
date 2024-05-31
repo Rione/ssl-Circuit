@@ -27,7 +27,7 @@ bool MPU6500::init() {
     HAL_Delay(10);
 
     // ACCEL 16G
-    write_reg(REG_ACCEL_CONFIG, BITS_FS_16G); 
+    write_reg(REG_ACCEL_CONFIG, BITS_FS_16G);
     // write_reg(REG_ACCEL_CONFIG, BITS_FS_2G); // 2g
     HAL_Delay(10);
 
@@ -50,7 +50,8 @@ void MPU6500::calibrateAccGyro(acc_t *acc, gyro_t *gyro) {
         gyro_sum.x += gyro->x;
         gyro_sum.y += gyro->y;
         gyro_sum.z += gyro->z;
-        HAL_Delay(1);
+        // HAL_Delay();
+        wait_us(500);
     }
 
     initial_acc[0] = acc_sum.x / cnt_calib;
@@ -65,17 +66,16 @@ void MPU6500::calibrateAccGyro(acc_t *acc, gyro_t *gyro) {
     printf("calibration done\n");
     printf("\n");
     MPU6500::calib = true;
-
 }
 
-void MPU6500::getAccGyro(acc_t *acc, gyro_t *gyro) {
+void MPU6500::getAccGyro(acc_t *acc, gyro_t *gyro, bool divide = false) {
     readAccGyro(acc, gyro);
-    acc->x = (acc->x - initial_acc[0]) / 16384;
-    acc->y = (acc->y - initial_acc[1]) / 16384;
-    acc->z = (acc->z - initial_acc[2]) / 16384;
-    gyro->x = (gyro->x - initial_gyro[0]) / 131;
-    gyro->y = (gyro->y - initial_gyro[1]) / 131;
-    gyro->z = (gyro->z - initial_gyro[2]) / 131;   
+    acc->x = (acc->x - initial_acc[0]) / (divide ? 16384 : 1);
+    acc->y = (acc->y - initial_acc[1]) / (divide ? 16384 : 1);
+    acc->z = (acc->z - initial_acc[2]) / (divide ? 16384 : 1);
+    gyro->x = (gyro->x - initial_gyro[0]) / (divide ? 131 : 1);
+    gyro->y = (gyro->y - initial_gyro[1]) / (divide ? 131 : 1);
+    gyro->z = (gyro->z - initial_gyro[2]) / (divide ? 131 : 1);
 }
 
 void MPU6500::readAccGyro(acc_t *acc, gyro_t *gyro) {
