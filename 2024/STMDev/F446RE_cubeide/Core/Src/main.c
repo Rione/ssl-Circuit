@@ -140,13 +140,14 @@ int main(void)
   MX_TIM10_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-    HAL_TIM_Base_Start_IT(&htim10); // ハ�?�トビート用タイマ�?�割り込みスター�?
-    HAL_TIM_Base_Start_IT(&htim3);  // 4KHz
+    
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
+    setup();
+    HAL_TIM_Base_Start_IT(&htim10); // ハ�?�トビート用タイマ�?�割り込みスター�?
+    HAL_TIM_Base_Start_IT(&htim3);  // 4KHz
     main_app();
     while (1) {
     /* USER CODE END WHILE */

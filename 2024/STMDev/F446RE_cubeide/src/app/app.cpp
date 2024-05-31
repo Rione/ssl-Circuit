@@ -21,28 +21,24 @@ MPU6500::xyz_t att;
 
 Madgwick filter;
 int32_t d = 0;
+float frontDeg = 0;
 
 void mpuget() {
 
-    if (mpu.calib == true) {
+    if (mpu.isCalibrated() == true) {
         mpu.getAccGyro(&acc, &gyro, false);
         filter.updateIMU(gyro.x, gyro.y, gyro.z, acc.x, acc.y, acc.z);
 
         att.x = filter.getRoll();
         att.y = filter.getPitch();
-        att.z = filter.getYaw() > 180 ? filter.getYaw() - 360 : filter.getYaw();
+        att.z = MyMath::gapDegrees180(filter.getYaw() > 180 ? filter.getYaw() - 360 : filter.getYaw(), frontDeg);
 
         // printf("ax,%.6f,ay,%.6f,az,%.6f,  ", acc.x, acc.y, acc.z);
         // printf("gx,%.6f,gy, %.6f,gz,%.6f", gyro.x, gyro.y, gyro.z);
         printf("yaw,%.6f", att.z);
-        // float z = att.z;
-        // if (z > 180) {
-        //     z -= 360;
-        // }
-        // printf("yaw,%.6f\n", att.z);
         printf("\n");
         d++;
-        robot.motorDriver.setVelocityFF(1000 * MyMath::sinDeg(d * 0.36), 1000 * MyMath::cosDeg(d * 0.36), att.z * -200);
+        robot.motorDriver.setVelocityFF(0, 1000 * MyMath::cosDeg(d * 0.36), att.z * -200);
     }
 
     // vel.x += acc.x;
@@ -52,6 +48,7 @@ void mpuget() {
 
 void TimInterrupt1khz() {
     robot.heartBeat();
+    robot.swImu.update();
 }
 
 void TimInterrupt4khz() {
@@ -73,8 +70,6 @@ void canRxInterrupt(CAN_HandleTypeDef *hcan) {
 }
 
 void setup() {
-    mpu.calib = false;
-    filter.begin(4000);
     while (mpu.init() == 0) {
         robot.led0 = !robot.led0;
         printf("MPU6500 init failed\n");
@@ -87,10 +82,10 @@ void setup() {
 
     imuOffsets_t imuOffsets;
 
-    if (robot.swImu.read() == false) {
+    if (robot.swImu.read() == false && mpu.init() == true) {
         // set flash
         printf("IMU calibrating\n");
-        mpu.calibrateAccGyro(&acc, &gyro);
+        mpu.calibrateAccGyro();
         mpu.getOffset(&imuOffsets.acc, &imuOffsets.gyro);
         flash.writeFlash(FLASH_START_ADDRESS, (uint8_t *)&imuOffsets, sizeof(imuOffsets_t));
         HAL_Delay(1000);
@@ -106,11 +101,12 @@ void setup() {
         HAL_Delay(1000);
     }
 
+    filter.begin(4000);
     robot.hardwareInit();
 }
 
 void main_app() {
-    setup();
+    frontDeg = att.z;
     while (1) {
         // printf("x: %.2f, y: %.2f, z: %.2f ", vel.x, vel.y, vel.z);
 
