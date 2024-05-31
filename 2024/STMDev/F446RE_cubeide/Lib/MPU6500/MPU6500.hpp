@@ -116,18 +116,19 @@ class MPU6500 {
     bool init(); // return 1 if success, -1 if fail
     void getAccGyro(acc_t *acc, gyro_t *gyro, bool divide);
     void readAccGyro(acc_t *acc, gyro_t *gyro);
-    void calibrateAccGyro(acc_t *acc, gyro_t *gyro);
-
-    bool calib = false;
+    void calibrateAccGyro();
+    void getOffset(acc_t *acc, gyro_t *gyro);
+    void setOffset(acc_t *acc, gyro_t *gyro);
+    bool isCalibrated() { return calib; }
 
   private:
     SPI_HandleTypeDef *_spi;
     GPIO_TypeDef *_cs_port;
     uint16_t _cs_pin;
-
+    bool calib;
     const uint16_t cnt_calib = 34464;
-    float initial_acc[3] = {0};  // calibration acc x,y,z
-    float initial_gyro[3] = {0}; // calibration gyro x,y,z
+    acc_t offsetAcc;
+    gyro_t offsetGyro;
 
     void read_reg(uint8_t reg, uint8_t *data, size_t length) {
         uint8_t tx_data[length + 1];

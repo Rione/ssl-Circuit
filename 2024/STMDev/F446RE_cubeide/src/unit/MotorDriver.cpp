@@ -27,11 +27,15 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
     // robot moves XY → wheelRotate → motoRotate convert constant
     static constexpr float velXYToMotorRotateRatio = gearRatio / wheelDiameter * 3.141592653589;
 
+    int16_t rotation = _velAng * -robotSpinToMotorRotateRatio;
+
+    rotation = Constrain(rotation, -100, 100);
+
     /*==============calculation============*/
-    int16_t M0 = (_velX * MyMath::sinDeg(55) - _velY * MyMath::cosDeg(55)) * velXYToMotorRotateRatio - _velAng * robotSpinToMotorRotateRatio;
-    int16_t M1 = (_velX * MyMath::sinDeg(135) - _velY * MyMath::cosDeg(135)) * velXYToMotorRotateRatio - _velAng * robotSpinToMotorRotateRatio;
-    int16_t M2 = (_velX * MyMath::sinDeg(-135) - _velY * MyMath::cosDeg(-135)) * velXYToMotorRotateRatio - _velAng * robotSpinToMotorRotateRatio;
-    int16_t M3 = (_velX * MyMath::sinDeg(-55) - _velY * MyMath::cosDeg(-55)) * velXYToMotorRotateRatio - _velAng * robotSpinToMotorRotateRatio;
+    int16_t M0 = (_velX * MyMath::sinDeg(55) - _velY * MyMath::cosDeg(55)) * velXYToMotorRotateRatio + rotation;
+    int16_t M1 = (_velX * MyMath::sinDeg(135) - _velY * MyMath::cosDeg(135)) * velXYToMotorRotateRatio + rotation;
+    int16_t M2 = (_velX * MyMath::sinDeg(-135) - _velY * MyMath::cosDeg(-135)) * velXYToMotorRotateRatio + rotation;
+    int16_t M3 = (_velX * MyMath::sinDeg(-55) - _velY * MyMath::cosDeg(-55)) * velXYToMotorRotateRatio + rotation;
 
     /*==============send data============*/
     // printf("%f, %f, %f\n", _velX, _velY, _velAng);

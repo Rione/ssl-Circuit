@@ -2,7 +2,8 @@
 #define __MotorDriver__
 
 #include "CAN.hpp"
-#include "BNO055.hpp"
+#include "MyMath.hpp"
+
 
 // 単位について
 // vel [m/s]
