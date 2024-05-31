@@ -125,7 +125,7 @@ class MPU6500 {
     GPIO_TypeDef *_cs_port;
     uint16_t _cs_pin;
 
-    const uint16_t cnt_calib = 100000;
+    const uint16_t cnt_calib = 34464;
     float initial_acc[3] = {0};  // calibration acc x,y,z
     float initial_gyro[3] = {0}; // calibration gyro x,y,z
 

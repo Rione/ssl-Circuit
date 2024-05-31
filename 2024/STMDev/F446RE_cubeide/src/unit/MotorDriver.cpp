@@ -8,7 +8,7 @@ void MotorDriver::init() {
 
 void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
 
-    printf("%d, %d, %d\n", velX, velY, velAng);
+    // printf("%d, %d, %d\n", velX, velY, velAng);
     float _velX = (float)(velX);
     float _velY = (float)(velY);
     float _velAng = (float)(velAng) / 1000.0;

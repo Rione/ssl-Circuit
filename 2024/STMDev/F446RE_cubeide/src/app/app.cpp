@@ -18,6 +18,7 @@ MPU6500::gyro_t gyro;
 MPU6500::xyz_t att;
 
 Madgwick filter;
+int32_t d = 0;
 
 void mpuget() {
 
@@ -38,7 +39,8 @@ void mpuget() {
         // }
         // printf("yaw,%.6f\n", att.z);
         printf("\n");
-        robot.motorDriver.setVelocityFF(robot.info.velX.vel, robot.info.velY.vel, att.z * -200);
+        d++;
+        robot.motorDriver.setVelocityFF(1000 * MyMath::sinDeg(d * 0.72), 1000 * MyMath::cosDeg(d * 0.72), att.z * -200);
     }
 
     // vel.x += acc.x;
