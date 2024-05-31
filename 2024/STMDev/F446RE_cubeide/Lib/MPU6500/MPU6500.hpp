@@ -117,8 +117,10 @@ class MPU6500 {
     void getAccGyro(acc_t *acc, gyro_t *gyro, bool divide);
     void readAccGyro(acc_t *acc, gyro_t *gyro);
     void calibrateAccGyro(acc_t *acc, gyro_t *gyro);
+    void getOffset(acc_t *acc, gyro_t *gyro);
+    void setOffset(acc_t *acc, gyro_t *gyro);
 
-    bool calib = false;
+    bool calib;
 
   private:
     SPI_HandleTypeDef *_spi;

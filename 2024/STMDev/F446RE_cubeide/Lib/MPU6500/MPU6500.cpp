@@ -1,6 +1,6 @@
 #include "MPU6500.hpp"
 
-MPU6500::MPU6500(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port, uint16_t cs_pin) {
+MPU6500::MPU6500(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port, uint16_t cs_pin) : calib(false) {
     _spi = spi;
     _cs_port = cs_port;
     _cs_pin = cs_pin;
@@ -65,7 +65,7 @@ void MPU6500::calibrateAccGyro(acc_t *acc, gyro_t *gyro) {
     printf("initial_gyro: %.2f, %.2f, %.2f\n", initial_gyro[0], initial_gyro[1], initial_gyro[2]);
     printf("calibration done\n");
     printf("\n");
-    MPU6500::calib = true;
+    calib = true;
 }
 
 void MPU6500::getAccGyro(acc_t *acc, gyro_t *gyro, bool divide = false) {
@@ -89,4 +89,22 @@ void MPU6500::readAccGyro(acc_t *acc, gyro_t *gyro) {
     gyro->x = (float)(int16_t)((data[0] << 8) | data[1]);
     gyro->y = (float)(int16_t)((data[2] << 8) | data[3]);
     gyro->z = (float)(int16_t)((data[4] << 8) | data[5]);
+}
+
+void MPU6500::getOffset(acc_t *acc, gyro_t *gyro) {
+    acc->x = initial_acc[0];
+    acc->y = initial_acc[1];
+    acc->z = initial_acc[2];
+    gyro->x = initial_gyro[0];
+    gyro->y = initial_gyro[1];
+    gyro->z = initial_gyro[2];
+}
+
+void MPU6500::setOffset(acc_t *acc, gyro_t *gyro) {
+    initial_acc[0] = acc->x;
+    initial_acc[1] = acc->y;
+    initial_acc[2] = acc->z;
+    initial_gyro[0] = gyro->x;
+    initial_gyro[1] = gyro->y;
+    initial_gyro[2] = gyro->z;
 }

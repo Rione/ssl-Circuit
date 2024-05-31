@@ -9,6 +9,7 @@
 #include "DMAStream.h"
 #include "CAN.hpp"
 #include "Timer.hpp"
+#include "Button.hpp"
 
 #include "MotorDriver.hpp"
 
@@ -137,6 +138,7 @@ class Robot {
     DigitalOut led1 = DigitalOut(LED1_GPIO_Port, LED1_Pin);
     DigitalOut led2 = DigitalOut(LED2_GPIO_Port, LED2_Pin);
     PwmSingleOut ledH = PwmSingleOut(&htim1, TIM_CHANNEL_1);
+    Button swImu = Button(IMU_SW_GPIO_Port, IMU_SW_Pin);
 
     BufferedSerial serial1 = BufferedSerial(&huart1, 128); // pc
     BufferedSerial serial4 = BufferedSerial(&huart4, 128); // xiao
