@@ -39,22 +39,22 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (can.getHcan() == hcan) {
         can.recv(canRecvData);
         switch (canRecvData.stdId) {
-        case 0x10: // charge Enable
+        case 0x10: // 16: charge Enable
             booster.setChargeEnable();
             break;
-        case 0x11: // charge Disable
+        case 0x11: // 17: charge Disable
             dischargeFlag = true;
             break;
-        case 0x12: // kick
-            straightKicker.kick((float)(canRecvData.data[0]) / 100);
+        case 0x12: // 18: kick
+            straightKicker.kick((float)canRecvData.data[0] / 100.0);
             break;
-        case 0x13: // chip kick
-            chipKicker.kick((float)(canRecvData.data[0]) / 100);
+        case 0x13: // 19: chip kick
+            chipKicker.kick((float)canRecvData.data[0] / 100.0);
             break;
-        case 0x14: // dribbler run
-            dribbler.run();
+        case 0x14: // 20: dribbler run
+            dribbler.write((float)canRecvData.data[0] / 100.0);
             break;
-        case 0x15: // dribbler stop
+        case 0x15: // 21: dribbler stop
             dribbler.stop();
             break;
         default:
@@ -80,7 +80,7 @@ void setup() {
     chipKicker.addRelatedKicker(&straightKicker);
     // booster
     booster.setChargeInterval(1000);
-    booster.setChargeEnable(); // charge start
+    // booster.setChargeEnable(); // charge start
 
     // dribbler
     dribbler.init();
