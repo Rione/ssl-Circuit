@@ -78,6 +78,22 @@ int __io_getchar(void) {
         ;
     return (rxBuf);
 }
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+    if (htim == &htim10) {
+
+        TimInterrupt1khz();
+    } else if (htim == &htim3) {
+        // 4KHz
+        TimInterrupt4khz();
+    } else {
+        // pass
+    }
+}
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+    canRxInterrupt(hcan);
+}
 /* USER CODE END 0 */
 
 /**
@@ -124,11 +140,14 @@ int main(void)
   MX_TIM10_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-    HAL_TIM_Base_Start_IT(&htim10); // ハートビート用タイマー割り込みスタート
+    
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+    setup();
+    HAL_TIM_Base_Start_IT(&htim10); // ハ�?�トビート用タイマ�?�割り込みスター�?
+    HAL_TIM_Base_Start_IT(&htim3);  // 4KHz
     main_app();
     while (1) {
     /* USER CODE END WHILE */

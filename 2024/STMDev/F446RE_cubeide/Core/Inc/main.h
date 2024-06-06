@@ -89,14 +89,14 @@ void Error_Handler(void);
 #define ADC_SUB3_GPIO_Port GPIOC
 #define SPI2_CS0_Pin GPIO_PIN_12
 #define SPI2_CS0_GPIO_Port GPIOB
+#define IMU_SW_Pin GPIO_PIN_8
+#define IMU_SW_GPIO_Port GPIOC
 #define HEART_BEAT_LED_Pin GPIO_PIN_8
 #define HEART_BEAT_LED_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
-#define DRIB_OUT_Pin GPIO_PIN_4
-#define DRIB_OUT_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

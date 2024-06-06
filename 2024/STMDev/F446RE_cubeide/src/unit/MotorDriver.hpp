@@ -2,7 +2,8 @@
 #define __MotorDriver__
 
 #include "CAN.hpp"
-#include "BNO055.hpp"
+#include "MyMath.hpp"
+
 
 // 単位について
 // vel [m/s]
@@ -10,7 +11,7 @@
 
 class MotorDriver {
   public:
-    MotorDriver(CANBus *canBus, BNO055 *bno);
+    MotorDriver(CANBus *canBus);
 
     void init();
 
@@ -25,7 +26,6 @@ class MotorDriver {
 
   private:
     CANBus *_canBus;
-    BNO055 *_bno;
 };
 
 #endif

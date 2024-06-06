@@ -1,6 +1,6 @@
 #include <MotorDriver.hpp>
 
-MotorDriver::MotorDriver(CANBus *canBus, BNO055 *bno) : _canBus(canBus), _bno(bno) {
+MotorDriver::MotorDriver(CANBus *canBus) : _canBus(canBus) {
 }
 
 void MotorDriver::init() {
@@ -25,18 +25,21 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
     // robot spins → wheelRotate → motorRotate convert Ratio constant
     static constexpr float robotSpinToMotorRotateRatio = (wheelBaseDiameter / wheelDiameter) * gearRatio;
     // robot moves XY → wheelRotate → motoRotate convert constant
-    // static constexpr float velXYToMotorRotateRatio = gearRatio / wheelDiameter * 3.141592653589;
-    static constexpr float velXYToMotorRotateRatio = gearRatio / (wheelDiameter/2);
+    static constexpr float velXYToMotorRotateRatio = gearRatio / (wheelDiameter / 2);
+
+    int16_t rotation = _velAng * -robotSpinToMotorRotateRatio;
+
+    rotation = Constrain(rotation, -100, 100);
 
     /*==============calculation============*/
-    int16_t M0 = (_velX * MyMath::sinDeg(55) - _velY * MyMath::cosDeg(55)) * velXYToMotorRotateRatio - _velAng * robotSpinToMotorRotateRatio;
-    int16_t M1 = (_velX * MyMath::sinDeg(135) - _velY * MyMath::cosDeg(135)) * velXYToMotorRotateRatio - _velAng * robotSpinToMotorRotateRatio;
-    int16_t M2 = (_velX * MyMath::sinDeg(-135) - _velY * MyMath::cosDeg(-135)) * velXYToMotorRotateRatio - _velAng * robotSpinToMotorRotateRatio;
-    int16_t M3 = (_velX * MyMath::sinDeg(-55) - _velY * MyMath::cosDeg(-55)) * velXYToMotorRotateRatio - _velAng * robotSpinToMotorRotateRatio;
+    int16_t M0 = (_velX * MyMath::sinDeg(55) - _velY * MyMath::cosDeg(55) * 1.05) * velXYToMotorRotateRatio + rotation;
+    int16_t M1 = (_velX * MyMath::sinDeg(135) - _velY * MyMath::cosDeg(135)) * velXYToMotorRotateRatio + rotation;
+    int16_t M2 = (_velX * MyMath::sinDeg(-135) - _velY * MyMath::cosDeg(-135)) * velXYToMotorRotateRatio + rotation;
+    int16_t M3 = (_velX * MyMath::sinDeg(-55) - _velY * MyMath::cosDeg(-55) * 1.05) * velXYToMotorRotateRatio + rotation;
 
     /*==============send data============*/
     printf("%f, %f, %f\n", _velX, _velY, _velAng);
-    // printf("%f, %f, %f\n", gearRatio, robotSpinToMotorRotateRatio, velXYToMotorRotateRatio);
+    printf("%f, %f, %f\n", gearRatio, robotSpinToMotorRotateRatio, velXYToMotorRotateRatio);
     printf("%d, %d, %d, %d\n", M0, M1, M2, M3);
     setMotors(M0, M1, M2, M3);
 }
