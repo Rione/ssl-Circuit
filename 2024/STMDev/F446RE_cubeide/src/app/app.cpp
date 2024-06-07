@@ -5,8 +5,6 @@
 #include "MPU6500.hpp"
 #include "MadgwickAHRS.h"
 #include "FLASH_EEPROM.hpp"
-#include "Average.h"
-#include "Median.h"
 
 Robot robot;
 CANBus::CANData canRecvData;
@@ -22,9 +20,6 @@ MPU6500::xyz_t att;
 
 Madgwick filter;
 float frontDeg = 0;
-
-Average_create(float, 100, meanAccX);
-Median_create(float, 100, medianAccX);
 
 void mpuget() {
     if (mpu.isCalibrated() == true) {
@@ -49,7 +44,7 @@ void canRxInterrupt(CAN_HandleTypeDef *hcan) {
         robot.led0 = !robot.led0;
         switch (canRecvData.stdId) {
         case 0x123: // フォトセンサの値
-            robot.info.photoSensorValue = canRecvData.data[0];
+            robot.info.photoSensorValue = (uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8;
             break;
         default:
             break;
@@ -90,14 +85,12 @@ void setup() {
         HAL_Delay(1000);
     }
 
-    meanAccX.init();
     filter.begin(33000); // 4000のはずなんだけど、何故か8.25倍しないとmain_appで使い物にならなかった...
     robot.hardwareInit();
 }
 
 void main_app() {
     frontDeg = att.z;
-    int32_t d = 0;
     while (1) {
         // printf("yaw,%.6f\n", att.z);
         // d++;

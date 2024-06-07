@@ -129,11 +129,56 @@ void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
     rasSendInterval.reset();
 }
 
-void Robot::getSensors(RobotInfo &info) {
+void Robot::getSensors(RobotInfo *info) {
     // バッテリー電圧
-
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, 100);
     uint32_t batt = HAL_ADC_GetValue(&hadc1);
-    info.batteryVoltage = (float)(batt) * 3.3 / 4095.0 * 58.5;
+    info->batteryVoltage = (float)(batt) * 3.3 / 4095.0 * 58.5;
+    info->isHoldBall = (medianPhotoValue.calc(info->photoSensorValue) < PHOTOSENSOR_THRESHOLD); // config
+}
+
+//
+void Robot::dribble(uint8_t power) {
+    static uint8_t dribblePowerPrev = power;
+    if (power == dribblePowerPrev) return; // 連続送信を阻止
+
+    CANBus::CANData canData = {
+        .stdId = DRIBBLE,
+        .data = {power, 0, 0, 0, 0, 0, 0, 0},
+    };
+    can.send(canData);
+    dribblePowerPrev = power;
+}
+
+void Robot::chargeStart() {
+    CANBus::CANData canData = {
+        .stdId = CHARGE_START,
+        .data = {0},
+    };
+    can.send(canData);
+}
+
+void Robot::discharge() {
+    CANBus::CANData canData = {
+        .stdId = DISCHARGE_START,
+        .data = {0},
+    };
+    can.send(canData);
+}
+
+void Robot::kickStraight(uint8_t power) {
+    CANBus::CANData canData = {
+        .stdId = KICK_STRAIGHT,
+        .data = {power, 0, 0, 0, 0, 0, 0, 0},
+    };
+    can.send(canData);
+}
+
+void Robot::kickChip(uint8_t power) {
+    CANBus::CANData canData = {
+        .stdId = KICK_CHIP,
+        .data = {power, 0, 0, 0, 0, 0, 0, 0},
+    };
+    can.send(canData);
 }

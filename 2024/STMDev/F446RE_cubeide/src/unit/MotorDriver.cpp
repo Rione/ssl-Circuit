@@ -38,9 +38,9 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
     int16_t M3 = (_velX * MyMath::sinDeg(-55) - _velY * MyMath::cosDeg(-55) * 1.05) * velXYToMotorRotateRatio + rotation;
 
     /*==============send data============*/
-    printf("%f, %f, %f\n", _velX, _velY, _velAng);
-    printf("%f, %f, %f\n", gearRatio, robotSpinToMotorRotateRatio, velXYToMotorRotateRatio);
-    printf("%d, %d, %d, %d\n", M0, M1, M2, M3);
+    // printf("%f, %f, %f\n", _velX, _velY, _velAng);
+    // printf("%f, %f, %f\n", gearRatio, robotSpinToMotorRotateRatio, velXYToMotorRotateRatio);
+    // printf("%d, %d, %d, %d\n", M0, M1, M2, M3);
     setMotors(M0, M1, M2, M3);
 }
 

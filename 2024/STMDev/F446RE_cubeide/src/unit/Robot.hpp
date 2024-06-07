@@ -2,6 +2,7 @@
 #define __Robot__
 
 #include "main.h"
+#include "config.h"
 
 #include "DigitalInOut.hpp"
 #include "PWMSingle.hpp"
@@ -10,10 +11,9 @@
 #include "CAN.hpp"
 #include "Timer.hpp"
 #include "Button.hpp"
-
 #include "MotorDriver.hpp"
-
 #include "adc.h"
+#include "Median.h"
 
 typedef struct {
     // 0. ヘッダ0xFFを受信
@@ -121,7 +121,7 @@ typedef struct {
     uint8_t batteryVoltage;
 
     // local
-    uint8_t photoSensorValue;
+    uint16_t photoSensorValue;
 } RobotInfo;
 
 class Robot {
@@ -151,13 +151,24 @@ class Robot {
     void hardwareInit();
     void rasRecvSerial();
     void rasSendSerial(RobotInfo &info, uint16_t interval);
-    void getSensors(RobotInfo &info);
+    void getSensors(RobotInfo *info);
+
+    void dribble(uint8_t power);
+
+    void chargeStart();
+    void discharge();
+    void kickStraight(uint8_t power);
+    void kickChip(uint8_t power);
 
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;
         i++;
         ledH.write(MyMath::sinDeg(int(i / 5)) / 2 + 0.5);
     }
+
+  private:
+    uint16_t photoSensorValueBuff[15];
+    Median<uint16_t> medianPhotoValue = Median(photoSensorValueBuff, 15);
 };
 
 #endif
