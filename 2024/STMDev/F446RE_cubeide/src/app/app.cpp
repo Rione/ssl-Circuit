@@ -93,13 +93,15 @@ void main_app() {
     frontDeg = att.z;
     while (1) {
         // printf("yaw,%.6f\n", att.z);
+        // static int d = 0;
         // d++;
-        // 前のsin,cosはワールド座標に対して絶対的な方向をIMUで補正するためのやつ 後のsinはwave運動のためのやつ
+        // // 前のsin, cosはワールド座標に対して絶対的な方向をIMUで補正するためのやつ 後のsinはwave運動のためのやつ
         // robot.motorDriver.setVelocityFF(
         //     1000 * MyMath::sinDeg(att.z) * MyMath::sinDeg(d * 0.18),
         //     1000 * MyMath::cosDeg(att.z) * MyMath::sinDeg(d * 0.18),
         //     3000);
         // wait_us(500);
         mainMode.loop();
+        // printf("Ball:%d Batt:%d\n", robot.info.photoSensorValue, robot.info.batteryVoltage);
     }
 }

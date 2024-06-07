@@ -20,6 +20,9 @@ void Robot::hardwareInit() {
     ledH.init();
     printf("Hello World\n");
 
+    medianPhotoValue.init();
+    medianBatteryValue.init();
+
     // bno.setAttitudeZero();
     // HAL_Delay(1000);
 }
@@ -134,7 +137,7 @@ void Robot::getSensors(RobotInfo *info) {
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, 100);
     uint32_t batt = HAL_ADC_GetValue(&hadc1);
-    info->batteryVoltage = (float)(batt) * 3.3 / 4095.0 * 58.5;
+    info->batteryVoltage = medianBatteryValue.calc((uint8_t)((float)(batt) * 3.3 / 4095.0 * 58.5 - 7));
     info->isHoldBall = (medianPhotoValue.calc(info->photoSensorValue) < PHOTOSENSOR_THRESHOLD); // config
 }
 

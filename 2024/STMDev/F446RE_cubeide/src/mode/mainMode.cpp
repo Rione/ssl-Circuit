@@ -25,8 +25,7 @@ void MainMode::loop() {
     robot->motorDriver.setVelocityFF(robot->info.velX.vel, robot->info.velY.vel, robot->info.velAngler.vel);
     robot->led1 = robot->info.isHoldBall;
 
-    printf("%d %d\n", robot->info.isHoldBall, robot->info.photoSensorValue);
-
+    printf("Ball:%d Batt:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage);
     // Timer Timer;
     // Timer.reset();
     // for (int i = 0; i < 30; i++){

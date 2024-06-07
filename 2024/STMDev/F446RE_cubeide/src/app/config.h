@@ -2,6 +2,7 @@
 #define __Parametors__
 
 #define PHOTOSENSOR_THRESHOLD 1000
+#define BATTERY_CUT_OFF 150
 
 // CAN Standard ID
 #define CHARGE_START 0x10    // 16

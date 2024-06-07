@@ -14,6 +14,7 @@
 #include "MotorDriver.hpp"
 #include "adc.h"
 #include "Median.h"
+#include "Average.h"
 
 typedef struct {
     // 0. ヘッダ0xFFを受信
@@ -163,12 +164,15 @@ class Robot {
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;
         i++;
-        ledH.write(MyMath::sinDeg(int(i / 5)) / 2 + 0.5);
+        ledH.write(MyMath::sinDeg(int(i / (info.batteryVoltage > BATTERY_CUT_OFF ? 5 : 1))) / 2 + 0.5);
     }
 
   private:
     uint16_t photoSensorValueBuff[15];
     Median<uint16_t> medianPhotoValue = Median(photoSensorValueBuff, 15);
+
+    uint8_t batteryValueBuff[15];
+    Median<uint8_t> medianBatteryValue = Median(batteryValueBuff, 15);
 };
 
 #endif
