@@ -6,7 +6,7 @@ MotorDriver::MotorDriver(CANBus *canBus) : _canBus(canBus) {
 void MotorDriver::init() {
 }
 
-void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
+void MotorDriver:: setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
 
     // printf("%d, %d, %d\n", velX, velY, velAng);
     float _velX = (float)(velX);
@@ -57,6 +57,14 @@ void MotorDriver::setMotors(int16_t M0, int16_t M1, int16_t M2, int16_t M3) {
             (uint8_t)(M3 & 0xFF),
             (uint8_t)((M3 >> 8) & 0xFF),
         },
+    };
+    _canBus->send(data);
+}
+
+void MotorDriver::sendEmg() {
+    CANBus::CANData data = {
+        .stdId = 0x00,
+        .data = {0},
     };
     _canBus->send(data);
 }

@@ -123,6 +123,7 @@ typedef struct {
 
     // local
     uint16_t photoSensorValue;
+    bool isUnderVoltage;
 } RobotInfo;
 
 class Robot {
@@ -164,7 +165,7 @@ class Robot {
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;
         i++;
-        ledH.write(MyMath::sinDeg(int(i / (info.batteryVoltage > BATTERY_CUT_OFF ? 5 : 1))) / 2 + 0.5);
+        ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 5 : 1))) / 2 + 0.5);
     }
 
   private:

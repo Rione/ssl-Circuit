@@ -53,10 +53,10 @@ void canRxInterrupt(CAN_HandleTypeDef *hcan) {
 }
 
 void setup() {
-    while (mpu.init() == 0) {
-        robot.led0 = !robot.led0;
-        printf("MPU6500 init failed\n");
-    }
+    // while (mpu.init() == 0) {
+    //     robot.led0 = !robot.led0;
+    //     printf("MPU6500 init failed\n");
+    // }
 
     typedef struct {
         MPU6500::acc_t acc;
@@ -65,7 +65,7 @@ void setup() {
 
     imuOffsets_t imuOffsets;
 
-    if (robot.swImu.read() == false && mpu.init() == true) {
+    if (robot.swImu.read() == false) {
         // set flash
         printf("IMU calibrating\n");
         HAL_Delay(1000);
@@ -87,6 +87,8 @@ void setup() {
 
     filter.begin(33000); // 4000のはずなんだけど、何故か8.25倍しないとmain_appで使い物にならなかった...
     robot.hardwareInit();
+
+    robot.dribble(0);
 }
 
 void main_app() {
@@ -95,13 +97,28 @@ void main_app() {
         // printf("yaw,%.6f\n", att.z);
         // static int d = 0;
         // d++;
-        // // 前のsin, cosはワールド座標に対して絶対的な方向をIMUで補正するためのやつ 後のsinはwave運動のためのやつ
+        // // // 前のsin, cosはワールド座標に対して絶対的な方向をIMUで補正するためのやつ 後のsinはwave運動のためのやつ
         // robot.motorDriver.setVelocityFF(
         //     1000 * MyMath::sinDeg(att.z) * MyMath::sinDeg(d * 0.18),
         //     1000 * MyMath::cosDeg(att.z) * MyMath::sinDeg(d * 0.18),
-        //     3000);
-        // wait_us(500);
+        //     0);
+        // wait_us(1000);
         mainMode.loop();
+        if (robot.swImu.isRelease()) {
+            if (robot.swImu.readPressedTime() > 1600) {
+                robot.discharge();
+                robot.led2 = false;
+                printf("discharge start\n");
+            } else if (robot.swImu.readPressedTime() > 800) {
+                robot.chargeStart();
+                robot.led2 = true;
+                printf("charge start\n");
+            } else if (robot.swImu.readPressedTime() > 200) {
+                robot.kickStraight(100);
+                printf("kick\n");
+            }
+        }
+
         // printf("Ball:%d Batt:%d\n", robot.info.photoSensorValue, robot.info.batteryVoltage);
     }
 }
