@@ -6,11 +6,19 @@
 #include "MadgwickAHRS.h"
 #include "FLASH_EEPROM.hpp"
 
+#include "kickTestMode.hpp"
+#include "wheelTestMode.hpp"
+#include "dribbleTestMode.hpp"
+#include "dischargeMode.hpp"
+
 Robot robot;
 CANBus::CANData canRecvData;
 
 MainMode mainMode('M', "Main Mode", &robot);
-TestMode testMode('T', "Test Mode", &robot);
+KickTestMode kickTestMode('K', "Kick Mode", &robot);
+WheelTestMode wheelTestMode('W', "Motor Mode", &robot);
+DribbleTestMode dribbleTestMode('D', "Dribble Mode", &robot);
+DischargeMode dischargeMode('C', "Discharge Mode", &robot);
 
 MPU6500 mpu(&hspi2, SPI2_CS0_GPIO_Port, SPI2_CS0_Pin);
 Flash_EEPROM flash;
@@ -21,6 +29,11 @@ MPU6500::xyz_t att;
 
 Madgwick filter;
 float frontDeg = 0;
+
+const uint8_t mode_qty = 5;
+Mode *modes[mode_qty] = {&mainMode, &kickTestMode, &wheelTestMode, &dribbleTestMode, &dischargeMode};
+Mode *currentMode = &mainMode;
+
 
 void mpuget() {
     if (mpu.isCalibrated() == true) {
@@ -56,28 +69,22 @@ void canRxInterrupt(CAN_HandleTypeDef *hcan) {
 typedef struct {
     union{
         struct{
-            bool mode : 1;
-            bool emergencyStop : 1;
-            int mode : 2;
-            int _mode : 3;
+            uint8_t mode : 6;
+            bool emergencyStop : 1;          
             bool parity : 1;
         };
         uint8_t data;
     }status;
 
-    uint8_t paramator_1;
-    uint8_t paramator_2;
-    uint8_t paramator_3;
+    bool modePrev = 0;
 
-    bool mode_prev;
+} UIModeSwitch_t;
 
-} XiaoData;
-
-XiaoData UIInfo;
+UIModeSwitch_t uiModeSwitchData;
 
 void xiaoRecvSerial(){
     static const uint8_t HEADER = 0xFF;  // ヘッダ
-    static const uint8_t dataSize = 3;  // データのサイズ
+    static const uint8_t dataSize = 1;  // データのサイズ
     static bool headerReceived = false;  // ヘッダを受信したかどうか
     static uint8_t index = 0;            // 受信したデータのインデックスカウンター
     static uint8_t data[dataSize] = {0}; // 受信したデータ
@@ -106,10 +113,7 @@ void xiaoRecvSerial(){
 
                 if (index == dataSize) {
                     // データ受信完了
-                    UIInfo.status.data = data[0];
-                    UIInfo.paramator_1 = data[1];
-                    UIInfo.paramator_2 = data[2];
-                    UIInfo.paramator_3 = data[3];
+                    uiModeSwitchData.status.data = data[0];
 
                     headerReceived = false; // 次のヘッダを待つ準備をする
                     index = 0;              // インデックスをリセット
@@ -120,27 +124,43 @@ void xiaoRecvSerial(){
     }
 }
 
-void ModeSelect(XiaoData *UIInfo){
-    if(){
-        
-    }else if( == 1){
-        
-    }
+void ModeChange(UIModeSwitch_t *uiModeSwitchData){
+    if(uiModeSwitchData->status.mode != uiModeSwitchData->modePrev){
+        currentMode->after();
+        currentMode = modes[uiModeSwitchData->status.mode];
+        currentMode->before();
     
+        uiModeSwitchData->modePrev = uiModeSwitchData->status.mode;
+    }
 }
 
+Timer t;
+void ModeChange_timer(UIModeSwitch_t *uiModeSwitchData){
+    if(t.read_ms() > 10000){
+        currentMode->after();
+
+        uiModeSwitchData->status.mode = (uiModeSwitchData->status.mode + 1) % mode_qty;
+        currentMode = modes[uiModeSwitchData->status.mode];
+        currentMode->before();
+
+        t.reset();
+    }
+}
 
 
 void setup() {
     robot.hardwareInit();
-    robot.led0 = 1;
+    t.reset();
     
 }
 
 void main_app() {
 
     while (1) {
+        // xiaoRecvSerial();
+        ModeChange_timer(&uiModeSwitchData);
+        currentMode->loop();
 
-                
+                        
     }
 }
