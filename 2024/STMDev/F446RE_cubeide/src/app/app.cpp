@@ -10,6 +10,7 @@ Robot robot;
 CANBus::CANData canRecvData;
 
 MainMode mainMode('M', "Main Mode", &robot);
+TestMode testMode('T', "Test Mode", &robot);
 
 MPU6500 mpu(&hspi2, SPI2_CS0_GPIO_Port, SPI2_CS0_Pin);
 Flash_EEPROM flash;
@@ -52,73 +53,94 @@ void canRxInterrupt(CAN_HandleTypeDef *hcan) {
     }
 }
 
-void setup() {
-    // while (mpu.init() == 0) {
-    //     robot.led0 = !robot.led0;
-    //     printf("MPU6500 init failed\n");
-    // }
+typedef struct {
+    union{
+        struct{
+            bool mode : 1;
+            bool emergencyStop : 1;
+            int mode : 2;
+            int _mode : 3;
+            bool parity : 1;
+        };
+        uint8_t data;
+    }status;
 
-    typedef struct {
-        MPU6500::acc_t acc;
-        MPU6500::gyro_t gyro;
-    } imuOffsets_t;
+    uint8_t paramator_1;
+    uint8_t paramator_2;
+    uint8_t paramator_3;
 
-    imuOffsets_t imuOffsets;
+    bool mode_prev;
 
-    if (robot.swImu.read() == false) {
-        // set flash
-        printf("IMU calibrating\n");
-        HAL_Delay(1000);
-        mpu.calibrateAccGyro();
-        mpu.getOffset(&imuOffsets.acc, &imuOffsets.gyro);
-        flash.writeFlash(FLASH_START_ADDRESS, (uint8_t *)&imuOffsets, sizeof(imuOffsets_t));
-        HAL_Delay(1000);
-        flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&imuOffsets, sizeof(imuOffsets_t));
-        printf("ACC offset saved %.6f, %.6f, %.6f\n", imuOffsets.acc.x, imuOffsets.acc.y, imuOffsets.acc.z);
-        printf("GYR offset saved %.6f, %.6f, %.6f\n", imuOffsets.gyro.x, imuOffsets.gyro.y, imuOffsets.gyro.z);
-    } else {
-        // load flash オフセット値をFlashから読み出す(初回起動時はimu resetスイッチを押して起動すること)
-        flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&imuOffsets, sizeof(imuOffsets_t));
-        mpu.setOffset(&imuOffsets.acc, &imuOffsets.gyro);
-        printf("ACC offset loaded %.6f, %.6f, %.6f\n", imuOffsets.acc.x, imuOffsets.acc.y, imuOffsets.acc.z);
-        printf("GYR offset loaded %.6f, %.6f, %.6f\n", imuOffsets.gyro.x, imuOffsets.gyro.y, imuOffsets.gyro.z);
-        HAL_Delay(1000);
+} XiaoData;
+
+XiaoData UIInfo;
+
+void xiaoRecvSerial(){
+    static const uint8_t HEADER = 0xFF;  // ヘッダ
+    static const uint8_t dataSize = 3;  // データのサイズ
+    static bool headerReceived = false;  // ヘッダを受信したかどうか
+    static uint8_t index = 0;            // 受信したデータのインデックスカウンター
+    static uint8_t data[dataSize] = {0}; // 受信したデータ
+
+    while(robot.serial4.available()){
+        // 1バイト読み込み
+        uint8_t receivedByte = robot.serial4.read();
+        // printf("received %d\n ", receivedByte);
+
+        if (!headerReceived) {
+            index = 0;
+            if (receivedByte == HEADER) {
+                // ヘッダを受信したらデータの受信を開始
+                headerReceived = true; // ヘッダを受信したフラグを立てる
+                // printf("header received %d\n ", receivedByte);
+            } else {
+                headerReceived = false; // ヘッダではないのでフラグをリセット
+                // printf("error: Header is not received %d\n", receivedByte);
+            }
+        } else { // ヘッダを受信した後の処理
+            if (index < dataSize) {
+                // データ受信
+                data[index] = receivedByte;
+                // printf("data[%d]: %d\n", index, data[index]);
+                index++;
+
+                if (index == dataSize) {
+                    // データ受信完了
+                    UIInfo.status.data = data[0];
+                    UIInfo.paramator_1 = data[1];
+                    UIInfo.paramator_2 = data[2];
+                    UIInfo.paramator_3 = data[3];
+
+                    headerReceived = false; // 次のヘッダを待つ準備をする
+                    index = 0;              // インデックスをリセット
+
+                }
+            }
+        }
     }
+}
 
-    filter.begin(33000); // 4000のはずなんだけど、何故か8.25倍しないとmain_appで使い物にならなかった...
+void ModeSelect(XiaoData *UIInfo){
+    if(){
+        
+    }else if( == 1){
+        
+    }
+    
+}
+
+
+
+void setup() {
     robot.hardwareInit();
-
-    robot.dribble(0);
+    robot.led0 = 1;
+    
 }
 
 void main_app() {
-    frontDeg = att.z;
-    while (1) {
-        // printf("yaw,%.6f\n", att.z);
-        // static int d = 0;
-        // d++;
-        // // // 前のsin, cosはワールド座標に対して絶対的な方向をIMUで補正するためのやつ 後のsinはwave運動のためのやつ
-        // robot.motorDriver.setVelocityFF(
-        //     1000 * MyMath::sinDeg(att.z) * MyMath::sinDeg(d * 0.18),
-        //     1000 * MyMath::cosDeg(att.z) * MyMath::sinDeg(d * 0.18),
-        //     0);
-        // wait_us(1000);
-        mainMode.loop();
-        if (robot.swImu.isRelease()) {
-            if (robot.swImu.readPressedTime() > 1600) {
-                robot.discharge();
-                robot.led2 = false;
-                printf("discharge start\n");
-            } else if (robot.swImu.readPressedTime() > 800) {
-                robot.chargeStart();
-                robot.led2 = true;
-                printf("charge start\n");
-            } else if (robot.swImu.readPressedTime() > 200) {
-                robot.kickStraight(100);
-                printf("kick\n");
-            }
-        }
 
-        // printf("Ball:%d Batt:%d\n", robot.info.photoSensorValue, robot.info.batteryVoltage);
+    while (1) {
+
+                
     }
 }
