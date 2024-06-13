@@ -11,13 +11,11 @@ void MainMode::loop() {
     //     static int count = 0;
     //     count++;
     timer.reset();
-    if (!robot->info.status.emergencyStop || !robot->info.isUnderVoltage) {
-        robot->getSensors(&robot->info);
-        robot->rasSendSerial(robot->info, 8);
-        robot->rasRecvSerial(); // sync
-
+    robot->getSensors(&robot->info);
+    robot->rasSendSerial(robot->info, 8);
+    robot->rasRecvSerial(); // sync
+    if (!robot->info.status.emergencyStop || !robot->info.isUnderVoltage || robot->info.status.isSignalReceived) {
         robot->dribble(robot->info.dribblePower);
-
         // ストレートキックを優先する
         if (robot->info.kicker.straight > 0) {
             robot->kickStraight(robot->info.kicker.straight);
@@ -31,11 +29,31 @@ void MainMode::loop() {
         robot->motorDriver.setVelocityFF(__velX, __velY, __velAngler);
     } else {
         // robot->motorDriver.setVelocityFF(0, 0, 0);
-        robot->motorDriver.sendEmg();
-        robot->dribble(0);
+        if (robot->info.status.emergencyStop) {
+            robot->dribble(0);
+            robot->motorDriver.sendEmg();
+        }
     }
-    robot->led1 = robot->info.isHoldBall;
-    printfDMA("Ball:%d Batt:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage);
 
-    while (timer.read_us() < 1000) ; // 1ms time control
+    { // ロボットの状態に関わらず常に行う処理
+        if (robot->swImu.isRelease()) {
+            if (robot->swImu.readPressedTime() > 1600) {
+                robot->discharge();
+                robot->led2 = false;
+                printf("discharge start\n");
+            } else if (robot->swImu.readPressedTime() > 800) {
+                robot->chargeStart();
+                robot->led2 = true;
+                printf("charge start\n");
+            } else if (robot->swImu.readPressedTime() > 200) {
+                robot->kickStraight(100);
+                printf("kick\n");
+            }
+        }
+        robot->led1 = robot->info.isHoldBall;
+        printfDMA("Ball:%d Batt:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage);
+    }
+
+    while (timer.read_us() < 1000)
+        ; // 1ms time control
 }

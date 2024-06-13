@@ -41,7 +41,7 @@ typedef struct {
     //   . bit2: doDirectChipKick
     //   . bit3: reserved
     //   . bit4: reserved
-    //   . bit5: reserved
+    //   . bit5: isSignalReceived
     //   . bit6: isCtrlByRobot (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
     //   . bit7: parity
 
@@ -110,8 +110,8 @@ typedef struct {
             bool doDirectChipKick : 1;
             bool reserved0 : 1;
             bool reserved2 : 1;
-            bool reserved3 : 1;
-            bool isCtrlByRobot : 1; // (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
+            bool isSignalReceived : 1; // コントローラから信号か出ているときにtrue
+            bool isCtrlByRobot : 1;    // (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
             bool parity : 1;
         };
         uint8_t data;

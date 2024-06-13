@@ -94,31 +94,6 @@ void setup() {
 void main_app() {
     frontDeg = att.z;
     while (1) {
-        // printf("yaw,%.6f\n", att.z);
-        // static int d = 0;
-        // d++;
-        // // // 前のsin, cosはワールド座標に対して絶対的な方向をIMUで補正するためのやつ 後のsinはwave運動のためのやつ
-        // robot.motorDriver.setVelocityFF(
-        //     1000 * MyMath::sinDeg(att.z) * MyMath::sinDeg(d * 0.18),
-        //     1000 * MyMath::cosDeg(att.z) * MyMath::sinDeg(d * 0.18),
-        //     0);
-        // wait_us(1000);
         mainMode.loop();
-        if (robot.swImu.isRelease()) {
-            if (robot.swImu.readPressedTime() > 1600) {
-                robot.discharge();
-                robot.led2 = false;
-                printf("discharge start\n");
-            } else if (robot.swImu.readPressedTime() > 800) {
-                robot.chargeStart();
-                robot.led2 = true;
-                printf("charge start\n");
-            } else if (robot.swImu.readPressedTime() > 200) {
-                robot.kickStraight(100);
-                printf("kick\n");
-            }
-        }
-
-        // printf("Ball:%d Batt:%d\n", robot.info.photoSensorValue, robot.info.batteryVoltage);
     }
 }
