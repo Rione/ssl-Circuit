@@ -11,7 +11,7 @@ void DribbleTestMode::after() {
 }
 
 void DribbleTestMode::loop(){
-    if(timer.read_ms() > 1000){
+    if(timer.read_ms() > 100){
         timer.reset();
         robot->led1 = !robot->led1;
     }

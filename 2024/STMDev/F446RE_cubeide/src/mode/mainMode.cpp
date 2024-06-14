@@ -42,7 +42,7 @@ void MainMode::loop() {
 
     // while (timer.read_us() < 1000) ; // 1ms time control
 
-    if(timer.read_ms() > 1500){
+    if(timer.read_ms() > 100){
         timer.reset();
         robot->led0 = !robot->led0;
     }  

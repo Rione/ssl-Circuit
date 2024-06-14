@@ -114,6 +114,8 @@ void xiaoRecvSerial(){
                 if (index == dataSize) {
                     // データ受信完了
                     uiModeSwitchData.status.data = data[0];
+                    // mode = data[0];
+                    printf("mode %d\n", uiModeSwitchData.status.mode);
 
                     headerReceived = false; // 次のヘッダを待つ準備をする
                     index = 0;              // インデックスをリセット
@@ -134,32 +136,36 @@ void ModeChange(UIModeSwitch_t *uiModeSwitchData){
     }
 }
 
-Timer t;
-void ModeChange_timer(UIModeSwitch_t *uiModeSwitchData){
-    if(t.read_ms() > 10000){
-        currentMode->after();
-
-        uiModeSwitchData->status.mode = (uiModeSwitchData->status.mode + 1) % mode_qty;
-        currentMode = modes[uiModeSwitchData->status.mode];
-        currentMode->before();
-
-        t.reset();
-    }
-}
-
 
 void setup() {
-    robot.hardwareInit();
-    t.reset();
-    
+    robot.hardwareInit();    
+    uiModeSwitchData.status.mode = 0; //mainMode
 }
 
 void main_app() {
+    currentMode->before();
+    currentMode->loop();
 
     while (1) {
-        // xiaoRecvSerial();
-        ModeChange_timer(&uiModeSwitchData);
+        xiaoRecvSerial();
+        ModeChange(&uiModeSwitchData);
         currentMode->loop();
+
+
+        //受信
+        // if(robot.serial4.available()){
+        //     printf("received %d\n ", robot.serial4.read());   
+        //     robot.led0 = !robot.led0;    
+        // }
+        
+        //送る
+        // robot.serial4.write(130);
+        // printf("send %d\n ", 130);
+        // HAL_Delay(1000);
+
+
+
+
 
                         
     }
