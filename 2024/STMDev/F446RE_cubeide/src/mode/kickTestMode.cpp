@@ -3,6 +3,7 @@
 void KickTestMode::before() {
     robot->led1 = 1;
     timer.reset();
+    printf("kickTestMode\n");
 }   
 
 void KickTestMode::after() {
@@ -15,5 +16,6 @@ void KickTestMode::loop(){
         timer.reset();
         robot->led1 = !robot->led1;
     }
+    // UiPacketRecv(uiModeSwitchData, 1);
     
 }

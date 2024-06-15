@@ -7,6 +7,7 @@ class MainMode : public Mode {
     void before() override;
     void after() override;
     void loop() override;
+    void encode() override;
 
   private:
     float meanVelXBuf[15];
@@ -18,4 +19,5 @@ class MainMode : public Mode {
     Average<float> meanVelAngler = Average(meanVelAngBuf, 15);
 
     Timer timer;
+
 };

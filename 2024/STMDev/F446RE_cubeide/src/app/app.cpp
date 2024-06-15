@@ -66,80 +66,20 @@ void canRxInterrupt(CAN_HandleTypeDef *hcan) {
     }
 }
 
-typedef struct {
-    union{
-        struct{
-            uint8_t mode : 6;
-            bool emergencyStop : 1;          
-            bool parity : 1;
-        };
-        uint8_t data;
-    }status;
-
-    bool modePrev = 0;
-
-} UIModeSwitch_t;
-
-UIModeSwitch_t uiModeSwitchData;
-
-void xiaoRecvSerial(){
-    static const uint8_t HEADER = 0xFF;  // ヘッダ
-    static const uint8_t dataSize = 1;  // データのサイズ
-    static bool headerReceived = false;  // ヘッダを受信したかどうか
-    static uint8_t index = 0;            // 受信したデータのインデックスカウンター
-    static uint8_t data[dataSize] = {0}; // 受信したデータ
-
-    while(robot.serial4.available()){
-        // 1バイト読み込み
-        uint8_t receivedByte = robot.serial4.read();
-        // printf("received %d\n ", receivedByte);
-
-        if (!headerReceived) {
-            index = 0;
-            if (receivedByte == HEADER) {
-                // ヘッダを受信したらデータの受信を開始
-                headerReceived = true; // ヘッダを受信したフラグを立てる
-                // printf("header received %d\n ", receivedByte);
-            } else {
-                headerReceived = false; // ヘッダではないのでフラグをリセット
-                // printf("error: Header is not received %d\n", receivedByte);
-            }
-        } else { // ヘッダを受信した後の処理
-            if (index < dataSize) {
-                // データ受信
-                data[index] = receivedByte;
-                // printf("data[%d]: %d\n", index, data[index]);
-                index++;
-
-                if (index == dataSize) {
-                    // データ受信完了
-                    uiModeSwitchData.status.data = data[0];
-                    // mode = data[0];
-                    printf("mode %d\n", uiModeSwitchData.status.mode);
-
-                    headerReceived = false; // 次のヘッダを待つ準備をする
-                    index = 0;              // インデックスをリセット
-
-                }
-            }
-        }
-    }
-}
-
-void ModeChange(UIModeSwitch_t *uiModeSwitchData){
-    if(uiModeSwitchData->status.mode != uiModeSwitchData->modePrev){
+void ModeChange(UIModeSwitch_t *_uiModeSwitchData){
+    printf("mode %d modePrev:%d\n", _uiModeSwitchData->status.mode, _uiModeSwitchData->modePrev);
+    if(_uiModeSwitchData->status.mode != _uiModeSwitchData->modePrev){
+        printf("changed");
         currentMode->after();
-        currentMode = modes[uiModeSwitchData->status.mode];
+        currentMode = modes[_uiModeSwitchData->status.mode];
         currentMode->before();
-    
-        uiModeSwitchData->modePrev = uiModeSwitchData->status.mode;
     }
+    _uiModeSwitchData->modePrev = _uiModeSwitchData->status.mode;
 }
-
 
 void setup() {
     robot.hardwareInit();    
-    uiModeSwitchData.status.mode = 0; //mainMode
+    robot.uiModeSwitchData.status.mode = 0; //mainMode
 }
 
 void main_app() {
@@ -147,9 +87,16 @@ void main_app() {
     currentMode->loop();
 
     while (1) {
-        xiaoRecvSerial();
-        ModeChange(&uiModeSwitchData);
+
+        UiPacketRecv(&robot.uiModeSwitchData);
+        ModeChange(&robot.uiModeSwitchData);
         currentMode->loop();
+
+        // currentMode->encode();
+        // HAL_Delay(1000);
+
+        // currentMode->encode();
+        // HAL_Delay(1000);
 
 
         //受信

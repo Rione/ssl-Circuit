@@ -126,12 +126,36 @@ typedef struct {
     bool isUnderVoltage;
 } RobotInfo;
 
+
+typedef struct {
+    union{
+        struct{
+            uint8_t mode : 6;
+            bool emergencyStop : 1;  
+            bool parity : 1;        
+        };
+        uint8_t data;
+    }status;
+
+    uint8_t modePrev = 0;
+
+} UIModeSwitch_t;
+
+typedef struct {
+    uint8_t parametor1;
+    uint8_t paramator2;
+    uint8_t paramator3;
+} UIModeParametor_t;
+
+
 class Robot {
   public:
     Robot();
 
     // values
     RobotInfo info;
+
+    UIModeSwitch_t uiModeSwitchData;
 
     // peripherals
     CANBus can = CANBus(&hcan1, 0);

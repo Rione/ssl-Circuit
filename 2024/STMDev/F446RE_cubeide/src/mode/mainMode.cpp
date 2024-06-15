@@ -4,6 +4,7 @@ void MainMode::before() {
     // robot->chargeStart();
     robot->led0 = 1;    
     timer.reset();
+    printf("mainMode\n");
 }
 
 void MainMode::after() {
@@ -11,8 +12,8 @@ void MainMode::after() {
 }
 
 void MainMode::loop() {
-    //     static int count = 0;
-    //     count++;
+    // static int count = 0;
+    // count++;
     // timer.reset();
     // if (!robot->info.status.emergencyStop || !robot->info.isUnderVoltage) {
     //     robot->getSensors(&robot->info);
@@ -46,5 +47,13 @@ void MainMode::loop() {
         timer.reset();
         robot->led0 = !robot->led0;
     }  
+    // UiPacketRecv(uiModeSwitchData, 1);
+
+}
+
+void MainMode::encode(){
+    // UiPacketRecv(uiModeSwitchData, 1);
+    printf("mainMode\n");
+
     
 }
