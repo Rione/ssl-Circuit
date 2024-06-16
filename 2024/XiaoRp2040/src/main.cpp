@@ -44,6 +44,40 @@ void ModeSend(uint8_t mode, bool emrg){
   // Serial.write(data);
 }
 
+void topUI(){
+  tft.fillRect(0, 0, 160, 240, ILI9341_RED);
+  tft.fillRect(160, 0, 160, 240, ILI9341_BLUE);
+}
+
+void kickUI(){
+  tft.fillRect(0, 0, 160, 240, ILI9341_GREEN);
+  tft.fillRect(160, 0, 160, 240, ILI9341_YELLOW);
+}
+
+int touchCheck(){
+  boolean bTouch = ts.touched();
+
+  if (bTouch == true){
+    TS_Point tPoint = ts.getPoint();
+    last_time = millis();
+    touch = true;
+    // Serial.write("touched\n");
+    // Serial.printf("(x,y) = (%d, %d)\r\n", tPoint.x, tPoint.y);
+
+    if(tPoint.x < 1800){
+      //赤、mainに切り替え
+      return 1;
+    }else{
+      return 2;
+    }
+  }
+  return 0;
+}
+
+void kickSend(){
+
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -60,43 +94,55 @@ void setup() {
   pinMode(BackLight, OUTPUT);
   digitalWrite(BackLight, HIGH);
 
-  tft.fillRect(0,0,160,240,ILI9341_RED);
-  tft.fillRect(160,0,160,240,ILI9341_BLUE);
+  topUI();
+
+  modeSwitchData.status.mode = 0;
 }
 
 void loop() {
-  boolean bTouch = ts.touched();
+  int touch = touchCheck();
 
-  if (bTouch == true){
-    TS_Point tPoint = ts.getPoint();
-    last_time = millis();
-    touch = true;
-    // Serial.write("touched\n");
-    // Serial.printf("(x,y) = (%d, %d)\r\n", tPoint.x, tPoint.y);
+  if(touch == 1){
+    //赤
+    if(mode != 0){
+      //mainに切り替え
+      mode = 0;
+      // ModeSend(mode, false);
+    } 
+    tft.fillScreen(ILI9341_RED);
+    delay(1000);
+    topUI();
 
-    if(tPoint.x < 1800){
-      if(mode != 0){
-        mode = 0;
-        ModeSend(mode, false);
-      }
-      tft.fillScreen(ILI9341_RED);
-
-    }else{
-      if(mode != 1){
-        mode = 1;
-        ModeSend(mode, false);
-      }
-      tft.fillScreen(ILI9341_BLUE);
+  }else if(touch == 2){
+    //青
+    if(mode != 1){
+      //kickに切り替え
+      mode = 1;
+      // ModeSend(mode, false);
     }
+    tft.fillScreen(ILI9341_BLUE);
+    kickUI();
+    while(touch != 1){
+      //黄さらわれたら抜ける
+      touch = touchCheck();
+      if(touch == 1){
+        mode = 0;
+        // ModeSend(mode, false);
+        topUI();
+      }else if(touch == 2){
+        // kickSend();
+        tft.fillScreen(ILI9341_YELLOW);
+        delay(1000);
+        kickUI();
+      }
+    }
+    // ModeSend(mode, false);
+
+    // topUI();
+
+
   }
 
-  if(millis()-last_time > 1000 && touch == true){
-    tft.fillRect(0, 0, 160, 240, ILI9341_RED);
-    tft.fillRect(160, 0, 160, 240, ILI9341_BLUE);
-    touch = false;
-  }
-  
-  
   
 }
 

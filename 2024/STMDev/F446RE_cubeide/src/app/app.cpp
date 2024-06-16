@@ -67,9 +67,8 @@ void canRxInterrupt(CAN_HandleTypeDef *hcan) {
 }
 
 void ModeChange(UIModeSwitch_t *_uiModeSwitchData){
-    printf("mode %d modePrev:%d\n", _uiModeSwitchData->status.mode, _uiModeSwitchData->modePrev);
+    // printf("mode %d modePrev:%d\n", _uiModeSwitchData->status.mode, _uiModeSwitchData->modePrev);
     if(_uiModeSwitchData->status.mode != _uiModeSwitchData->modePrev){
-        printf("changed");
         currentMode->after();
         currentMode = modes[_uiModeSwitchData->status.mode];
         currentMode->before();
@@ -88,7 +87,7 @@ void main_app() {
 
     while (1) {
 
-        UiPacketRecv(&robot.uiModeSwitchData);
+        currentMode->encode(&robot.uiModeSwitchData);
         ModeChange(&robot.uiModeSwitchData);
         currentMode->loop();
 

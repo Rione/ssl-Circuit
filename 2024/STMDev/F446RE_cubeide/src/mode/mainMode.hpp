@@ -7,7 +7,7 @@ class MainMode : public Mode {
     void before() override;
     void after() override;
     void loop() override;
-    void encode() override;
+    void encode(UIModeSwitch_t *_uiModeSwitchData) override;
 
   private:
     float meanVelXBuf[15];
