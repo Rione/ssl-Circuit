@@ -78,18 +78,24 @@ void ModeChange(UIModeSwitch_t *_uiModeSwitchData){
 
 void setup() {
     robot.hardwareInit();    
-    robot.uiModeSwitchData.status.mode = 0; //mainMode
+
+    // robot.uiModeSwitchData.status.mode = 0; //mainMode
+
+    robot.led0 = 1;
 }
 
 void main_app() {
-    currentMode->before();
-    currentMode->loop();
+    // currentMode->before();
+    // currentMode->loop();
 
     while (1) {
 
-        currentMode->encode(&robot.uiModeSwitchData);
-        ModeChange(&robot.uiModeSwitchData);
-        currentMode->loop();
+        robot.led0 = !robot.led0;
+        HAL_Delay(1000);
+
+        // currentMode->encode(&robot.uiModeSwitchData);
+        // ModeChange(&robot.uiModeSwitchData);
+        // currentMode->loop();
 
         // currentMode->encode();
         // HAL_Delay(1000);

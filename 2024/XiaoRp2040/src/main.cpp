@@ -9,6 +9,7 @@
 #include "font/regular15.h"
 
 #include "image.h"
+#include "top.h"
 
 XPT2046_Touchscreen ts(TOUCH_CS);
 TOUCHSCREEN touch = TOUCHSCREEN(&ts, TOUCH_CS);
@@ -79,7 +80,11 @@ void setup() {
 
   delay(1000);
 
-  topUI();
+  display.createSprite();
+  display.setBackgroundImage(top);
+  display.publish();
+
+  // topUI();
 
 }
 
@@ -87,8 +92,8 @@ void loop() {
   
   
 
-  kickUI();
-  while(1);
+  // kickUI();
+  // while(1);
   // touch.read();
 
   // if (touch.isTouched) {
