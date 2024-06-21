@@ -142,10 +142,10 @@ typedef struct {
 } UIModeSwitch_t;
 
 typedef struct {
-    uint8_t parametor1;
-    uint8_t paramator2;
-    uint8_t paramator3;
-} UIModeParametor_t;
+    uint8_t mode;
+    uint8_t KickPower;
+    uint8_t DribPower;
+} UIModeKick_t;
 
 
 class Robot {

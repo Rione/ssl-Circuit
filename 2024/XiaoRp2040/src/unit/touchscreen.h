@@ -36,20 +36,25 @@ class TOUCHSCREEN {
     COORDINATE point = COORDINATE(0, 0);
 
     bool isTouched = false;
+    bool isTouchedPrev = false;
 
     void read(void) {
         digitalWrite(csPin, LOW);
-        TS_Point p = ptr->getPoint();
-
-        raw.x = p.x;
-        raw.y = p.y;
-
-        point.x =
-            constrain(map(p.x, upperLeft.x, bottomRight.x, 0, 320), 0, 320);
-        point.y =
-            constrain(map(p.y, upperLeft.y, bottomRight.y, 0, 240), 0, 240);
-
+        isTouchedPrev = isTouched;
         isTouched = ptr->touched();
+        
+        if(isTouched){
+            TS_Point p = ptr->getPoint();
+
+            raw.x = p.x;
+            raw.y = p.y;
+
+            point.x =
+                constrain(map(p.x, upperLeft.x, bottomRight.x, 0, 320), 0, 320);
+            point.y =
+                constrain(map(p.y, upperLeft.y, bottomRight.y, 0, 240), 0, 240);
+        }
+        
         digitalWrite(csPin, HIGH);
     }
 

@@ -4,6 +4,7 @@
 
 #include "./unit/display.h"
 #include "./unit/touchscreen.h"
+
 #include "font/bold40.h"
 #include "font/bold25.h"
 #include "font/regular15.h"
@@ -11,12 +12,29 @@
 #include "image.h"
 #include "top.h"
 
+
 XPT2046_Touchscreen ts(TOUCH_CS);
 TOUCHSCREEN touch = TOUCHSCREEN(&ts, TOUCH_CS);
 
 TFT_eSPI tft = TFT_eSPI();  
 TFT_eSprite sprite = TFT_eSprite(&tft);
 DISPLAY_DEVICE display = DISPLAY_DEVICE(&tft, &sprite);
+
+typedef struct {
+  union{
+      struct{
+          uint8_t mode : 6;
+          bool emergencyStop : 1;    
+          bool parity : 1;      
+      };
+      uint8_t data;
+  }status;
+
+  uint8_t modePrev = 0;
+
+} UIModeSwitch_t;
+
+UIModeSwitch_t modeData;
 
 void topUI(){
   tft.fillScreen(TFT_WHITE);
@@ -67,7 +85,6 @@ void kickUI(){
 
 }
 
-
 void setup() {
   Serial.begin(115200);
 
@@ -80,16 +97,52 @@ void setup() {
 
   delay(1000);
 
-  display.createSprite();
-  display.setBackgroundImage(top);
-  display.publish();
+  // display.createSprite();
+  // display.setBackgroundImage(top);
+  // display.publish();
 
-  // topUI();
+  kickUI();
+  delay(1000);
+  
+  topUI();
+
+
+  modeData.status.mode = 0;
+  modeData.modePrev = 0;
 
 }
 
 void loop() {
-  
+  //タッチ
+  touch.read();
+
+  //判定
+  if(touch.isTouched && !touch.isTouchedPrev){
+    if(touch.point.x > 20 && touch.point.x < 140 && touch.point.y > 80 && touch.point.y < 200){
+      modeData.status.mode = 1;
+    }
+  }
+
+  //画面切り替え
+  if(modeData.modePrev != modeData.status.mode){
+    switch(modeData.status.mode){
+      case 0:
+        topUI();
+        break;
+      case 1:
+        kickUI();
+        break;
+      default:
+        break;
+    }
+
+    modeData.modePrev = modeData.status.mode;
+  }
+
+  //
+ 
+
+  // touch.read();
   
 
   // kickUI();
