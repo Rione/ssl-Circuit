@@ -1,6 +1,21 @@
 #include <Arduino.h>
 
 #include "UI/ui_kit.hpp"
+UiKit ui;
+
+#include "UI/unit/touchscreen.h"
+XPT2046_Touchscreen ts = XPT2046_Touchscreen(TOUCH_CS);
+TOUCHSCREEN touch = TOUCHSCREEN(&ts, TOUCH_CS);
+
+#include "UI/unit/display.h"
+TFT_eSPI tft = TFT_eSPI();  
+TFT_eSprite sprite = TFT_eSprite(&tft);
+DISPLAY_DEVICE display = DISPLAY_DEVICE(&tft, &sprite);
+
+#include <exception>
+
+#include "UI/mode/mainMode.hpp"
+MainMode mainMode('M', "Main");
 
 typedef struct {
   union{
@@ -18,30 +33,35 @@ typedef struct {
 
 UIModeSwitch_t modeData;
 
-UiKit ui;
+
 
 void setup() {
   Serial.begin(115200);
 
-  // display.createSprite();
-  // display.setBackgroundImage(top);
-  // display.publish();
   ui.init();
 
   delay(1000);
 
-  ui.kickUI();
-  delay(1000);
+  // ui.kickUI();
+  // delay(1000);
   
-  ui.topUI();
+  // ui.topUI();
 
 
   modeData.status.mode = 0;
   modeData.modePrev = 0;
 
+  mainMode.displaySet();
+
 }
 
 void loop() {
+  ui.touchUpdate();
+  mainMode.determine();
+
+  // ui.touchUpdate();
+
+
   //タッチ
   // touch.read();
 
@@ -100,5 +120,3 @@ void loop() {
 //   // Serial1.write(data);
 //   // Serial.print(data,DEC);
 //   // delay(1000);
-
-// }

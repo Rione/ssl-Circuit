@@ -11,6 +11,12 @@
 #include "UI/image/image.h"
 #include "UI/image/top.h"
 
+extern XPT2046_Touchscreen ts;
+extern TOUCHSCREEN touch;
+extern TFT_eSPI tft;
+extern TFT_eSprite sprite;
+extern DISPLAY_DEVICE display;
+
 class UiKit {
   public:
     UiKit(){
@@ -19,16 +25,13 @@ class UiKit {
 
     void init();
 
+    void touchUpdate();
+
     void topUI();
     void kickUI();
   
   private:
-    XPT2046_Touchscreen ts = XPT2046_Touchscreen(TOUCH_CS);
-    TOUCHSCREEN touch = TOUCHSCREEN(&ts, TOUCH_CS);
-
-    TFT_eSPI tft = TFT_eSPI();  
-    TFT_eSprite sprite = TFT_eSprite(&tft);
-    DISPLAY_DEVICE display = DISPLAY_DEVICE(&tft, &sprite);
+    
 
 };
 

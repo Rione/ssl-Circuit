@@ -6,15 +6,15 @@
 class Mode {
   public:
     Mode(char letter, const char name[], Robot *robotPtr) : modeLetter(letter), robot(robotPtr) {
-        strcpy(modeName, name);
+      strcpy(modeName, name);
     }
 
     char *getModeName() {
-        return modeName;
+      return modeName;
     }
 
     char getModeLetter() {
-        return modeLetter;
+      return modeLetter;
     }
 
     virtual void init() {

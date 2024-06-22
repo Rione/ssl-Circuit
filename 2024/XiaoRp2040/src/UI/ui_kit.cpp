@@ -9,6 +9,10 @@ void UiKit::init(){
   display.publish();
 }
 
+void UiKit::touchUpdate(){
+  touch.read();
+}
+
 void UiKit::topUI(){
   tft.fillScreen(TFT_WHITE);
 
