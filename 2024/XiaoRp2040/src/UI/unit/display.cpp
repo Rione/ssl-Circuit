@@ -32,10 +32,13 @@ void DISPLAY_DEVICE::publish(int x, int y) {
     setSPIClockFast();
     spritePtr->pushSprite(x, y);
     spritePtr->deleteSprite();
-    digitalWrite(backlightPin, HIGH);
 }
 
 void DISPLAY_DEVICE::createSprite(int x, int y) {
     spritePtr->createSprite(x, y);
     spritePtr->setColorDepth(5);
+}
+
+void DISPLAY_DEVICE::displayLight(bool light) {
+    digitalWrite(backlightPin, light);
 }

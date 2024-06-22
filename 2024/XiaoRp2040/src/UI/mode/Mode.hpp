@@ -5,7 +5,7 @@
 
 class Mode {
   public:
-    Mode(char letter, const char name[]) : modeLetter(letter){
+    Mode(char letter, const char name[], UiKit *uiPtr) : modeLetter(letter), ui(uiPtr){
         strcpy(modeName, name);
     }
 
@@ -13,13 +13,14 @@ class Mode {
 
     };
 
-    virtual void determine(){
+    virtual void determine(UiKit *_ui){
 
     };
   
   private:
     char modeName[24];
-    char modeLetter;    
+    char modeLetter;  
+    UiKit *ui;
 
 };
 

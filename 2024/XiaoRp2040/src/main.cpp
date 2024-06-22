@@ -15,25 +15,19 @@ DISPLAY_DEVICE display = DISPLAY_DEVICE(&tft, &sprite);
 #include <exception>
 
 #include "UI/mode/mainMode.hpp"
-MainMode mainMode('M', "Main");
+#include "UI/mode/kickTestMode.hpp"
+MainMode mainMode('M', "Main", &ui);
+KickTestMode kickTestMode('K', "Kick", &ui);
 
-typedef struct {
-  union{
-      struct{
-          uint8_t mode : 6;
-          bool emergencyStop : 1;    
-          bool parity : 1;      
-      };
-      uint8_t data;
-  }status;
+Mode *modes[] = {&mainMode,&kickTestMode};
+Mode *currentMode = &mainMode;
 
-  uint8_t modePrev = 0;
-
-} UIModeSwitch_t;
-
-UIModeSwitch_t modeData;
-
-
+void modeSwitch(UiKit *_ui){
+  if(_ui->modeData.status.mode != _ui->modeData.modePrev){
+    currentMode = modes[_ui->modeData.status.mode];
+    _ui->modeData.modePrev = _ui->modeData.status.mode;
+  }
+}
 
 void setup() {
   Serial.begin(115200);
@@ -42,69 +36,22 @@ void setup() {
 
   delay(1000);
 
-  // ui.kickUI();
-  // delay(1000);
-  
-  // ui.topUI();
+  ui.modeData.status.mode = 0;
+  ui.modeData.modePrev = 0;
 
-
-  modeData.status.mode = 0;
-  modeData.modePrev = 0;
-
-  mainMode.displaySet();
+  currentMode->displaySet();
 
 }
 
 void loop() {
   ui.touchUpdate();
-  mainMode.determine();
-
-  // ui.touchUpdate();
-
-
-  //タッチ
-  // touch.read();
-
-  // //判定
-  // if(touch.isTouched && !touch.isTouchedPrev){
-  //   if(touch.point.x > 20 && touch.point.x < 140 && touch.point.y > 80 && touch.point.y < 200){
-  //     modeData.status.mode = 1;
-  //   }
-  // }
-
-  // //画面切り替え
-  // if(modeData.modePrev != modeData.status.mode){
-  //   switch(modeData.status.mode){
-  //     case 0:
-  //       topUI();
-  //       break;
-  //     case 1:
-  //       kickUI();
-  //       break;
-  //     default:
-  //       break;
-  //   }
-
-  //   modeData.modePrev = modeData.status.mode;
-  // }
-
-  //
- 
-
-  // touch.read();
+  if(touch.isTouched && !touch.isTouchedPrev){
+    currentMode->determine(&ui);
+    modeSwitch(&ui);
+    currentMode->displaySet();
+  }
   
-
-  // kickUI();
-  // while(1);
-  // touch.read();
-
-  // if (touch.isTouched) {
-  //   display.createSprite();
-  //   display.setBackgroundImage(rione);
-  //   display.publish();
-  // }
-
-
+  
   
 }
 

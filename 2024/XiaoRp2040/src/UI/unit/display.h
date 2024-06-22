@@ -21,6 +21,8 @@ class DISPLAY_DEVICE {
 
     void createSprite(int x = 320, int y = 240);
 
+    void displayLight(bool light);
+
    private:
     const int backlightPin = 0;
 };

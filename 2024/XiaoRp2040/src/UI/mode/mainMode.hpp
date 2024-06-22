@@ -2,11 +2,11 @@
 
 class MainMode : public Mode {
   public:
-    MainMode(char letter, const char name[]) : Mode(letter, name) {
+    MainMode(char letter, const char name[], UiKit *uiPtr) : Mode(letter, name, uiPtr) {
     }
 
     void displaySet() override;
 
-    void determine() override;
+    void determine(UiKit *_ui) override;
     
 };

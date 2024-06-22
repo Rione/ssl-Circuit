@@ -1,6 +1,7 @@
 #ifndef _UI_KIT_
 #define _UI_KIT_
 
+
 #include "UI/unit/display.h"
 #include "UI/unit/touchscreen.h"
 
@@ -17,8 +18,24 @@ extern TFT_eSPI tft;
 extern TFT_eSprite sprite;
 extern DISPLAY_DEVICE display;
 
+typedef struct {
+  union{
+      struct{
+          uint8_t mode : 6;
+          bool emergencyStop : 1;    
+          bool parity : 1;      
+      };
+      uint8_t data;
+  }status;
+
+  uint8_t modePrev = 0;
+
+} UIModeSwitch_t;
+
 class UiKit {
   public:
+    UIModeSwitch_t modeData;
+
     UiKit(){
 
     }
@@ -26,12 +43,8 @@ class UiKit {
     void init();
 
     void touchUpdate();
-
-    void topUI();
-    void kickUI();
   
   private:
-    
 
 };
 
