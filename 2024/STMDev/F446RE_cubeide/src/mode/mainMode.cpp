@@ -11,11 +11,21 @@ void MainMode::loop() {
     //     static int count = 0;
     //     count++;
     timer.reset();
-    if (!robot->info.status.emergencyStop || !robot->info.isUnderVoltage) {
-        robot->getSensors(&robot->info);
-        robot->rasSendSerial(robot->info, 8);
-        robot->rasRecvSerial(); // sync
+    robot->getSensors(&robot->info);
+    robot->rasSendSerial(robot->info, 8);
+    robot->rasRecvSerial(); // sync
 
+    if (robot->info.velX.vel == 0 && robot->info.velY.vel == 0 && robot->info.velAngler.vel == 0) {
+        if (velZeroCount < 1000) {
+            velZeroCount++;
+        } else {
+            velZeroCount = 1000;
+        }
+    } else {
+        velZeroCount = 0;
+    }
+
+    if (!robot->info.status.emergencyStop && !robot->info.isUnderVoltage && velZeroCount < 1000) {
         robot->dribble(robot->info.dribblePower);
 
         // ストレートキックを優先する
@@ -37,5 +47,6 @@ void MainMode::loop() {
     robot->led1 = robot->info.isHoldBall;
     printfDMA("Ball:%d Batt:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage);
 
-    while (timer.read_us() < 1000) ; // 1ms time control
+    while (timer.read_us() < 1000)
+        ; // 1ms time control
 }
