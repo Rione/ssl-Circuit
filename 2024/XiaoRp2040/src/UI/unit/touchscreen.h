@@ -37,6 +37,7 @@ class TOUCHSCREEN {
 
     bool isTouched = false;
     bool isTouchedPrev = false;
+    // int timeWhenTouched;
 
     void read(void) {
         digitalWrite(csPin, LOW);
@@ -44,6 +45,7 @@ class TOUCHSCREEN {
         isTouched = ptr->touched();
         
         if(isTouched){
+
             TS_Point p = ptr->getPoint();
 
             raw.x = p.x;

@@ -8,5 +8,10 @@ class KickTestMode : public Mode {
     void displaySet() override;
 
     void determine(UiKit *_ui) override;
+
+  private:
+    void kickUI();
+
+    bool changeFlag = true;
     
 };

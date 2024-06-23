@@ -1,9 +1,40 @@
 #include "kickTestMode.hpp"
 
 void KickTestMode::displaySet(){
-  display.displayLight(false);
 
-  display.createSprite(240, 320);
+  if(changeFlag){
+    display.displayLight(false);
+
+    kickUI();
+
+    display.displayLight(true);
+
+    changeFlag = false;
+  }
+  
+}
+
+void KickTestMode::determine(UiKit *_ui){
+  //タッチ
+  if(!touch.isTouched && touch.isTouchedPrev){
+    if(touch.point.x > 20 && touch.point.x < 140 && touch.point.y > 80 && touch.point.y < 200){
+
+      _ui->modeData.status.mode = 0;
+      changeFlag = true;
+
+    }
+    if(touch.point.x > 180 && touch.point.x < 300 && touch.point.y > 80 && touch.point.y < 200){
+
+      _ui->kickModeData.mode = 1;
+      _ui->kickModeData.KickPower = 100;
+
+    }
+    
+  }
+}
+
+void KickTestMode::kickUI(){
+  display.createSprite();
   sprite.fillScreen(TFT_WHITE);
   display.publish();
 
@@ -25,17 +56,4 @@ void KickTestMode::displaySet(){
   sprite.fillScreen(TFT_BLUE);
   sprite.drawString("Shoot", 10, 10);
   display.publish(180, 80);
-
-  display.displayLight(true);
-}
-
-void KickTestMode::determine(UiKit *_ui){
-  //タッチ
-  if(touch.isTouched && !touch.isTouchedPrev){
-    if(touch.point.x > 20 && touch.point.x < 140 && touch.point.y > 80 && touch.point.y < 200){
-
-      _ui->modeData.status.mode = 0;
-
-    }
-  }
 }

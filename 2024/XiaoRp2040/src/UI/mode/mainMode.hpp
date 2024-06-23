@@ -9,4 +9,6 @@ class MainMode : public Mode {
 
     void determine(UiKit *_ui) override;
     
+  private:
+    bool changeFlag = true;
 };

@@ -32,9 +32,16 @@ typedef struct {
 
 } UIModeSwitch_t;
 
+typedef struct {
+  uint8_t mode;
+  uint8_t KickPower;
+  uint8_t DribblePower;
+} KickMode_t;
+
 class UiKit {
   public:
     UIModeSwitch_t modeData;
+    KickMode_t kickModeData;
 
     UiKit(){
 
@@ -43,6 +50,7 @@ class UiKit {
     void init();
 
     void touchUpdate();
+    void homeScreenGesture();
   
   private:
 
