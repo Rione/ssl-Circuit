@@ -14,7 +14,18 @@ void MainMode::loop() {
     robot->getSensors(&robot->info);
     robot->rasSendSerial(robot->info, 8);
     robot->rasRecvSerial(); // sync
-    if (!robot->info.status.emergencyStop || !robot->info.isUnderVoltage || robot->info.status.isSignalReceived) {
+
+    if (robot->info.velX.vel == 0 && robot->info.velY.vel == 0 && robot->info.velAngler.vel == 0) {
+        if (velZeroCount < 1000) {
+            velZeroCount++;
+        } else {
+            velZeroCount = 1000;
+        }
+    } else {
+        velZeroCount = 0;
+    }
+
+    if (!robot->info.status.emergencyStop && !robot->info.isUnderVoltage && velZeroCount < 1000) {
         robot->dribble(robot->info.dribblePower);
         // ストレートキックを優先する
         if (robot->info.kicker.straight > 0) {
