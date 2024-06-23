@@ -5,13 +5,13 @@ class KickTestMode : public Mode {
     KickTestMode(char letter, const char name[], UiKit *uiPtr) : Mode(letter, name, uiPtr) {
     }
 
-    void displaySet() override;
+    void displaySet(UiKit *_ui) override;
 
     void determine(UiKit *_ui) override;
 
   private:
     void kickUI();
 
-    bool changeFlag = true;
+
     
 };

@@ -34,6 +34,7 @@ void UiKit::homeScreenGesture() {
       if (touch.raw.y < yWhenFlagged - 300) {
         flag = false;
         modeData.status.mode = 0;
+        changeFlag = true;
       }
     }
   }

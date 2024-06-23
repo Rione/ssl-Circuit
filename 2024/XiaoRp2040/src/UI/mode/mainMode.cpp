@@ -1,8 +1,8 @@
 #include "mainMode.hpp"
 
-void MainMode::displaySet(){
+void MainMode::displaySet(UiKit *_ui){
 
-  if(changeFlag){
+  if(_ui->changeFlag){
     display.displayLight(false);
 
       display.createSprite();
@@ -30,7 +30,7 @@ void MainMode::displaySet(){
 
     display.displayLight(true);
 
-    changeFlag = false;
+    _ui->changeFlag = false;
   }
   
 }
@@ -41,7 +41,7 @@ void MainMode::determine(UiKit *_ui){
     if(touch.point.x > 20 && touch.point.x < 140 && touch.point.y > 80 && touch.point.y < 200){
 
       _ui->modeData.status.mode = 1;
-      changeFlag = true;
+      _ui->changeFlag = true;
 
     }
   }

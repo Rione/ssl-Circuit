@@ -51,8 +51,11 @@ class UiKit {
 
     void touchUpdate();
     void homeScreenGesture();
+
+    bool changeFlag = true;
   
   private:
+    
 
 };
 

@@ -29,7 +29,7 @@ class TOUCHSCREEN {
         pinMode(csPin, OUTPUT);
 
         ptr->begin();
-        ptr->setRotation(3);
+        ptr->setRotation(1);
     }
 
     COORDINATE raw = COORDINATE(0, 0);
@@ -37,13 +37,44 @@ class TOUCHSCREEN {
 
     bool isTouched = false;
     bool isTouchedPrev = false;
-    // int timeWhenTouched;
+
+    bool isTouched10ms = false;
+    int touchCount = 0;
+    int Time_touchStart = 0;
 
     void read(void) {
         digitalWrite(csPin, LOW);
-        isTouchedPrev = isTouched;
-        isTouched = ptr->touched();
-        
+        isTouched10ms = ptr->touched();
+        isTouchedPrev = false;
+
+        //タッチ判定
+        if(isTouched10ms && !isTouched){
+            if(touchCount == 0){
+                Time_touchStart = millis();
+                touchCount = 1;
+            } else if(millis() - Time_touchStart > 10 && touchCount < 3){
+                touchCount++;
+                Time_touchStart = millis();
+            } else if(millis() - Time_touchStart > 10 && touchCount == 3){
+                isTouched = true;
+                touchCount = 0;
+            }
+        }
+
+        if(!isTouched10ms && isTouched){
+            if(touchCount >= 0){
+                Time_touchStart = millis();
+                touchCount = -1;
+            } else if(millis() - Time_touchStart > 10 && touchCount > -3){
+                touchCount--;
+                Time_touchStart = millis();
+            } else if(millis() - Time_touchStart > 10 && touchCount == -3){
+                isTouched = false;
+                isTouchedPrev = true;
+                touchCount = 0;
+            }
+        }
+
         if(isTouched){
 
             TS_Point p = ptr->getPoint();
@@ -55,6 +86,7 @@ class TOUCHSCREEN {
                 constrain(map(p.x, upperLeft.x, bottomRight.x, 0, 320), 0, 320);
             point.y =
                 constrain(map(p.y, upperLeft.y, bottomRight.y, 0, 240), 0, 240);
+
         }
         
         digitalWrite(csPin, HIGH);

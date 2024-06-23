@@ -15,7 +15,7 @@ void DISPLAY_DEVICE::init(void) {
     spritePtr->setColorDepth(5);
 
     tftPtr->begin();
-    tftPtr->setRotation(1);
+    tftPtr->setRotation(3);
 
     pinMode(TFT_CS, OUTPUT);
 }

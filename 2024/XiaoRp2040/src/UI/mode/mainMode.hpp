@@ -5,10 +5,9 @@ class MainMode : public Mode {
     MainMode(char letter, const char name[], UiKit *uiPtr) : Mode(letter, name, uiPtr) {
     }
 
-    void displaySet() override;
+    void displaySet(UiKit *_ui) override;
 
     void determine(UiKit *_ui) override;
     
-  private:
-    bool changeFlag = true;
+
 };

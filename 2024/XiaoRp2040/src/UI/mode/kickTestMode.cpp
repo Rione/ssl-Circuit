@@ -1,15 +1,15 @@
 #include "kickTestMode.hpp"
 
-void KickTestMode::displaySet(){
+void KickTestMode::displaySet(UiKit *_ui){
 
-  if(changeFlag){
+  if(_ui->changeFlag){
     display.displayLight(false);
 
     kickUI();
 
     display.displayLight(true);
 
-    changeFlag = false;
+    _ui->changeFlag = false;
   }
   
 }
@@ -20,7 +20,7 @@ void KickTestMode::determine(UiKit *_ui){
     if(touch.point.x > 20 && touch.point.x < 140 && touch.point.y > 80 && touch.point.y < 200){
 
       _ui->modeData.status.mode = 0;
-      changeFlag = true;
+      _ui->changeFlag = true;
 
     }
     if(touch.point.x > 180 && touch.point.x < 300 && touch.point.y > 80 && touch.point.y < 200){

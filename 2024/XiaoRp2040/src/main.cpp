@@ -39,7 +39,7 @@ void setup() {
   ui.modeData.status.mode = 0;
   ui.modeData.modePrev = 0;
 
-  currentMode->displaySet();
+  currentMode->displaySet(&ui);
 
 }
 
@@ -48,9 +48,9 @@ void loop() {
   if(!touch.isTouched && touch.isTouchedPrev){
     currentMode->determine(&ui);
     modeSwitch(&ui);
-    currentMode->displaySet();
+    currentMode->displaySet(&ui);
   }
-  ui.homeScreenGesture();
+  if(ui.modeData.status.mode != 0) ui.homeScreenGesture();
   
   
   

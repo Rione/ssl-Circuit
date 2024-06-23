@@ -9,7 +9,7 @@ class Mode {
         strcpy(modeName, name);
     }
 
-    virtual void displaySet(){
+    virtual void displaySet(UiKit *_ui){
 
     };
 
