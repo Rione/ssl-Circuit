@@ -39,11 +39,8 @@ void MainMode::loop() {
         int16_t __velAngler = meanVelAngler.calc((float)robot->info.velAngler.vel);
         robot->motorDriver.setVelocityFF(__velX, __velY, __velAngler);
     } else {
-        // robot->motorDriver.setVelocityFF(0, 0, 0);
-        if (robot->info.status.emergencyStop) {
-            robot->dribble(0);
-            robot->motorDriver.sendEmg();
-        }
+        robot->dribble(0);
+        robot->motorDriver.sendEmg();
     }
 
     { // ロボットの状態に関わらず常に行う処理
