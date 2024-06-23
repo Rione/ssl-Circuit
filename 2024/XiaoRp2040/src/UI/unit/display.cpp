@@ -15,7 +15,7 @@ void DISPLAY_DEVICE::init(void) {
     spritePtr->setColorDepth(5);
 
     tftPtr->begin();
-    tftPtr->setRotation(3);
+    tftPtr->setRotation(1);
 
     pinMode(TFT_CS, OUTPUT);
 }
@@ -28,17 +28,20 @@ void DISPLAY_DEVICE::setBackgroundImage(const uint16_t* imagePtr) {
     spritePtr->pushImage(0, 0, 320, 240, imagePtr);
 }
 
+void DISPLAY_DEVICE::setParttImage(int w, int h, const uint16_t* imagePtr) {
+    spritePtr->createSprite(w, h);
+    spritePtr->pushImage(0, 0, w, h, imagePtr);
+}
+
 void DISPLAY_DEVICE::publish(int x, int y) {
     setSPIClockFast();
     spritePtr->pushSprite(x, y);
     spritePtr->deleteSprite();
+    digitalWrite(backlightPin, HIGH);
+    
 }
 
 void DISPLAY_DEVICE::createSprite(int x, int y) {
     spritePtr->createSprite(x, y);
     spritePtr->setColorDepth(5);
-}
-
-void DISPLAY_DEVICE::displayLight(bool light) {
-    digitalWrite(backlightPin, light);
 }

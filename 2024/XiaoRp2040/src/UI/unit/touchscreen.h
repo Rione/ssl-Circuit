@@ -29,7 +29,7 @@ class TOUCHSCREEN {
         pinMode(csPin, OUTPUT);
 
         ptr->begin();
-        ptr->setRotation(1);
+        ptr->setRotation(3);
     }
 
     COORDINATE raw = COORDINATE(0, 0);

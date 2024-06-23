@@ -11,6 +11,7 @@
 
 #include "UI/image/image.h"
 #include "UI/image/top.h"
+#include "UI/image/kick.h"
 
 extern XPT2046_Touchscreen ts;
 extern TOUCHSCREEN touch;
@@ -41,7 +42,9 @@ typedef struct {
 class UiKit {
   public:
     UIModeSwitch_t modeData;
-    KickMode_t kickModeData;
+    KickMode_t kickModeData = {0, 0, 0};
+
+    
 
     UiKit(){
 
