@@ -1,25 +1,27 @@
 {
   "configurations": [
     {
-      "name": "macos-clang-arm64",
+      "name": "STM32",
       "includePath": [
-        "${workspaceFolder}/**"
+        "${workspaceFolder}/Core/Inc",
+        "${workspaceFolder}/Drivers/STM32F4xx_HAL_Driver/Inc",
+        "${workspaceFolder}/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
+        "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+        "${workspaceFolder}/Drivers/CMSIS/Include",
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/src/app",
+        "${workspaceFolder}/src/mode",
+        "${workspaceFolder}/src/unit",
+        "${workspaceFolder}/Lib/**"
       ],
       "defines": [
-        "_DEBUG",
-        "UNICODE",
-        "_UNICODE",
         "USE_HAL_DRIVER",
         "STM32F446xx"
       ],
-      "intelliSenseMode": "macos-clang-arm64",
-      "compilerPath": "/usr/bin/clang",
-      "compilerArgs": [
-        "-mcpu=cortex-m4",
-        "mthumb"
-      ],
-      "cStandard": "${default}",
-      "cppStandard": "${default}"
+      "compilerPath": "/opt/homebrew/bin/arm-none-eabi-gcc",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "gcc-arm"
     }
   ],
   "version": 4
