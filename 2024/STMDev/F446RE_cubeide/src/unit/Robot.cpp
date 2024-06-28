@@ -133,19 +133,25 @@ void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
 }
 
 void Robot::getSensors(RobotInfo *info) {
+    static uint16_t underVoltageCount = 0;
     // バッテリー電圧
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, 100);
     uint32_t batt = HAL_ADC_GetValue(&hadc1);
     info->batteryVoltage = medianBatteryValue.calc((uint8_t)((float)(batt) * 3.3 / 4095.0 * 58.5 - 7));
     info->isHoldBall = (medianPhotoValue.calc(info->photoSensorValue) < PHOTOSENSOR_THRESHOLD); // config
-    info->isUnderVoltage = (info->batteryVoltage < BATTERY_CUT_OFF);
+    if (info->batteryVoltage < BATTERY_CUT_OFF) {
+        if (underVoltageCount < 1000) underVoltageCount++;
+    } else {
+        if (underVoltageCount > 0) underVoltageCount--;
+    }
+    info->isUnderVoltage = (underVoltageCount == 0);
 }
 
 //
-void Robot::dribble(uint8_t power) {
+void Robot::dribble(uint8_t power, bool forceSend) {
     static uint8_t dribblePowerPrev = power;
-    if (power == dribblePowerPrev) return; // 連続送信を阻止
+    if (power == dribblePowerPrev && forceSend == false) return; // 連続送信を阻止
 
     CANBus::CANData canData = {
         .stdId = DRIBBLE,
@@ -172,17 +178,23 @@ void Robot::discharge() {
 }
 
 void Robot::kickStraight(uint8_t power) {
+    static uint8_t kickerPowerPrev = power;
+    if (power == kickerPowerPrev) return; // 連続送信を阻止
     CANBus::CANData canData = {
         .stdId = KICK_STRAIGHT,
         .data = {power, 0, 0, 0, 0, 0, 0, 0},
     };
     can.send(canData);
+    kickerPowerPrev = power;
 }
 
 void Robot::kickChip(uint8_t power) {
+    static uint8_t kickerPowerPrev = power;
+    if (power == kickerPowerPrev) return; // 連続送信を阻止
     CANBus::CANData canData = {
         .stdId = KICK_CHIP,
         .data = {power, 0, 0, 0, 0, 0, 0, 0},
     };
     can.send(canData);
+    kickerPowerPrev = power;
 }

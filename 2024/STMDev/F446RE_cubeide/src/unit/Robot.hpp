@@ -111,7 +111,7 @@ typedef struct {
             bool reserved0 : 1;
             bool reserved2 : 1;
             bool isSignalReceived : 1; // コントローラから信号か出ているときにtrue
-            bool isCtrlByRobot : 1;    // (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
+            bool isCtrlByRobot : 1;    // (0: RACOON-Ctrl, 1: Robot-local-Ctrl) 位置制御をローカルで行うか否か
             bool parity : 1;
         };
         uint8_t data;
@@ -141,6 +141,7 @@ class Robot {
     DigitalOut led2 = DigitalOut(LED2_GPIO_Port, LED2_Pin);
     PwmSingleOut ledH = PwmSingleOut(&htim1, TIM_CHANNEL_1);
     Button swImu = Button(IMU_SW_GPIO_Port, IMU_SW_Pin);
+    Button swDischarge = Button(DISCHARGE_SW_GPIO_Port, DISCHARGE_SW_Pin);
 
     BufferedSerial serial1 = BufferedSerial(&huart1, 128); // pc
     BufferedSerial serial4 = BufferedSerial(&huart4, 128); // xiao
@@ -155,7 +156,7 @@ class Robot {
     void rasSendSerial(RobotInfo &info, uint16_t interval);
     void getSensors(RobotInfo *info);
 
-    void dribble(uint8_t power);
+    void dribble(uint8_t power, bool forceSend = false);
 
     void chargeStart();
     void discharge();
