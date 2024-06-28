@@ -17,6 +17,10 @@ class MainMode : public Mode {
     Average<float> meanVelY = Average(meanVelYBuf, 15);
     Average<float> meanVelAngler = Average(meanVelAngBuf, 15);
 
-    uint16_t velZeroCount = 0;
     Timer timer;
+
+    bool isRobotStop;
+
+    void checkRobotStop();
+    void boosterManager();
 };

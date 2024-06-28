@@ -7,31 +7,64 @@ void MainMode::before() {
 void MainMode::after() {
 }
 
-void MainMode::loop() {
-    //     static int count = 0;
-    //     count++;
-    timer.reset();
-    robot->getSensors(&robot->info);
-    robot->rasSendSerial(robot->info, 8);
-    robot->rasRecvSerial(); // sync
-
+void MainMode::checkRobotStop() {
+    static int velZeroCount = 0;
     if (robot->info.velX.vel == 0 && robot->info.velY.vel == 0 && robot->info.velAngler.vel == 0) {
         if (velZeroCount < 1000) {
             velZeroCount++;
         } else {
             velZeroCount = 1000;
+            isRobotStop = true;
         }
     } else {
         velZeroCount = 0;
+        isRobotStop = false;
     }
+}
 
-    if (!robot->info.status.emergencyStop && !robot->info.isUnderVoltage && velZeroCount < 1000) {
+void MainMode::boosterManager() {
+    // ロボットの状態に関わらず常に行う処理
+    if (robot->swDischarge.isRelease()) {
+        if (robot->swDischarge.readPressedTime() > 1600) {
+            robot->discharge();
+            robot->led2 = false;
+            printf("discharge start\n");
+        } else if (robot->swDischarge.readPressedTime() > 800) {
+            robot->chargeStart();
+            robot->led2 = true;
+            printf("charge start\n");
+        } else if (robot->swDischarge.readPressedTime() > 200) {
+            robot->kickStraight(100);
+            printf("kick\n");
+        }
+    }
+}
+
+void MainMode::loop() {
+    timer.reset();
+    robot->getSensors(&robot->info);
+    robot->rasSendSerial(robot->info, 8);
+    robot->rasRecvSerial(); // sync
+    checkRobotStop();       // ロボットが停止しているか確認
+    boosterManager();       // 昇圧回路の管理2
+    if (!robot->info.status.emergencyStop && !isRobotStop && robot->info.status.isSignalReceived) {
+        // Robot is Running
         robot->dribble(robot->info.dribblePower);
         // ストレートキックを優先する
         if (robot->info.kicker.straight > 0) {
-            robot->kickStraight(robot->info.kicker.straight);
+            if (robot->info.status.doDirectKick) {
+                if (robot->info.isHoldBall)
+                    robot->kickStraight(robot->info.kicker.straight);
+            } else {
+                robot->kickStraight(robot->info.kicker.straight);
+            }
         } else if (robot->info.kicker.chip > 0) {
-            robot->kickChip(robot->info.kicker.chip);
+            if (robot->info.status.doDirectChipKick) {
+                if (robot->info.isHoldBall)
+                    robot->kickChip(robot->info.kicker.chip);
+            } else {
+                robot->kickChip(robot->info.kicker.chip);
+            }
         }
 
         int16_t __velX = meanVelX.calc((float)robot->info.velX.vel);
@@ -39,28 +72,12 @@ void MainMode::loop() {
         int16_t __velAngler = meanVelAngler.calc((float)robot->info.velAngler.vel);
         robot->motorDriver.setVelocityFF(__velX, __velY, __velAngler);
     } else {
-        robot->dribble(0);
+        // Robot is Stop or Emergency Stop
+        robot->dribble(0, true);
         robot->motorDriver.sendEmg();
     }
-
-    { // ロボットの状態に関わらず常に行う処理
-        if (robot->swImu.isRelease()) {
-            if (robot->swImu.readPressedTime() > 1600) {
-                robot->discharge();
-                robot->led2 = false;
-                printf("discharge start\n");
-            } else if (robot->swImu.readPressedTime() > 800) {
-                robot->chargeStart();
-                robot->led2 = true;
-                printf("charge start\n");
-            } else if (robot->swImu.readPressedTime() > 200) {
-                robot->kickStraight(100);
-                printf("kick\n");
-            }
-        }
-        robot->led1 = robot->info.isHoldBall;
-        printfDMA("Ball:%d Batt:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage);
-    }
+    robot->led1 = robot->info.isHoldBall;
+    printfDMA("Ball:%d Batt:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage);
 
     while (timer.read_us() < 1000)
         ; // 1ms time control
