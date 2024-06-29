@@ -11,6 +11,9 @@
 CANBus can(&hcan, 0x100);
 CANBus::CANData canRecvData;
 
+DigitalOut ledCan(CAN_LED_GPIO_Port, CAN_LED_Pin);
+DigitalOut ledDebug(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin);
+
 Button sw1(SW1_GPIO_Port, SW1_Pin);
 Button sw2(SW2_GPIO_Port, SW2_Pin);
 
@@ -57,6 +60,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         case 0x15: // 21: dribbler stop
             dribbler.stop();
             break;
+        case 0x16: // 22: debug led
+            ledDebug = (canRecvData.data[0] != 0 ? 1 : 0);
+            break;
         default:
             break;
         }
@@ -84,6 +90,13 @@ void setup() {
 
     // dribbler
     dribbler.init();
+
+    for (size_t i = 0; i < 6; i++) {
+        ledDebug = !ledDebug;
+        ledCan = !ledCan;
+        HAL_Delay(100);
+    }
+
     printf("Hello World\n");
 }
 
