@@ -21,6 +21,8 @@ MPU6500::xyz_t att;
 Madgwick filter;
 float frontDeg = 0;
 
+volatile uint16_t photoSensorValue;
+
 void mpuget() {
     if (mpu.isCalibrated() == true) {
         mpu.getAccGyro(&acc, &gyro, false);
@@ -39,13 +41,14 @@ void TimInterrupt4khz() {
     mpuget();
 }
 
-void canRxInterrupt(CAN_HandleTypeDef *hcan) {
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (robot.can.getHcan() == hcan) {
         robot.can.recv(canRecvData);
-        robot.led0 = !robot.led0;
         switch (canRecvData.stdId) {
         case 0x123: // フォトセンサの値
-            robot.info.photoSensorValue = (uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8;
+            photoSensorValue = (uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8;
+            robot.setPhotoSensorValue(photoSensorValue);
+            robot.led0 = !robot.led0;
             break;
         default:
             break;
@@ -96,5 +99,7 @@ void main_app() {
     frontDeg = att.z;
     while (1) {
         mainMode.loop();
+        // printf("ball:%d Batt:%d\n", robot.info.photoSensorValue, robot.info.batteryVoltage);
+        // HAL_Delay(10);
     }
 }

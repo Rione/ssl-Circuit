@@ -150,51 +150,17 @@ void Robot::getSensors(RobotInfo *info) {
 
 //
 void Robot::dribble(uint8_t power, bool forceSend) {
+    static Timer timer;
     static uint8_t dribblePowerPrev = power;
-    if (power == dribblePowerPrev && forceSend == false) return; // 連続送信を阻止
-
+    if (power == dribblePowerPrev && forceSend == false) {
+        if (timer.read_ms() < 100)
+            return;
+    }
     CANBus::CANData canData = {
         .stdId = DRIBBLE,
         .data = {power, 0, 0, 0, 0, 0, 0, 0},
     };
     can.send(canData);
+    timer.reset();
     dribblePowerPrev = power;
-}
-
-void Robot::chargeStart() {
-    CANBus::CANData canData = {
-        .stdId = CHARGE_START,
-        .data = {0},
-    };
-    can.send(canData);
-}
-
-void Robot::discharge() {
-    CANBus::CANData canData = {
-        .stdId = DISCHARGE_START,
-        .data = {0},
-    };
-    can.send(canData);
-}
-
-void Robot::kickStraight(uint8_t power) {
-    static uint8_t kickerPowerPrev = power;
-    if (power == kickerPowerPrev) return; // 連続送信を阻止
-    CANBus::CANData canData = {
-        .stdId = KICK_STRAIGHT,
-        .data = {power, 0, 0, 0, 0, 0, 0, 0},
-    };
-    can.send(canData);
-    kickerPowerPrev = power;
-}
-
-void Robot::kickChip(uint8_t power) {
-    static uint8_t kickerPowerPrev = power;
-    if (power == kickerPowerPrev) return; // 連続送信を阻止
-    CANBus::CANData canData = {
-        .stdId = KICK_CHIP,
-        .data = {power, 0, 0, 0, 0, 0, 0, 0},
-    };
-    can.send(canData);
-    kickerPowerPrev = power;
 }

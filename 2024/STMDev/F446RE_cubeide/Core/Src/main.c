@@ -91,9 +91,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     }
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-    canRxInterrupt(hcan);
-}
 /* USER CODE END 0 */
 
 /**
@@ -145,7 +142,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     setup();
-    HAL_TIM_Base_Start_IT(&htim10); // ハ�??��トビート用タイマ�??��割り込みスター?��?
+    HAL_TIM_Base_Start_IT(&htim10); // ハ�??��トビート用タイマ�??��割り込みスター?��?
     HAL_TIM_Base_Start_IT(&htim3);  // 4KHz
     main_app();
     while (1) {

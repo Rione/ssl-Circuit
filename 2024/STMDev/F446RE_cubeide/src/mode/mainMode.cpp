@@ -7,39 +7,6 @@ void MainMode::before() {
 void MainMode::after() {
 }
 
-void MainMode::checkRobotStop() {
-    static int velZeroCount = 0;
-    if (robot->info.velX.vel == 0 && robot->info.velY.vel == 0 && robot->info.velAngler.vel == 0) {
-        if (velZeroCount < 1000) {
-            velZeroCount++;
-        } else {
-            velZeroCount = 1000;
-            isRobotStop = true;
-        }
-    } else {
-        velZeroCount = 0;
-        isRobotStop = false;
-    }
-}
-
-void MainMode::boosterManager() {
-    // ロボットの状態に関わらず常に行う処理
-    if (robot->swDischarge.isRelease()) {
-        if (robot->swDischarge.readPressedTime() > 1600) {
-            robot->discharge();
-            robot->led2 = false;
-            printf("discharge start\n");
-        } else if (robot->swDischarge.readPressedTime() > 800) {
-            robot->chargeStart();
-            robot->led2 = true;
-            printf("charge start\n");
-        } else if (robot->swDischarge.readPressedTime() > 200) {
-            robot->kickStraight(100);
-            printf("kick\n");
-        }
-    }
-}
-
 void MainMode::loop() {
     timer.reset();
     robot->getSensors(&robot->info);
@@ -73,12 +40,10 @@ void MainMode::loop() {
         robot->motorDriver.setVelocityFF(__velX, __velY, __velAngler);
     } else {
         // Robot is Stop or Emergency Stop
-        robot->dribble(0, true);
-        robot->motorDriver.sendEmg();
+        robot->stopRobot(500);
     }
     robot->led1 = robot->info.isHoldBall;
     printfDMA("Ball:%d Batt:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage);
-
     while (timer.read_us() < 1000)
         ; // 1ms time control
 }
