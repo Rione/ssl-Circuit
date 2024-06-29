@@ -8,6 +8,8 @@
 #include "Booster.hpp"
 #include "Dribbler.hpp"
 
+#include "DMAStream.h"
+
 CANBus can(&hcan, 0x100);
 CANBus::CANData canRecvData;
 
@@ -21,6 +23,7 @@ Kicker straightKicker(&htim15, TIM_CHANNEL_2, 50, 1000);
 Kicker chipKicker(&htim3, TIM_CHANNEL_2, 50, 1000);
 
 Booster booster(CHARGE_GPIO_Port, CHARGE_Pin);
+DigitalIn donePin(DONE_GPIO_Port, DONE_Pin);
 
 Dribbler dribbler(&htim1, TIM_CHANNEL_2);
 
@@ -94,7 +97,7 @@ void setup() {
     for (size_t i = 0; i < 6; i++) {
         ledDebug = !ledDebug;
         ledCan = !ledCan;
-        HAL_Delay(100);
+        HAL_Delay(50);
     }
 
     printf("Hello World\n");
@@ -104,7 +107,9 @@ void main_app() {
     setup();
     while (1) {
         uint16_t photoValue = readPhotoADC();
-        printf("sw1:%4dms sw2:%4dms Photo:%4d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue);
+        bool done = donePin.read();
+        ledDebug = done;
+        printf("sw1:%4dms sw2:%4dms Photo:%4d done:%d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue, done);
         if (dischargeFlag) {
             printf("DISCHARGE\n");
             booster.setChargeDisable();

@@ -4,7 +4,7 @@
     {
       "name": "Cortex Debug",
       "cwd": "${workspaceRoot}",
-      "executable": "./build/KickerBoardFirmV1.0.elf",
+      "executable": "./build/KickerBoardFirmV2.0.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -17,15 +17,11 @@
       "liveWatch": {
         "enabled": true,
         "samplesPerSecond": 4
-      }
-    },
-    {
-      "name": "C/C++ Runner: Debug Session",
-      "type": "lldb",
-      "request": "launch",
-      "args": [],
-      "cwd": "/Users/tomixrm/Documents/Dev/Robots/ssl-Circuit/2024/STMDev/KickerBoardFirm/KickerBoardFirmV1.0/src/app",
-      "program": "/Users/tomixrm/Documents/Dev/Robots/ssl-Circuit/2024/STMDev/KickerBoardFirm/KickerBoardFirmV1.0/src/app/build/Debug/outDebug"
+      },
+      "openOCDLaunchCommands": [
+        "-c",
+        "adapter_khz 950"
+      ]
     }
   ]
 }

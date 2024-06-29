@@ -77,6 +77,8 @@ void Error_Handler(void);
 #define DEBUG_LED_GPIO_Port GPIOB
 #define SW1_Pin GPIO_PIN_5
 #define SW1_GPIO_Port GPIOB
+#define DONE_Pin GPIO_PIN_6
+#define DONE_GPIO_Port GPIOB
 #define CHARGE_Pin GPIO_PIN_7
 #define CHARGE_GPIO_Port GPIOB
 
