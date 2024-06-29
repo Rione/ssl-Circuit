@@ -166,7 +166,7 @@ class Robot {
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;
         i++;
-        ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 5 : 1))) / 2 + 0.5);
+        ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 1 : 5))) / 2 + 0.5);
     }
 
   private:

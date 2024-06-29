@@ -32,6 +32,7 @@ void mpuget() {
 void TimInterrupt1khz() {
     robot.heartBeat();
     robot.swImu.update();
+    robot.swDischarge.update();
 }
 
 void TimInterrupt4khz() {
