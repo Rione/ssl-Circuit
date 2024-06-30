@@ -109,6 +109,8 @@ void setup() {
     robot.hardwareInit();
 
     robot.dribble(0);
+
+    HAL_Delay(1000);
 }
 
 void main_app() {

@@ -174,20 +174,34 @@ class Robot {
         minusCapChargeCertitude(100);
     }
     inline __attribute__((always_inline)) void kickStraight(uint8_t power) {
+        static Timer timer;
+        if (timer.read_ms() < 1000) {
+            return;
+        } else if (timer.read_ms() > 1000) {
+            timer.set_ms(1000);
+        }
         CANBus::CANData canData = {
             .stdId = KICK_STRAIGHT,
             .data = {power, 0, 0, 0, 0, 0, 0, 0},
         };
         can.send(canData);
+        timer.reset();
         minusCapChargeCertitude(power);
     }
 
     inline __attribute__((always_inline)) void kickChip(uint8_t power) {
+        static Timer timer;
+        if (timer.read_ms() < 1000) {
+            return;
+        } else if (timer.read_ms() > 1000) {
+            timer.set_ms(1000);
+        }
         CANBus::CANData canData = {
             .stdId = KICK_CHIP,
             .data = {power, 0, 0, 0, 0, 0, 0, 0},
         };
         can.send(canData);
+        timer.reset();
         minusCapChargeCertitude(power);
     }
 
