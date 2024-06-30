@@ -148,7 +148,6 @@ void Robot::getSensors(RobotInfo *info) {
     info->isUnderVoltage = (underVoltageCount == 0);
 }
 
-//
 void Robot::dribble(uint8_t power, bool forceSend) {
     static Timer timer;
     static uint8_t dribblePowerPrev = power;

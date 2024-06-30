@@ -43,7 +43,7 @@ void MainMode::loop() {
         robot->stopRobot(500);
     }
     robot->led1 = robot->info.isHoldBall;
-    printfDMA("Ball:%d Batt:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage);
+    printfDMA("Ball:%d Batt:%d Cap:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage, robot->getCapChargeCertitude());
     while (timer.read_us() < 1000)
         ; // 1ms time control
 }

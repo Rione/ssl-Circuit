@@ -22,6 +22,8 @@ class Timer {
 
     uint32_t read_count();
 
+    void set_ms(uint32_t ms);
+
   private:
     uint32_t startTime;
 };
