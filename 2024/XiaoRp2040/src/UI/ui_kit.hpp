@@ -34,7 +34,13 @@ typedef struct {
 } UIModeSwitch_t;
 
 typedef struct {
-  uint8_t mode;
+  union {
+    struct {
+      uint8_t mode : 7;
+      bool charge: 1;
+    };
+    uint8_t data;
+  }status;
   uint8_t KickPower;
   uint8_t DribblePower;
 } KickMode_t;
