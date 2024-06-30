@@ -21,8 +21,6 @@ MPU6500::xyz_t att;
 Madgwick filter;
 float frontDeg = 0;
 
-volatile uint16_t photoSensorValue;
-
 void mpuget() {
     if (mpu.isCalibrated() == true) {
         mpu.getAccGyro(&acc, &gyro, false);
@@ -45,9 +43,27 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (robot.can.getHcan() == hcan) {
         robot.can.recv(canRecvData);
         switch (canRecvData.stdId) {
-        case 0x123: // フォトセンサの値
-            photoSensorValue = (uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8;
-            robot.setPhotoSensorValue(photoSensorValue);
+        // KickerBoard Commands
+        case 0x10: // 16: charge Enable
+            robot.led2 = true;
+            break;
+        case 0x11: // 17: charge Disable
+            robot.minusCapChargeCertitude(100);
+            robot.led2 = false;
+            break;
+        case 0x12: // 18: kick
+            robot.minusCapChargeCertitude(canRecvData.data[0]);
+            break;
+        case 0x13: // 19: chip kick
+            robot.minusCapChargeCertitude(canRecvData.data[0]);
+            break;
+        // case 0x14: // 20: dribbler run
+        //     break;
+        // case 0x15: // 21: dribbler stop
+        //     break;
+        case 0x123: // フォトセンサの値・充電完了信号の受信
+            robot.setPhotoSensorValue((uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8);
+            robot.setChageDoneSignal(canRecvData.data[2]); // 充電完了信号の処理
             robot.led0 = !robot.led0;
             break;
         default:

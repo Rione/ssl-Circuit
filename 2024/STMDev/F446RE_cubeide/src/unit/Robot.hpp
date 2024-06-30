@@ -171,6 +171,7 @@ class Robot {
             .data = {0},
         };
         can.send(canData);
+        minusCapChargeCertitude(100);
     }
     inline __attribute__((always_inline)) void kickStraight(uint8_t power) {
         CANBus::CANData canData = {
@@ -178,6 +179,7 @@ class Robot {
             .data = {power, 0, 0, 0, 0, 0, 0, 0},
         };
         can.send(canData);
+        minusCapChargeCertitude(power);
     }
 
     inline __attribute__((always_inline)) void kickChip(uint8_t power) {
@@ -186,10 +188,30 @@ class Robot {
             .data = {power, 0, 0, 0, 0, 0, 0, 0},
         };
         can.send(canData);
+        minusCapChargeCertitude(power);
     }
 
     inline __attribute__((always_inline)) void setPhotoSensorValue(uint16_t value) {
         info.photoSensorValue = value;
+    }
+
+    inline __attribute__((always_inline)) void setChageDoneSignal(uint16_t value) {
+        if (value == 0xFF) { // Done
+            capChargeCertitude = 100;
+            led2 = true;
+        }
+    }
+
+    inline __attribute__((always_inline)) void minusCapChargeCertitude(uint8_t value) {
+        if (capChargeCertitude < value) {
+            capChargeCertitude = 0;
+            return;
+        }
+        capChargeCertitude -= value;
+    }
+
+    uint8_t getCapChargeCertitude() {
+        return capChargeCertitude;
     }
 
     inline __attribute__((always_inline)) void heartBeat() {
@@ -213,6 +235,9 @@ class Robot {
 
     uint8_t batteryValueBuff[15];
     Median<uint8_t> medianBatteryValue = Median(batteryValueBuff, 15);
+
+    Timer lastChargeDoneTime;
+    uint8_t capChargeCertitude; // 0~100
 };
 
 #endif
