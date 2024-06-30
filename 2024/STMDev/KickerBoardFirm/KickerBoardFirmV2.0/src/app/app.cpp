@@ -22,7 +22,7 @@ Button sw2(SW2_GPIO_Port, SW2_Pin);
 Kicker straightKicker(&htim15, TIM_CHANNEL_2, 50, 1000);
 Kicker chipKicker(&htim3, TIM_CHANNEL_2, 50, 1000);
 
-Booster booster(CHARGE_GPIO_Port, CHARGE_Pin);
+Booster booster(CHARGE_GPIO_Port, CHARGE_Pin, DONE_GPIO_Port, DONE_Pin);
 DigitalIn donePin(DONE_GPIO_Port, DONE_Pin);
 
 Dribbler dribbler(&htim1, TIM_CHANNEL_2);
@@ -107,9 +107,7 @@ void main_app() {
     setup();
     while (1) {
         uint16_t photoValue = readPhotoADC();
-        bool done = donePin.read();
-        ledDebug = done;
-        printf("sw1:%4dms sw2:%4dms Photo:%4d done:%d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue, done);
+        ledDebug = donePin.read();
         if (dischargeFlag) {
             printf("DISCHARGE\n");
             booster.setChargeDisable();
@@ -142,10 +140,15 @@ void main_app() {
         }
 
         if (canTransmitIntervalTimer.read_ms() > 10) {
+            bool done = booster.getDone();
+            printf("sw1:%4dms sw2:%4dms Photo:%4d Done:%d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue, done);
             CANBus::CANData canPhotoData = {
                 .stdId = 0x123,
-                .data = {(uint8_t)(photoValue & 0xFF),
-                         (uint8_t)((photoValue >> 8) & 0xFF)}};
+                .data = {
+                    (uint8_t)(photoValue & 0xFF),
+                    (uint8_t)((photoValue >> 8) & 0xFF),
+                    (uint8_t)(done ? 255 : 0),
+                }};
             can.send(canPhotoData);
             canTransmitIntervalTimer.reset();
         }

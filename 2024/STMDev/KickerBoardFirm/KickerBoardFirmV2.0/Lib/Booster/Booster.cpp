@@ -2,8 +2,8 @@
 
 #include "Booster.hpp"
 
-Booster::Booster(GPIO_TypeDef *port, uint16_t pin)
-    : chargePin(port, pin), doCharge(false), chargePinState(false), chargeInterval(5000), chargePinTurnOffInterval(2500) {
+Booster::Booster(GPIO_TypeDef *chargePort, uint16_t chargepin, GPIO_TypeDef *donePort, uint16_t donePin)
+    : chargePin(chargePort, chargepin), donePin(donePort, donePin), doCharge(false), chargePinState(false), chargeDoneCount(false), chargeInterval(500), chargePinTurnOffInterval(2500) {
 }
 
 void Booster::setChargeInterval(uint16_t interval) {
@@ -22,23 +22,34 @@ void Booster::setChargeDisable() {
 
 void Booster::update() {
     if (doCharge) {
-        // charge
-        if (chargePinState == false && chargeIntervalTimer.read_ms() >= chargeInterval) {
-            // turn on charge pin
-            chargePin.write(true);
-            chargePinState = true;
-
-            chargePinTurnOffTimer.reset();
-            printf("charge pin on\n");
-        }
-
-        if (chargePinState == true && chargePinTurnOffTimer.read_ms() >= chargePinTurnOffInterval) {
-            // turn off charge pin
-            chargePin.write(false);
-            chargePinState = false;
-
-            chargeIntervalTimer.reset();
-            printf("charge pin off\n");
+        if (chargePin == false && chargeIntervalTimer.read_ms() >= chargeInterval) {
+            chargePin.write(true); // 充電スタート
+            printf("try charge...\n");
+            watchTurnOffIntervalTimer.reset();
+        } else {
+            if (!donePin == true) { // doneの時
+                chargePin.write(false);
+                chargeIntervalTimer.reset();
+                uint16_t time = watchTurnOffIntervalTimer.read_ms();
+                if (time < 100) {
+                    printf("already Full!!\n");
+                } else {
+                    printf("charge Done!!! %dms\n", time);
+                    chargeDoneCount++;
+                }
+            }
         }
     }
+}
+
+bool Booster::getDone() {
+    static uint8_t lastState = 0;
+    static bool isChargeDone = false;
+    if (chargeDoneCount != lastState) {
+        isChargeDone = true;
+    } else {
+        isChargeDone = false;
+    }
+    lastState = chargeDoneCount;
+    return isChargeDone;
 }
