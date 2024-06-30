@@ -11,7 +11,7 @@ void main_app();
 
 void TimInterrupt1khz();
 void TimInterrupt4khz();
-void canRxInterrupt(CAN_HandleTypeDef *hcan);
+// void canRxInterrupt(CAN_HandleTypeDef *hcan);
 #ifdef __cplusplus
 }
 #endif

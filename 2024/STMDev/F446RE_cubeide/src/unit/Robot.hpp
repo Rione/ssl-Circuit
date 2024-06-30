@@ -122,7 +122,7 @@ typedef struct {
     uint8_t batteryVoltage;
 
     // local
-    uint16_t photoSensorValue;
+    volatile uint16_t photoSensorValue;
     bool isUnderVoltage;
 } RobotInfo;
 
@@ -158,15 +158,53 @@ class Robot {
 
     void dribble(uint8_t power, bool forceSend = false);
 
-    void chargeStart();
-    void discharge();
-    void kickStraight(uint8_t power);
-    void kickChip(uint8_t power);
+    void chargeStart() {
+        CANBus::CANData canData = {
+            .stdId = CHARGE_START,
+            .data = {0},
+        };
+        can.send(canData);
+    }
+    inline __attribute__((always_inline)) void discharge() {
+        CANBus::CANData canData = {
+            .stdId = DISCHARGE_START,
+            .data = {0},
+        };
+        can.send(canData);
+    }
+    inline __attribute__((always_inline)) void kickStraight(uint8_t power) {
+        CANBus::CANData canData = {
+            .stdId = KICK_STRAIGHT,
+            .data = {power, 0, 0, 0, 0, 0, 0, 0},
+        };
+        can.send(canData);
+    }
+
+    inline __attribute__((always_inline)) void kickChip(uint8_t power) {
+        CANBus::CANData canData = {
+            .stdId = KICK_CHIP,
+            .data = {power, 0, 0, 0, 0, 0, 0, 0},
+        };
+        can.send(canData);
+    }
+
+    inline __attribute__((always_inline)) void setPhotoSensorValue(uint16_t value) {
+        info.photoSensorValue = value;
+    }
 
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;
         i++;
         ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 1 : 5))) / 2 + 0.5);
+    }
+
+    inline __attribute__((always_inline)) void stopRobot(uint16_t interval) {
+        static Timer timer;
+        if (timer.read_ms() > interval) {
+            dribble(0);
+            motorDriver.sendEmg();
+            timer.reset();
+        }
     }
 
   private:
