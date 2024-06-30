@@ -41,7 +41,7 @@ typedef struct {
     //   . bit2: doDirectChipKick
     //   . bit3: reserved
     //   . bit4: reserved
-    //   . bit5: reserved
+    //   . bit5: isSignalReceived
     //   . bit6: isCtrlByRobot (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
     //   . bit7: parity
 
@@ -110,8 +110,8 @@ typedef struct {
             bool doDirectChipKick : 1;
             bool reserved0 : 1;
             bool reserved2 : 1;
-            bool reserved3 : 1;
-            bool isCtrlByRobot : 1; // (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
+            bool isSignalReceived : 1; // コントローラから信号か出ているときにtrue
+            bool isCtrlByRobot : 1;    // (0: RACOON-Ctrl, 1: Robot-local-Ctrl) 位置制御をローカルで行うか否か
             bool parity : 1;
         };
         uint8_t data;
@@ -122,7 +122,7 @@ typedef struct {
     uint8_t batteryVoltage;
 
     // local
-    uint16_t photoSensorValue;
+    volatile uint16_t photoSensorValue;
     bool isUnderVoltage;
 } RobotInfo;
 
@@ -141,6 +141,7 @@ class Robot {
     DigitalOut led2 = DigitalOut(LED2_GPIO_Port, LED2_Pin);
     PwmSingleOut ledH = PwmSingleOut(&htim1, TIM_CHANNEL_1);
     Button swImu = Button(IMU_SW_GPIO_Port, IMU_SW_Pin);
+    Button swDischarge = Button(DISCHARGE_SW_GPIO_Port, DISCHARGE_SW_Pin);
 
     BufferedSerial serial1 = BufferedSerial(&huart1, 128); // pc
     BufferedSerial serial4 = BufferedSerial(&huart4, 128); // xiao
@@ -155,17 +156,55 @@ class Robot {
     void rasSendSerial(RobotInfo &info, uint16_t interval);
     void getSensors(RobotInfo *info);
 
-    void dribble(uint8_t power);
+    void dribble(uint8_t power, bool forceSend = false);
 
-    void chargeStart();
-    void discharge();
-    void kickStraight(uint8_t power);
-    void kickChip(uint8_t power);
+    void chargeStart() {
+        CANBus::CANData canData = {
+            .stdId = CHARGE_START,
+            .data = {0},
+        };
+        can.send(canData);
+    }
+    inline __attribute__((always_inline)) void discharge() {
+        CANBus::CANData canData = {
+            .stdId = DISCHARGE_START,
+            .data = {0},
+        };
+        can.send(canData);
+    }
+    inline __attribute__((always_inline)) void kickStraight(uint8_t power) {
+        CANBus::CANData canData = {
+            .stdId = KICK_STRAIGHT,
+            .data = {power, 0, 0, 0, 0, 0, 0, 0},
+        };
+        can.send(canData);
+    }
+
+    inline __attribute__((always_inline)) void kickChip(uint8_t power) {
+        CANBus::CANData canData = {
+            .stdId = KICK_CHIP,
+            .data = {power, 0, 0, 0, 0, 0, 0, 0},
+        };
+        can.send(canData);
+    }
+
+    inline __attribute__((always_inline)) void setPhotoSensorValue(uint16_t value) {
+        info.photoSensorValue = value;
+    }
 
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;
         i++;
-        ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 5 : 1))) / 2 + 0.5);
+        ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 1 : 5))) / 2 + 0.5);
+    }
+
+    inline __attribute__((always_inline)) void stopRobot(uint16_t interval) {
+        static Timer timer;
+        if (timer.read_ms() > interval) {
+            dribble(0);
+            motorDriver.sendEmg();
+            timer.reset();
+        }
     }
 
   private:

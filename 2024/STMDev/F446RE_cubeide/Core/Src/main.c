@@ -91,9 +91,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     }
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-    canRxInterrupt(hcan);
-}
 /* USER CODE END 0 */
 
 /**
@@ -132,7 +129,6 @@ int main(void)
   MX_UART4_Init();
   MX_UART5_Init();
   MX_USART1_UART_Init();
-  MX_USART6_UART_Init();
   MX_TIM1_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
@@ -146,7 +142,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     setup();
-    HAL_TIM_Base_Start_IT(&htim10); // ハ�?�トビート用タイマ�?�割り込みスター�?
+    HAL_TIM_Base_Start_IT(&htim10); // ハ�??��トビート用タイマ�??��割り込みスター?��?
     HAL_TIM_Base_Start_IT(&htim3);  // 4KHz
     main_app();
     while (1) {

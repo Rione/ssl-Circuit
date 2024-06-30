@@ -8,8 +8,13 @@
 #include "Booster.hpp"
 #include "Dribbler.hpp"
 
+#include "DMAStream.h"
+
 CANBus can(&hcan, 0x100);
 CANBus::CANData canRecvData;
+
+DigitalOut ledCan(CAN_LED_GPIO_Port, CAN_LED_Pin);
+DigitalOut ledDebug(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin);
 
 Button sw1(SW1_GPIO_Port, SW1_Pin);
 Button sw2(SW2_GPIO_Port, SW2_Pin);
@@ -17,7 +22,8 @@ Button sw2(SW2_GPIO_Port, SW2_Pin);
 Kicker straightKicker(&htim15, TIM_CHANNEL_2, 50, 1000);
 Kicker chipKicker(&htim3, TIM_CHANNEL_2, 50, 1000);
 
-Booster booster(CHARGE_GPIO_Port, CHARGE_Pin);
+Booster booster(CHARGE_GPIO_Port, CHARGE_Pin, DONE_GPIO_Port, DONE_Pin);
+DigitalIn donePin(DONE_GPIO_Port, DONE_Pin);
 
 Dribbler dribbler(&htim1, TIM_CHANNEL_2);
 
@@ -57,6 +63,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         case 0x15: // 21: dribbler stop
             dribbler.stop();
             break;
+        case 0x16: // 22: debug led
+            ledDebug = (canRecvData.data[0] != 0 ? 1 : 0);
+            break;
         default:
             break;
         }
@@ -84,6 +93,13 @@ void setup() {
 
     // dribbler
     dribbler.init();
+
+    for (size_t i = 0; i < 6; i++) {
+        ledDebug = !ledDebug;
+        ledCan = !ledCan;
+        HAL_Delay(50);
+    }
+
     printf("Hello World\n");
 }
 
@@ -91,7 +107,7 @@ void main_app() {
     setup();
     while (1) {
         uint16_t photoValue = readPhotoADC();
-        printf("sw1:%4dms sw2:%4dms Photo:%4d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue);
+        ledDebug = donePin.read();
         if (dischargeFlag) {
             printf("DISCHARGE\n");
             booster.setChargeDisable();
@@ -124,10 +140,15 @@ void main_app() {
         }
 
         if (canTransmitIntervalTimer.read_ms() > 10) {
+            bool done = booster.getDone();
+            printf("sw1:%4dms sw2:%4dms Photo:%4d Done:%d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue, done);
             CANBus::CANData canPhotoData = {
                 .stdId = 0x123,
-                .data = {(uint8_t)(photoValue & 0xFF),
-                         (uint8_t)((photoValue >> 8) & 0xFF)}};
+                .data = {
+                    (uint8_t)(photoValue & 0xFF),
+                    (uint8_t)((photoValue >> 8) & 0xFF),
+                    (uint8_t)(done ? 255 : 0),
+                }};
             can.send(canPhotoData);
             canTransmitIntervalTimer.reset();
         }

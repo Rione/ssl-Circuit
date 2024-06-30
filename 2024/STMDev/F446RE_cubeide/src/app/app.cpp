@@ -21,6 +21,8 @@ MPU6500::xyz_t att;
 Madgwick filter;
 float frontDeg = 0;
 
+volatile uint16_t photoSensorValue;
+
 void mpuget() {
     if (mpu.isCalibrated() == true) {
         mpu.getAccGyro(&acc, &gyro, false);
@@ -32,19 +34,21 @@ void mpuget() {
 void TimInterrupt1khz() {
     robot.heartBeat();
     robot.swImu.update();
+    robot.swDischarge.update();
 }
 
 void TimInterrupt4khz() {
     mpuget();
 }
 
-void canRxInterrupt(CAN_HandleTypeDef *hcan) {
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (robot.can.getHcan() == hcan) {
         robot.can.recv(canRecvData);
-        robot.led0 = !robot.led0;
         switch (canRecvData.stdId) {
         case 0x123: // フォトセンサの値
-            robot.info.photoSensorValue = (uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8;
+            photoSensorValue = (uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8;
+            robot.setPhotoSensorValue(photoSensorValue);
+            robot.led0 = !robot.led0;
             break;
         default:
             break;
@@ -94,31 +98,8 @@ void setup() {
 void main_app() {
     frontDeg = att.z;
     while (1) {
-        // printf("yaw,%.6f\n", att.z);
-        // static int d = 0;
-        // d++;
-        // // // 前のsin, cosはワールド座標に対して絶対的な方向をIMUで補正するためのやつ 後のsinはwave運動のためのやつ
-        // robot.motorDriver.setVelocityFF(
-        //     1000 * MyMath::sinDeg(att.z) * MyMath::sinDeg(d * 0.18),
-        //     1000 * MyMath::cosDeg(att.z) * MyMath::sinDeg(d * 0.18),
-        //     0);
-        // wait_us(1000);
         mainMode.loop();
-        if (robot.swImu.isRelease()) {
-            if (robot.swImu.readPressedTime() > 1600) {
-                robot.discharge();
-                robot.led2 = false;
-                printf("discharge start\n");
-            } else if (robot.swImu.readPressedTime() > 800) {
-                robot.chargeStart();
-                robot.led2 = true;
-                printf("charge start\n");
-            } else if (robot.swImu.readPressedTime() > 200) {
-                robot.kickStraight(100);
-                printf("kick\n");
-            }
-        }
-
-        // printf("Ball:%d Batt:%d\n", robot.info.photoSensorValue, robot.info.batteryVoltage);
+        // printf("ball:%d Batt:%d\n", robot.info.photoSensorValue, robot.info.batteryVoltage);
+        // HAL_Delay(10);
     }
 }
