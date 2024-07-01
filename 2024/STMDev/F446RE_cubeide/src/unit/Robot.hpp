@@ -120,10 +120,12 @@ typedef struct {
     // Infomation STM32→RaspberryPi
     uint8_t isHoldBall;
     uint8_t batteryVoltage;
+    uint8_t capChargeCertitude; // 0~100
 
     // local
     volatile uint16_t photoSensorValue;
     bool isUnderVoltage;
+
 } RobotInfo;
 
 class Robot {
