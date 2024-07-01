@@ -19,23 +19,6 @@ class MainMode : public Mode {
 
     Timer timer;
 
-    bool isRobotStop;
-
-    inline void checkRobotStop() {
-        static int velZeroCount = 0;
-        if (robot->info.velX.vel == 0 && robot->info.velY.vel == 0 && robot->info.velAngler.vel == 0) {
-            if (velZeroCount < 1000) {
-                velZeroCount++;
-            } else {
-                velZeroCount = 1000;
-                isRobotStop = true;
-            }
-        } else {
-            velZeroCount = 0;
-            isRobotStop = false;
-        }
-    }
-
     inline void boosterManager() {
         // ロボットの状態に関わらず常に行う処理
         if (robot->swDischarge.isRelease()) {

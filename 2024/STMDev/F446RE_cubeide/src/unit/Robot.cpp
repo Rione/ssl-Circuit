@@ -116,7 +116,6 @@ void Robot::rasRecvSerial() {
 }
 
 void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
-
     static const uint8_t dataSize = 3; // データのサイズ
     static const uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
 
@@ -148,20 +147,4 @@ void Robot::getSensors(RobotInfo *info) {
         if (underVoltageCount > 0) underVoltageCount--;
     }
     info->isUnderVoltage = (underVoltageCount == 0);
-}
-
-void Robot::dribble(uint8_t power, bool forceSend) {
-    static Timer timer;
-    static uint8_t dribblePowerPrev = power;
-    if (power == dribblePowerPrev && forceSend == false) {
-        if (timer.read_ms() < 100)
-            return;
-    }
-    CANBus::CANData canData = {
-        .stdId = DRIBBLE,
-        .data = {power, 0, 0, 0, 0, 0, 0, 0},
-    };
-    can.send(canData);
-    timer.reset();
-    dribblePowerPrev = power;
 }
