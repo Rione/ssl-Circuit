@@ -148,6 +148,7 @@ void main_app() {
                     (uint8_t)(photoValue & 0xFF),
                     (uint8_t)((photoValue >> 8) & 0xFF),
                     (uint8_t)(done ? 255 : 0),
+                    (uint8_t)(booster.getDoChargeState() ? 255 : 0),
                 }};
             can.send(canPhotoData);
             canTransmitIntervalTimer.reset();
