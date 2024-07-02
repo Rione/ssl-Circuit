@@ -215,7 +215,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 26b5cb8d-c888-4c09-847d-1926d0f632bc)
     )
-    (fp_text value "1000p" (at 0 1.43) (layer "F.Fab")
+    (fp_text value "1000p" (at 0 1.43) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 5a0bb575-0e16-4899-9086-09b06ee91c4e)
     )
@@ -972,7 +972,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp f6c92477-d59f-429d-9d62-8edc38929f2f)
     )
-    (fp_text value "100k" (at 0 1.43) (layer "F.Fab")
+    (fp_text value "100k" (at 0 1.43) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 9375f47b-1356-4e0d-897a-7f14c1152c90)
     )
@@ -1140,7 +1140,7 @@
     (property "ki_keywords" "cap capacitor")
     (path "/2b3ee41d-7782-4ec7-b44d-36e93509f1c8")
     (attr smd)
-    (fp_text reference "C11" (at 0 -1.43 -90) (layer "F.SilkS")
+    (fp_text reference "C11" (at 0 -1.43 -90) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 352e2cc7-87c5-43ce-b163-88cbbaee6f6e)
     )
@@ -1696,7 +1696,7 @@
     (property "ki_keywords" "R res resistor")
     (path "/da153153-1f77-436f-a0e8-108f77dc02a5")
     (attr smd)
-    (fp_text reference "R14" (at 0 -1.43 -45) (layer "F.SilkS")
+    (fp_text reference "R14" (at 0 -1.43 -45) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 91852e96-129b-4cc2-bcc1-508f9e4be667)
     )
@@ -1802,7 +1802,7 @@
     (property "ki_keywords" "R res resistor")
     (path "/ce9baed7-1192-49a9-b19a-dca8f34d6ea1")
     (attr smd)
-    (fp_text reference "R16" (at 0 -1.43 -45) (layer "F.SilkS")
+    (fp_text reference "R16" (at 0 -1.43 -45) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 5e218759-b480-470e-8904-e19eb352b6c8)
     )
@@ -1910,7 +1910,7 @@
     (property "ki_keywords" "cap capacitor")
     (path "/fb8bf2b5-22ca-454d-b91f-46adc4f7e496")
     (attr smd)
-    (fp_text reference "C12" (at 0 -1.43) (layer "F.SilkS")
+    (fp_text reference "C12" (at 0 -1.43) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 29b3bc85-2731-47a1-ad7c-1bb02fa1f3ce)
     )
@@ -2366,7 +2366,7 @@
     (property "ki_keywords" "R res resistor")
     (path "/f0976f9d-c9f4-4b56-b36c-a7c501b27ee5")
     (attr smd)
-    (fp_text reference "R18" (at 0 -1.43 -45) (layer "F.SilkS")
+    (fp_text reference "R18" (at 0 -1.43 -45) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 27fded62-f91e-4cb4-bb9d-eb3631f8fa6f)
     )
@@ -2420,7 +2420,7 @@
     (property "ki_keywords" "cap capacitor")
     (path "/5ba8d2e2-208f-46f2-b215-72714fa60afd")
     (attr smd)
-    (fp_text reference "C3" (at 0 -1.43 180) (layer "F.SilkS")
+    (fp_text reference "C3" (at 0 -1.43 180) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 911dd29d-a248-4a0c-898b-4c761ed0d502)
     )
@@ -2884,7 +2884,7 @@
     (property "ki_keywords" "R res resistor")
     (path "/94d37608-5210-48c9-8f7e-bc6fd7f4ba09")
     (attr smd)
-    (fp_text reference "R11" (at 0 -1.43) (layer "F.SilkS")
+    (fp_text reference "R11" (at 0 -1.43) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 4e3c2208-25d6-4086-b3f6-ea59f2989508)
     )
@@ -3046,7 +3046,7 @@
     (property "ki_keywords" "R res resistor")
     (path "/f37b5e73-5c95-4953-b166-a1ec795ebac6")
     (attr smd)
-    (fp_text reference "R19" (at 0 -1.43) (layer "F.SilkS")
+    (fp_text reference "R19" (at 0 -1.43) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp a4d32481-6209-4c72-91f8-3aceb977b84f)
     )
@@ -3275,7 +3275,7 @@
     (property "ki_keywords" "R res resistor")
     (path "/9c30788f-e2ed-4f44-898c-a2581d67fa07")
     (attr smd)
-    (fp_text reference "R17" (at 0 -1.43 90) (layer "F.SilkS")
+    (fp_text reference "R17" (at 0 -1.43 90) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 87901848-f57f-4796-83ef-8355ad775c05)
     )
@@ -3827,7 +3827,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 5d22fb2c-1a20-4b37-8364-4328d2c0e3b8)
     )
-    (fp_text value "100k" (at -0.2 6.5675) (layer "F.Fab")
+    (fp_text value "100k" (at -0.2 6.5675) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 270dd97d-8fc4-47a8-aeab-300e101176f5)
     )
@@ -3910,7 +3910,7 @@
     (property "ki_keywords" "cap capacitor")
     (path "/9c3fd569-a827-48e0-9f4c-b10656954840")
     (attr smd)
-    (fp_text reference "C13" (at 0 -1.43 -90) (layer "F.SilkS")
+    (fp_text reference "C13" (at 0 -1.43 -90) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 6bbbd490-9025-4690-a075-608326489b7e)
     )
@@ -3964,7 +3964,7 @@
     (property "ki_keywords" "R res resistor")
     (path "/4ad60bc4-b44c-43e0-b5d3-75069e8aa5b8")
     (attr smd)
-    (fp_text reference "R21" (at 0 -1.43) (layer "F.SilkS")
+    (fp_text reference "R21" (at 0 -1.43) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 405145ac-5377-43d5-a4c1-699a21b5519f)
     )
@@ -5151,7 +5151,7 @@
     (property "ki_keywords" "R res resistor")
     (path "/54ea7762-44a2-4aae-a703-8489fb493e28")
     (attr smd)
-    (fp_text reference "R9" (at 0 1.43 225) (layer "B.SilkS")
+    (fp_text reference "R9" (at 0 1.43 225) (layer "B.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp 4059214b-50bd-4d94-a1c6-11010f010fa4)
     )
@@ -5205,7 +5205,7 @@
     (property "ki_keywords" "R res resistor")
     (path "/17e1a701-aa28-44fb-9873-cfd699b19fb0")
     (attr smd)
-    (fp_text reference "R8" (at 0 1.43 225) (layer "B.SilkS")
+    (fp_text reference "R8" (at 0 1.43 225) (layer "B.SilkS") hide
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp 465e1293-3d45-4ee6-b154-1cc1e4164d98)
     )
@@ -5660,7 +5660,7 @@
       )
     )
   )
-  (gr_text "KickerBoard ver.10.1\n2024/06/06\nKotaro OCHIISHI\nDaiki TOMIOKA\n" (at -7.874 -24.13) (layer "B.SilkS") (tstamp 779823e2-eae4-427b-b817-3f958b924355)
+  (gr_text "KickerBoard ver.10.1\n2024/06/06\nKotaro OCHIISHI\nDaiki TOMIOKA\n" (at -8.382 -23.368) (layer "B.SilkS") (tstamp 779823e2-eae4-427b-b817-3f958b924355)
     (effects (font (size 0.8 0.8) (thickness 0.1)) (justify left bottom mirror))
   )
   (gr_text "1.USART_RX\n2.USART_TX\n3.SWDIO\n4.SWCLK\n5.+3.3V\n6.GND" (at 3.048 22.352 315) (layer "B.SilkS") (tstamp c342102f-40d0-4ee6-b886-589cee8c2637)
@@ -8822,7 +8822,7 @@
   (via (at -23.876 -2.54) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 17000b92-8a34-44af-b45a-7576fb1e54a7))
   (via (at -20.574 13.97) (size 2) (drill 1.5) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 1816a363-b620-49f0-9f2b-b39f4192cda8))
   (via (at -18.796 4.318) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 197c6ab2-1982-4e11-8cab-4be0226bd9d6))
-  (via (at -13.716 -23.114) (size 2) (drill 1.5) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 1981a4cc-3d42-4413-b9fa-c2820d9cd638))
+  (via (at -13.975463 -22.352796) (size 2) (drill 1.5) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 1981a4cc-3d42-4413-b9fa-c2820d9cd638))
   (via (at -7.112 21.59) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 1b3fa4b2-3d73-44f4-accc-de76b5856c27))
   (via (at -9.144 13.208) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 1c797341-caca-4b95-ba78-7b5f35001014))
   (via (at -25.146 6.096) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 1cfd5a34-274a-4946-aa64-7121afa573ea))
@@ -8877,7 +8877,7 @@
   (via (at -13.97 -8.382) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 88c2d9f5-aa6d-47b2-b1e1-37028dfcb7aa))
   (via (at -11.684 -8.636) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 893bd5db-e5f2-468b-9c57-93286039f66e))
   (via (at -16.51 14.732) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 8ab6f76a-d744-4d5e-852e-5ea44db87255))
-  (via (at -11.938 -23.876) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 8d6b3f30-f5b3-4404-824e-fd2abba6d77b))
+  (via (at -11.684 -23.876) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 8d6b3f30-f5b3-4404-824e-fd2abba6d77b))
   (via (at -10.922 21.082) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 919a8a70-b7d3-4293-b843-58514a95a709))
   (via (at -12.446 22.86) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 93e9d5cf-26e5-4247-b9b1-93684ec9b4d0))
   (via (at -8.89 16.51) (size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu") (free) (net 3) (tstamp 941d23f2-89a1-45f3-9b8b-f3fb1c141224))
