@@ -20,6 +20,7 @@ class MainMode : public Mode {
     Timer timer;
 
     inline void boosterManager() {
+        static Timer timer;
         // ロボットの状態に関わらず常に行う処理
         if (robot->swDischarge.isRelease()) {
             if (robot->swDischarge.readPressedTime() > 1600) {
@@ -33,6 +34,22 @@ class MainMode : public Mode {
             } else if (robot->swDischarge.readPressedTime() > 200) {
                 robot->kickStraight(100);
                 printf("kick\n");
+            }
+        } else {
+            if (timer.read_ms() > 100) { // 100msごとに実行
+                if (robot->info.status.doCharge == true) {
+                    // Piから充電しろと言われている。
+                    if (robot->info.isKickerChargeMode == false) {
+                        // KickerBoardから充電していないとの情報を得ている。噛み合っていない
+                        robot->chargeStart();
+                    }
+                } else {
+                    // Piから放電しろと来ている
+                    if (robot->info.isKickerChargeMode == true) {
+                        // KickerBoardから充電しているとの情報を得ている。噛み合っていない
+                        robot->discharge();
+                    }
+                }
             }
         }
     }

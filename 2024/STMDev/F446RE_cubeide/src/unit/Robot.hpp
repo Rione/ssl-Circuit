@@ -126,6 +126,7 @@ typedef struct {
     volatile uint16_t photoSensorValue;
     bool isUnderVoltage;
     bool isRobotStopFF; // ロボットのFF速度ベクトルも元にロボットが止まっているかを判断する
+    bool isKickerChargeMode;
 
 } RobotInfo;
 
@@ -243,10 +244,10 @@ class Robot {
 
     inline __attribute__((always_inline)) void setKickerBoardChargeMode(uint16_t value) {
         if (value == 0xFF) { // Done
-            isKickerChargeMode = true;
+            info.isKickerChargeMode = true;
             led2 = true;
         } else if (value == 0x00) {
-            isKickerChargeMode = false;
+            info.isKickerChargeMode = false;
             led2 = false;
         }
     }
@@ -315,9 +316,7 @@ class Robot {
     uint8_t batteryValueBuff[15];
     Median<uint8_t> medianBatteryValue = Median(batteryValueBuff, 15);
 
-    Timer lastChargeDoneTime;
     uint8_t capChargeCertitude; // 0~100
-    bool isKickerChargeMode;
 };
 
 #endif
