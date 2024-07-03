@@ -20,35 +20,54 @@ class MainMode : public Mode {
     Timer timer;
 
     inline void boosterManager() {
-        static Timer timer;
+        static Timer doChargeTimer;
+        static Timer manageByUserCounter;
         // ロボットの状態に関わらず常に行う処理
+        if (manageByUserCounter.read_ms() > 15000) manageByUserCounter.set_ms(15000); // オーバーフローを防ぐ
         if (robot->swDischarge.isRelease()) {
             if (robot->swDischarge.readPressedTime() > 1600) {
                 robot->discharge();
                 robot->led2 = false;
                 printf("discharge start\n");
+                manageByUserCounter.reset();
             } else if (robot->swDischarge.readPressedTime() > 800) {
                 robot->chargeStart();
                 robot->led2 = true;
                 printf("charge start\n");
+                manageByUserCounter.reset();
             } else if (robot->swDischarge.readPressedTime() > 200) {
                 robot->kickStraight(100);
                 printf("kick\n");
             }
         } else {
-            if (timer.read_ms() > 100) { // 100msごとに実行
-                if (robot->info.status.doCharge == true) {
-                    // Piから充電しろと言われている。
-                    if (robot->info.isKickerChargeMode == false) {
-                        // KickerBoardから充電していないとの情報を得ている。噛み合っていない
-                        robot->chargeStart();
+            if (manageByUserCounter.read_ms() >= 15000) { // ユーザーがスイッチでキッカーの充電or放電をしてから15秒以上経過したらPiの指示に従う
+                if (doChargeTimer.read_ms() > 100) {      // 100msごとに実行
+                    if (robot->info.status.doCharge == true) {
+                        static uint8_t countD = 0;
+                        // Piから充電しろと言われている。
+                        if (robot->info.isKickerChargeMode == false) {
+                            // KickerBoardから充電していないとの情報を得ている。噛み合っていない
+                            countD++;
+                            if (countD > 10) {
+                                robot->chargeStart();
+                                printf("charge from Pi\n");
+                                countD = 0;
+                            }
+                        }
+                    } else {
+                        // Piから放電しろと来ている
+                        static uint8_t countC = 0;
+                        if (robot->info.isKickerChargeMode == true) {
+                            countC++;
+                            if (countC > 10) {
+                                robot->discharge();
+                                printf("discharge from Pi\n");
+                                countC = 0;
+                            }
+                            // KickerBoardから充電しているとの情報を得ている。噛み合っていない
+                        }
                     }
-                } else {
-                    // Piから放電しろと来ている
-                    if (robot->info.isKickerChargeMode == true) {
-                        // KickerBoardから充電しているとの情報を得ている。噛み合っていない
-                        robot->discharge();
-                    }
+                    doChargeTimer.reset();
                 }
             }
         }

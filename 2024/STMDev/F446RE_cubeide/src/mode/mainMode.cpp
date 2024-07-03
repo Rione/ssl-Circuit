@@ -13,9 +13,9 @@ void MainMode::loop() {
     robot->rasRecvSerial();  // sync
     robot->checkRobotRest(); // ロボットが停止しているか確認
     boosterManager();        // 昇圧回路の管理
-    if (!robot->info.status.emergencyStop && !robot->info.isRobotStopFF && robot->info.status.isSignalReceived) {
+    if (!robot->info.status.emergencyStop && robot->info.status.isSignalReceived) {
         // Robot is Running
-        robot->dribble(robot->info.dribblePower, true);
+        robot->dribble(robot->info.dribblePower);
         robot->processKicker();
 
         int16_t __velX = meanVelX.calc((float)robot->info.velX.vel);
