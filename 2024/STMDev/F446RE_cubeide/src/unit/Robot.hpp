@@ -40,7 +40,7 @@ typedef struct {
     //   . bit1: doDirectKick
     //   . bit2: doDirectChipKick
     //   . bit3: reserved
-    //   . bit4: reserved
+    //   . bit4: doCharge
     //   . bit5: isSignalReceived
     //   . bit6: isCtrlByRobot (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
     //   . bit7: parity
