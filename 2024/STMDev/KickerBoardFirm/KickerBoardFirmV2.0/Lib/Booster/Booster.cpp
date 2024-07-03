@@ -20,6 +20,10 @@ void Booster::setChargeDisable() {
     chargePinState = false;
 }
 
+bool Booster::getDoChargeState() {
+    return doCharge;
+}
+
 void Booster::update() {
     if (doCharge) {
         if (chargePin == false && chargeIntervalTimer.read_ms() >= chargeInterval) {

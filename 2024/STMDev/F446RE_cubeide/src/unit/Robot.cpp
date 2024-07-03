@@ -51,8 +51,8 @@ void Robot::rasRecvSerial() {
     //   . bit1: doDirectKick
     //   . bit2: doDirectChipKick
     //   . bit3: reserved
-    //   . bit4: reserved
-    //   . bit5: reserved
+    //   . bit4: doCharge
+    //   . bit5: isSignalReceived
     //   . bit6: isCtrlByRobot (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
     //   . bit7: parity
 
@@ -116,8 +116,7 @@ void Robot::rasRecvSerial() {
 }
 
 void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
-
-    static const uint8_t dataSize = 2; // データのサイズ
+    static const uint8_t dataSize = 3; // データのサイズ
     static const uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
 
     if (rasSendInterval.read_ms() < interval) {
@@ -126,6 +125,7 @@ void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
     uint8_t buffer[dataSize] = {
         info.batteryVoltage,
         info.isHoldBall,
+        info.capChargeCertitude,
     };
     serial5.write(startBytes, 4);
     serial5.write(buffer, dataSize);
@@ -138,28 +138,13 @@ void Robot::getSensors(RobotInfo *info) {
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, 100);
     uint32_t batt = HAL_ADC_GetValue(&hadc1);
-    info->batteryVoltage = medianBatteryValue.calc((uint8_t)((float)(batt) * 3.3 / 4095.0 * 58.5 - 7));
+    info->batteryVoltage = medianBatteryValue.calc((uint8_t)((float)(batt) * 3.3 / 4095.0 * 58.5 - 2));
     info->isHoldBall = (medianPhotoValue.calc(info->photoSensorValue) < PHOTOSENSOR_THRESHOLD); // config
+    info->capChargeCertitude = getCapChargeCertitude();
     if (info->batteryVoltage < BATTERY_CUT_OFF) {
         if (underVoltageCount < 1000) underVoltageCount++;
     } else {
         if (underVoltageCount > 0) underVoltageCount--;
     }
     info->isUnderVoltage = (underVoltageCount == 0);
-}
-
-void Robot::dribble(uint8_t power, bool forceSend) {
-    static Timer timer;
-    static uint8_t dribblePowerPrev = power;
-    if (power == dribblePowerPrev && forceSend == false) {
-        if (timer.read_ms() < 100)
-            return;
-    }
-    CANBus::CANData canData = {
-        .stdId = DRIBBLE,
-        .data = {power, 0, 0, 0, 0, 0, 0, 0},
-    };
-    can.send(canData);
-    timer.reset();
-    dribblePowerPrev = power;
 }

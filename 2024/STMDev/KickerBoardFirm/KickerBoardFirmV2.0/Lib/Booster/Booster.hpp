@@ -13,6 +13,7 @@ class Booster {
     void setChargeInterval(uint16_t interval);
     void setChargeEnable();
     void setChargeDisable();
+    bool getDoChargeState();
 
     void update();
     bool getDone();

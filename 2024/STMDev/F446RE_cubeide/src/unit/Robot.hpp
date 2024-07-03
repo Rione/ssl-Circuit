@@ -40,7 +40,7 @@ typedef struct {
     //   . bit1: doDirectKick
     //   . bit2: doDirectChipKick
     //   . bit3: reserved
-    //   . bit4: reserved
+    //   . bit4: doCharge
     //   . bit5: isSignalReceived
     //   . bit6: isCtrlByRobot (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
     //   . bit7: parity
@@ -106,13 +106,13 @@ typedef struct {
     union {
         struct {
             bool emergencyStop : 1;
-            bool doDirectKick : 1;
-            bool doDirectChipKick : 1;
+            bool doDirectKick : 1;     // ボールセンサが反応した瞬間にストレートキックする
+            bool doDirectChipKick : 1; // ボールセンサが反応した瞬間にチップキックする
             bool reserved0 : 1;
-            bool reserved2 : 1;
+            bool doCharge : 1;         // 0: discharge, 1: doCharge
             bool isSignalReceived : 1; // コントローラから信号か出ているときにtrue
             bool isCtrlByRobot : 1;    // (0: RACOON-Ctrl, 1: Robot-local-Ctrl) 位置制御をローカルで行うか否か
-            bool parity : 1;
+            bool parity : 1;           // パリティビット 今の所使ってない。
         };
         uint8_t data;
     } status;
@@ -120,10 +120,14 @@ typedef struct {
     // Infomation STM32→RaspberryPi
     uint8_t isHoldBall;
     uint8_t batteryVoltage;
+    uint8_t capChargeCertitude; // 0~100
 
     // local
     volatile uint16_t photoSensorValue;
     bool isUnderVoltage;
+    bool isRobotStopFF; // ロボットのFF速度ベクトルも元にロボットが止まっているかを判断する
+    bool isKickerChargeMode;
+
 } RobotInfo;
 
 class Robot {
@@ -156,15 +160,20 @@ class Robot {
     void rasSendSerial(RobotInfo &info, uint16_t interval);
     void getSensors(RobotInfo *info);
 
-    void dribble(uint8_t power, bool forceSend = false);
+    inline __attribute__((always_inline)) void heartBeat() {
+        static int i = 0;
+        i++;
+        ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 1 : 5))) / 2 + 0.5);
+    }
 
-    void chargeStart() {
+    inline __attribute__((always_inline)) void chargeStart() {
         CANBus::CANData canData = {
             .stdId = CHARGE_START,
             .data = {0},
         };
         can.send(canData);
     }
+
     inline __attribute__((always_inline)) void discharge() {
         CANBus::CANData canData = {
             .stdId = DISCHARGE_START,
@@ -173,6 +182,7 @@ class Robot {
         can.send(canData);
         minusCapChargeCertitude(100);
     }
+
     inline __attribute__((always_inline)) void kickStraight(uint8_t power) {
         static Timer timer;
         if (timer.read_ms() < 1000) {
@@ -205,6 +215,22 @@ class Robot {
         minusCapChargeCertitude(power);
     }
 
+    inline __attribute__((always_inline)) void dribble(uint8_t power, bool forceSend = false) {
+        static Timer timer;
+        static uint8_t dribblePowerPrev = power;
+        if (power == dribblePowerPrev && forceSend == false) {
+            if (timer.read_ms() < 100) // パワーが変わっていない場合は送信しない。 forceSendがtrueの場合は100msごとに送信する
+                return;
+        }
+        CANBus::CANData canData = {
+            .stdId = DRIBBLE,
+            .data = {power, 0, 0, 0, 0, 0, 0, 0},
+        };
+        can.send(canData);
+        timer.reset();
+        dribblePowerPrev = power;
+    }
+
     inline __attribute__((always_inline)) void setPhotoSensorValue(uint16_t value) {
         info.photoSensorValue = value;
     }
@@ -216,6 +242,16 @@ class Robot {
         }
     }
 
+    inline __attribute__((always_inline)) void setKickerBoardChargeMode(uint16_t value) {
+        if (value == 0xFF) { // Done
+            info.isKickerChargeMode = true;
+            led2 = true;
+        } else if (value == 0x00) {
+            info.isKickerChargeMode = false;
+            led2 = false;
+        }
+    }
+
     inline __attribute__((always_inline)) void minusCapChargeCertitude(uint8_t value) {
         if (capChargeCertitude < value) {
             capChargeCertitude = 0;
@@ -224,14 +260,24 @@ class Robot {
         capChargeCertitude -= value;
     }
 
-    uint8_t getCapChargeCertitude() {
+    inline __attribute__((always_inline)) uint8_t getCapChargeCertitude() {
         return capChargeCertitude;
     }
 
-    inline __attribute__((always_inline)) void heartBeat() {
-        static int i = 0;
-        i++;
-        ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 1 : 5))) / 2 + 0.5);
+    // FF速度ベクトルからロボットが止まっているかを判断する
+    inline __attribute__((always_inline)) void checkRobotRest() {
+        static int velZeroCount = 0;
+        if (info.velX.vel == 0 && info.velY.vel == 0 && info.velAngler.vel == 0) {
+            if (velZeroCount < 1000) {
+                velZeroCount++;
+            } else {
+                velZeroCount = 1000;
+                info.isRobotStopFF = true;
+            }
+        } else {
+            velZeroCount = 0;
+            info.isRobotStopFF = false;
+        }
     }
 
     inline __attribute__((always_inline)) void stopRobot(uint16_t interval) {
@@ -243,6 +289,26 @@ class Robot {
         }
     }
 
+    inline __attribute__((always_inline)) void processKicker() {
+        // ストレートキックを優先する処理。
+        // doDirectXXがtrueの場合はボールセンサが反応した瞬間にキックする
+        if (info.kicker.straight > 0) {
+            if (info.status.doDirectKick) {
+                if (info.isHoldBall)
+                    kickStraight(info.kicker.straight);
+            } else {
+                kickStraight(info.kicker.straight);
+            }
+        } else if (info.kicker.chip > 0) {
+            if (info.status.doDirectChipKick) {
+                if (info.isHoldBall)
+                    kickChip(info.kicker.chip);
+            } else {
+                kickChip(info.kicker.chip);
+            }
+        }
+    }
+
   private:
     uint16_t photoSensorValueBuff[15];
     Median<uint16_t> medianPhotoValue = Median(photoSensorValueBuff, 15);
@@ -250,7 +316,6 @@ class Robot {
     uint8_t batteryValueBuff[15];
     Median<uint8_t> medianBatteryValue = Median(batteryValueBuff, 15);
 
-    Timer lastChargeDoneTime;
     uint8_t capChargeCertitude; // 0~100
 };
 

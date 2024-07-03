@@ -63,7 +63,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         //     break;
         case 0x123: // フォトセンサの値・充電完了信号の受信
             robot.setPhotoSensorValue((uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8);
-            robot.setChageDoneSignal(canRecvData.data[2]); // 充電完了信号の処理
+            robot.setChageDoneSignal(canRecvData.data[2]);       // 充電完了信号の処理
+            robot.setKickerBoardChargeMode(canRecvData.data[3]); // 充電モード信号の処理
             robot.led0 = !robot.led0;
             break;
         default:
@@ -117,7 +118,5 @@ void main_app() {
     frontDeg = att.z;
     while (1) {
         mainMode.loop();
-        // printf("ball:%d Batt:%d\n", robot.info.photoSensorValue, robot.info.batteryVoltage);
-        // HAL_Delay(10);
     }
 }
