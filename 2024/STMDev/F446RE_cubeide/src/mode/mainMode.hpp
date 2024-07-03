@@ -29,16 +29,15 @@ class MainMode : public Mode {
                 robot->discharge();
                 robot->led2 = false;
                 printf("discharge start\n");
-                manageByUserCounter.reset();
             } else if (robot->swDischarge.readPressedTime() > 800) {
                 robot->chargeStart();
                 robot->led2 = true;
                 printf("charge start\n");
-                manageByUserCounter.reset();
             } else if (robot->swDischarge.readPressedTime() > 200) {
                 robot->kickStraight(100);
                 printf("kick\n");
             }
+            manageByUserCounter.reset();
         } else {
             if (manageByUserCounter.read_ms() >= 15000) { // ユーザーがスイッチでキッカーの充電or放電をしてから15秒以上経過したらPiの指示に従う
                 if (doChargeTimer.read_ms() > 100) {      // 100msごとに実行
