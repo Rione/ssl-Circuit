@@ -49,6 +49,8 @@ void loop() {
   currentMode->determine(&ui);
   modeSwitch(&ui);
   currentMode->displaySet(&ui);
+
+  ui.stmRecvSerial(&ui.robotInfoData);
   
   if(ui.modeData.status.mode != 0) ui.homeScreenGesture();
   
@@ -59,16 +61,3 @@ void loop() {
 //メモ
 // 基本的には縦、横の順で座標を指定する
 // 画像の表示はcreateSprite(320, 240)で作成(横、縦)になるu
-
-
-//   //受け取る
-//   // if(Serial1.available() ){
-//   //   uint8_t data = Serial1.read();
-//   //   Serial.print(data);
-//   // }
-
-//   //送る
-//   // uint8_t data = 100;
-//   // Serial1.write(data);
-//   // Serial.print(data,DEC);
-//   // delay(1000);

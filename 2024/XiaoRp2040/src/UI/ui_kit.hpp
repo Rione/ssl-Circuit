@@ -22,23 +22,40 @@ extern DISPLAY_DEVICE display;
 
 typedef struct {
   union{
-      struct{
-          uint8_t mode : 6;
-          bool emergencyStop : 1;    
-          bool parity : 1;      
-      };
-      uint8_t data;
+    struct{
+      bool charge : 1; //stmから送られてくる充電状態
+      uint8_t reserve : 7; 
+    };
+    uint8_t data;
+
+  }status;
+
+  bool chargePrev;  
+  
+} RobotInfo_t; //受けとるデータ
+
+typedef struct {
+  union{
+    struct{
+      uint8_t mode : 5;
+      bool emergencyStop : 1;  
+      bool charge_state : 1;   //1.切替、0.切替なし
+      bool kick : 1;           //キック
+    };
+    uint8_t data;
   }status;
 
   uint8_t modePrev = 0;
 
-} UIModeSwitch_t;
+} UIModeSwitch_t; //main用、一番最初に送るデータ
 
 typedef struct {
   union {
     struct {
-      uint8_t mode : 7;
+      uint8_t mode : 6;
       bool charge: 1;
+      bool chargePrev: 1;
+
     };
     uint8_t data;
   }status;
@@ -48,6 +65,7 @@ typedef struct {
 
 class UiKit {
   public:
+    RobotInfo_t robotInfoData;
     UIModeSwitch_t modeData;
     KickMode_t kickModeData = {0, 0, 0};
 
@@ -62,8 +80,13 @@ class UiKit {
     void touchUpdate();
     void homeScreenGesture();
 
+    void stmRecvSerial(RobotInfo_t *_robotInfoData);
+    void stmSendSerial(UIModeSwitch_t *_modeData);
+
     bool changeFlag_overMode = true;
     bool changeFlag_inMode = false;
+
+    bool sendFlag = false;
   
   private:
     
