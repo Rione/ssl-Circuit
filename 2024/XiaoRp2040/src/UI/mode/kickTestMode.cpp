@@ -2,7 +2,7 @@
 
 void KickTestMode::displaySet(UiKit *_ui){
 
-  if(_ui->changeFlag){
+  if(_ui->changeFlag_overMode){
 
     kickUI();
     if(_ui->kickModeData.status.charge == 1){
@@ -10,7 +10,7 @@ void KickTestMode::displaySet(UiKit *_ui){
       display.publish(20, 90);
     }
 
-    _ui->changeFlag = false;
+    _ui->changeFlag_overMode = false;
   }
   
 }
@@ -46,7 +46,7 @@ void KickTestMode::determine(UiKit *_ui){
 
     }else if(touch.point.x > 20 && touch.point.x < 150 && touch.point.y > 90 && touch.point.y < 210){
       // _ui->modeData.status.mode = 0;
-      // _ui->changeFlag = true;
+      // _ui->changeFlag_overMode = true;
 
       if(_ui->kickModeData.status.charge == 0){
         display.setParttImage(130, 120, chargeImg);

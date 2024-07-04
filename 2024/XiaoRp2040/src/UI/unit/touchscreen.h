@@ -52,10 +52,10 @@ class TOUCHSCREEN {
             if(touchCount == 0){
                 Time_touchStart = millis();
                 touchCount = 1;
-            } else if(millis() - Time_touchStart > 10 && touchCount < 3){
+            } else if(millis() - Time_touchStart > 2 && touchCount < 3){
                 touchCount++;
                 Time_touchStart = millis();
-            } else if(millis() - Time_touchStart > 10 && touchCount == 3){
+            } else if(millis() - Time_touchStart > 2 && touchCount == 3){
                 isTouched = true;
                 touchCount = 0;
             }
@@ -65,10 +65,10 @@ class TOUCHSCREEN {
             if(touchCount >= 0){
                 Time_touchStart = millis();
                 touchCount = -1;
-            } else if(millis() - Time_touchStart > 10 && touchCount > -3){
+            } else if(millis() - Time_touchStart > 2 && touchCount > -3){
                 touchCount--;
                 Time_touchStart = millis();
-            } else if(millis() - Time_touchStart > 10 && touchCount == -3){
+            } else if(millis() - Time_touchStart > 2 && touchCount == -3){
                 isTouched = false;
                 isTouchedPrev = true;
                 touchCount = 0;

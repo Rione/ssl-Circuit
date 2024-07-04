@@ -8,6 +8,14 @@ class MainMode : public Mode {
     void displaySet(UiKit *_ui) override;
 
     void determine(UiKit *_ui) override;
+
+    void mainUI(UiKit *_ui);
+
+  private:
+    bool isTouched_state = false;
+    bool isTouched_kick = false;
+    int isTouchedTime = 0;
+    int TouchedInterval;
     
 
 };

@@ -12,6 +12,7 @@
 #include "UI/image/image.h"
 #include "UI/image/top.h"
 #include "UI/image/kick.h"
+#include "UI/image/main_kick.h"
 
 extern XPT2046_Touchscreen ts;
 extern TOUCHSCREEN touch;
@@ -61,7 +62,8 @@ class UiKit {
     void touchUpdate();
     void homeScreenGesture();
 
-    bool changeFlag = true;
+    bool changeFlag_overMode = true;
+    bool changeFlag_inMode = false;
   
   private:
     
