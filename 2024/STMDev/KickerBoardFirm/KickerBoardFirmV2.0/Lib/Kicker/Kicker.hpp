@@ -4,6 +4,7 @@
 #include "PWMSingle.hpp"
 #include "Timer.hpp"
 #include "MyMath.hpp"
+#include "CAN.hpp"
 
 class Kicker {
   public:
@@ -17,6 +18,14 @@ class Kicker {
     void kick(float power);
     void update();
 
+    void setDirectKick(bool state, float power);
+    inline __attribute__((always_inline)) void disableDirectKick() {
+        doDirectKick = false;
+    }
+    float getDirectKickPower();
+    bool getDoDirecStatus();
+    bool directKick(bool holdBallState);
+
     void disCharge();
     PwmSingleOut kicker;
 
@@ -29,6 +38,8 @@ class Kicker {
 
     bool available;
     bool isDischarging;
+    bool doDirectKick;
+    float directKickPower;
 
     Kicker *relatedKicker;
 };

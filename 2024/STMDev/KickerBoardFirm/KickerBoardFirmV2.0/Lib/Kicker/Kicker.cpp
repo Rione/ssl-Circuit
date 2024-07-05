@@ -25,6 +25,7 @@ void Kicker::addRelatedKicker(Kicker *kicker) {
 }
 
 void Kicker::kick(float power) {
+    if (power == 0.0) return;
     if (!available || isDischarging) return;
     if (_intervalTimer.read_ms() < _kickInterval) return;
     if (relatedKicker != nullptr) relatedKicker->disable();
@@ -42,6 +43,27 @@ void Kicker::update() {
     if (_riseTimer.read_ms() > 300) {
         if (relatedKicker != nullptr) relatedKicker->enable();
     }
+}
+
+void Kicker::setDirectKick(bool state, float power) {
+    doDirectKick = state;
+    directKickPower = power;
+}
+
+float Kicker::getDirectKickPower() {
+    return directKickPower;
+}
+
+bool Kicker::getDoDirecStatus() {
+    return doDirectKick;
+}
+
+bool Kicker::directKick(bool holdBallState) {
+    if (holdBallState && doDirectKick) {
+        kick(directKickPower);
+        return true;
+    }
+    return false;
 }
 
 void Kicker::disCharge() {
