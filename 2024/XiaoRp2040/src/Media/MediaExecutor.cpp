@@ -24,10 +24,10 @@ void MediaExecutor::playFuncBuzzer(playType type) {
         case NONE:
             noTone(BUZZER_PIN);
             break;
-        case NOFITY:
+        case NOTIFY:
+            tone(BUZZER_PIN, 10000);
+            delay(50);
             tone(BUZZER_PIN, 4200);
-            delay(10);
-            tone(BUZZER_PIN, 1200);
             delay(60);
             noTone(BUZZER_PIN);
             break;
@@ -102,6 +102,7 @@ void MediaExecutor::playFuncBuzzer(playType type) {
             noTone(BUZZER_PIN);
             break;
         };
+        BuzzerType = NONE;
     }
     BuzzerPlayTypePrev = type;
 }

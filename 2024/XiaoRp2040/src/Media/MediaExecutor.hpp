@@ -13,7 +13,7 @@
 
 enum playType {
     NONE,
-    NOFITY,
+    NOTIFY,
     START,
     STOP,
     ERROR,

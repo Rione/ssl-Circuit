@@ -60,7 +60,7 @@ void loop() {
 void setup1() {
     media.init();
     media.playFuncBuzzer(playType::START);
-    delay(400);
+    delay(300);
     media.playFuncBuzzer(playType::STOP);
 }
 void loop1() {

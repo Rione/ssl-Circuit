@@ -62,9 +62,8 @@ void MainMode::determine(UiKit *_ui) {
             // 送信用にデータを変更
             _ui->modeData.status.charge_state = 1;
             _ui->stmSendSerial(&_ui->modeData); // 送信
+            media->setBuzzerType(NOTIFY);
             _ui->modeData.status.charge_state = 0;
-            media->setBuzzerType(NOFITY);
-
         } else if (touch.point.x > 170 && touch.point.x < 290 && touch.point.y > 150 && touch.point.y < 210) {
 
             display.setParttImage(120, 60, main_kickRedImg);
@@ -77,7 +76,7 @@ void MainMode::determine(UiKit *_ui) {
             _ui->modeData.status.kick = 1;
             _ui->stmSendSerial(&_ui->modeData); // 送信
             _ui->modeData.status.kick = 0;
-            media->setBuzzerType(NOFITY);
+            media->setBuzzerType(NOTIFY);
         }
     }
 }

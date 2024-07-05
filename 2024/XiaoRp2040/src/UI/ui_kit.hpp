@@ -1,7 +1,6 @@
 #ifndef _UI_KIT_
 #define _UI_KIT_
 
-
 #include "UI/unit/display.h"
 #include "UI/unit/touchscreen.h"
 
@@ -21,46 +20,45 @@ extern TFT_eSprite sprite;
 extern DISPLAY_DEVICE display;
 
 typedef struct {
-  union{
-    struct{
-      bool charge : 1; //stmから送られてくる充電状態
-      uint8_t reserve : 7; 
-    };
-    uint8_t data;
+    union {
+        struct {
+            bool charge : 1; // stmから送られてくる充電状態
+            uint8_t reserve : 7;
+        };
+        uint8_t data;
 
-  }status;
+    } status;
 
-  bool chargePrev;  
-  
-} RobotInfo_t; //受けとるデータ
+    bool chargePrev;
 
-typedef struct {
-  union{
-    struct{
-      uint8_t mode : 5;
-      bool emergencyStop : 1;  
-      bool charge_state : 1;   //1.切替、0.切替なし
-      bool kick : 1;           //キック
-    };
-    uint8_t data;
-  }status;
-
-  uint8_t modePrev = 0;
-
-} UIModeSwitch_t; //main用、一番最初に送るデータ
+} RobotInfo_t; // 受けとるデータ
 
 typedef struct {
-  union {
-    struct {
-      uint8_t mode : 6;
-      bool charge: 1;
-      bool chargePrev: 1;
+    union {
+        struct {
+            uint8_t mode : 5;
+            bool emergencyStop : 1;
+            bool charge_state : 1; // 1.切替、0.切替なし
+            bool kick : 1;         // キック
+        };
+        uint8_t data;
+    } status;
 
-    };
-    uint8_t data;
-  }status;
-  uint8_t KickPower;
-  uint8_t DribblePower;
+    uint8_t modePrev = 0;
+
+} UIModeSwitch_t; // main用、一番最初に送るデータ
+
+typedef struct {
+    union {
+        struct {
+            uint8_t mode : 6;
+            bool charge : 1;
+            bool chargePrev : 1;
+        };
+        uint8_t data;
+    } status;
+    uint8_t KickPower;
+    uint8_t DribblePower;
 } KickMode_t;
 
 class UiKit {
@@ -69,10 +67,7 @@ class UiKit {
     UIModeSwitch_t modeData;
     KickMode_t kickModeData = {0, 0, 0};
 
-    
-
-    UiKit(){
-
+    UiKit() {
     }
 
     void init();
@@ -87,11 +82,8 @@ class UiKit {
     bool changeFlag_inMode = false;
 
     bool sendFlag = false;
-  
+
   private:
-    
-
 };
-
 
 #endif
