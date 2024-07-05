@@ -116,28 +116,28 @@ void main_app() {
             dischargeFlag = false;
         }
 
-        if (sw1.isRelease()) {
-            if (sw1.readPressedTime() > 500) {
-                printf("DISCHARGE\n");
-                booster.setChargeDisable();
-                HAL_Delay(500);
-                straightKicker.disCharge();
-            } else {
-                chipKicker.kick(0.5);
-                printf("CHIP\n");
-            }
-        }
+        // if (sw1.isRelease()) {
+        //     if (sw1.readPressedTime() > 500) {
+        //         printf("DISCHARGE\n");
+        //         booster.setChargeDisable();
+        //         HAL_Delay(500);
+        //         straightKicker.disCharge();
+        //     } else {
+        //         chipKicker.kick(0.5);
+        //         printf("CHIP\n");
+        //     }
+        // }
 
-        if (sw2.isRelease()) {
-            if (sw2.readPressedTime() > 500) {
-                printf("CHARGE\n");
-                HAL_Delay(500);
-                booster.setChargeEnable();
-            } else {
-                straightKicker.kick(0.5);
-                printf("STRAIGHT\n");
-            }
-        }
+        // if (sw2.isRelease()) {
+        //     if (sw2.readPressedTime() > 500) {
+        //         printf("CHARGE\n");
+        //         HAL_Delay(500);
+        //         booster.setChargeEnable();
+        //     } else {
+        //         straightKicker.kick(0.5);
+        //         printf("STRAIGHT\n");
+        //     }
+        // }
 
         if (canTransmitIntervalTimer.read_ms() > 10) {
             bool done = booster.getDone();

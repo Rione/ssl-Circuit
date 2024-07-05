@@ -9,8 +9,14 @@
 #   2015-07-22 - first version
 # ------------------------------------------------
 
-.PHONY: show-includes
+.PHONY: all clean show-includes show-sources runUSB run upload
 
+# ANSI color codes
+RED=\033[0;31m
+GREEN=\033[0;32m
+YELLOW=\033[0;33m
+BLUE=\033[0;34m
+NC=\033[0m # No Color
 ######################################
 # target
 ######################################
@@ -266,15 +272,32 @@ show-sources:
 	@echo "ASMM_SOURCES"
 	@echo $(ASMM_SOURCES)
 
-run:
+runUSB:
 	make -j12
 	sh SerialFlash.sh
 
-
-
-runSWD:
+run:
 	make -j12
 	sh SWDFlash.sh
+
+upload: 
+	@echo "${YELLOW}Starting build...${NC}"
+	make -j12
+	@if [ $$? -eq 0 ]; then \
+		echo "${GREEN}Build successful!${NC}"; \
+	else \
+		echo "${RED}Build failed!${NC}"; \
+		exit 1; \
+	fi
+	@echo "${YELLOW}Starting programming...${NC}"
+	openocd -f interface/stlink-v2.cfg -f target/stm32f4x.cfg -c 'program ./build/$(TARGET).elf; reset; exit;'
+	@if [ $$? -eq 0 ]; then \
+		echo "${GREEN}Programming successful!${NC}"; \
+	else \
+		echo "${RED}Programming failed!${NC}"; \
+		exit 1; \
+	fi
+
 #######################################
 # dependencies
 #######################################

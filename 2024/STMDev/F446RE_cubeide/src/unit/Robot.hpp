@@ -218,6 +218,7 @@ class Robot {
     inline __attribute__((always_inline)) void dribble(uint8_t power, bool forceSend = false) {
         static Timer timer;
         static uint8_t dribblePowerPrev = power;
+        if (timer.read_ms() > 10000) timer.set_ms(10000);
         if (power == dribblePowerPrev && forceSend == false) {
             if (timer.read_ms() < 100) // パワーが変わっていない場合は送信しない。 forceSendがtrueの場合は100msごとに送信する
                 return;
