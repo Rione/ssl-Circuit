@@ -2,7 +2,7 @@
 
 class KickTestMode : public Mode {
   public:
-    KickTestMode(char letter, const char name[], UiKit *uiPtr) : Mode(letter, name, uiPtr) {
+    KickTestMode(char letter, const char name[], UiKit *uiPtr, MediaExecutor *mediaPtr) : Mode(letter, name, uiPtr), media(mediaPtr) {
     }
 
     void displaySet(UiKit *_ui) override;
@@ -11,7 +11,5 @@ class KickTestMode : public Mode {
 
   private:
     void kickUI();
-
-
-    
+    MediaExecutor *media;
 };
