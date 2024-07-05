@@ -11,7 +11,7 @@ void UiKit::init(){
 
   Serial1.setTX(28);
   Serial1.setRX(29);
-  Serial1.begin(9600);
+  Serial1.begin(115200);
 
 }
 
@@ -46,9 +46,10 @@ void UiKit::stmRecvSerial(RobotInfo_t *_robotInfoData){
   _robotInfoData->chargePrev = _robotInfoData->status.charge;
   // _robotInfoData->chargePrev = 0;
 
-  if(Serial.available()){
-    uint8_t recvData = Serial.read();
+  if(Serial1.available()){
+    uint8_t recvData = Serial1.read();
     Serial.print(recvData);
+    // Serial1.print(recvData);
     _robotInfoData->status.data = recvData;
     // _robotInfoData->status.charge = 1;
   }
@@ -60,7 +61,8 @@ void UiKit::stmSendSerial(UIModeSwitch_t *_modeData){
   // Serial1.write(HEADER);
   // Serial1.write(_modeData->status.data);
   
-  Serial.write(HEADER);
+  // Serial.write(HEADER);
+  Serial1.write(_modeData->status.data);
   Serial.write(_modeData->status.data);
 }
 

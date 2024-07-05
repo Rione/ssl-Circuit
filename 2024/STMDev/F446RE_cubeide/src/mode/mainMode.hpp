@@ -20,10 +20,48 @@ class MainMode : public Mode {
     Timer timer;
 
     inline void boosterManager() {
+        static Timer uiBoosterCheckInterval;
         static Timer doChargeTimer;
         static Timer manageByUserCounter;
         // ロボットの状態に関わらず常に行う処理
         if (manageByUserCounter.read_ms() > 15000) manageByUserCounter.set_ms(15000); // オーバーフローを防ぐ
+        if(uiBoosterCheckInterval.read_ms() > 1000) uiBoosterCheckInterval.set_ms(1000);
+
+        if(uiBoosterCheckInterval.read_ms() > 100) {
+            uiBoosterCheckInterval.reset();
+            // send the state to ui
+             if(robot->info.isKickerChargeMode == true){
+                robot->serial4.write(0x01);
+                printf("charge\n");
+            }else{
+                robot->serial4.write(0x00);
+                printf("discharge\n");
+            }
+
+            // check 
+            if(robot->serial4.available()){
+                printf("get");
+                uint8_t data = robot->serial4.read();
+                if(data == 0x40){
+                    if(robot->info.isKickerChargeMode == false){
+                        robot->chargeStart();
+                        printf("Start charge\n");
+                        robot->led2 = true;
+                        // robot->serial4.write(0x01);
+                    }else {
+                        robot->discharge();
+                        printf("Start discharge\n");
+                        robot->led2 = false;
+                        // robot->serial4.write(0x00);
+                    }
+                }else if(data == 0x80){
+                    robot->kickStraight(100);
+                    printf("kick\n");
+                }
+                manageByUserCounter.reset();
+            }
+        }
+
         if (robot->swDischarge.isRelease()) {
             if (robot->swDischarge.readPressedTime() > 1600) {
                 robot->discharge();
