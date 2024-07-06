@@ -48,7 +48,7 @@ void UiKit::stmRecvSerial(RobotInfo_t *_robotInfoData){
 
   if(Serial1.available()){
     uint8_t recvData = Serial1.read();
-    Serial.print(recvData);
+    // Serial.print(recvData);
     // Serial1.print(recvData);
     _robotInfoData->status.data = recvData;
     // _robotInfoData->status.charge = 1;

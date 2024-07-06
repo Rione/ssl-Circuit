@@ -2,7 +2,7 @@
 
 class MainMode : public Mode {
   public:
-    MainMode(char letter, const char name[], UiKit *uiPtr) : Mode(letter, name, uiPtr) {
+    MainMode(char letter, const char name[], UiKit *uiPtr, MediaExecutor *mediaPtr) : Mode(letter, name, uiPtr), media(mediaPtr) {
     }
 
     void displaySet(UiKit *_ui) override;
@@ -16,6 +16,5 @@ class MainMode : public Mode {
     bool isTouched_kick = false;
     int isTouchedTime = 0;
     int TouchedInterval;
-    
-
+    MediaExecutor *media;
 };
