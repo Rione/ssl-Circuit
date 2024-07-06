@@ -190,9 +190,8 @@ class Robot {
         minusCapChargeCertitude(100);
     }
 
-    inline __attribute__((always_inline)) void kickStraight(uint8_t power, bool doDirect = false, bool forceSend = false) {
+    inline __attribute__((always_inline)) void kickStraight(uint8_t power, bool forceSend = false) {
         static Timer timer;
-
         if (timer.read_ms() < (forceSend ? 10 : 1000)) {
             return;
         } else if (timer.read_ms() > 1000) {
@@ -200,14 +199,14 @@ class Robot {
         }
         CANBus::CANData canData = {
             .stdId = KICK_STRAIGHT,
-            .data = {power, (doDirect ? 0xFF : 0x00), 0, 0, 0, 0, 0, 0},
+            .data = {power, 0, 0, 0, 0, 0, 0, 0},
         };
         can.send(canData);
         timer.reset();
         minusCapChargeCertitude(power);
     }
 
-    inline __attribute__((always_inline)) void kickChip(uint8_t power, bool doDirect = false, bool forceSend = false) {
+    inline __attribute__((always_inline)) void kickChip(uint8_t power, bool forceSend = false) {
         static Timer timer;
         if (timer.read_ms() < (forceSend ? 100 : 1000)) {
             return;
@@ -217,17 +216,47 @@ class Robot {
         // doDirectをする時はdata[1]に0xFFを入れてKickerBoardに投げる
         CANBus::CANData canData = {
             .stdId = KICK_CHIP,
-            .data = {power, (doDirect ? 0xFF : 0x00), 0, 0, 0, 0, 0, 0},
+            .data = {power, 0, 0, 0, 0, 0, 0, 0},
         };
         can.send(canData);
         timer.reset();
         minusCapChargeCertitude(power);
     }
 
+    inline __attribute__((always_inline)) void directStraightKick(uint8_t power) {
+        static Timer timer;
+        if (timer.read_ms() < 500) {
+            return;
+        } else if (timer.read_ms() > 500) {
+            timer.set_ms(500);
+        }
+        CANBus::CANData canData = {
+            .stdId = KICK_STRAIGHT,
+            .data = {power, 0xFF, 0, 0, 0, 0, 0, 0},
+        };
+        can.send(canData);
+        timer.reset();
+    }
+
+    inline __attribute__((always_inline)) void directChipKick(uint8_t power) {
+        static Timer timer;
+        if (timer.read_ms() < 500) {
+            return;
+        } else if (timer.read_ms() > 500) {
+            timer.set_ms(500);
+        }
+        CANBus::CANData canData = {
+            .stdId = KICK_CHIP,
+            .data = {power, 0xFF, 0, 0, 0, 0, 0, 0},
+        };
+        can.send(canData);
+        timer.reset();
+    }
+
     inline __attribute__((always_inline)) void resetDoDirectKick() {
         CANBus::CANData canData = {
             .stdId = KICK_STRAIGHT,
-            .data = {0, 0, 0, 0, 0, 0, 0, 0},
+            .data = {0, 0, 0, 0, 0, 0, 0, 0xFF},
         };
         can.send(canData);
     }
@@ -235,7 +264,7 @@ class Robot {
     inline __attribute__((always_inline)) void resetDoDirectChipKick() {
         CANBus::CANData canData = {
             .stdId = KICK_CHIP,
-            .data = {0, 0, 0, 0, 0, 0, 0, 0},
+            .data = {0, 0, 0, 0, 0, 0, 0, 0xFF},
         };
         can.send(canData);
     }
@@ -278,6 +307,7 @@ class Robot {
     }
 
     inline __attribute__((always_inline)) void setKickerBoardDoDirectMode(uint8_t value) {
+
         info.kickerBoardDoDirectStatus.status = value;
     }
 
@@ -322,14 +352,14 @@ class Robot {
         // ストレートキックを優先する処理。
         // doDirectXXがtrueの場合はボールセンサが反応した瞬間にキックする
         if (info.kicker.straight > 0) {
-            if (info.status.doDirectKick && info.status.doDirectKick != info.kickerBoardDoDirectStatus.straight) {
-                kickStraight(info.kicker.straight, true, true); // doDirectをKickerBoardに投げる
+            if (info.status.doDirectKick) {
+                directStraightKick(info.kicker.straight); // doDirectをKickerBoardに投げる
             } else {
                 kickStraight(info.kicker.straight);
             }
         } else if (info.kicker.chip > 0) {
-            if (info.status.doDirectChipKick && info.status.doDirectChipKick != info.kickerBoardDoDirectStatus.chip) {
-                kickChip(info.kicker.chip, true, true); // doDirectをKickerBoardに投げる
+            if (info.status.doDirectChipKick) {
+                directChipKick(info.kicker.chip); // doDirectをKickerBoardに投げる
             } else {
                 kickChip(info.kicker.chip);
             }

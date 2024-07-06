@@ -96,6 +96,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         // case DRIBLE_STOP: // 21: dribbler stop
         //     break;
         case KICKER_BOARD_PACKET: // フォトセンサの値・充電完了信号の受信
+            
             robot.setPhotoSensorValue((uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8);
             robot.setChageDoneSignal(canRecvData.data[2]);       // 充電完了信号の処理
             robot.setKickerBoardChargeMode(canRecvData.data[3]); // 充電モード信号の処理

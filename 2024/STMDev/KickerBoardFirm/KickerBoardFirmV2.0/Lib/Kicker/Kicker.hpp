@@ -15,15 +15,14 @@ class Kicker {
 
     void addRelatedKicker(Kicker *kicker);
 
-    void kick(float power);
+    bool kick(float power);
     void update();
 
     void setDirectKick(bool state, float power);
-    inline __attribute__((always_inline)) void disableDirectKick() {
-        doDirectKick = false;
-    }
+    void disableDirectKick();
     float getDirectKickPower();
     bool getDoDirecStatus();
+    uint32_t readTimer();
     bool directKick(bool holdBallState);
 
     void disCharge();

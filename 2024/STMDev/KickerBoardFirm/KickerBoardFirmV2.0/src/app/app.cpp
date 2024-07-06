@@ -78,6 +78,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             // data[1] == 0x00: kick , data[1] == 0xFF: doDirectKick)
             if (canRecvData.data[1] == 0xFF) { // doDirectKick
                 straightKicker.setDirectKick(true, (float)canRecvData.data[0] / 100.0);
+                chipKicker.disableDirectKick();
             } else {
                 straightKicker.disableDirectKick();
                 straightKicker.kick((float)canRecvData.data[0] / 100.0);
@@ -87,6 +88,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             // data[1] == 0x00: kick , data[1] == 0xFF: doDirectKick)
             if (canRecvData.data[1] == 0xFF) { // doDirectKick
                 chipKicker.setDirectKick(true, (float)canRecvData.data[0] / 100.0);
+                straightKicker.disableDirectKick();
             } else {
                 chipKicker.disableDirectKick();
                 chipKicker.kick((float)canRecvData.data[0] / 100.0);
