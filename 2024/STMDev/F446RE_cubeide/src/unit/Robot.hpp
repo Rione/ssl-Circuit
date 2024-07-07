@@ -130,12 +130,44 @@ typedef struct {
 
 } RobotInfo;
 
+typedef struct {
+    uint8_t batteryGet;
+    union {
+        struct {
+            bool chargeState : 1; // stmから送られてくる充電状態
+            uint8_t chargeVol : 7; //capChargeCertitude
+        };
+        uint8_t data;
+
+    } capaData;
+  
+} UIRobotInfo_t; //送るデータ
+
+typedef struct {
+  union{
+    struct{
+      uint8_t mode : 5;
+      bool emergencyStop : 1;  
+      bool charge_state : 1;   //1.切替、0.切替なし
+      bool kick : 1;           //キック
+    };
+    uint8_t data;
+  }status;
+
+  uint8_t modePrev = 0;
+
+} UIModeSwitch_t; //main用、一番最初に受け取るデータ
+
+
 class Robot {
   public:
     Robot();
 
     // values
     RobotInfo info;
+
+    UIRobotInfo_t UIrobotInfo; 
+    UIModeSwitch_t UImodeData;
 
     // peripherals
     CANBus can = CANBus(&hcan1, 0);

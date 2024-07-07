@@ -38,8 +38,8 @@ typedef struct {
     } capaData;
 
     float batteryVoltage;
-    bool chargePrev;
-
+    bool chargeStatePrev;
+    uint8_t chargeVolePrev;
 
 } RobotInfo_t; // 受けとるデータ
 
@@ -92,8 +92,6 @@ class UiKit {
 
     bool changeFlag_overMode = true;
     bool changeFlag_inMode = false;
-
-    bool sendFlag = false;
 
     int time = 0;
     bool timeInterval = true; //電圧の情報出力は一定時間（１秒）ごとに行う

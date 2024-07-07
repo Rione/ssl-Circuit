@@ -20,25 +20,8 @@ void MainMode::displaySet(UiKit *_ui) {
         isTouched_kick = false;
     }
 
-    // if(_ui->changeFlag_inMode && millis() - isTouchedTime > 1000){
-    //   mainUI(_ui);
-    //   _ui->changeFlag_inMode = false;
-    // }
-
-    // if(_ui->kickModeData.status.charge != _ui->kickModeData.status.chargePrev){
-    //   if(_ui->kickModeData.status.charge == 0){
-    //     display.setParttImage(260, 50, main_DischargeImg);
-    //     display.publish(30, 70);
-    //   }else if(_ui->kickModeData.status.charge == 1){
-    //     display.setParttImage(260, 50, main_chargeImg);
-    //     display.publish(30, 70);
-    //   }
-
-    //   _ui->kickModeData.status.chargePrev = _ui->kickModeData.status.charge;
-    // }
-
     //　stateの変更
-    if (_ui->robotInfoData.capaData.chargeState != _ui->robotInfoData.chargePrev) {
+    if(_ui->robotInfoData.capaData.chargeState != _ui->robotInfoData.chargeStatePrev){
         if (_ui->robotInfoData.capaData.chargeState == 0) {
             display.setParttImage(260, 60, main_dischargeImg);
             display.publish(30, 60);
@@ -54,7 +37,20 @@ void MainMode::displaySet(UiKit *_ui) {
             sprite.setCursor(0, 0);
             sprite.print(_ui->robotInfoData.capaData.chargeVol);
             display.publish(187, 80);
+
         }
+    }
+
+    // chargeVolの変更
+    if(_ui->robotInfoData.capaData.chargeVol != _ui->robotInfoData.chargeVolePrev){
+        sprite.setTextColor(TFT_BLACK, charge_back);
+        sprite.loadFont(bold25);
+
+        display.createSprite(45, 25);
+        sprite.fillSprite(charge_back);
+        sprite.setCursor(0, 0);
+        sprite.print(_ui->robotInfoData.capaData.chargeVol);
+        display.publish(187, 80);
     }
 }
 

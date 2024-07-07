@@ -42,9 +42,9 @@ void setup() {
 
     currentMode->displaySet(&ui);
 
-    ui.robotInfoData.capaData.chargeState = 0;
-    ui.robotInfoData.capaData.chargeVol = 0;
-    ui.robotInfoData.batteryVoltage = 15.0;
+    // ui.robotInfoData.capaData.chargeState = 0;
+    // ui.robotInfoData.capaData.chargeVol = 0;
+    // ui.robotInfoData.batteryVoltage = 15.0;
   
 }
 

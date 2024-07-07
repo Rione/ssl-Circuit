@@ -51,23 +51,43 @@ void UiKit::homeScreenGesture() {
 }
 
 void UiKit::stmRecvSerial(RobotInfo_t *_robotInfoData){
-  _robotInfoData->chargePrev = _robotInfoData->capaData.chargeState;
-  // _robotInfoData->chargePrev = 0;
+  static const uint8_t HEADER = 0xFF;  // ヘッダ
+  static const uint8_t dataSize = 2;  // データのサイズ
+  static bool headerReceived = false;  // ヘッダを受信したかどうか
+  static uint8_t index = 0;            // 受信したデータのインデックスカウンター
+  static uint8_t data[dataSize] = {0}; // 受信したデータ
 
-  if(Serial1.available()){
+  while(Serial1.available()){
     uint8_t recvData = Serial1.read();
-    // Serial.print(recvData);
-    // Serial1.print(recvData);
-    _robotInfoData->capaData.data = recvData;
-    // _robotInfoData->status.charge = 1;
+    Serial.write(recvData); //シリアルデバッグ用
+
+    if(!headerReceived){
+      index = 0;
+      if(recvData == HEADER) headerReceived = true;
+    }else{
+      data[index] = recvData;
+      index++;
+
+      if(index == dataSize){
+        headerReceived = false;
+        index = 0;
+
+        _robotInfoData->chargeStatePrev = _robotInfoData->capaData.chargeState;
+        _robotInfoData->chargeVolePrev = _robotInfoData->capaData.chargeVol;        
+
+        _robotInfoData->batteryGet = data[0];
+        _robotInfoData->capaData.data = data[1];
+
+        _robotInfoData->batteryVoltage = (float)_robotInfoData->batteryGet / 10.0;
+
+        
+      }
+    }
   }
 }
 
 void UiKit::stmSendSerial(UIModeSwitch_t *_modeData){
   static const uint8_t HEADER = 0xFF;
-
-  // Serial1.write(HEADER);
-  // Serial1.write(_modeData->status.data);
   
   Serial1.write(HEADER);
   Serial1.write(_modeData->status.data);
