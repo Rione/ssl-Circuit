@@ -25,38 +25,37 @@ class MainMode : public Mode {
         static Timer manageByUserCounter;
         // ロボットの状態に関わらず常に行う処理
         if (manageByUserCounter.read_ms() > 15000) manageByUserCounter.set_ms(15000); // オーバーフローを防ぐ
-        if(uiBoosterCheckInterval.read_ms() > 1000) uiBoosterCheckInterval.set_ms(1000);
+        if (uiBoosterCheckInterval.read_ms() > 1000) uiBoosterCheckInterval.set_ms(1000);
 
-        if(uiBoosterCheckInterval.read_ms() > 100) {
+        if (uiBoosterCheckInterval.read_ms() > 100) {
             uiBoosterCheckInterval.reset();
             // send the state to ui
-             if(robot->info.isKickerChargeMode == true){
+            if (robot->info.isKickerChargeMode == true) {
                 robot->serial4.write(0x01);
-                printf("charge\n");
-            }else{
+                // printf("UI charge\n");
+            } else {
                 robot->serial4.write(0x00);
-                printf("discharge\n");
+                // printf("UI discharge\n");
             }
 
-            // check 
-            if(robot->serial4.available()){
-                printf("get");
+            // check
+            if (robot->serial4.available()) {
                 uint8_t data = robot->serial4.read();
-                if(data == 0x40){
-                    if(robot->info.isKickerChargeMode == false){
+                if (data == 0x40) {
+                    if (robot->info.isKickerChargeMode == false) {
                         robot->chargeStart();
-                        printf("Start charge\n");
+                        // printf("UI Start charge\n");
                         robot->led2 = true;
                         // robot->serial4.write(0x01);
-                    }else {
+                    } else {
                         robot->discharge();
-                        printf("Start discharge\n");
+                        // printf("UI Start discharge\n");
                         robot->led2 = false;
                         // robot->serial4.write(0x00);
                     }
-                }else if(data == 0x80){
+                } else if (data == 0x80) {
                     robot->kickStraight(100);
-                    printf("kick\n");
+                    printf("UI kick\n");
                 }
                 manageByUserCounter.reset();
             }

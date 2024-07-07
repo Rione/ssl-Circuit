@@ -127,6 +127,13 @@ typedef struct {
     bool isUnderVoltage;
     bool isRobotStopFF; // ロボットのFF速度ベクトルも元にロボットが止まっているかを判断する
     bool isKickerChargeMode;
+    union {
+        struct {
+            bool straight : 1;
+            bool chip : 1;
+        };
+        uint8_t status;
+    } kickerBoardDoDirectStatus;
 
 } RobotInfo;
 
@@ -183,9 +190,9 @@ class Robot {
         minusCapChargeCertitude(100);
     }
 
-    inline __attribute__((always_inline)) void kickStraight(uint8_t power) {
+    inline __attribute__((always_inline)) void kickStraight(uint8_t power, bool forceSend = false) {
         static Timer timer;
-        if (timer.read_ms() < 1000) {
+        if (timer.read_ms() < (forceSend ? 10 : 1000)) {
             return;
         } else if (timer.read_ms() > 1000) {
             timer.set_ms(1000);
@@ -199,13 +206,14 @@ class Robot {
         minusCapChargeCertitude(power);
     }
 
-    inline __attribute__((always_inline)) void kickChip(uint8_t power) {
+    inline __attribute__((always_inline)) void kickChip(uint8_t power, bool forceSend = false) {
         static Timer timer;
-        if (timer.read_ms() < 1000) {
+        if (timer.read_ms() < (forceSend ? 100 : 1000)) {
             return;
         } else if (timer.read_ms() > 1000) {
             timer.set_ms(1000);
         }
+        // doDirectをする時はdata[1]に0xFFを入れてKickerBoardに投げる
         CANBus::CANData canData = {
             .stdId = KICK_CHIP,
             .data = {power, 0, 0, 0, 0, 0, 0, 0},
@@ -215,6 +223,51 @@ class Robot {
         minusCapChargeCertitude(power);
     }
 
+    inline __attribute__((always_inline)) void directStraightKick(uint8_t power) {
+        static Timer timer;
+        if (timer.read_ms() < 500) {
+            return;
+        } else if (timer.read_ms() > 500) {
+            timer.set_ms(500);
+        }
+        CANBus::CANData canData = {
+            .stdId = KICK_STRAIGHT,
+            .data = {power, 0xFF, 0, 0, 0, 0, 0, 0},
+        };
+        can.send(canData);
+        timer.reset();
+    }
+
+    inline __attribute__((always_inline)) void directChipKick(uint8_t power) {
+        static Timer timer;
+        if (timer.read_ms() < 500) {
+            return;
+        } else if (timer.read_ms() > 500) {
+            timer.set_ms(500);
+        }
+        CANBus::CANData canData = {
+            .stdId = KICK_CHIP,
+            .data = {power, 0xFF, 0, 0, 0, 0, 0, 0},
+        };
+        can.send(canData);
+        timer.reset();
+    }
+
+    inline __attribute__((always_inline)) void resetDoDirectKick() {
+        CANBus::CANData canData = {
+            .stdId = KICK_STRAIGHT,
+            .data = {0, 0, 0, 0, 0, 0, 0, 0xFF},
+        };
+        can.send(canData);
+    }
+
+    inline __attribute__((always_inline)) void resetDoDirectChipKick() {
+        CANBus::CANData canData = {
+            .stdId = KICK_CHIP,
+            .data = {0, 0, 0, 0, 0, 0, 0, 0xFF},
+        };
+        can.send(canData);
+    }
     inline __attribute__((always_inline)) void dribble(uint8_t power, bool forceSend = false) {
         static Timer timer;
         static uint8_t dribblePowerPrev = power;
@@ -253,6 +306,11 @@ class Robot {
         }
     }
 
+    inline __attribute__((always_inline)) void setKickerBoardDoDirectMode(uint8_t value) {
+
+        info.kickerBoardDoDirectStatus.status = value;
+    }
+
     inline __attribute__((always_inline)) void minusCapChargeCertitude(uint8_t value) {
         if (capChargeCertitude < value) {
             capChargeCertitude = 0;
@@ -286,6 +344,8 @@ class Robot {
         if (timer.read_ms() > interval) {
             dribble(0);
             motorDriver.sendEmg();
+            resetDoDirectKick();
+            resetDoDirectChipKick();
             timer.reset();
         }
     }
@@ -295,17 +355,25 @@ class Robot {
         // doDirectXXがtrueの場合はボールセンサが反応した瞬間にキックする
         if (info.kicker.straight > 0) {
             if (info.status.doDirectKick) {
-                if (info.isHoldBall)
-                    kickStraight(info.kicker.straight);
+                directStraightKick(info.kicker.straight); // doDirectをKickerBoardに投げる
             } else {
                 kickStraight(info.kicker.straight);
             }
         } else if (info.kicker.chip > 0) {
             if (info.status.doDirectChipKick) {
-                if (info.isHoldBall)
-                    kickChip(info.kicker.chip);
+                directChipKick(info.kicker.chip); // doDirectをKickerBoardに投げる
             } else {
                 kickChip(info.kicker.chip);
+            }
+        } else {
+            // どっちも0の場合はキックしない
+            if (info.status.doDirectKick != info.kickerBoardDoDirectStatus.straight && info.kickerBoardDoDirectStatus.straight) {
+                // kickStraight(0, false); // パワー0のキックを投げてdoDirectをリセットする
+                resetDoDirectKick();
+            }
+            if (info.status.doDirectChipKick != info.kickerBoardDoDirectStatus.chip && info.kickerBoardDoDirectStatus.chip) {
+                // kickChip(0, false); // パワー0のキックを投げてdoDirectをリセットする
+                resetDoDirectChipKick();
             }
         }
     }

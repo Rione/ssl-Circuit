@@ -31,6 +31,24 @@ Timer canTransmitIntervalTimer;
 
 bool dischargeFlag = false;
 
+uint16_t photoSensorThreshold = 1000;
+uint16_t photoValue = 0;
+bool isHoldBall = false;
+
+union {
+    struct {
+        bool straight : 1;
+        bool chip : 1;
+    };
+    uint8_t status;
+} doDirectStatus;
+
+uint16_t readPhotoADC() {
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 10);
+    return HAL_ADC_GetValue(&hadc1);
+}
+
 void TimInterrupt500hz() {
     sw1.update();
     sw2.update();
@@ -39,12 +57,17 @@ void TimInterrupt500hz() {
     chipKicker.update();
 
     booster.update();
+
+    photoValue = readPhotoADC();
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (can.getHcan() == hcan) {
         can.recv(canRecvData);
         switch (canRecvData.stdId) {
+        case 0x09: // 15: PhotoThreshold
+            photoSensorThreshold = (uint16_t)(canRecvData.data[0] | (canRecvData.data[1] << 8));
+            break;
         case 0x10: // 16: charge Enable
             booster.setChargeEnable();
             break;
@@ -52,10 +75,24 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             dischargeFlag = true;
             break;
         case 0x12: // 18: kick
-            straightKicker.kick((float)canRecvData.data[0] / 100.0);
+            // data[1] == 0x00: kick , data[1] == 0xFF: doDirectKick)
+            if (canRecvData.data[1] == 0xFF) { // doDirectKick
+                straightKicker.setDirectKick(true, (float)canRecvData.data[0] / 100.0);
+                chipKicker.disableDirectKick();
+            } else {
+                straightKicker.disableDirectKick();
+                straightKicker.kick((float)canRecvData.data[0] / 100.0);
+            }
             break;
         case 0x13: // 19: chip kick
-            chipKicker.kick((float)canRecvData.data[0] / 100.0);
+            // data[1] == 0x00: kick , data[1] == 0xFF: doDirectKick)
+            if (canRecvData.data[1] == 0xFF) { // doDirectKick
+                chipKicker.setDirectKick(true, (float)canRecvData.data[0] / 100.0);
+                straightKicker.disableDirectKick();
+            } else {
+                chipKicker.disableDirectKick();
+                chipKicker.kick((float)canRecvData.data[0] / 100.0);
+            }
             break;
         case 0x14: // 20: dribbler run
             dribbler.write((float)canRecvData.data[0] / 100.0);
@@ -70,12 +107,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             break;
         }
     }
-}
-
-uint16_t readPhotoADC() {
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, 10);
-    return HAL_ADC_GetValue(&hadc1);
 }
 
 void setup() {
@@ -106,14 +137,29 @@ void setup() {
 void main_app() {
     setup();
     while (1) {
-        uint16_t photoValue = readPhotoADC();
         ledDebug = donePin.read();
+        isHoldBall = photoValue < photoSensorThreshold;
         if (dischargeFlag) {
             printf("DISCHARGE\n");
             booster.setChargeDisable();
             HAL_Delay(500);
             straightKicker.disCharge();
             dischargeFlag = false;
+        }
+
+        if (straightKicker.directKick(isHoldBall)) {
+            CANBus::CANData canData = {
+                .stdId = 0x12,
+                .data = {(uint8_t)(straightKicker.getDirectKickPower() * 100), 0xFF, 0, 0, 0, 0, 0, 0xFF},
+            };
+            can.send(canData);
+        }
+        if (chipKicker.directKick(isHoldBall)) {
+            CANBus::CANData canData = {
+                .stdId = 0x13,
+                .data = {(uint8_t)(chipKicker.getDirectKickPower() * 100), 0xFF, 0, 0, 0, 0, 0, 0xFF},
+            };
+            can.send(canData);
         }
 
         // if (sw1.isRelease()) {
@@ -139,9 +185,12 @@ void main_app() {
         //     }
         // }
 
+        doDirectStatus.straight = straightKicker.getDoDirecStatus();
+        doDirectStatus.chip = chipKicker.getDoDirecStatus();
+
         if (canTransmitIntervalTimer.read_ms() > 10) {
             bool done = booster.getDone();
-            printf("sw1:%4dms sw2:%4dms Photo:%4d Done:%d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue, done);
+            printf("sw1:%4dms sw2:%4dms Photo:%4d Done:%d directSt:%d directCh:%d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue, done, doDirectStatus.straight, doDirectStatus.chip);
             CANBus::CANData canPhotoData = {
                 .stdId = 0x123,
                 .data = {
@@ -149,6 +198,9 @@ void main_app() {
                     (uint8_t)((photoValue >> 8) & 0xFF),
                     (uint8_t)(done ? 255 : 0),
                     (uint8_t)(booster.getDoChargeState() ? 255 : 0),
+                    (uint8_t)(doDirectStatus.status),
+                    (uint8_t)(photoSensorThreshold & 0xFF),
+                    (uint8_t)((photoSensorThreshold >> 8) & 0xFF),
                 }};
             can.send(canPhotoData);
             canTransmitIntervalTimer.reset();

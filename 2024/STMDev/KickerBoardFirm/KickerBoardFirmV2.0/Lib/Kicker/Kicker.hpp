@@ -4,6 +4,7 @@
 #include "PWMSingle.hpp"
 #include "Timer.hpp"
 #include "MyMath.hpp"
+#include "CAN.hpp"
 
 class Kicker {
   public:
@@ -14,8 +15,15 @@ class Kicker {
 
     void addRelatedKicker(Kicker *kicker);
 
-    void kick(float power);
+    bool kick(float power);
     void update();
+
+    void setDirectKick(bool state, float power);
+    void disableDirectKick();
+    float getDirectKickPower();
+    bool getDoDirecStatus();
+    uint32_t readTimer();
+    bool directKick(bool holdBallState);
 
     void disCharge();
     PwmSingleOut kicker;
@@ -29,6 +37,8 @@ class Kicker {
 
     bool available;
     bool isDischarging;
+    bool doDirectKick;
+    float directKickPower;
 
     Kicker *relatedKicker;
 };

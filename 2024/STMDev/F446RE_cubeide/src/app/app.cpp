@@ -21,41 +21,39 @@ MPU6500::xyz_t att;
 Madgwick filter;
 float frontDeg = 0;
 
+typedef struct {
+    union {
+        struct {
+            bool charge : 1; // stmから送られてくる充電状態
+            uint8_t reserve : 7;
+        };
+        uint8_t data;
+
+    } status;
+
+    bool chargePrev;
+
+} UIRobotInfo_t; // 送るデータ
 
 typedef struct {
-  union{
-    struct{
-      bool charge : 1; //stmから送られてくる充電状態
-      uint8_t reserve : 7; 
-    };
-    uint8_t data;
+    union {
+        struct {
+            uint8_t mode : 5;
+            bool emergencyStop : 1;
+            bool charge_state : 1; // 1.切替、0.切替なし
+            bool kick : 1;         // キック
+        };
+        uint8_t data;
+    } status;
 
-  }status;
+    uint8_t modePrev = 0;
 
-  bool chargePrev;  
-  
-} UIRobotInfo_t; //送るデータ
+} UIModeSwitch_t; // main用、一番最初に受け取るデータ
 
-typedef struct {
-  union{
-    struct{
-      uint8_t mode : 5;
-      bool emergencyStop : 1;  
-      bool charge_state : 1;   //1.切替、0.切替なし
-      bool kick : 1;           //キック
-    };
-    uint8_t data;
-  }status;
-
-  uint8_t modePrev = 0;
-
-} UIModeSwitch_t; //main用、一番最初に受け取るデータ
-
-UIRobotInfo_t UIrobotInfo; 
+UIRobotInfo_t UIrobotInfo;
 UIModeSwitch_t modeData;
 Timer time;
 Timer time2;
-
 
 void mpuget() {
     if (mpu.isCalibrated() == true) {
@@ -80,27 +78,30 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         robot.can.recv(canRecvData);
         switch (canRecvData.stdId) {
         // KickerBoard Commands
-        case 0x10: // 16: charge Enable
+        case CHARGE_START: // 16: charge Enable
             robot.led2 = true;
             break;
-        case 0x11: // 17: charge Disable
+        case DISCHARGE_START: // 17: charge Disable
             robot.minusCapChargeCertitude(100);
             robot.led2 = false;
             break;
-        case 0x12: // 18: kick
+        case KICK_STRAIGHT: // 18: kick
             robot.minusCapChargeCertitude(canRecvData.data[0]);
             break;
-        case 0x13: // 19: chip kick
+        case KICK_CHIP: // 19: chip kick
             robot.minusCapChargeCertitude(canRecvData.data[0]);
             break;
-        // case 0x14: // 20: dribbler run
+        // case DRIBBLE: // 20: dribbler run
         //     break;
-        // case 0x15: // 21: dribbler stop
+        // case DRIBLE_STOP: // 21: dribbler stop
         //     break;
-        case 0x123: // フォトセンサの値・充電完了信号の受信
+        case KICKER_BOARD_PACKET: // フォトセンサの値・充電完了信号の受信
+            
             robot.setPhotoSensorValue((uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8);
             robot.setChageDoneSignal(canRecvData.data[2]);       // 充電完了信号の処理
             robot.setKickerBoardChargeMode(canRecvData.data[3]); // 充電モード信号の処理
+            robot.setKickerBoardDoDirectMode(canRecvData.data[4]);
+            // uint16_t photoSensorThreshold = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;
             robot.led0 = !robot.led0;
             break;
         default:
@@ -148,7 +149,6 @@ void setup() {
     robot.dribble(0);
 
     HAL_Delay(1000);
-
 }
 
 void main_app() {

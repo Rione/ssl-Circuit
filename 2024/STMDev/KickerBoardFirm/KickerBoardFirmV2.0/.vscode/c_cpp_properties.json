@@ -1,8 +1,9 @@
 {
   "configurations": [
     {
-      "name": "STM32",
+      "name": "macos-gcc-x64",
       "includePath": [
+        "${workspaceFolder}/**",
         "${workspaceFolder}/Core/Inc",
         "${workspaceFolder}/Drivers/STM32F3xx_HAL_Driver/Inc",
         "${workspaceFolder}/Drivers/STM32F3xx_HAL_Driver/Inc/Legacy",
@@ -23,7 +24,7 @@
       "compilerPath": "/opt/homebrew/bin/arm-none-eabi-gcc",
       "cStandard": "c11",
       "cppStandard": "c++17",
-      "intelliSenseMode": "gcc-arm"
+      "intelliSenseMode": "macos-gcc-x64"
     }
   ],
   "version": 4

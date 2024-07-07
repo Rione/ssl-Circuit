@@ -24,14 +24,16 @@ void Kicker::addRelatedKicker(Kicker *kicker) {
     relatedKicker = kicker;
 }
 
-void Kicker::kick(float power) {
-    if (!available || isDischarging) return;
-    if (_intervalTimer.read_ms() < _kickInterval) return;
+bool Kicker::kick(float power) {
+    if (power == 0.0) return 0;
+    if (!available || isDischarging) return 0;
+    if (_intervalTimer.read_ms() < _kickInterval) return 0;
     if (relatedKicker != nullptr) relatedKicker->disable();
     power = Constrain(power, 0.0, 1.0);
     kicker.write(power);
     _riseTimer.reset();
     _intervalTimer.reset();
+    return 1;
 }
 
 void Kicker::update() {
@@ -42,6 +44,42 @@ void Kicker::update() {
     if (_riseTimer.read_ms() > 300) {
         if (relatedKicker != nullptr) relatedKicker->enable();
     }
+
+    if (relatedKicker != nullptr) {
+        if (relatedKicker->readTimer() < _kickInterval) {
+            disable();
+        } else {
+            enable();
+        }
+    }
+}
+
+void Kicker::setDirectKick(bool state, float power) {
+    doDirectKick = state;
+    directKickPower = power;
+}
+
+void Kicker::disableDirectKick() {
+    doDirectKick = false;
+}
+
+float Kicker::getDirectKickPower() {
+    return directKickPower;
+}
+
+bool Kicker::getDoDirecStatus() {
+    return doDirectKick;
+}
+
+uint32_t Kicker::readTimer() {
+    return _intervalTimer.read_ms();
+}
+
+bool Kicker::directKick(bool holdBallState) {
+    if (holdBallState && doDirectKick) {
+        return kick(directKickPower);
+    }
+    return false;
 }
 
 void Kicker::disCharge() {
