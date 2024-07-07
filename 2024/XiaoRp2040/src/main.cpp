@@ -19,16 +19,28 @@ DISPLAY_DEVICE display = DISPLAY_DEVICE(&tft, &sprite);
 
 #include "UI/mode/mainMode.hpp"
 #include "UI/mode/kickTestMode.hpp"
+#include "UI/mode/home.hpp"
 MainMode mainMode('M', "Main", &ui, &media);
 KickTestMode kickTestMode('K', "Kick", &ui, &media);
+Home home('H', "Home", &ui, &media);
 
 Mode *modes[] = {&mainMode, &kickTestMode};
 Mode *currentMode = &mainMode;
 
 void modeSwitch(UiKit *_ui) {
-    if (_ui->modeData.status.mode != _ui->modeData.modePrev) {
-        currentMode = modes[_ui->modeData.status.mode];
-        _ui->modeData.modePrev = _ui->modeData.status.mode;
+    // if (_ui->modeData.status.mode != _ui->modeData.modePrev) {
+    //     currentMode = modes[_ui->modeData.status.mode];
+    //     _ui->modeData.modePrev = _ui->modeData.status.mode;
+    // }
+
+    if (_ui->changeFlag_overMode) {
+        Serial.println("modeSwitch");
+        if (_ui->homeFlag) {
+            currentMode = &home;
+        } else {
+            currentMode = modes[_ui->modeData.status.mode];
+            _ui->modeData.modePrev = _ui->modeData.status.mode;
+        }
     }
 }
 
@@ -45,6 +57,7 @@ void setup() {
     // ui.robotInfoData.capaData.chargeState = 0;
     // ui.robotInfoData.capaData.chargeVol = 0;
     // ui.robotInfoData.batteryVoltage = 15.0;
+
 }
 
 void loop() {
@@ -59,7 +72,7 @@ void loop() {
 
     ui.infoTab();
 
-    if (ui.modeData.status.mode != 0) ui.homeScreenGesture();
+    ui.homeScreenGesture();
 }
 
 void setup1() {

@@ -42,8 +42,9 @@ void UiKit::homeScreenGesture() {
         if (flag && millis() - timeWhenFlagged < 200) {
             if (touch.raw.y < yWhenFlagged - 300) {
                 flag = false;
-                modeData.status.mode = 0;
+                homeFlag = !homeFlag;
                 changeFlag_overMode = true;
+                Serial.println("homeFlag");
             }
         }
     }
@@ -58,7 +59,7 @@ void UiKit::stmRecvSerial(RobotInfo_t *_robotInfoData) {
 
     while (Serial1.available()) {
         uint8_t recvData = Serial1.read();
-        Serial.write(recvData); // シリアルデバッグ用
+        // Serial.write(recvData); // シリアルデバッグ用
 
         if (!headerReceived) {
             index = 0;
@@ -89,7 +90,7 @@ void UiKit::stmSendSerial(UIModeSwitch_t *_modeData) {
     Serial1.write(HEADER);
     Serial1.write(_modeData->status.data);
 
-    Serial.write(_modeData->status.data); // シリアルデバッグ用
+    // Serial.write(_modeData->status.data); // シリアルデバッグ用
 }
 
 void UiKit::infoTab() {
