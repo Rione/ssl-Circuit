@@ -10,11 +10,11 @@ void MainMode::displaySet(UiKit *_ui) {
     }
 
     if (isTouched_state && millis() - isTouchedTime > 1000) {
-        display.setParttImage(120, 60, main_chgWhiteImg);
+        // display.setParttImage(120, 60, main_chgWhiteImg);
         display.publish(30, 150);
         isTouched_state = false;
     } else if (isTouched_kick && millis() - isTouchedTime > 1000) {
-        display.setParttImage(120, 60, main_kickWhiteImg);
+        // display.setParttImage(120, 60, main_kickWhiteImg);
         display.publish(170, 150);
         isTouched_kick = false;
     }
@@ -38,10 +38,10 @@ void MainMode::displaySet(UiKit *_ui) {
 
     if (_ui->robotInfoData.status.charge != _ui->robotInfoData.chargePrev) {
         if (_ui->robotInfoData.status.charge == 0) {
-            display.setParttImage(260, 50, main_DischargeImg);
+            // display.setParttImage(260, 50, main_DischargeImg);
             display.publish(30, 70);
         } else if (_ui->robotInfoData.status.charge == 1) {
-            display.setParttImage(260, 50, main_chargeImg);
+            // display.setParttImage(260, 50, main_chargeImg);
             display.publish(30, 70);
         }
     }
@@ -53,7 +53,7 @@ void MainMode::determine(UiKit *_ui) {
         if (touch.point.x > 30 && touch.point.x < 150 && touch.point.y > 150 && touch.point.y < 210) {
 
             // 画面赤く
-            display.setParttImage(120, 60, main_chgRedImg);
+            // display.setParttImage(120, 60, main_chgRedImg);
             display.publish(30, 150);
             // タッチした時間を記録
             isTouched_state = true;
@@ -66,7 +66,7 @@ void MainMode::determine(UiKit *_ui) {
             _ui->modeData.status.charge_state = 0;
         } else if (touch.point.x > 170 && touch.point.x < 290 && touch.point.y > 150 && touch.point.y < 210) {
 
-            display.setParttImage(120, 60, main_kickRedImg);
+            // display.setParttImage(120, 60, main_kickRedImg);
             display.publish(170, 150);
 
             isTouched_kick = true;
@@ -83,6 +83,6 @@ void MainMode::determine(UiKit *_ui) {
 
 void MainMode::mainUI(UiKit *_ui) {
     display.createSprite();
-    display.setBackgroundImage(main_kickImg);
+    // display.setBackgroundImage(main_kickImg);
     display.publish();
 }

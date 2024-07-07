@@ -37,24 +37,36 @@ void setup() {
 
     ui.init();
 
-    delay(1000);
-
     ui.modeData.status.mode = 0;
     ui.modeData.modePrev = 0;
 
-    currentMode->displaySet(&ui);
+    // currentMode->displaySet(&ui);
+
+    ui.homeTab(16.7, 100);
+
+    display.setParttImage(320, 210, main_BackImg);
+    display.publish(0, 30);
+  
+
 }
 
 void loop() {
-    ui.touchUpdate();
+    ui.homeTab(16.7, 50);
+    delay(3000);
 
-    currentMode->determine(&ui);
-    modeSwitch(&ui);
-    currentMode->displaySet(&ui);
+    ui.homeTab(13.7, 100);
+    delay(3000);
 
-    ui.stmRecvSerial(&ui.robotInfoData);
 
-    if (ui.modeData.status.mode != 0) ui.homeScreenGesture();
+    // ui.touchUpdate();
+
+    // currentMode->determine(&ui);
+    // modeSwitch(&ui);
+    // currentMode->displaySet(&ui);
+
+    // ui.stmRecvSerial(&ui.robotInfoData);
+
+    // if (ui.modeData.status.mode != 0) ui.homeScreenGesture();
 }
 
 void setup1() {
@@ -68,4 +80,5 @@ void loop1() {
 }
 // メモ
 //  基本的には縦、横の順で座標を指定する
-//  画像の表示はcreateSprite(320, 240)で作成(横、縦)になるu
+//  画像の表示はcreateSprite(320, 240)で作成(横、縦)になる
+//　

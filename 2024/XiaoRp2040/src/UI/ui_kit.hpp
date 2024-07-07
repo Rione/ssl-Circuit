@@ -5,13 +5,16 @@
 #include "UI/unit/touchscreen.h"
 
 #include "UI/font/bold40.h"
+#include "UI/font/bold20.h"
 #include "UI/font/bold25.h"
 #include "UI/font/regular15.h"
+
 
 #include "UI/image/image.h"
 #include "UI/image/top.h"
 #include "UI/image/kick.h"
-#include "UI/image/main_kick.h"
+#include "UI/image/main_img.h"
+#include "UI/image/home_img.h"
 
 extern XPT2046_Touchscreen ts;
 extern TOUCHSCREEN touch;
@@ -77,6 +80,8 @@ class UiKit {
 
     void stmRecvSerial(RobotInfo_t *_robotInfoData);
     void stmSendSerial(UIModeSwitch_t *_modeData);
+
+    void homeTab(float batt, int capa);
 
     bool changeFlag_overMode = true;
     bool changeFlag_inMode = false;
