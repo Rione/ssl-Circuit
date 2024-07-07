@@ -1,7 +1,7 @@
 #include "mainMode.hpp"
 
 void MainMode::displaySet(UiKit *_ui) {
-    //　モード切替時に画面を変更
+    // 　モード切替時に画面を変更
     if (_ui->changeFlag_overMode) {
 
         mainUI(_ui);
@@ -9,7 +9,7 @@ void MainMode::displaySet(UiKit *_ui) {
         _ui->changeFlag_overMode = false;
     }
 
-    //　ボタンが押された時の処理
+    // 　ボタンが押された時の処理
     if (isTouched_state && millis() - isTouchedTime > 1000) {
         display.setParttImage(85, 60, main_chgWhiteImg);
         display.publish(30, 155);
@@ -20,8 +20,8 @@ void MainMode::displaySet(UiKit *_ui) {
         isTouched_kick = false;
     }
 
-    //　stateの変更
-    if(_ui->robotInfoData.capaData.chargeState != _ui->robotInfoData.chargeStatePrev){
+    // 　stateの変更
+    if (_ui->robotInfoData.capaData.chargeState != _ui->robotInfoData.chargeStatePrev) {
         if (_ui->robotInfoData.capaData.chargeState == 0) {
             display.setParttImage(260, 60, main_dischargeImg);
             display.publish(30, 60);
@@ -37,12 +37,11 @@ void MainMode::displaySet(UiKit *_ui) {
             sprite.setCursor(0, 0);
             sprite.print(_ui->robotInfoData.capaData.chargeVol);
             display.publish(187, 80);
-
         }
     }
 
     // chargeVolの変更
-    if(_ui->robotInfoData.capaData.chargeVol != _ui->robotInfoData.chargeVolePrev){
+    if (_ui->robotInfoData.capaData.chargeVol != _ui->robotInfoData.chargeVolePrev) {
         sprite.setTextColor(TFT_BLACK, charge_back);
         sprite.loadFont(bold25);
 
@@ -73,7 +72,7 @@ void MainMode::determine(UiKit *_ui) {
 
             // ブザーを鳴らす
             media->setBuzzerType(NOTIFY);
-            
+
         } else if (touch.point.x > 125 && touch.point.x < 210 && touch.point.y > 155 && touch.point.y < 215) {
 
             display.setParttImage(85, 60, main_kickRedImg);
@@ -97,7 +96,7 @@ void MainMode::mainUI(UiKit *_ui) {
     display.setParttImage(320, 210, main_BackImg);
     display.publish(0, 30);
 
-    if(_ui->robotInfoData.capaData.chargeState == 1){
+    if (_ui->robotInfoData.capaData.chargeState == 1) {
         display.setParttImage(260, 60, main_dischargeImg);
         display.publish(30, 60);
 
@@ -113,6 +112,4 @@ void MainMode::mainUI(UiKit *_ui) {
         sprite.print(_ui->robotInfoData.capaData.chargeVol);
         display.publish(187, 80);
     }
-    
-
 }

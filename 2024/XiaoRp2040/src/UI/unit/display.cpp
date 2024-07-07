@@ -1,6 +1,6 @@
 #include "display.h"
 
-DISPLAY_DEVICE::DISPLAY_DEVICE(TFT_eSPI* tftPtr, TFT_eSprite* spritePtr) {
+DISPLAY_DEVICE::DISPLAY_DEVICE(TFT_eSPI *tftPtr, TFT_eSprite *spritePtr) {
     pinMode(backlightPin, OUTPUT);
     // digitalWrite(backlightPin, HIGH);
 
@@ -24,11 +24,11 @@ void DISPLAY_DEVICE::setSPIClockFast(void) {
     SPI.beginTransaction(SPISettings(SPI_FREQUENCY, MSBFIRST, TFT_SPI_MODE));
 }
 
-void DISPLAY_DEVICE::setBackgroundImage(const uint16_t* imagePtr) {
+void DISPLAY_DEVICE::setBackgroundImage(const uint16_t *imagePtr) {
     spritePtr->pushImage(0, 0, 320, 240, imagePtr);
 }
 
-void DISPLAY_DEVICE::setParttImage(int w, int h, const uint16_t* imagePtr) {
+void DISPLAY_DEVICE::setParttImage(int w, int h, const uint16_t *imagePtr) {
     spritePtr->createSprite(w, h);
     spritePtr->pushImage(0, 0, w, h, imagePtr);
 }
@@ -38,7 +38,6 @@ void DISPLAY_DEVICE::publish(int x, int y) {
     spritePtr->pushSprite(x, y);
     spritePtr->deleteSprite();
     digitalWrite(backlightPin, HIGH);
-    
 }
 
 void DISPLAY_DEVICE::createSprite(int x, int y) {

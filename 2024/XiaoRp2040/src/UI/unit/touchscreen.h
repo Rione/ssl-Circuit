@@ -4,7 +4,7 @@
 #include <XPT2046_Touchscreen.h>
 
 class COORDINATE {
-   public:
+  public:
     COORDINATE(int x, int y) {
         this->x = x;
         this->y = y;
@@ -13,14 +13,14 @@ class COORDINATE {
     int x;
     int y;
 
-   private:
+  private:
 };
 
 class TOUCHSCREEN {
-   public:
-    XPT2046_Touchscreen* ptr;
+  public:
+    XPT2046_Touchscreen *ptr;
 
-    TOUCHSCREEN(XPT2046_Touchscreen* ptr, const int csPin) {
+    TOUCHSCREEN(XPT2046_Touchscreen *ptr, const int csPin) {
         this->ptr = ptr;
         this->csPin = csPin;
     }
@@ -47,35 +47,35 @@ class TOUCHSCREEN {
         isTouched10ms = ptr->touched();
         isTouchedPrev = false;
 
-        //タッチ判定
-        if(isTouched10ms && !isTouched){
-            if(touchCount == 0){
+        // タッチ判定
+        if (isTouched10ms && !isTouched) {
+            if (touchCount == 0) {
                 Time_touchStart = millis();
                 touchCount = 1;
-            } else if(millis() - Time_touchStart > 2 && touchCount < 3){
+            } else if (millis() - Time_touchStart > 2 && touchCount < 3) {
                 touchCount++;
                 Time_touchStart = millis();
-            } else if(millis() - Time_touchStart > 2 && touchCount == 3){
+            } else if (millis() - Time_touchStart > 2 && touchCount == 3) {
                 isTouched = true;
                 touchCount = 0;
             }
         }
 
-        if(!isTouched10ms && isTouched){
-            if(touchCount >= 0){
+        if (!isTouched10ms && isTouched) {
+            if (touchCount >= 0) {
                 Time_touchStart = millis();
                 touchCount = -1;
-            } else if(millis() - Time_touchStart > 2 && touchCount > -3){
+            } else if (millis() - Time_touchStart > 2 && touchCount > -3) {
                 touchCount--;
                 Time_touchStart = millis();
-            } else if(millis() - Time_touchStart > 2 && touchCount == -3){
+            } else if (millis() - Time_touchStart > 2 && touchCount == -3) {
                 isTouched = false;
                 isTouchedPrev = true;
                 touchCount = 0;
             }
         }
 
-        if(isTouched){
+        if (isTouched) {
 
             TS_Point p = ptr->getPoint();
 
@@ -86,13 +86,12 @@ class TOUCHSCREEN {
                 constrain(map(p.x, upperLeft.x, bottomRight.x, 0, 320), 0, 320);
             point.y =
                 constrain(map(p.y, upperLeft.y, bottomRight.y, 0, 240), 0, 240);
-
         }
-        
+
         digitalWrite(csPin, HIGH);
     }
 
-   private:
+  private:
     COORDINATE upperLeft = COORDINATE(250, 250);
     COORDINATE bottomRight = COORDINATE(3700, 3800);
 

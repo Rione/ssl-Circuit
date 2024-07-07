@@ -45,7 +45,6 @@ void setup() {
     // ui.robotInfoData.capaData.chargeState = 0;
     // ui.robotInfoData.capaData.chargeVol = 0;
     // ui.robotInfoData.batteryVoltage = 15.0;
-  
 }
 
 void loop() {
@@ -58,7 +57,7 @@ void loop() {
 
     ui.stmRecvSerial(&ui.robotInfoData);
 
-    ui.homeTab();
+    ui.infoTab();
 
     if (ui.modeData.status.mode != 0) ui.homeScreenGesture();
 }
@@ -75,4 +74,4 @@ void loop1() {
 // メモ
 //  基本的には縦、横の順で座標を指定する
 //  画像の表示はcreateSprite(320, 240)で作成(横、縦)になる
-//　hometabがあるため、画面の座標はfigmaの座標に対して、縦＋30の座標になる
+// 　hometabがあるため、画面の座標はfigmaの座標に対して、縦＋30の座標になる
