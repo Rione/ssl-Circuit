@@ -344,6 +344,8 @@ class Robot {
         if (timer.read_ms() > interval) {
             dribble(0);
             motorDriver.sendEmg();
+            resetDoDirectKick();
+            resetDoDirectChipKick();
             timer.reset();
         }
     }

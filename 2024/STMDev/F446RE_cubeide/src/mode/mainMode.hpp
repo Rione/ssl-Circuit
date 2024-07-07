@@ -96,7 +96,7 @@ class MainMode : public Mode {
                         if (robot->info.isKickerChargeMode == true) {
                             countC++;
                             if (countC > 10) {
-                                // robot->discharge();
+                                robot->discharge();
                                 printf("discharge from Pi\n");
                                 countC = 0;
                             }
