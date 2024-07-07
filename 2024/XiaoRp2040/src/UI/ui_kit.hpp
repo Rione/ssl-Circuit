@@ -22,17 +22,24 @@ extern TFT_eSPI tft;
 extern TFT_eSprite sprite;
 extern DISPLAY_DEVICE display;
 
-typedef struct {
+static const uint16_t charge_back = sprite.color565(255, 210, 51);  // 充電中の背景色
+static const uint16_t tabBack = sprite.color565(195, 216, 242);     // タブの背景色
+
+
+typedef struct {    
+    uint8_t batteryGet;
     union {
         struct {
-            bool charge : 1; // stmから送られてくる充電状態
-            uint8_t reserve : 7;
+            bool chargeState : 1; // stmから送られてくる充電状態
+            uint8_t chargeVol : 7; //capChargeCertitude
         };
         uint8_t data;
 
-    } status;
+    } capaData;
 
+    float batteryVoltage;
     bool chargePrev;
+
 
 } RobotInfo_t; // 受けとるデータ
 
@@ -81,14 +88,21 @@ class UiKit {
     void stmRecvSerial(RobotInfo_t *_robotInfoData);
     void stmSendSerial(UIModeSwitch_t *_modeData);
 
-    void homeTab(float batt, int capa);
+    void homeTab();
 
     bool changeFlag_overMode = true;
     bool changeFlag_inMode = false;
 
     bool sendFlag = false;
 
+    int time = 0;
+    bool timeInterval = true; //電圧の情報出力は一定時間（１秒）ごとに行う
+
+
+
+
   private:
+    
 };
 
 #endif

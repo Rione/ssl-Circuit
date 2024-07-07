@@ -40,33 +40,27 @@ void setup() {
     ui.modeData.status.mode = 0;
     ui.modeData.modePrev = 0;
 
-    // currentMode->displaySet(&ui);
+    currentMode->displaySet(&ui);
 
-    ui.homeTab(16.7, 100);
-
-    display.setParttImage(320, 210, main_BackImg);
-    display.publish(0, 30);
+    ui.robotInfoData.capaData.chargeState = 0;
+    ui.robotInfoData.capaData.chargeVol = 0;
+    ui.robotInfoData.batteryVoltage = 15.0;
   
-
 }
 
 void loop() {
-    ui.homeTab(16.7, 50);
-    delay(3000);
 
-    ui.homeTab(13.7, 100);
-    delay(3000);
+    ui.touchUpdate();
 
+    currentMode->determine(&ui);
+    modeSwitch(&ui);
+    currentMode->displaySet(&ui);
 
-    // ui.touchUpdate();
+    ui.stmRecvSerial(&ui.robotInfoData);
 
-    // currentMode->determine(&ui);
-    // modeSwitch(&ui);
-    // currentMode->displaySet(&ui);
+    ui.homeTab();
 
-    // ui.stmRecvSerial(&ui.robotInfoData);
-
-    // if (ui.modeData.status.mode != 0) ui.homeScreenGesture();
+    if (ui.modeData.status.mode != 0) ui.homeScreenGesture();
 }
 
 void setup1() {
@@ -81,4 +75,4 @@ void loop1() {
 // メモ
 //  基本的には縦、横の順で座標を指定する
 //  画像の表示はcreateSprite(320, 240)で作成(横、縦)になる
-//　
+//　hometabがあるため、画面の座標はfigmaの座標に対して、縦＋30の座標になる
