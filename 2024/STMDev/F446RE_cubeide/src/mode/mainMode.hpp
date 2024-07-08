@@ -27,22 +27,48 @@ class MainMode : public Mode {
         if (manageByUserCounter.read_ms() > 15000) manageByUserCounter.set_ms(15000); // オーバーフローを防ぐ
         if (uiBoosterCheckInterval.read_ms() > 1000) uiBoosterCheckInterval.set_ms(1000);
 
-        if (uiBoosterCheckInterval.read_ms() > 100) {
+        // UIとの通信
+        if(uiBoosterCheckInterval.read_ms() > 100) {
             uiBoosterCheckInterval.reset();
-            // send the state to ui
-            if (robot->info.isKickerChargeMode == true) {
-                robot->serial4.write(0x01);
-                // printf("UI charge\n");
-            } else {
-                robot->serial4.write(0x00);
-                // printf("UI discharge\n");
-            }
+            
+            //　パケットに代入
+            robot->UIrobotInfo.batteryGet = robot->info.batteryVoltage;
+            robot->UIrobotInfo.capaData.chargeState = robot->info.isKickerChargeMode;
+            robot->UIrobotInfo.capaData.chargeVol = robot->info.capChargeCertitude;
 
-            // check
-            if (robot->serial4.available()) {
-                uint8_t data = robot->serial4.read();
-                if (data == 0x40) {
-                    if (robot->info.isKickerChargeMode == false) {
+            // send the state to ui
+            robot->serial4.write(0xFF);
+            robot->serial4.write(robot->UIrobotInfo.batteryGet);
+            robot->serial4.write(robot->UIrobotInfo.capaData.data);
+
+            // check 
+            if(robot->serial4.available()){
+                static const uint8_t HEADER = 0xFF;  // ヘッダ
+                static const uint8_t dataSize = 1;  // データのサイズ
+                static bool headerReceived = false;  // ヘッダを受信したかどうか
+                static uint8_t index = 0;            // 受信したデータのインデックスカウンター
+                static uint8_t data[dataSize] = {0}; // 受信したデータ
+
+                printf("get");
+                
+                while(robot->serial4.available()){
+                    uint8_t receivedByte = robot->serial4.read();
+                    if(!headerReceived){
+                        index = 0;
+                        if(receivedByte == HEADER) headerReceived = true;
+                    }else{
+                        data[index] = receivedByte;
+                        index++;
+                        if(index == dataSize){
+                            robot->UImodeData.status.data = data[0];
+                            headerReceived = false;
+                            index = 0;
+                        }
+                    }
+                }
+
+                if(robot->UImodeData.status.charge_state == 1){
+                    if(robot->info.isKickerChargeMode == false){
                         robot->chargeStart();
                         // printf("UI Start charge\n");
                         robot->led2 = true;
@@ -53,13 +79,19 @@ class MainMode : public Mode {
                         robot->led2 = false;
                         // robot->serial4.write(0x00);
                     }
-                } else if (data == 0x80) {
-                    robot->kickStraight(100);
-                    printf("UI kick\n");
+                    
+                    robot->UImodeData.status.charge_state = 0;
+
+                }else if(robot->UImodeData.status.kick == 1){
+                    robot->kickStraight(50);    
+                    printf("kick\n");
+                    robot->UImodeData.status.kick = 0;
                 }
+
                 manageByUserCounter.reset();
             }
         }
+
 
         if (robot->swDischarge.isRelease()) {
             if (robot->swDischarge.readPressedTime() > 1600) {

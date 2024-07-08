@@ -31,7 +31,7 @@ void MainMode::loop() {
     robot->rasSendSerial(robot->info, 8);
     robot->rasRecvSerial();  // sync
     robot->checkRobotRest(); // ロボットが停止しているか確認
-    boosterManager();        // 昇圧回路の管理
+    boosterManager();        // 昇圧回路の管理  //UIとの通信
     if (!robot->info.status.emergencyStop && robot->info.status.isSignalReceived) {
         // Robot is Running
         robot->dribble(robot->info.dribblePower);

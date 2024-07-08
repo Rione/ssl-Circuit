@@ -7,11 +7,11 @@
 #define ARR_SIZE 76800
 
 class DISPLAY_DEVICE {
-   public:
-    TFT_eSPI* tftPtr;
-    TFT_eSprite* spritePtr;
+  public:
+    TFT_eSPI *tftPtr;
+    TFT_eSprite *spritePtr;
 
-    DISPLAY_DEVICE(TFT_eSPI* tftPtr, TFT_eSprite* spritePtr);
+    DISPLAY_DEVICE(TFT_eSPI *tftPtr, TFT_eSprite *spritePtr);
 
     void init(void);
     void setSPIClockFast(void);
@@ -24,8 +24,10 @@ class DISPLAY_DEVICE {
 
     void displayLight(bool light);
 
-   private:
     static const int backlightPin = 0;
+
+  private:
+    
 };
 
 #endif
