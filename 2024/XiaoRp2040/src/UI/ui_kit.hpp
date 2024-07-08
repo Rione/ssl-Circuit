@@ -15,6 +15,8 @@
 #include "UI/image/main_img.h"
 #include "UI/image/home_img.h"
 
+#include "Media/MediaExecutor.hpp"
+
 extern XPT2046_Touchscreen ts;
 extern TOUCHSCREEN touch;
 extern TFT_eSPI tft;

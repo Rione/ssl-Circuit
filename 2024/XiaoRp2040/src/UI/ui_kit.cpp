@@ -41,20 +41,26 @@ void UiKit::homeScreenGesture() {
     static unsigned long timeWhenFlagged = 0;
 
     if (touch.isTouched) {
-        if (abs(2000 - touch.raw.x) < 800 && touch.raw.y > 3000 && !touch.isTouchedPrev) {
+        if (touch.point.y < 60 && abs(touch.point.x - 160) < 80 && !touch.isTouchedPrev && !flag) {
+            Serial.println("flagged");
             flag = true;
-            yWhenFlagged = touch.raw.y;
             timeWhenFlagged = millis();
         }
 
-        if (flag && millis() - timeWhenFlagged < 200) {
-            if (touch.raw.y < yWhenFlagged - 300) {
+        if (flag && (millis() - timeWhenFlagged) > 500) {
+            if (millis() - timeWhenFlagged < 1000) {
+                media.playFuncBuzzer(playType::NOTIFY);
+
+            } else {
+                media.playFuncBuzzer(playType::SUCCESS);
                 flag = false;
                 homeFlag = !homeFlag;
                 changeFlag_overMode = true;
                 Serial.println("homeFlag");
             }
         }
+    } else {
+        flag = false;
     }
 }
 

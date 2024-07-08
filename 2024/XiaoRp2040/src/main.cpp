@@ -63,7 +63,7 @@ void setup() {
 
 void loop() {
 
-    if (ui.BackLightFlag && (millis() - ui.BackLightTime) > 15000) {
+    if (ui.BackLightFlag && (millis() - ui.BackLightTime) > 10000) {
         ui.BackLightFlag = false;
         digitalWrite(display.backlightPin, LOW);
     }
@@ -78,7 +78,7 @@ void loop() {
 
     ui.infoTab();
 
-    // ui.homeScreenGesture();
+    ui.homeScreenGesture();
 }
 
 void setup1() {
