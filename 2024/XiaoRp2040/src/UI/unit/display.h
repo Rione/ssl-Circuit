@@ -24,8 +24,10 @@ class DISPLAY_DEVICE {
 
     void displayLight(bool light);
 
-  private:
     static const int backlightPin = 0;
+
+  private:
+    
 };
 
 #endif

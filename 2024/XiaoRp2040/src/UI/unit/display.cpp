@@ -18,6 +18,9 @@ void DISPLAY_DEVICE::init(void) {
     tftPtr->setRotation(1);
 
     pinMode(TFT_CS, OUTPUT);
+
+    digitalWrite(backlightPin, HIGH);
+
 }
 
 void DISPLAY_DEVICE::setSPIClockFast(void) {
@@ -37,7 +40,7 @@ void DISPLAY_DEVICE::publish(int x, int y) {
     setSPIClockFast();
     spritePtr->pushSprite(x, y);
     spritePtr->deleteSprite();
-    digitalWrite(backlightPin, HIGH);
+    // digitalWrite(backlightPin, HIGH);
 }
 
 void DISPLAY_DEVICE::createSprite(int x, int y) {

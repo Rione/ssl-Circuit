@@ -24,6 +24,14 @@ void UiKit::init() {
 
 void UiKit::touchUpdate() {
     touch.read();
+
+    if (touch.isTouched) {
+        BackLightTime = millis();
+        if (!BackLightFlag) {
+            digitalWrite(display.backlightPin, HIGH);
+            BackLightFlag = true;
+        }
+    }
 }
 
 void UiKit::homeScreenGesture() {

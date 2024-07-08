@@ -93,6 +93,9 @@ class UiKit {
 
     bool homeFlag = false;
 
+    bool BackLightFlag = true; // true:ON false:OFF
+    int BackLightTime = 0;
+
     int time = 0;
     bool timeInterval = true; // 電圧の情報出力は一定時間（１秒）ごとに行う
 

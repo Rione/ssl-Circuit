@@ -54,13 +54,19 @@ void setup() {
 
     currentMode->displaySet(&ui);
 
+    ui.BackLightTime = millis();
+
     // ui.robotInfoData.capaData.chargeState = 0;
     // ui.robotInfoData.capaData.chargeVol = 0;
     // ui.robotInfoData.batteryVoltage = 15.0;
-
 }
 
 void loop() {
+
+    if (ui.BackLightFlag && (millis() - ui.BackLightTime) > 15000) {
+        ui.BackLightFlag = false;
+        digitalWrite(display.backlightPin, LOW);
+    }
 
     ui.touchUpdate();
 
@@ -72,7 +78,7 @@ void loop() {
 
     ui.infoTab();
 
-    ui.homeScreenGesture();
+    // ui.homeScreenGesture();
 }
 
 void setup1() {
