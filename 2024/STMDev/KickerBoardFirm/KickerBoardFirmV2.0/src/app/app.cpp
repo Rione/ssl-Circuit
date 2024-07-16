@@ -31,7 +31,7 @@ Timer canTransmitIntervalTimer;
 
 bool dischargeFlag = false;
 
-uint16_t photoSensorThreshold = 1000;
+volatile uint16_t photoSensorThreshold = 750;
 uint16_t photoValue = 0;
 bool isHoldBall = false;
 
@@ -134,6 +134,12 @@ void setup() {
     printf("Hello World\n");
 }
 
+uint8_t getCAN_TEC() {
+    // CAN エラーステータスレジスタ(CAN_ESR)
+    // 250回エラーが起きると止まる
+    return ((hcan.Instance->ESR) >> 16) & 0xFF;
+}
+
 void main_app() {
     setup();
     while (1) {
@@ -190,7 +196,7 @@ void main_app() {
 
         if (canTransmitIntervalTimer.read_ms() > 10) {
             bool done = booster.getDone();
-            printf("sw1:%4dms sw2:%4dms Photo:%4d Done:%d directSt:%d directCh:%d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue, done, doDirectStatus.straight, doDirectStatus.chip);
+            printf("sw1:%4dms sw2:%4dms Photo:%4d Done:%d directSt:%d directCh:%d TEC:%d\n", sw1.readPressedTime(), sw2.readPressedTime(), photoValue, done, doDirectStatus.straight, doDirectStatus.chip, getCAN_TEC());
             CANBus::CANData canPhotoData = {
                 .stdId = 0x123,
                 .data = {

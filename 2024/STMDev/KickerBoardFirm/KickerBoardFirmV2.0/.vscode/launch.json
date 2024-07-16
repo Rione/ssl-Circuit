@@ -22,6 +22,14 @@
         "-c",
         "adapter_khz 950"
       ]
+    },
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/tomixrm/Documents/Dev/Robots/ssl-Circuit/2024/STMDev/KickerBoardFirm/KickerBoardFirmV2.0/src/app",
+      "program": "/Users/tomixrm/Documents/Dev/Robots/ssl-Circuit/2024/STMDev/KickerBoardFirm/KickerBoardFirmV2.0/src/app/build/Debug/outDebug"
     }
   ]
 }

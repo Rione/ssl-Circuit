@@ -21,7 +21,6 @@ MPU6500::xyz_t att;
 Madgwick filter;
 float frontDeg = 0;
 
-
 void mpuget() {
     if (mpu.isCalibrated() == true) {
         mpu.getAccGyro(&acc, &gyro, false);
@@ -63,7 +62,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         // case DRIBLE_STOP: // 21: dribbler stop
         //     break;
         case KICKER_BOARD_PACKET: // フォトセンサの値・充電完了信号の受信
-            
+
             robot.setPhotoSensorValue((uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8);
             robot.setChageDoneSignal(canRecvData.data[2]);       // 充電完了信号の処理
             robot.setKickerBoardChargeMode(canRecvData.data[3]); // 充電モード信号の処理
@@ -116,6 +115,16 @@ void setup() {
     robot.dribble(0);
 
     HAL_Delay(1000);
+
+    uint16_t thr = PHOTOSENSOR_THRESHOLD;
+    CANBus::CANData data = {
+        .stdId = 0x09,
+        .data = {
+            (uint8_t)(thr & 0xFF),
+            (uint8_t)((thr >> 8) & 0xFF),
+        },
+    };
+    robot.can.send(data);
 }
 
 void main_app() {

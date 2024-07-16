@@ -1,7 +1,7 @@
 #ifndef __Parametors__
 #define __Parametors__
 
-#define PHOTOSENSOR_THRESHOLD 1000
+#define PHOTOSENSOR_THRESHOLD 750
 #define BATTERY_CUT_OFF 150
 
 // CAN Standard ID
