@@ -60,7 +60,7 @@ void UiKit::homeScreenGesture() {
 
 void UiKit::stmRecvSerial(RobotInfo_t *_robotInfoData) {
     static const uint8_t HEADER = 0xFF;  // ヘッダ
-    static const uint8_t dataSize = 2;   // データのサイズ
+    static const uint8_t dataSize = 3;   // データのサイズ
     static bool headerReceived = false;  // ヘッダを受信したかどうか
     static uint8_t index = 0;            // 受信したデータのインデックスカウンター
     static uint8_t data[dataSize] = {0}; // 受信したデータ
@@ -85,6 +85,7 @@ void UiKit::stmRecvSerial(RobotInfo_t *_robotInfoData) {
 
                 _robotInfoData->batteryGet = data[0];
                 _robotInfoData->capaData.data = data[1];
+                _robotInfoData->buzzerState = data[2];
 
                 _robotInfoData->batteryVoltage = (float)_robotInfoData->batteryGet / 10.0;
             }

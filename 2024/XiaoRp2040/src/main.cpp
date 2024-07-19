@@ -78,6 +78,7 @@ void loop() {
 
     ui.infoTab();
 
+    media.setBuzzerType((playType)ui.robotInfoData.buzzerState);
     // ui.homeScreenGesture();
 }
 

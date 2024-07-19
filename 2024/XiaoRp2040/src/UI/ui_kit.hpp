@@ -38,7 +38,7 @@ typedef struct {
     float batteryVoltage;
     bool chargeStatePrev;
     uint8_t chargeVolePrev;
-
+    uint8_t buzzerState;
 } RobotInfo_t; // 受けとるデータ
 
 typedef struct {

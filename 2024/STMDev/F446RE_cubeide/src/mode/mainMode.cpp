@@ -7,31 +7,20 @@ void MainMode::after() {
 }
 
 void MainMode::loop() {
-    static Timer doDirectToggle;
-    // robot->info.status.isSignalReceived = true;
-
-    // robot->info.kicker.straight = 0;
-    // robot->info.status.doDirectKick = false;
-
-    // robot->info.velX.vel = 0;
-    // robot->info.velY.vel = 0;
-
-    // if (doDirectToggle.read_ms() > 5000) {
-    //     doDirectToggle.reset();
-    //     robot->info.status.doDirectChipKick = !robot->info.status.doDirectChipKick;
-    //     if (robot->info.status.doDirectChipKick) {
-    //         robot->info.kicker.chip = 100;
-    //     } else {
-    //         robot->info.kicker.chip = 0;
-    //     }
-    // }
-
     timer.reset();
     robot->getSensors(&robot->info);
     robot->rasSendSerial(robot->info, 8);
     robot->rasRecvSerial();  // sync
     robot->checkRobotRest(); // ロボットが停止しているか確認
-    boosterManager();        // 昇圧回路の管理  //UIとの通信
+
+    // doDirectが入っている時はブザーを鳴らすように変更した
+    if (robot->info.status.doDirectKick || robot->info.status.doDirectChipKick) {
+        robot->UIrobotInfo.buzzer = playType::SUCCESS;
+    } else {
+        robot->UIrobotInfo.buzzer = playType::NONE;
+    }
+
+    boosterManager(); // 昇圧回路の管理  //UIとの通信
     if (!robot->info.status.emergencyStop && robot->info.status.isSignalReceived) {
         // Robot is Running
         robot->dribble(robot->info.dribblePower);
@@ -45,7 +34,7 @@ void MainMode::loop() {
         robot->stopRobot(500);
     }
     robot->led1 = robot->info.isHoldBall;
-    printfDMA("Ball:%d Batt:%d Cap:%d doDirect:%d doDirectChip:%d directSt:%d directCh:%d Str:%d Chip:%d togle:%ld\n", robot->info.photoSensorValue, robot->info.batteryVoltage, robot->getCapChargeCertitude(), robot->info.status.doDirectKick, robot->info.status.doDirectChipKick, robot->info.kickerBoardDoDirectStatus.straight, robot->info.kickerBoardDoDirectStatus.chip, robot->info.kicker.straight, robot->info.kicker.chip, doDirectToggle.read_ms());
+    printfDMA("Ball:%d Batt:%d Cap:%d doDirect:%d doDirectChip:%d directSt:%d directCh:%d Str:%d Chip:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage, robot->getCapChargeCertitude(), robot->info.status.doDirectKick, robot->info.status.doDirectChipKick, robot->info.kickerBoardDoDirectStatus.straight, robot->info.kickerBoardDoDirectStatus.chip, robot->info.kicker.straight, robot->info.kicker.chip);
     while (timer.read_us() < 1000)
         ; // 1ms time control
 }
