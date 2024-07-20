@@ -127,9 +127,43 @@ void setup() {
     robot.can.send(data);
 }
 
+void ballMoving() {
+    uint8_t state = 0;
+    Timer stateSwitchTimer;
+    uint16_t velX = 0;
+    uint16_t time;
+    while (1) {
+        time = stateSwitchTimer.read_ms();
+
+        switch (state) {
+        case 0:
+            velX = 1500 * MyMath::sinDeg(time * 0.18 * 0.5); // 加速のためにタイマーを使った sinの加速をしてる
+            robot.motorDriver.setVelocityFF(velX, 0, 0);     // 前進
+            robot.dribble(100);                              // ドリブラー100%
+            if (time > 2000) {
+                state = 1;
+                stateSwitchTimer.reset(); // 2秒経ったら状態遷移
+            }
+            printf("0\n");
+            break;
+        case 1:
+            robot.motorDriver.setVelocityFF(600, -600, 3600); // 斜め前に進みながら回転(CMDragonsのTDPより)
+            robot.dribble(100);
+            if (time > 500) {
+                state = 0;
+                stateSwitchTimer.reset();
+            }
+            printf("1\n");
+            break;
+        }
+        HAL_Delay(20);
+    }
+}
+
+
 void main_app() {
     frontDeg = att.z;
-
+    // ballMoving();
     while (1) {
         mainMode.loop();
     }
