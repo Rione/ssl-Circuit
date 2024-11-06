@@ -1066,6 +1066,215 @@
 				)
 			)
 		)
+		(symbol "Device:Crystal_GND2"
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "Y"
+				(at 0 5.715 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Crystal_GND2"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Three pin crystal, GND on pin 2"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "quartz ceramic resonator oscillator"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Crystal*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Crystal_GND2_0_1"
+				(rectangle
+					(start -1.143 2.54)
+					(end 1.143 -2.54)
+					(stroke
+						(width 0.3048)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -2.54 0) (xy -1.905 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.905 -1.27) (xy -1.905 1.27)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 -3.81) (xy 0 -3.556)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.905 0) (xy 2.54 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.905 1.27) (xy 1.905 -1.27)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -2.54 -2.286) (xy -2.54 -3.556) (xy 2.54 -3.556) (xy 2.54 -2.286)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Crystal_GND2_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 1.27)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -5.08 90)
+					(length 1.27)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 1.27)
+					(name "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "Device:Fuse"
 			(pin_numbers hide)
 			(pin_names
@@ -3297,572 +3506,6 @@
 				)
 			)
 		)
-		(symbol "MainBoard:CSTNE16M0V530000R0"
-			(pin_names
-				(offset 1.016)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "Y"
-				(at -7.62 6.35 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left bottom)
-				)
-			)
-			(property "Value" "CSTNE16M0V530000R0"
-				(at 1.27 -6.35 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Footprint" "CSTNE16M0V530000R0:OSC_CSTNE16M0V530000R0"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "\n16 MHz Ceramic Resonator Built in Capacitor 15 pF ±0.3% 40 Ohms -40°C ~ 85°C Surface Mount\n"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "MF" "Murata Electronics"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "MAXIMUM_PACKAGE_HEIGHT" "1mm"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "Package" "SMD-3 Murata"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "Price" "None"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "Check_prices" "https://www.snapeda.com/parts/CSTNE16M0V530000R0/Murata+Electronics+North+America/view-part/?ref=eda"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "STANDARD" "Manufacturer Recomendations"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "PARTREV" "JGC42-8853B"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "SnapEDA_Link" "https://www.snapeda.com/parts/CSTNE16M0V530000R0/Murata+Electronics+North+America/view-part/?ref=snap"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "MP" "CSTNE16M0V530000R0"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "Purchase-URL" "https://www.snapeda.com/api/url_track_click_mouser/?unipart_id=2773601&manufacturer=Murata Electronics&part_name=CSTNE16M0V530000R0&search_term=None"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "Availability" "In Stock"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "MANUFACTURER" "Murata"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(symbol "CSTNE16M0V530000R0_0_0"
-				(rectangle
-					(start -7.62 -5.08)
-					(end 7.62 5.08)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(polyline
-					(pts
-						(xy -7.62 2.54) (xy -5.08 2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -5.08 -2.54) (xy -5.08 2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -5.08 2.54) (xy -1.27 2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -2.8575 -2.54) (xy -5.08 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -2.8575 -2.54) (xy -2.8575 -3.4925)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -2.8575 -1.5875) (xy -2.8575 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -2.2225 -2.54) (xy -2.2225 -3.4925)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -2.2225 -1.5875) (xy -2.2225 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.27 2.54) (xy -1.27 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.27 3.81) (xy -1.27 2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -0.635 1.27) (xy -0.635 3.81)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -0.635 3.81) (xy 0.635 3.81)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 -5.08) (xy 0 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 -2.54) (xy -2.2225 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 -2.54) (xy 2.54 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.635 1.27) (xy -0.635 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.635 3.81) (xy 0.635 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 2.54) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 2.54) (xy 5.08 2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 3.81) (xy 1.27 2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.54 -2.54) (xy 2.54 -3.4925)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.54 -1.5875) (xy 2.54 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 3.175 -2.54) (xy 3.175 -3.4925)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 3.175 -2.54) (xy 5.08 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 3.175 -1.5875) (xy 3.175 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 5.08 -2.54) (xy 5.08 2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 5.08 2.54) (xy 7.62 2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin input line
-					(at -12.7 2.54 0)
-					(length 5.08)
-					(name "~"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 0 -10.16 90)
-					(length 5.08)
-					(name "~"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 12.7 2.54 180)
-					(length 5.08)
-					(name "~"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "Switch:SW_MEC_5E"
 			(pin_names
 				(offset 1.016) hide)
@@ -5691,12 +5334,6 @@
 		(uuid "b82277db-c2f8-407a-8c68-c6f89cdb3b3b")
 	)
 	(junction
-		(at 142.24 167.64)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "bceb80f6-8f64-4858-a2ab-36be404fd6ee")
-	)
-	(junction
 		(at 86.36 132.08)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5851,6 +5488,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f33910c6-a2c3-444e-9a83-381d90716c26")
+	)
+	(junction
+		(at 142.24 167.64)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f5068b39-7a42-4654-9e99-43f2afd00ea5")
 	)
 	(junction
 		(at 204.47 30.48)
@@ -6263,16 +5906,6 @@
 			(type default)
 		)
 		(uuid "157bbf0d-b9b8-4bbd-a8ab-e86ecbdf586d")
-	)
-	(wire
-		(pts
-			(xy 142.24 167.64) (xy 142.24 180.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "15c360d6-79cb-492f-bb5a-b198b132d21e")
 	)
 	(wire
 		(pts
@@ -6976,6 +6609,16 @@
 	)
 	(wire
 		(pts
+			(xy 179.07 78.74) (xy 179.07 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "433ad925-61cf-49a1-bc6b-6a265b04f4b8")
+	)
+	(wire
+		(pts
 			(xy 295.91 180.34) (xy 298.45 180.34)
 		)
 		(stroke
@@ -7386,6 +7029,16 @@
 	)
 	(wire
 		(pts
+			(xy 142.24 167.64) (xy 142.24 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e660ee0-b532-46f3-a8f4-20fe90be2bd8")
+	)
+	(wire
+		(pts
 			(xy 370.84 55.88) (xy 370.84 50.8)
 		)
 		(stroke
@@ -7606,6 +7259,16 @@
 	)
 	(wire
 		(pts
+			(xy 142.24 167.64) (xy 144.78 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6bb47815-ec59-42ab-b44d-f318c5b3b4c7")
+	)
+	(wire
+		(pts
 			(xy 49.53 45.72) (xy 54.61 45.72)
 		)
 		(stroke
@@ -7746,16 +7409,6 @@
 	)
 	(wire
 		(pts
-			(xy 154.94 68.58) (xy 154.94 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7635abb2-daae-446c-9fdd-35cd5290edb8")
-	)
-	(wire
-		(pts
 			(xy 87.63 35.56) (xy 90.17 35.56)
 		)
 		(stroke
@@ -7783,16 +7436,6 @@
 			(type default)
 		)
 		(uuid "782e5ead-eef7-4682-bb0c-0444ea0f8fe0")
-	)
-	(wire
-		(pts
-			(xy 194.31 68.58) (xy 154.94 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7a7cb9ae-695f-44ad-bf65-34fba6e32000")
 	)
 	(wire
 		(pts
@@ -7976,6 +7619,16 @@
 	)
 	(wire
 		(pts
+			(xy 142.24 177.8) (xy 142.24 180.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "862e445a-6ed1-4b6e-838d-039b86535288")
+	)
+	(wire
+		(pts
 			(xy 191.77 63.5) (xy 194.31 63.5)
 		)
 		(stroke
@@ -8073,6 +7726,16 @@
 			(type default)
 		)
 		(uuid "9135fa0c-261a-4f92-9b4c-42ded196d454")
+	)
+	(wire
+		(pts
+			(xy 172.72 68.58) (xy 172.72 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9158ba6c-dff3-45c0-9e16-6c18f607ef9f")
 	)
 	(wire
 		(pts
@@ -8373,6 +8036,16 @@
 			(type default)
 		)
 		(uuid "a20d5025-d374-4bfc-88f1-2b620bc897ba")
+	)
+	(wire
+		(pts
+			(xy 172.72 73.66) (xy 175.26 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a2789b67-63ed-4a4d-973d-71e78cecca24")
 	)
 	(wire
 		(pts
@@ -8713,16 +8386,6 @@
 			(type default)
 		)
 		(uuid "b36ae0e5-8815-4dec-a1cc-870d532cb63f")
-	)
-	(wire
-		(pts
-			(xy 154.94 73.66) (xy 157.48 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b3d1ad6a-ed7b-4f35-a1d6-7e16ca79c5a4")
 	)
 	(wire
 		(pts
@@ -9156,6 +8819,16 @@
 	)
 	(wire
 		(pts
+			(xy 172.72 68.58) (xy 194.31 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cd10c9a8-a1a6-46b1-baba-3b96fb96947f")
+	)
+	(wire
+		(pts
 			(xy 372.11 162.56) (xy 374.65 162.56)
 		)
 		(stroke
@@ -9213,16 +8886,6 @@
 			(type default)
 		)
 		(uuid "d12b3fee-d80c-4430-8182-83fb4e6b0169")
-	)
-	(wire
-		(pts
-			(xy 142.24 167.64) (xy 144.78 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d12df8a6-cd19-4f06-82ca-00cc5ce68438")
 	)
 	(wire
 		(pts
@@ -9493,16 +9156,6 @@
 			(type default)
 		)
 		(uuid "e722d171-dcee-4993-bb72-b3430022b74b")
-	)
-	(wire
-		(pts
-			(xy 119.38 73.66) (xy 121.92 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e8c39e12-7a96-4d08-8eb3-c5bf2c63f760")
 	)
 	(wire
 		(pts
@@ -10286,28 +9939,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SN"
-		(shape output)
-		(at 121.92 73.66 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "5387da8a-2d7c-45cd-9152-b0ff00751ffc")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 127.4452 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -11225,28 +10856,6 @@
 		(uuid "faba8d62-2023-4482-a15f-11ea0fa93857")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 115.7128 83.82 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SN"
-		(shape input)
-		(at 124.46 165.1 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "fb8c0106-3758-404f-b72c-abe88288edcf")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 129.9852 165.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12968,7 +12577,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "MainBoard:slideSW"
+		(property "Footprint" "dribbler_md:IS-1235-G"
 			(at 127 212.09 0)
 			(effects
 				(font
@@ -12977,7 +12586,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/450301014042.pdf"
+		(property "Datasheet" ""
 			(at 127 214.63 0)
 			(effects
 				(font
@@ -12986,7 +12595,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "IS-1235-G"
 			(at 127 222.25 0)
 			(effects
 				(font
@@ -13175,7 +12784,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "MainBoard:slideSW"
+		(property "Footprint" "dribbler_md:IS-1235-G"
 			(at 111.76 212.09 0)
 			(effects
 				(font
@@ -13184,7 +12793,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/450301014042.pdf"
+		(property "Datasheet" ""
 			(at 111.76 214.63 0)
 			(effects
 				(font
@@ -13193,7 +12802,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "IS-1235-G"
 			(at 111.76 222.25 0)
 			(effects
 				(font
@@ -13563,7 +13172,7 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "3e28cd26-7180-436b-aeb5-d0af6ad5ce78")
+		(uuid "3d5ef6f9-13a7-4657-a6fe-1a1ffb2825f2")
 		(property "Reference" "SW5"
 			(at 359.41 40.64 0)
 			(effects
@@ -13580,7 +13189,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MainBoard:SW_SKRPACE010"
+		(property "Footprint" "dribbler_md:TS-06104"
 			(at 359.41 43.18 0)
 			(effects
 				(font
@@ -13589,7 +13198,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "http://www.apem.com/int/index.php?controller=attachment&id_attachment=1371"
+		(property "Datasheet" ""
 			(at 359.41 43.18 0)
 			(effects
 				(font
@@ -13598,7 +13207,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "TS-06104"
 			(at 359.41 50.8 0)
 			(effects
 				(font
@@ -13608,16 +13217,16 @@
 			)
 		)
 		(pin "1"
-			(uuid "dbbac6b3-f022-470c-8341-6d5837552985")
+			(uuid "7d7d9b84-c713-4030-a57e-e5e826ad74d5")
 		)
 		(pin "3"
-			(uuid "d88713d6-7cbf-4d93-b2e0-b51211ca4049")
+			(uuid "623f3c3b-cdb3-402b-a5f0-50e97ea7ead3")
 		)
 		(pin "2"
-			(uuid "502095fa-fdd7-4ac8-87bd-e593bf9611ba")
+			(uuid "9ce24a86-ec6d-4c15-a19e-8c470710e412")
 		)
 		(pin "4"
-			(uuid "5da71ee9-e043-4ede-b3a2-202f77f159e2")
+			(uuid "0cb91652-9012-49b9-ab09-5d8db68f1899")
 		)
 		(instances
 			(project "dribbler_md_2025_V1"
@@ -14276,7 +13885,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "MainBoard:slideSW"
+		(property "Footprint" "dribbler_md:IS-1235-G"
 			(at 356.87 76.2 0)
 			(effects
 				(font
@@ -14285,7 +13894,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/450301014042.pdf"
+		(property "Datasheet" ""
 			(at 356.87 78.74 0)
 			(effects
 				(font
@@ -14294,7 +13903,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "IS-1235-G"
 			(at 356.87 86.36 0)
 			(effects
 				(font
@@ -14854,6 +14463,75 @@
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
 					(reference "#PWR046")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:Crystal_GND2")
+		(at 179.07 73.66 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "627cfdd3-2321-4ee1-b817-a9a9ea2aa68f")
+		(property "Reference" "Y1"
+			(at 179.07 67.564 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Crystal_GND2"
+			(at 179.324 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "dribbler_md:CSTNE16M0V530000R0"
+			(at 179.07 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 179.07 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "CSTNE16M0V530000R0"
+			(at 179.324 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "451a70da-969f-458b-a9ae-17f722f364d6")
+		)
+		(pin "3"
+			(uuid "8970e292-e3d8-45aa-a6a5-d8a44bdcfa22")
+		)
+		(pin "1"
+			(uuid "5e24d868-3e7a-40ae-8d8c-3d2b28b0f17c")
+		)
+		(instances
+			(project "dribbler_md_2025_V1"
+				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
+					(reference "Y1")
 					(unit 1)
 				)
 			)
@@ -17325,7 +17003,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "dribbler_md:XT30"
 			(at 29.21 67.31 0)
 			(effects
 				(font
@@ -17728,7 +17406,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MainBoard:SW_SKRPACE010"
+		(property "Footprint" "dribbler_md:TS-06104"
 			(at 302.26 43.18 0)
 			(effects
 				(font
@@ -17737,7 +17415,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "http://www.apem.com/int/index.php?controller=attachment&id_attachment=1371"
+		(property "Datasheet" ""
 			(at 302.26 43.18 0)
 			(effects
 				(font
@@ -17746,7 +17424,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "TS-06104"
 			(at 302.26 50.8 0)
 			(effects
 				(font
@@ -18249,7 +17927,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 170.18 86.36 0)
+		(at 179.07 81.28 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -18258,7 +17936,7 @@
 		(fields_autoplaced yes)
 		(uuid "b8d2c635-de9d-4d19-a5b6-fc6e888fadac")
 		(property "Reference" "#PWR019"
-			(at 170.18 92.71 0)
+			(at 179.07 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18267,7 +17945,7 @@
 			)
 		)
 		(property "Value" "GND_log"
-			(at 170.18 91.44 0)
+			(at 179.07 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18275,7 +17953,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 170.18 86.36 0)
+			(at 179.07 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18284,7 +17962,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 170.18 86.36 0)
+			(at 179.07 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18293,7 +17971,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 170.18 86.36 0)
+			(at 179.07 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19140,7 +18818,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "dribbler_md:XT30"
 			(at 289.56 113.03 0)
 			(effects
 				(font
@@ -19246,6 +18924,73 @@
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
 					(reference "C13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 142.24 173.99 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d20a1193-8f73-4edf-8fc9-38b86659491e")
+		(property "Reference" "R34"
+			(at 144.526 172.212 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10k"
+			(at 144.526 175.768 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 140.462 173.99 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 142.24 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 142.24 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "9403e397-deaa-4751-864e-4b006cc8de5e")
+		)
+		(pin "1"
+			(uuid "73fb1967-0fc2-4e78-88dd-bf40f6024086")
+		)
+		(instances
+			(project "dribbler_md_2025_V1"
+				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
+					(reference "R34")
 					(unit 1)
 				)
 			)
@@ -19625,17 +19370,16 @@
 		)
 	)
 	(symbol
-		(lib_id "MainBoard:CSTNE16M0V530000R0")
-		(at 170.18 76.2 0)
+		(lib_id "power:GND")
+		(at 124.46 165.1 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d8fffb18-b58c-4dd8-88cf-7c3e02353d48")
-		(property "Reference" "Y1"
-			(at 170.18 66.04 0)
+		(uuid "d9f026de-2b82-4b5d-81d0-6d5b16129edb")
+		(property "Reference" "#PWR054"
+			(at 130.81 165.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19643,27 +19387,25 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "CSTNE16M0V530000R0"
-			(at 170.18 68.58 0)
+		(property "Value" "GND_main"
+			(at 132.334 165.1 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
-		(property "Footprint" "MainBoard:OSC_CSTNE16M0V530000R0"
-			(at 170.18 76.2 0)
+		(property "Footprint" ""
+			(at 124.46 165.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify bottom)
 				(hide yes)
 			)
 		)
 		(property "Datasheet" ""
-			(at 170.18 76.2 0)
+			(at 124.46 165.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19671,149 +19413,22 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "\n16 MHz Ceramic Resonator Built in Capacitor 15 pF ±0.3% 40 Ohms -40°C ~ 85°C Surface Mount\n"
-			(at 170.18 76.2 0)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 124.46 165.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify bottom)
 				(hide yes)
 			)
-		)
-		(property "MF" "Murata Electronics"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "MAXIMUM_PACKAGE_HEIGHT" "1mm"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Package" "SMD-3 Murata"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Price" "None"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Check_prices" "https://www.snapeda.com/parts/CSTNE16M0V530000R0/Murata+Electronics+North+America/view-part/?ref=eda"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "STANDARD" "Manufacturer Recomendations"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "PARTREV" "JGC42-8853B"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "SnapEDA_Link" "https://www.snapeda.com/parts/CSTNE16M0V530000R0/Murata+Electronics+North+America/view-part/?ref=snap"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "MP" "CSTNE16M0V530000R0"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Purchase-URL" "https://www.snapeda.com/api/url_track_click_mouser/?unipart_id=2773601&manufacturer=Murata Electronics&part_name=CSTNE16M0V530000R0&search_term=None"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Availability" "In Stock"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "MANUFACTURER" "Murata"
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "4e760191-a7b5-444e-91fd-1edf15449ed0")
-		)
-		(pin "2"
-			(uuid "73f72b74-40f9-4788-b53d-d46647626bfc")
 		)
 		(pin "1"
-			(uuid "e07c8777-8d51-4e4c-b48b-858e9ba9825d")
+			(uuid "90840cee-a6b4-4ca4-bc0f-97b46f0e462f")
 		)
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "Y1")
+					(reference "#PWR054")
 					(unit 1)
 				)
 			)
