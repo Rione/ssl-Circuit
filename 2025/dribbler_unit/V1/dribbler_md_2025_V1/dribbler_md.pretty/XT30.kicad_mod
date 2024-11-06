@@ -4,7 +4,7 @@
 	(generator_version "8.0")
 	(layer "F.Cu")
 	(property "Reference" "REF**"
-		(at 0 -2.2 0)
+		(at 0 -3.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "a484a66f-68a5-495c-9e4a-a49140bcd530")
@@ -153,15 +153,15 @@
 	(pad "1" thru_hole circle
 		(at 0 2.3)
 		(size 4 4)
-		(drill 2.3)
+		(drill 2.5)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
 		(uuid "e95d6b07-71c2-4273-a7fa-4a1e7a23d0c6")
 	)
 	(pad "2" thru_hole circle
-		(at 0 -2)
+		(at 0 -2.5)
 		(size 4 4)
-		(drill 2.3)
+		(drill 2.5)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
 		(uuid "ab6442fc-3405-4628-9ea1-663d92c0c25e")
