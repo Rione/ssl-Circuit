@@ -4,7 +4,7 @@
 	(generator_version "8.0")
 	(layer "F.Cu")
 	(property "Reference" "REF**"
-		(at 0 -3.5 0)
+		(at 0 -3.2 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "a484a66f-68a5-495c-9e4a-a49140bcd530")
@@ -16,7 +16,7 @@
 		)
 	)
 	(property "Value" "XT30"
-		(at 0 -0.7 0)
+		(at 0 -0.4 0)
 		(unlocked yes)
 		(layer "F.Fab")
 		(uuid "a1ea43f2-5ddc-4d9b-947e-3f67925e2d6b")
@@ -28,7 +28,7 @@
 		)
 	)
 	(property "Footprint" "XT30"
-		(at 0 -1.7 0)
+		(at 0 -1.4 0)
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
@@ -41,7 +41,7 @@
 		)
 	)
 	(property "Datasheet" ""
-		(at 0 -1.7 0)
+		(at 0 -1.4 0)
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
@@ -54,7 +54,7 @@
 		)
 	)
 	(property "Description" ""
-		(at 0 -1.7 0)
+		(at 0 -1.4 0)
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
@@ -68,8 +68,8 @@
 	)
 	(attr through_hole)
 	(fp_line
-		(start -2.8 -3.2)
-		(end -0.8 -5.4)
+		(start -2.8 -2.9)
+		(end -0.8 -5.1)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -78,8 +78,8 @@
 		(uuid "ec38f5fe-4543-42cd-9b1f-da6df4c71532")
 	)
 	(fp_line
-		(start -2.8 4.8)
-		(end -2.8 -3.2)
+		(start -2.8 5.1)
+		(end -2.8 -2.9)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -88,8 +88,8 @@
 		(uuid "631ee73f-3a8a-4616-9f70-4a776878cad1")
 	)
 	(fp_line
-		(start -2.8 4.8)
-		(end 2.8 4.8)
+		(start -2.8 5.1)
+		(end 2.8 5.1)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -98,8 +98,8 @@
 		(uuid "a7f9eb15-c868-4bc7-b45c-892e3fe57941")
 	)
 	(fp_line
-		(start -0.8 -5.4)
-		(end 0.8 -5.4)
+		(start -0.8 -5.1)
+		(end 0.8 -5.1)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -108,8 +108,8 @@
 		(uuid "a07a92ab-3832-4cb7-a9fa-611d1e63a458")
 	)
 	(fp_line
-		(start 2.8 -3.2)
-		(end 0.8 -5.4)
+		(start 2.8 -2.9)
+		(end 0.8 -5.1)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -118,8 +118,8 @@
 		(uuid "6ab257c1-5b3f-44d1-8acf-83a2915c0db1")
 	)
 	(fp_line
-		(start 2.8 -3.2)
-		(end 2.8 4.8)
+		(start 2.8 -2.9)
+		(end 2.8 5.1)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -128,8 +128,8 @@
 		(uuid "992a9e5e-cf59-4e6e-a6be-387bf048ca1b")
 	)
 	(fp_rect
-		(start -2.8 -5.4)
-		(end 2.8 4.8)
+		(start -2.8 -5.1)
+		(end 2.8 5.1)
 		(stroke
 			(width 0.05)
 			(type default)
@@ -139,7 +139,7 @@
 		(uuid "1ad81a8d-1525-4f6a-bed9-e1a7fd5cb8fc")
 	)
 	(fp_text user "${REFERENCE}"
-		(at 0 0.8 0)
+		(at 0 1.1 0)
 		(unlocked yes)
 		(layer "F.Fab")
 		(uuid "a6dbcf2c-46b7-4df9-90fb-f514798b3f50")
@@ -151,7 +151,7 @@
 		)
 	)
 	(pad "1" thru_hole circle
-		(at 0 2.3)
+		(at 0 2.4)
 		(size 4 4)
 		(drill 2.5)
 		(layers "*.Cu" "*.Mask")
@@ -159,7 +159,7 @@
 		(uuid "e95d6b07-71c2-4273-a7fa-4a1e7a23d0c6")
 	)
 	(pad "2" thru_hole circle
-		(at 0 -2.5)
+		(at 0 -2.4)
 		(size 4 4)
 		(drill 2.5)
 		(layers "*.Cu" "*.Mask")
