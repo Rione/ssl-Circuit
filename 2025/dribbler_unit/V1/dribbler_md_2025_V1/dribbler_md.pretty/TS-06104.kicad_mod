@@ -89,17 +89,6 @@
 		(layer "Dwgs.User")
 		(uuid "762a5356-aebc-4f0b-a121-3ad53ea8ab82")
 	)
-	(fp_rect
-		(start -3 -3)
-		(end 3.025 3.025)
-		(stroke
-			(width 0.1)
-			(type default)
-		)
-		(fill none)
-		(layer "Margin")
-		(uuid "04eccb7f-fb5b-452b-a004-72b19f69016e")
-	)
 	(fp_text user "${REFERENCE}"
 		(at 0.2 0.95 0)
 		(unlocked yes)
