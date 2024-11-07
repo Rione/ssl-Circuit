@@ -4984,12 +4984,6 @@
 		(uuid "585da294-4c5d-4779-9b24-17d62918e105")
 	)
 	(junction
-		(at 295.91 180.34)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "588407fc-c511-4a0e-904a-8ff24dc2b3e8")
-	)
-	(junction
 		(at 217.17 30.48)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5018,12 +5012,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "5f1bf2d5-df21-4ec5-8c7e-4bf0cb048afa")
-	)
-	(junction
-		(at 295.91 184.15)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "5fcbc830-4d44-44e2-bc9a-d8283a1ef808")
 	)
 	(junction
 		(at 41.91 165.1)
@@ -5982,16 +5970,6 @@
 			(type default)
 		)
 		(uuid "152e9076-0cb6-48b9-b823-2ca3d7cbfdcc")
-	)
-	(wire
-		(pts
-			(xy 306.07 187.96) (xy 311.15 187.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "155765f1-4e75-44a5-8931-e6c6c44a33de")
 	)
 	(wire
 		(pts
@@ -6965,16 +6943,6 @@
 	)
 	(wire
 		(pts
-			(xy 295.91 184.15) (xy 298.45 184.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4d559ff4-bff4-483a-b7b0-4ffa1df2b649")
-	)
-	(wire
-		(pts
 			(xy 68.58 63.5) (xy 81.28 63.5)
 		)
 		(stroke
@@ -7215,16 +7183,6 @@
 	)
 	(wire
 		(pts
-			(xy 295.91 187.96) (xy 298.45 187.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5de0a5f1-7fa8-415b-bc37-064436219b28")
-	)
-	(wire
-		(pts
 			(xy 142.24 167.64) (xy 142.24 170.18)
 		)
 		(stroke
@@ -7392,16 +7350,6 @@
 			(type default)
 		)
 		(uuid "69669064-ea83-4a51-940f-c8ba4857c41f")
-	)
-	(wire
-		(pts
-			(xy 295.91 184.15) (xy 295.91 187.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "69eb9a09-8f0b-4feb-9b19-65ccf3058984")
 	)
 	(wire
 		(pts
@@ -8095,16 +8043,6 @@
 	)
 	(wire
 		(pts
-			(xy 306.07 184.15) (xy 311.15 184.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "979a217e-4cb8-4f16-b703-458e835f9b36")
-	)
-	(wire
-		(pts
 			(xy 66.04 78.74) (xy 81.28 78.74)
 		)
 		(stroke
@@ -8532,16 +8470,6 @@
 			(type default)
 		)
 		(uuid "ac579a03-c6fe-4512-bcf8-43ffe220a02f")
-	)
-	(wire
-		(pts
-			(xy 295.91 180.34) (xy 295.91 184.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "acdfa095-5e9a-4eed-a7cb-05aad49f9a73")
 	)
 	(wire
 		(pts
@@ -11223,7 +11151,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00d42965-e6fd-4ff0-bbd2-e1c8edc3aca0")
-		(property "Reference" "#PWR037"
+		(property "Reference" "#PWR036"
 			(at 313.69 85.09 0)
 			(effects
 				(font
@@ -11274,7 +11202,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR037")
+					(reference "#PWR036")
 					(unit 1)
 				)
 			)
@@ -11355,7 +11283,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "05f9493a-2158-41c4-8a4f-c8140fe0b548")
-		(property "Reference" "R32"
+		(property "Reference" "R30"
 			(at 356.87 165.862 90)
 			(effects
 				(font
@@ -11407,7 +11335,72 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R32")
+					(reference "R30")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 157.48 234.95 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "063a673e-b4b1-4f26-9ff6-65f64e4f9902")
+		(property "Reference" "#PWR018"
+			(at 157.48 241.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND_main"
+			(at 157.48 243.84 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 157.48 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 157.48 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 157.48 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9e70ba77-7f88-4c24-a1b0-e4e799727bf2")
+		)
+		(instances
+			(project "dribbler_md_2025_V1"
+				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
+					(reference "#PWR018")
 					(unit 1)
 				)
 			)
@@ -11423,7 +11416,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0922e325-dd41-4ebe-9661-8cbaba4c4de4")
-		(property "Reference" "R34"
+		(property "Reference" "R32"
 			(at 373.38 40.64 0)
 			(effects
 				(font
@@ -11477,7 +11470,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R34")
+					(reference "R32")
 					(unit 1)
 				)
 			)
@@ -11492,7 +11485,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0df13b92-8e8e-4ad2-a850-3dc0e8e7a91d")
-		(property "Reference" "R29"
+		(property "Reference" "R27"
 			(at 356.87 146.812 90)
 			(effects
 				(font
@@ -11544,7 +11537,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R29")
+					(reference "R27")
 					(unit 1)
 				)
 			)
@@ -11691,7 +11684,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1358ad2a-355d-4b31-82bc-3f9e903b9cc9")
-		(property "Reference" "#PWR052"
+		(property "Reference" "#PWR051"
 			(at 381 156.21 0)
 			(effects
 				(font
@@ -11742,7 +11735,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR052")
+					(reference "#PWR051")
 					(unit 1)
 				)
 			)
@@ -12227,7 +12220,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2338e746-8934-4e35-8bb0-a93a586f14f7")
-		(property "Reference" "#PWR051"
+		(property "Reference" "#PWR050"
 			(at 381 149.86 0)
 			(effects
 				(font
@@ -12278,7 +12271,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR051")
+					(reference "#PWR050")
 					(unit 1)
 				)
 			)
@@ -12761,7 +12754,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2a1f6cae-cb74-4725-a677-00d3a56ee536")
-		(property "Reference" "#PWR054"
+		(property "Reference" "#PWR053"
 			(at 381 168.91 0)
 			(effects
 				(font
@@ -12812,7 +12805,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR054")
+					(reference "#PWR053")
 					(unit 1)
 				)
 			)
@@ -13174,7 +13167,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "31c1a36f-c17e-4f58-be5b-3bc5cc2ddf22")
-		(property "Reference" "#PWR049"
+		(property "Reference" "#PWR048"
 			(at 381 130.81 0)
 			(effects
 				(font
@@ -13224,7 +13217,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR049")
+					(reference "#PWR048")
 					(unit 1)
 				)
 			)
@@ -13575,7 +13568,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "39da9213-3952-4a49-9114-66f394421336")
-		(property "Reference" "R25"
+		(property "Reference" "R23"
 			(at 316.23 40.64 0)
 			(effects
 				(font
@@ -13629,7 +13622,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R25")
+					(reference "R23")
 					(unit 1)
 				)
 			)
@@ -13718,7 +13711,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3fbb6347-bbbe-4ac8-b646-28c884409c2d")
-		(property "Reference" "R26"
+		(property "Reference" "R24"
 			(at 356.87 120.142 90)
 			(effects
 				(font
@@ -13770,7 +13763,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R26")
+					(reference "R24")
 					(unit 1)
 				)
 			)
@@ -13785,7 +13778,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3fc45bd0-95ce-48ce-917d-da0218b5d1b3")
-		(property "Reference" "R28"
+		(property "Reference" "R26"
 			(at 356.87 135.382 90)
 			(effects
 				(font
@@ -13837,7 +13830,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R28")
+					(reference "R26")
 					(unit 1)
 				)
 			)
@@ -14008,7 +14001,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "41e67a18-f313-490d-b284-f082334eaa48")
-		(property "Reference" "#PWR041"
+		(property "Reference" "#PWR040"
 			(at 347.98 63.5 0)
 			(effects
 				(font
@@ -14058,7 +14051,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR041")
+					(reference "#PWR040")
 					(unit 1)
 				)
 			)
@@ -14329,72 +14322,6 @@
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
 					(reference "C30")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 137.16 234.95 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "4f683c9b-1ab9-4743-bda8-d89fc318b30e")
-		(property "Reference" "#PWR015"
-			(at 137.16 241.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_REG"
-			(at 137.16 240.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 137.16 234.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 137.16 234.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 137.16 234.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "6f627fa0-23fa-4167-999d-1bde7b7d50de")
-		)
-		(instances
-			(project "dribbler_md_2025_V1"
-				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR015")
 					(unit 1)
 				)
 			)
@@ -14890,7 +14817,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "6014f49a-bdeb-47f8-9cd5-936ecf51dac7")
-		(property "Reference" "#PWR043"
+		(property "Reference" "#PWR042"
 			(at 349.25 107.95 0)
 			(effects
 				(font
@@ -14940,7 +14867,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR043")
+					(reference "#PWR042")
 					(unit 1)
 				)
 			)
@@ -14955,7 +14882,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6057de8a-ec60-454c-9c10-f3777488dbda")
-		(property "Reference" "#PWR042"
+		(property "Reference" "#PWR041"
 			(at 349.25 85.09 0)
 			(effects
 				(font
@@ -15006,7 +14933,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR042")
+					(reference "#PWR041")
 					(unit 1)
 				)
 			)
@@ -15021,7 +14948,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "60f79773-4688-4dbe-8eb3-ad7d115633c1")
-		(property "Reference" "#PWR047"
+		(property "Reference" "#PWR046"
 			(at 370.84 39.37 0)
 			(effects
 				(font
@@ -15072,7 +14999,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR047")
+					(reference "#PWR046")
 					(unit 1)
 				)
 			)
@@ -15157,7 +15084,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "6315ecfe-f7bb-47b4-a157-45db52f171eb")
-		(property "Reference" "R33"
+		(property "Reference" "R31"
 			(at 367.03 91.44 0)
 			(effects
 				(font
@@ -15211,7 +15138,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R33")
+					(reference "R31")
 					(unit 1)
 				)
 			)
@@ -15362,7 +15289,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "66d2fc62-5950-4b96-aec6-21ded4248907")
-		(property "Reference" "R30"
+		(property "Reference" "R28"
 			(at 356.87 153.162 90)
 			(effects
 				(font
@@ -15414,7 +15341,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R30")
+					(reference "R28")
 					(unit 1)
 				)
 			)
@@ -15685,6 +15612,71 @@
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
 					(reference "C3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 147.32 234.95 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "72a54130-1560-47c1-af6d-c6c872641a79")
+		(property "Reference" "#PWR017"
+			(at 147.32 241.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND_main"
+			(at 147.32 243.84 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 147.32 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 147.32 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 147.32 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c714c745-cbca-4c1a-843d-9d7ddfc3f852")
+		)
+		(instances
+			(project "dribbler_md_2025_V1"
+				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
+					(reference "#PWR017")
 					(unit 1)
 				)
 			)
@@ -16047,73 +16039,6 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 311.15 184.15 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "811c8b5d-ab5d-42c4-8c60-35adb3013bb5")
-		(property "Reference" "#PWR034"
-			(at 317.5 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_REG"
-			(at 314.96 184.1499 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 311.15 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 311.15 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 311.15 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c57b80dc-9708-479e-b13a-e09f7f2da850")
-		)
-		(instances
-			(project "dribbler_md_2025_V1"
-				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR034")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
 		(at 240.03 48.26 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -16416,7 +16341,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "86b42797-c3ef-45d0-8315-ca1f6f1c5e99")
-		(property "Reference" "#PWR048"
+		(property "Reference" "#PWR047"
 			(at 381 123.19 0)
 			(effects
 				(font
@@ -16466,7 +16391,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR048")
+					(reference "#PWR047")
 					(unit 1)
 				)
 			)
@@ -16750,7 +16675,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "904e7ace-c6bd-479c-a677-674f7e1f54ff")
-		(property "Reference" "#PWR036"
+		(property "Reference" "#PWR035"
 			(at 313.69 39.37 0)
 			(effects
 				(font
@@ -16801,7 +16726,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR036")
+					(reference "#PWR035")
 					(unit 1)
 				)
 			)
@@ -17100,7 +17025,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9b114402-b8f4-445d-9914-0d51c9aa53f3")
-		(property "Reference" "#PWR038"
+		(property "Reference" "#PWR037"
 			(at 313.69 109.22 0)
 			(effects
 				(font
@@ -17150,7 +17075,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR038")
+					(reference "#PWR037")
 					(unit 1)
 				)
 			)
@@ -17558,7 +17483,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9fd21404-4a3c-47d2-99e5-9c8168965376")
-		(property "Reference" "#PWR053"
+		(property "Reference" "#PWR052"
 			(at 381 162.56 0)
 			(effects
 				(font
@@ -17609,7 +17534,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR053")
+					(reference "#PWR052")
 					(unit 1)
 				)
 			)
@@ -17829,7 +17754,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a36563d7-eb45-43d3-b5b2-d7d3540d73ea")
-		(property "Reference" "#PWR040"
+		(property "Reference" "#PWR039"
 			(at 322.58 153.67 0)
 			(effects
 				(font
@@ -17880,7 +17805,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR040")
+					(reference "#PWR039")
 					(unit 1)
 				)
 			)
@@ -18566,73 +18491,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 302.26 187.96 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "b03aca0d-dbbf-4fce-a8e1-face90d85891")
-		(property "Reference" "R22"
-			(at 303.53 185.928 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "0"
-			(at 299.974 185.928 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
-			(at 302.26 189.738 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 302.26 187.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 302.26 187.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1cdc556b-d5f3-429e-995d-2b3e16901154")
-		)
-		(pin "2"
-			(uuid "59b18016-a7ab-4ea7-99e3-a5f547557953")
-		)
-		(instances
-			(project "dribbler_md_2025_V1"
-				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R22")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 240.03 36.83 180)
 		(unit 1)
@@ -18775,7 +18633,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b1275e5a-f8a5-4e7b-b4d2-4ed8a06bac41")
-		(property "Reference" "R31"
+		(property "Reference" "R29"
 			(at 356.87 159.512 90)
 			(effects
 				(font
@@ -18827,7 +18685,72 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R31")
+					(reference "R29")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 137.16 234.95 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "b484cd8d-662d-48ea-8cd5-d837593a1429")
+		(property "Reference" "#PWR015"
+			(at 137.16 241.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND_main"
+			(at 137.16 243.84 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 137.16 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 137.16 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 137.16 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "df2cbaab-0e62-4d4f-9766-99720475ec8b")
+		)
+		(instances
+			(project "dribbler_md_2025_V1"
+				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
+					(reference "#PWR015")
 					(unit 1)
 				)
 			)
@@ -18911,7 +18834,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b7a1286e-3940-4ff6-ae1c-9288e10d42f6")
-		(property "Reference" "R27"
+		(property "Reference" "R25"
 			(at 356.87 127.762 90)
 			(effects
 				(font
@@ -18963,7 +18886,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R27")
+					(reference "R25")
 					(unit 1)
 				)
 			)
@@ -19111,7 +19034,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bd6f545e-0f4a-4d62-81f7-b6deb11adad1")
-		(property "Reference" "#PWR050"
+		(property "Reference" "#PWR049"
 			(at 381 138.43 0)
 			(effects
 				(font
@@ -19161,7 +19084,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR050")
+					(reference "#PWR049")
 					(unit 1)
 				)
 			)
@@ -19243,7 +19166,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bfee27f1-3731-420a-aeb0-d5224b8721c0")
-		(property "Reference" "R24"
+		(property "Reference" "R22"
 			(at 306.324 153.924 90)
 			(effects
 				(font
@@ -19295,7 +19218,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R24")
+					(reference "R22")
 					(unit 1)
 				)
 			)
@@ -20182,7 +20105,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d7c3fb9a-66e9-4562-8e2f-d96c6165f8d9")
-		(property "Reference" "#PWR044"
+		(property "Reference" "#PWR043"
 			(at 355.6 123.19 0)
 			(effects
 				(font
@@ -20233,7 +20156,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR044")
+					(reference "#PWR043")
 					(unit 1)
 				)
 			)
@@ -20383,7 +20306,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "da7cdfc7-bf55-4b98-bf62-cd8a2e52adcc")
-		(property "Reference" "#PWR046"
+		(property "Reference" "#PWR045"
 			(at 355.6 138.43 0)
 			(effects
 				(font
@@ -20434,7 +20357,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR046")
+					(reference "#PWR045")
 					(unit 1)
 				)
 			)
@@ -20585,7 +20508,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "dc77f0a8-58dd-4200-9c4b-b119a5f4b424")
-		(property "Reference" "#PWR045"
+		(property "Reference" "#PWR044"
 			(at 355.6 130.81 0)
 			(effects
 				(font
@@ -20636,7 +20559,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR045")
+					(reference "#PWR044")
 					(unit 1)
 				)
 			)
@@ -20704,73 +20627,6 @@
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
 					(reference "R8")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 311.15 187.96 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e3758baf-f217-483b-9f2d-deaa5f18e66d")
-		(property "Reference" "#PWR035"
-			(at 317.5 187.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_REG"
-			(at 314.96 187.9599 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 311.15 187.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 311.15 187.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 311.15 187.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "934e5a7f-0933-4521-b559-d0579bc88b53")
-		)
-		(instances
-			(project "dribbler_md_2025_V1"
-				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR035")
 					(unit 1)
 				)
 			)
@@ -20851,7 +20707,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "eaaa6c78-f71d-4219-8e32-4ff6ee569417")
-		(property "Reference" "R23"
+		(property "Reference" "R21"
 			(at 306.324 151.384 90)
 			(effects
 				(font
@@ -20903,7 +20759,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R23")
+					(reference "R21")
 					(unit 1)
 				)
 			)
@@ -21112,138 +20968,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 157.48 234.95 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ef8e0b54-511d-4a45-93da-ca1353a662bd")
-		(property "Reference" "#PWR018"
-			(at 157.48 241.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_REG"
-			(at 157.48 240.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 157.48 234.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 157.48 234.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 157.48 234.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "b03d3552-1431-45bb-9a35-f95ebf30f835")
-		)
-		(instances
-			(project "dribbler_md_2025_V1"
-				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR018")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 147.32 234.95 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "f171c0b1-9ff2-4f0e-a130-05964a0b3293")
-		(property "Reference" "#PWR017"
-			(at 147.32 241.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_REG"
-			(at 147.32 240.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 147.32 234.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 147.32 234.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 147.32 234.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "57b4efa7-58ce-4ac4-a962-e2b16917d979")
-		)
-		(instances
-			(project "dribbler_md_2025_V1"
-				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR017")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 113.03 48.26 90)
 		(unit 1)
@@ -21305,73 +21029,6 @@
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
 					(reference "R9")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 302.26 184.15 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "f81fe05e-cf22-4c00-a102-2c49961a1aee")
-		(property "Reference" "R21"
-			(at 303.53 182.118 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "0"
-			(at 299.974 182.118 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
-			(at 302.26 185.928 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 302.26 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 302.26 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ab7f8a77-696e-4b49-939d-c448ba3cb703")
-		)
-		(pin "2"
-			(uuid "5b745b96-b79f-4063-a0fd-437d37c2274a")
-		)
-		(instances
-			(project "dribbler_md_2025_V1"
-				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "R21")
 					(unit 1)
 				)
 			)
@@ -21588,7 +21245,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "fef55f48-1f6e-4f8e-8bef-0f02be4d8fd3")
-		(property "Reference" "#PWR039"
+		(property "Reference" "#PWR038"
 			(at 320.04 168.91 0)
 			(effects
 				(font
@@ -21638,7 +21295,7 @@
 		(instances
 			(project "dribbler_md_2025_V1"
 				(path "/e5664ee6-5653-49aa-a420-570d65635d05"
-					(reference "#PWR039")
+					(reference "#PWR038")
 					(unit 1)
 				)
 			)
