@@ -1,117 +1,74 @@
-/* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
-  ******************************************************************************
   * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
+*/
 #include "main.h"
 #include "tim.h"
 #include "gpio.h"
+#include <stdint.h>
+#include <math.h>
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+#ifndef M_PI
+#define M_PI 3.141592
+#endif
 
-/* USER CODE END Includes */
+#define LOW 0
+#define HIGH 1
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
+#define red 0
+#define blue 1
 
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
   * @retval int
-  */
+*/
+
 int main(void)
 {
-
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
+  /* USER CODE 1 */
   /* MCU Configuration--------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
+  /* USER CODE Init */
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
+  /* USER CODE SysInit */
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM3_Init();
-  /* USER CODE BEGIN 2 */
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
-  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2);
+  /* USER CODE 2 */
 
   while (1)
   {
-    HAL_GPIO_WritePin(GPIOB, MD_nSEEP_Pin, GPIO_PIN_SET);
     
-    for(int i = 0;i < 799;i += 1){
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 799);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 0);
-      HAL_Delay(10);
-    }
-    
-    HAL_Delay(1000);
   }
-  /* USER CODE END 3 */
 }
+
+void set_led(uint8_t pin,uint8_t state){
+  switch(pin){
+    case red:
+      if(state == HIGH){
+        HAL_GPIO_WritePin(GPIOB,LED_RED_Pin,GPIO_PIN_SET);
+      } else if(state == LOW){
+        HAL_GPIO_WritePin(GPIOB,LED_RED_Pin,GPIO_PIN_RESET);
+      }
+    break;
+    case blue:
+      if(state == HIGH){
+        HAL_GPIO_WritePin(GPIOB,LED_BLUE_Pin,GPIO_PIN_SET);
+      } else if(state == LOW){
+        HAL_GPIO_WritePin(GPIOB,LED_BLUE_Pin,GPIO_PIN_RESET);
+      }
+    break;
+    default:
+    break;
+  }
+}
+
+
 
 /**
   * @brief System Clock Configuration
@@ -158,10 +115,6 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 }
-
-/* USER CODE BEGIN 4 */
-
-/* USER CODE END 4 */
 
 /**
   * @brief  This function is executed in case of error occurrence.
