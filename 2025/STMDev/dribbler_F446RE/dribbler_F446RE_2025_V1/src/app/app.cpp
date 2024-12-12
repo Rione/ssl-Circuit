@@ -1,20 +1,16 @@
-void set_led(uint8_t pin,uint8_t state){
-  switch(pin){
-    case red:
-      if(state == HIGH){
-        HAL_GPIO_WritePin(GPIOB,LED_RED_Pin,GPIO_PIN_SET);
-      } else if(state == LOW){
-        HAL_GPIO_WritePin(GPIOB,LED_RED_Pin,GPIO_PIN_RESET);
-      }
-    break;
-    case blue:
-      if(state == HIGH){
-        HAL_GPIO_WritePin(GPIOB,LED_BLUE_Pin,GPIO_PIN_SET);
-      } else if(state == LOW){
-        HAL_GPIO_WritePin(GPIOB,LED_BLUE_Pin,GPIO_PIN_RESET);
-      }
-    break;
-    default:
-    break;
+#include "app.hpp"
+// #include "AnalogIn.hpp"
+
+// AnalogIn amp_sense(&hadc,ADC_CHANNEL_3);
+
+void Setup(void){
+
+}
+
+void MainLoop(){
+  while(1){
+    printf("test\n");
+    // printf("%d\n",amp_sense.read())
+    // HAL_Delay(3);
   }
 }
