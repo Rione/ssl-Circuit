@@ -175,6 +175,7 @@ vpath %.s $(sort $(dir $(ASM_SOURCES)))
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASMM_SOURCES:.S=.o)))
 vpath %.S $(sort $(dir $(ASMM_SOURCES)))
 
+# 🍣 C++ source
 CXX_SOURCES = \
 $(wildcard src/*.cpp)
 
@@ -190,6 +191,7 @@ else
 CXX = $(PREFIX)g++
 endif
 
+# 🍣 C++ defs, flags
 CXX_DEFS = $(C_DEFS)
 CXXFLAGS = $(MCU) $(CXX_DEFS) $(CXX_INCLUDES) $(OPT) -Wall -Wextra -pedantic -fdata-sections -ffunction-sections -std=gnu++20
 
@@ -197,6 +199,7 @@ CXXFLAGS = $(MCU) $(CXX_DEFS) $(CXX_INCLUDES) $(OPT) -Wall -Wextra -pedantic -fd
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(CXX_SOURCES:.cpp=.o)))
 vpath %.cpp $(sort $(dir $(CXX_SOURCES)))
 
+# 🍣 build
 $(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR)
 	$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
 
