@@ -75,6 +75,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_BLUE_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : USER_SW_Pin */
+  GPIO_InitStruct.Pin = USER_SW_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(USER_SW_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pins : MD_nSEEP_Pin LED_RED_Pin */
   GPIO_InitStruct.Pin = MD_nSEEP_Pin|LED_RED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;

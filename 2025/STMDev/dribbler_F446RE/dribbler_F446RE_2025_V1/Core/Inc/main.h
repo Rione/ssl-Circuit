@@ -67,6 +67,8 @@ void Error_Handler(void);
 #define ENC_2_GPIO_Port GPIOB
 #define LED_BLUE_Pin GPIO_PIN_6
 #define LED_BLUE_GPIO_Port GPIOC
+#define USER_SW_Pin GPIO_PIN_8
+#define USER_SW_GPIO_Port GPIOA
 #define MD_nSEEP_Pin GPIO_PIN_4
 #define MD_nSEEP_GPIO_Port GPIOB
 #define LED_RED_Pin GPIO_PIN_5
