@@ -3,7 +3,6 @@
 
 #include "main.h"
 #include "tim.h"
-#include "MyMath.hpp"
 
 #define RED 0
 #define BLUE 1

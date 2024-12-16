@@ -1,7 +1,5 @@
 #include "app.hpp"
-// #include "AnalogIn.hpp"
-
-// AnalogIn amp_sense(&hadc,ADC_CHANNEL_3);
+#include "AnalogIn.hpp"
 
 void Setup(void){
 
@@ -15,10 +13,6 @@ void MainLoop(){
     Set_LED(RED,HIGH);
     Set_LED(BLUE,LOW);
     HAL_Delay(1000);
-
-
-    // printf("%d\n",amp_sense.read())
-    // HAL_Delay(3);
   }
 }
 

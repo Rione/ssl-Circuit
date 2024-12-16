@@ -56,18 +56,6 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, MD_nSEEP_Pin|LED_RED_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : MD_SO_Pin */
-  GPIO_InitStruct.Pin = MD_SO_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(MD_SO_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : ENC_2_Pin */
-  GPIO_InitStruct.Pin = ENC_2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(ENC_2_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pin : LED_BLUE_Pin */
   GPIO_InitStruct.Pin = LED_BLUE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
