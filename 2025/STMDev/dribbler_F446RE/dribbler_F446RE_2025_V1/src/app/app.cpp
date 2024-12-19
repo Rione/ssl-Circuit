@@ -1,5 +1,7 @@
 #include "app.hpp"
-#include "AnalogIn.hpp"
+#include "adc.h"
+
+uint16_t adc_val[3];
 
 void Setup(void){
 
@@ -61,5 +63,13 @@ void Motor_Rotate_Control(uint8_t mode,uint16_t speed){
     break;
     default:
     break;
+  }
+}
+
+void read_ADC(){
+  HAL_ADC_Start(&hadc1);
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc,3);
+  for(uint8_t i = 0;i < 3;i++){
+    while(!(adc[i] > 0));
   }
 }

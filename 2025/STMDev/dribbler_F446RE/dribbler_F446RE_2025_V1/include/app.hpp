@@ -33,6 +33,7 @@ void Setup(void);
 void MainLoop(void);
 void Set_LED(uint8_t,uint8_t);
 void Motor_Rotate_Control(uint8_t,uint16_t);
+int read_ADC(uint8_t);
 
 #ifdef __cplusplus
 }
