@@ -4,17 +4,27 @@
 uint16_t adc_val[3];
 
 void Setup(void){
-
+  read_ADC();
 }
 
 void MainLoop(){
   while(1){
-    Set_LED(RED,LOW);
     Set_LED(BLUE,HIGH);
-    HAL_Delay(1000);
     Set_LED(RED,HIGH);
-    Set_LED(BLUE,LOW);
-    HAL_Delay(1000);
+    Motor_Rotate_Control(FORWARD,100);
+
+    int t = 0;
+    for(int i = 0;i < 50;i++){
+      HAL_Delay(1);
+      t += adc_val[1];
+    }
+    //HAL_Delay(50);
+    printf("%d\n",t / 50);
+
+    //DRV_ENABLE;
+
+    //__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
+    //__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 1);
   }
 }
 
@@ -43,13 +53,13 @@ void Motor_Rotate_Control(uint8_t mode,uint16_t speed){
   switch(mode){
     case FORWARD:
       DRV_ENABLE;
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, map(speed,0,100,PWM_TIM3_FRQ_MIN,PWM_TIM3_FRQ_MAX));
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, map(speed,1,100,PWM_TIM3_FRQ_MIN,PWM_TIM3_FRQ_MAX));
       __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, PWM_TIM3_FRQ_MIN);
     break;
     case REVERSE:
       DRV_ENABLE;
       __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, PWM_TIM3_FRQ_MIN);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, map(speed,0,100,PWM_TIM3_FRQ_MIN,PWM_TIM3_FRQ_MAX));
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, map(speed,1,100,PWM_TIM3_FRQ_MIN,PWM_TIM3_FRQ_MAX));
     break;
     case BRAKE:
       DRV_ENABLE;
@@ -68,8 +78,8 @@ void Motor_Rotate_Control(uint8_t mode,uint16_t speed){
 
 void read_ADC(){
   HAL_ADC_Start(&hadc1);
-  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc,3);
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val,3);
   for(uint8_t i = 0;i < 3;i++){
-    while(!(adc[i] > 0));
+    while(!(adc_val[i] > 0));
   }
 }
