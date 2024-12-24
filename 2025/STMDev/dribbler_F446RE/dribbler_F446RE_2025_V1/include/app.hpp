@@ -18,8 +18,8 @@
 #define DRV_ENABLE HAL_GPIO_WritePin(MD_nSEEP_GPIO_Port, MD_nSEEP_Pin, GPIO_PIN_SET)
 #define DRV_DISABLE HAL_GPIO_WritePin(MD_nSEEP_GPIO_Port, MD_nSEEP_Pin, GPIO_PIN_RESET)
 
-#define PWM_TIM3_FRQ_MAX 180
-#define PWM_TIM3_FRQ_MIN 10
+#define PWM_TIM3_FRQ_MAX 1000
+#define PWM_TIM3_FRQ_MIN 1
 
 double map(double target,double min1,double max1,double min2,double max2){
     return ((max2 - min2 + 1) / (max1 - min1 + 1)) * target;

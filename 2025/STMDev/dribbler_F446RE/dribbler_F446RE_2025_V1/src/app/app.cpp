@@ -13,14 +13,6 @@ void MainLoop(){
     Set_LED(RED,HIGH);
     Motor_Rotate_Control(FORWARD,100);
 
-    int t = 0;
-    for(int i = 0;i < 50;i++){
-      HAL_Delay(1);
-      t += adc_val[1];
-    }
-    //HAL_Delay(50);
-    printf("%d\n",t / 50);
-
     //DRV_ENABLE;
 
     //__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
@@ -82,4 +74,13 @@ void read_ADC(){
   for(uint8_t i = 0;i < 3;i++){
     while(!(adc_val[i] > 0));
   }
+}
+
+int GET_Mootr_Current(){
+  int t = 0;
+    for(int i = 0;i < 50;i++){
+      HAL_Delay(1);
+      t += adc_val[1];
+    }
+    return t / 50;
 }
