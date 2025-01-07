@@ -165,6 +165,168 @@
 				)
 			)
 		)
+		(symbol "Connector:Conn_01x02_Socket"
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x02_Socket"
+				(at 0 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Generic connector, single row, 01x02, script generated"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_locked" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Conn_01x02_Socket_1_1"
+				(arc
+					(start 0 -2.032)
+					(mid -0.5058 -2.54)
+					(end 0 -3.048)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 -2.54) (xy -0.508 -2.54)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 0) (xy -0.508 0)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 0.508)
+					(mid -0.5058 0)
+					(end 0 -0.508)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "Connector:Conn_01x03_Pin"
 			(pin_names
 				(offset 1.016) hide)
@@ -4973,12 +5135,6 @@
 		(uuid "4b54d7f8-b172-4a02-9fe4-f958b19df30b")
 	)
 	(junction
-		(at 50.8 186.69)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4ccda437-e33c-49a0-a6c2-e1fb56c822c3")
-	)
-	(junction
 		(at 133.35 62.23)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5447,12 +5603,6 @@
 		(uuid "ef366be0-4b6e-4222-b34b-5ff8f8ae0532")
 	)
 	(junction
-		(at 48.26 184.15)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ef758c8b-19f1-4a8f-9799-0a90f5fca86d")
-	)
-	(junction
 		(at 74.93 151.13)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5487,12 +5637,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "fab60064-a3af-4b3d-899c-437df4614abc")
-	)
-	(junction
-		(at 21.59 209.55)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "fac23977-0bc6-4fe0-8fa8-a570924da45c")
 	)
 	(junction
 		(at 246.38 46.99)
@@ -6438,16 +6582,6 @@
 	)
 	(wire
 		(pts
-			(xy 40.64 184.15) (xy 48.26 184.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "29fb80b0-9ff9-467d-88d9-45525b21bfc4")
-	)
-	(wire
-		(pts
 			(xy 74.93 146.05) (xy 77.47 146.05)
 		)
 		(stroke
@@ -6575,16 +6709,6 @@
 			(type default)
 		)
 		(uuid "2f845759-d2bd-4ce3-ab41-c77c3bf8287d")
-	)
-	(wire
-		(pts
-			(xy 31.75 209.55) (xy 38.1 209.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "30bb960e-93d4-42db-afc8-4dff35c93560")
 	)
 	(wire
 		(pts
@@ -7808,16 +7932,6 @@
 	)
 	(wire
 		(pts
-			(xy 21.59 204.47) (xy 21.59 209.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7e60b2cb-2b25-415a-9d31-bd05a8837a64")
-	)
-	(wire
-		(pts
 			(xy 110.49 39.37) (xy 120.65 39.37)
 		)
 		(stroke
@@ -8045,16 +8159,6 @@
 			(type default)
 		)
 		(uuid "8a6f54aa-5fb3-40a2-a4e8-530e671e1e80")
-	)
-	(wire
-		(pts
-			(xy 50.8 186.69) (xy 50.8 209.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8b462d37-2cd8-447c-b341-509c802aa77f")
 	)
 	(wire
 		(pts
@@ -8305,16 +8409,6 @@
 			(type default)
 		)
 		(uuid "9da09a87-ad70-4598-bb8a-31cd551e81a7")
-	)
-	(wire
-		(pts
-			(xy 21.59 204.47) (xy 24.13 204.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9e402f8a-1fef-4d00-83b1-436f44270c05")
 	)
 	(wire
 		(pts
@@ -8758,16 +8852,6 @@
 	)
 	(wire
 		(pts
-			(xy 21.59 209.55) (xy 21.59 214.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b70fb4aa-a2ec-4f58-8075-961cb7704ec2")
-	)
-	(wire
-		(pts
 			(xy 156.21 187.96) (xy 156.21 185.42)
 		)
 		(stroke
@@ -9028,36 +9112,6 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 209.55) (xy 45.72 209.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c5ae7f0c-bee2-4c2b-906d-56d425a39650")
-	)
-	(wire
-		(pts
-			(xy 48.26 204.47) (xy 48.26 184.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c5f1bf2b-ea05-4f16-8df4-e63c988ce7bb")
-	)
-	(wire
-		(pts
-			(xy 45.72 204.47) (xy 48.26 204.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c693d2a1-f189-46c4-8497-fe84de5f6058")
-	)
-	(wire
-		(pts
 			(xy 256.54 115.57) (xy 259.08 115.57)
 		)
 		(stroke
@@ -9258,7 +9312,7 @@
 	)
 	(wire
 		(pts
-			(xy 48.26 184.15) (xy 55.88 184.15)
+			(xy 40.64 184.15) (xy 55.88 184.15)
 		)
 		(stroke
 			(width 0)
@@ -9275,16 +9329,6 @@
 			(type default)
 		)
 		(uuid "d1149553-07d5-40ac-aa49-10a848674a2b")
-	)
-	(wire
-		(pts
-			(xy 40.64 186.69) (xy 50.8 186.69)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d354d4c7-7cbb-4859-a773-809ac0adf6e7")
 	)
 	(wire
 		(pts
@@ -9308,7 +9352,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 186.69) (xy 55.88 186.69)
+			(xy 40.64 186.69) (xy 55.88 186.69)
 		)
 		(stroke
 			(width 0)
@@ -9415,16 +9459,6 @@
 			(type default)
 		)
 		(uuid "dc3b018f-9b3d-4817-b733-d67929300573")
-	)
-	(wire
-		(pts
-			(xy 31.75 204.47) (xy 38.1 204.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dc9b9a4b-7d21-4783-8a25-0ca3588f1924")
 	)
 	(wire
 		(pts
@@ -9575,16 +9609,6 @@
 			(type default)
 		)
 		(uuid "e40dd6d4-5243-450e-b696-76ef8f880c9c")
-	)
-	(wire
-		(pts
-			(xy 21.59 209.55) (xy 24.13 209.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e46575df-1454-4a54-85da-bcc11d0f876c")
 	)
 	(wire
 		(pts
@@ -10896,7 +10920,7 @@
 	)
 	(global_label "CANH"
 		(shape bidirectional)
-		(at 314.96 125.73 0)
+		(at 314.96 128.27 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -10906,7 +10930,7 @@
 		)
 		(uuid "9500bf2e-28a3-4e24-8210-fb84ab27b555")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 324.0761 125.73 0)
+			(at 324.0761 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11336,7 +11360,7 @@
 	)
 	(global_label "CANL"
 		(shape bidirectional)
-		(at 314.96 128.27 0)
+		(at 314.96 125.73 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -11346,7 +11370,7 @@
 		)
 		(uuid "f322d31d-e315-4999-9406-65a8fb674c53")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 323.7737 128.27 0)
+			(at 323.7737 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14961,73 +14985,6 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 41.91 204.47 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "624555e7-82da-415e-a885-683404821ebb")
-		(property "Reference" "R39"
-			(at 37.084 203.454 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1k"
-			(at 46.482 203.454 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 41.91 206.248 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 41.91 204.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 41.91 204.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "cb025656-2c30-4bbf-b0e7-5e66ebb5cb26")
-		)
-		(pin "1"
-			(uuid "6db101f5-9b19-41d1-96c9-02a68f8cf3d2")
-		)
-		(instances
-			(project "dribbler_md_2025_V3"
-				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
-					(reference "R39")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
 		(at 369.57 130.81 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -16301,73 +16258,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:LED")
-		(at 27.94 204.47 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "803933ea-b3cc-4fcc-af59-bb9c3635fde1")
-		(property "Reference" "D13"
-			(at 25.146 203.454 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LED"
-			(at 31.496 203.454 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "dribbler_md:LED_1608_user_dif"
-			(at 27.94 204.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 27.94 204.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Light emitting diode"
-			(at 27.94 204.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "eaeddfec-8ecd-4196-8bed-1a716353b5f0")
-		)
-		(pin "2"
-			(uuid "3df9f4e4-8bbc-4418-9f6e-7d863471c6f1")
-		)
-		(instances
-			(project "dribbler_md_2025_V3"
-				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
-					(reference "D13")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 332.74 39.37 0)
 		(unit 1)
@@ -17033,72 +16923,6 @@
 			(project "dribbler_md_2025_V3"
 				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
 					(reference "#PWR013")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 21.59 214.63 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "8f1782f7-8b67-40b3-bdc7-37f91231ec21")
-		(property "Reference" "#PWR05"
-			(at 21.59 220.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_log"
-			(at 21.59 219.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 21.59 214.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 21.59 214.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 21.59 214.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "e036fb45-6074-41e5-8e7f-983a6bdc6e73")
-		)
-		(instances
-			(project "dribbler_md_2025_V3"
-				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
-					(reference "#PWR05")
 					(unit 1)
 				)
 			)
@@ -17774,73 +17598,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:LED")
-		(at 27.94 209.55 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "a510f119-efc4-419c-be20-8d7a59c962d9")
-		(property "Reference" "D14"
-			(at 25.146 208.534 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LED"
-			(at 31.496 208.534 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "dribbler_md:LED_1608_user_dif"
-			(at 27.94 209.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 27.94 209.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Light emitting diode"
-			(at 27.94 209.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "e809f74b-7a1c-4cb8-98bc-79e8020f6c08")
-		)
-		(pin "2"
-			(uuid "eaf5bf10-cce0-4b81-aeb4-fa535b5e6262")
-		)
-		(instances
-			(project "dribbler_md_2025_V3"
-				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
-					(reference "D14")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 43.18 193.04 0)
 		(unit 1)
@@ -18265,7 +18022,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 84.582 189.23 90)
 			(effects
 				(font
@@ -18440,73 +18197,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:Conn_01x02_Pin")
-		(at 69.85 44.45 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "b947827e-63e1-44bc-9ea1-e08990070304")
-		(property "Reference" "J1"
-			(at 60.96 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Conn_01x02_Pin"
-			(at 61.214 46.482 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_Molex:Molex_SPOX_5268-02A_1x02_P2.50mm_Horizontal"
-			(at 69.85 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 69.85 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x02, script generated"
-			(at 69.85 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "97ff2aa8-160d-4a97-9b73-0163e876f952")
-		)
-		(pin "1"
-			(uuid "247de204-fdcb-4feb-80ef-c85a5f2d5599")
-		)
-		(instances
-			(project "dribbler_md_2025_V3"
-				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
-					(reference "J1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "dribbler_md_lib_sym:STS8DN3LLH5")
 		(at 99.06 34.29 0)
 		(unit 1)
@@ -18654,6 +18344,74 @@
 			(project "dribbler_md_2025_V3"
 				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
 					(reference "R17")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x02_Socket")
+		(at 69.85 46.99 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "be7364cd-377c-499b-b0a9-5d557cb28150")
+		(property "Reference" "J8"
+			(at 70.485 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x02_Socket"
+			(at 70.485 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_Molex:Molex_SPOX_5268-02A_1x02_P2.50mm_Horizontal"
+			(at 69.85 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 69.85 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated"
+			(at 69.85 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2e50d8d2-12d1-47f3-b2c2-0c20f4e9edfa")
+		)
+		(pin "2"
+			(uuid "400d8df8-6bad-4504-baa4-a1a39b87835d")
+		)
+		(instances
+			(project ""
+				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
+					(reference "J8")
 					(unit 1)
 				)
 			)
@@ -21773,73 +21531,6 @@
 			(project "dribbler_md_2025_V3"
 				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
 					(reference "C34")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 41.91 209.55 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "fc2f9652-bf62-4c38-bacd-74ca3ac8bb55")
-		(property "Reference" "R40"
-			(at 37.084 208.534 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1k"
-			(at 46.482 208.534 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 41.91 211.328 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 41.91 209.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 41.91 209.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "210e698c-498e-4622-be28-bf5e897796c7")
-		)
-		(pin "1"
-			(uuid "346af4d0-e043-41da-9743-42b4c9a45fdc")
-		)
-		(instances
-			(project "dribbler_md_2025_V3"
-				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
-					(reference "R40")
 					(unit 1)
 				)
 			)
