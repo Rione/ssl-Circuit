@@ -8878,6 +8878,16 @@
 	)
 	(wire
 		(pts
+			(xy 363.22 111.76) (xy 365.76 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be7ce60d-3656-4145-bbf2-e37a88e58840")
+	)
+	(wire
+		(pts
 			(xy 316.23 149.86) (xy 321.31 149.86)
 		)
 		(stroke
@@ -9335,6 +9345,16 @@
 			(type default)
 		)
 		(uuid "d7314c1b-b015-4883-972c-08649f876b2f")
+	)
+	(wire
+		(pts
+			(xy 373.38 111.76) (xy 375.92 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d753cf69-d442-401d-a1c4-0dd02c66d5b2")
 	)
 	(wire
 		(pts
@@ -9835,6 +9855,16 @@
 			(type default)
 		)
 		(uuid "f27b32ac-2b26-4272-b635-3e5ad33b1577")
+	)
+	(wire
+		(pts
+			(xy 383.54 111.76) (xy 386.08 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f2dff22b-e8a4-41d8-a239-4f25f2c63a66")
 	)
 	(wire
 		(pts
@@ -12120,7 +12150,7 @@
 			)
 		)
 		(property "Description" "SF-2410F1200W-2"
-			(at 318.516 118.11 90)
+			(at 318.77 118.364 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12770,6 +12800,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:VDD")
+		(at 363.22 111.76 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1ac9eaf4-53d9-49e0-9150-60dee6c11d00")
+		(property "Reference" "#PWR03"
+			(at 367.03 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "18V_main"
+			(at 359.41 111.7599 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 363.22 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 363.22 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
+			(at 363.22 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "317a6f2d-e33b-4837-906c-2f86ce474bc4")
+		)
+		(instances
+			(project "dribbler_md_2025_V3"
+				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
+					(reference "#PWR03")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:Crystal_GND2")
 		(at 205.74 69.85 0)
 		(unit 1)
@@ -13033,6 +13130,73 @@
 			(project "dribbler_md_2025_V3"
 				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
 					(reference "#PWR023")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 379.73 111.76 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "285992f2-ca10-4360-84c6-7a2a7ba1cfc0")
+		(property "Reference" "D15"
+			(at 378.968 108.458 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LED"
+			(at 383.032 108.458 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "dribbler_md:LED_1608_user_dif"
+			(at 379.73 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 379.73 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 379.73 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a8b3cba1-76b6-4d62-94a1-c7230c406c89")
+		)
+		(pin "2"
+			(uuid "ae6e1c06-fae6-4378-bd97-bece698b4622")
+		)
+		(instances
+			(project "dribbler_md_2025_V3"
+				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
+					(reference "D15")
 					(unit 1)
 				)
 			)
@@ -14387,6 +14551,72 @@
 			(project "dribbler_md_2025_V3"
 				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
 					(reference "R8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 386.08 111.76 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "52e20428-3619-4175-8a5d-58bfdd005829")
+		(property "Reference" "#PWR050"
+			(at 392.43 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND_log"
+			(at 389.128 111.76 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 386.08 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 386.08 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 386.08 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "db163e41-3f34-403c-8b69-8b320704d6f9")
+		)
+		(instances
+			(project "dribbler_md_2025_V3"
+				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
+					(reference "#PWR050")
 					(unit 1)
 				)
 			)
@@ -17501,7 +17731,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 			(at 95.25 147.828 90)
 			(effects
 				(font
@@ -18762,6 +18992,73 @@
 			(project "dribbler_md_2025_V3"
 				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
 					(reference "#PWR010")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 369.57 111.76 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c6071a77-80e0-4023-a0c3-234caf02ebb0")
+		(property "Reference" "R1"
+			(at 368.3 108.712 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1k"
+			(at 371.856 108.712 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 369.57 113.538 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 369.57 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 369.57 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "706a63d5-d424-4734-b69d-69aecafc33f9")
+		)
+		(pin "2"
+			(uuid "c1f83d87-255b-40e1-a014-fdddf0d3a85d")
+		)
+		(instances
+			(project "dribbler_md_2025_V3"
+				(path "/fb031fd6-d0d1-41bb-b086-03f1e4d4d794"
+					(reference "R1")
 					(unit 1)
 				)
 			)
@@ -20288,7 +20585,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 			(at 95.25 152.908 90)
 			(effects
 				(font
