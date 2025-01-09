@@ -1,10 +1,10 @@
-(footprint "MA10EB045"
+(footprint "1SMB5956BT3G"
 	(version 20240108)
 	(generator "pcbnew")
 	(generator_version "8.0")
 	(layer "F.Cu")
 	(property "Reference" "REF**"
-		(at 0 -0.5 0)
+		(at -0.09 -0.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "6e9e56f4-56f1-40e7-8b36-987f1a511211")
@@ -15,7 +15,7 @@
 			)
 		)
 	)
-	(property "Value" "MA10EB045"
+	(property "Value" "1SMB5956BT3G"
 		(at 0 1 0)
 		(unlocked yes)
 		(layer "F.Fab")
@@ -27,7 +27,7 @@
 			)
 		)
 	)
-	(property "Footprint" "MA10EB045"
+	(property "Footprint" "1SMB5956BT3G"
 		(at 0 0 0)
 		(unlocked yes)
 		(layer "F.Fab")
@@ -41,7 +41,7 @@
 		)
 	)
 	(property "Datasheet" ""
-		(at 1.7 0 0)
+		(at 1.61 0 0)
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
@@ -54,7 +54,7 @@
 		)
 	)
 	(property "Description" ""
-		(at 1.7 0 0)
+		(at 1.61 0 0)
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
@@ -68,15 +68,15 @@
 	)
 	(attr smd)
 	(fp_rect
-		(start -2.5 -1.5)
-		(end 2.6 1.5)
+		(start -3.5 -1.5)
+		(end 3.5 1.5)
 		(stroke
 			(width 0.05)
 			(type default)
 		)
 		(fill none)
 		(layer "F.CrtYd")
-		(uuid "fa6f18bb-8acb-4265-b039-9a2c7c75a736")
+		(uuid "3da5b9ea-fc8b-4d12-9600-c6acc0a2e680")
 	)
 	(fp_text user "${REFERENCE}"
 		(at 0 2.5 0)
@@ -91,17 +91,17 @@
 		)
 	)
 	(pad "1" smd rect
-		(at -1.1 0)
-		(size 3.4 2.6)
+		(at -2.24 0)
+		(size 2.15 2.75)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 		(thermal_bridge_angle 45)
 		(uuid "b078dd35-a84c-438f-b085-917a8175711e")
 	)
 	(pad "2" smd rect
-		(at 2.4 0)
-		(size 1.1 2)
+		(at 2.2 0.01)
+		(size 2.15 2.75)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 		(thermal_bridge_angle 45)
-		(uuid "cf0427a1-e280-4f95-83a9-19a37292e66a")
+		(uuid "75c96bed-67c3-4ae1-b7d5-4b590f99daf9")
 	)
 )
