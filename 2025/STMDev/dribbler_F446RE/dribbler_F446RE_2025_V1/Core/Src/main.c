@@ -93,10 +93,10 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  MX_USART1_UART_Init();
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_TIM3_Init();
-  MX_USART1_UART_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);

@@ -5,13 +5,14 @@ uint16_t adc_val[3];
 
 void Setup(void){
   read_ADC();
+  Set_LED(BLUE,HIGH);
+  Set_LED(RED,HIGH);
 }
 
 void MainLoop(){
   while(1){
-    Set_LED(BLUE,HIGH);
-    Set_LED(RED,HIGH);
-    Motor_Rotate_Control(FORWARD,100);
+    printf("%d\n",(int)adc_val[0]);
+    
 
     //DRV_ENABLE;
 
