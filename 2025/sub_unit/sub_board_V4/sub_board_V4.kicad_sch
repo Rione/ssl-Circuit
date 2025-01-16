@@ -1871,6 +1871,88 @@
 				)
 			)
 		)
+		(symbol "Mechanical:MountingHole"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "H"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "MountingHole"
+				(at 0 3.175 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Mounting Hole without connection"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "mounting hole"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "MountingHole*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "MountingHole_0_1"
+				(circle
+					(center 0 0)
+					(radius 1.27)
+					(stroke
+						(width 1.27)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+		)
 		(symbol "power:PWR_FLAG"
 			(power)
 			(pin_numbers hide)
@@ -2089,22 +2171,10 @@
 		(uuid "a6c61d14-b616-492c-88c5-4b4e2160e14d")
 	)
 	(junction
-		(at 58.42 83.82)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b83096e6-b20d-4e63-b658-ea917dfd1269")
-	)
-	(junction
 		(at 124.46 99.06)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "bf96d0c8-3441-4cff-97e0-27fe8e913e21")
-	)
-	(junction
-		(at 60.96 81.28)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "c8ac8a0d-0989-4999-b559-049e8ad704b9")
 	)
 	(junction
 		(at 124.46 96.52)
@@ -2223,16 +2293,6 @@
 			(type default)
 		)
 		(uuid "047272ad-7958-4cb1-aeef-3a61e43abdf2")
-	)
-	(wire
-		(pts
-			(xy 58.42 83.82) (xy 64.77 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "06c0050a-b10b-40e6-9f9f-95e7d833ef88")
 	)
 	(wire
 		(pts
@@ -2686,16 +2746,6 @@
 	)
 	(wire
 		(pts
-			(xy 64.77 83.82) (xy 64.77 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4b736ccb-dce6-438a-b60c-5df1129ab970")
-	)
-	(wire
-		(pts
 			(xy 166.37 55.88) (xy 166.37 63.5)
 		)
 		(stroke
@@ -2703,16 +2753,6 @@
 			(type default)
 		)
 		(uuid "53614ef8-fe30-48aa-b740-0d1c5b02b94f")
-	)
-	(wire
-		(pts
-			(xy 57.15 95.25) (xy 64.77 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "546bb277-4095-4ae8-a0bb-25626aa18956")
 	)
 	(wire
 		(pts
@@ -2763,16 +2803,6 @@
 			(type default)
 		)
 		(uuid "5b58fbfe-dcf2-414e-977e-ce00501fb576")
-	)
-	(wire
-		(pts
-			(xy 60.96 92.71) (xy 57.15 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5ced07f8-c002-4306-9311-e8f9ec6afb6a")
 	)
 	(wire
 		(pts
@@ -3283,16 +3313,6 @@
 			(type default)
 		)
 		(uuid "cadf8e39-747f-4a27-980b-0dab97478745")
-	)
-	(wire
-		(pts
-			(xy 60.96 81.28) (xy 60.96 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d04f767f-aa21-42cf-94ff-45f3ee255d70")
 	)
 	(wire
 		(pts
@@ -3857,7 +3877,7 @@
 					(unit 1)
 				)
 			)
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "R3")
 					(unit 1)
@@ -3930,7 +3950,7 @@
 					(unit 1)
 				)
 			)
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "R2")
 					(unit 1)
@@ -4066,7 +4086,7 @@
 			(uuid "5d58d993-c17b-4772-ac3b-fab3734267ba")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J7")
 					(unit 1)
@@ -4133,7 +4153,7 @@
 			(uuid "b8dd099d-dd65-489e-882e-ec314335ae7f")
 		)
 		(instances
-			(project ""
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "#PWR04")
 					(unit 1)
@@ -4216,7 +4236,7 @@
 			(uuid "9c22b39c-14b5-43c3-a617-539b3dfae55d")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J19")
 					(unit 1)
@@ -4418,7 +4438,7 @@
 			(uuid "4331a41f-bb51-4d9a-9b72-d0b690311a13")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "C3")
 					(unit 1)
@@ -4488,7 +4508,7 @@
 			(uuid "e982f627-f14a-4f00-8fe7-236da77a9fd4")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "C4")
 					(unit 1)
@@ -4623,7 +4643,7 @@
 			(uuid "6ad70c66-07b5-4b6c-9327-7a4fb1204435")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "C2")
 					(unit 1)
@@ -4692,7 +4712,7 @@
 			(uuid "6b5393e3-8755-446d-96e7-ed7f50dbab3d")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J5")
 					(unit 1)
@@ -4770,9 +4790,73 @@
 			(uuid "e8107ce4-30b6-4575-ab28-4dd226904f15")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J14")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 227.33 102.87 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "3ccac12c-0b04-4a4a-8526-47ed0bdfc1a4")
+		(property "Reference" "H1"
+			(at 229.87 101.5999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 229.87 104.1399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad"
+			(at 227.33 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 227.33 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 227.33 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "sub_board_V4"
+				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
+					(reference "H1")
 					(unit 1)
 				)
 			)
@@ -4843,7 +4927,7 @@
 					(unit 1)
 				)
 			)
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "R5")
 					(unit 1)
@@ -4920,76 +5004,6 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x02_Socket")
-		(at 52.07 95.25 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "54b6de5c-70f6-4228-959a-05b78dfa2683")
-		(property "Reference" "J9"
-			(at 52.705 87.884 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "Conn_01x02_Socket"
-			(at 52.705 90.424 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "Connector_AMASS:AMASS_XT30UPB-M_1x02_P5.0mm_Vertical"
-			(at 52.07 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 52.07 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 52.07 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "6200e971-c799-425c-a02c-982d8c36a478")
-		)
-		(pin "2"
-			(uuid "d7bf6e6f-431a-488f-8bd9-132cf74c62d4")
-		)
-		(instances
-			(project "SubBoard_V3"
-				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
-					(reference "J9")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:Conn_01x02_Socket")
 		(at 29.21 46.99 180)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5049,7 +5063,7 @@
 			(uuid "f8fe24e9-da79-47b2-a643-a222c9792d5c")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J6")
 					(unit 1)
@@ -5250,7 +5264,7 @@
 			(uuid "caa7d2b8-ce0c-4b08-90e5-8cd8d43bcbfe")
 		)
 		(instances
-			(project ""
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "#PWR023")
 					(unit 1)
@@ -5319,7 +5333,7 @@
 			(uuid "3b25a959-ddba-4f51-8d6d-cfa418defe07")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J2")
 					(unit 1)
@@ -5386,7 +5400,7 @@
 			(uuid "ef2477b7-9c6e-4463-a0d1-985c4fa72419")
 		)
 		(instances
-			(project ""
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "#PWR03")
 					(unit 1)
@@ -5456,7 +5470,7 @@
 			(uuid "161531d0-480f-4451-a1fa-004990b45e89")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "D1")
 					(unit 1)
@@ -5524,7 +5538,7 @@
 			(uuid "e2845354-60fb-4f1c-993e-688cf02c6d75")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J13")
 					(unit 1)
@@ -5675,7 +5689,7 @@
 			(uuid "796f4f24-7622-40e0-a3e2-5df1ca89ca13")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J18")
 					(unit 1)
@@ -5744,7 +5758,7 @@
 			(uuid "c2d05822-2008-4510-aaeb-b8900cc3ff57")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J8")
 					(unit 1)
@@ -5880,7 +5894,7 @@
 			(uuid "bd58f61a-5da0-4b59-86ab-05cf905a153f")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J10")
 					(unit 1)
@@ -5954,7 +5968,7 @@
 			(uuid "3b1565a2-ecab-4672-bb62-977f1f4d5f6b")
 		)
 		(instances
-			(project ""
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J11")
 					(unit 1)
@@ -6024,6 +6038,70 @@
 			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "#PWR018")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 227.33 113.03 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a9623dfe-745d-4db4-85c2-5953af5e785b")
+		(property "Reference" "H3"
+			(at 229.87 111.7599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 229.87 114.2999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad"
+			(at 227.33 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 227.33 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 227.33 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "sub_board_V4"
+				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
+					(reference "H3")
 					(unit 1)
 				)
 			)
@@ -6158,7 +6236,7 @@
 			(uuid "f3b9c09e-8195-44ce-82fc-72756e1ffe02")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "C1")
 					(unit 1)
@@ -6223,9 +6301,73 @@
 			(uuid "22ee03ab-5785-42bb-8666-181cbd860566")
 		)
 		(instances
-			(project ""
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "#FLG01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 227.33 118.11 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "af560e95-8cee-4b39-826a-110f2670034d")
+		(property "Reference" "H4"
+			(at 229.87 116.8399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 229.87 119.3799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad"
+			(at 227.33 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 227.33 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 227.33 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "sub_board_V4"
+				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
+					(reference "H4")
 					(unit 1)
 				)
 			)
@@ -6292,7 +6434,7 @@
 			(uuid "b11aa21a-cacb-4015-ae1a-10a6aa54c9f1")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J3")
 					(unit 1)
@@ -6495,7 +6637,7 @@
 			(uuid "e1e75fb7-7adb-4922-a8d5-0bc55fc02dcf")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J16")
 					(unit 1)
@@ -6772,6 +6914,70 @@
 		)
 	)
 	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 227.33 107.95 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d60f7c6c-6d93-42b9-89e4-e6ab71cb1188")
+		(property "Reference" "H2"
+			(at 229.87 106.6799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 229.87 109.2199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad"
+			(at 227.33 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 227.33 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 227.33 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "sub_board_V4"
+				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
+					(reference "H2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Connector:Conn_01x02_Socket")
 		(at 180.34 90.17 180)
 		(unit 1)
@@ -6900,7 +7106,7 @@
 			(uuid "a4abdae8-8ce9-43fc-8d4e-5b19defac7fd")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J12")
 					(unit 1)
@@ -7104,7 +7310,7 @@
 			(uuid "a81becb1-c96f-4361-bc35-6f37af1d38e2")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "D2")
 					(unit 1)
@@ -7173,7 +7379,7 @@
 			(uuid "5e89005f-b38e-42a7-897d-ea40447446dc")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J1")
 					(unit 1)
@@ -7314,7 +7520,7 @@
 					(unit 1)
 				)
 			)
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "R1")
 					(unit 1)
@@ -7392,7 +7598,7 @@
 			(uuid "7c1cc8a3-0bbb-4d75-8f0b-afbd9c28806b")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J15")
 					(unit 1)
@@ -7465,7 +7671,7 @@
 					(unit 1)
 				)
 			)
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "R4")
 					(unit 1)
@@ -7601,7 +7807,7 @@
 			(uuid "a243b97f-2680-4f09-b3e5-65d7ea2472df")
 		)
 		(instances
-			(project "SubBoard_V3"
+			(project "sub_board_V4"
 				(path "/f588d83c-66c1-45ba-96cd-d938f5aa02a1"
 					(reference "J4")
 					(unit 1)
