@@ -4,19 +4,22 @@
 #include "main.h"
 #include "tim.h"
 
-#define RED 0
-#define BLUE 1
+#define USER_LED_RED        1
+#define USER_LED_YELLOW     2
+#define USER_LED_BLUE       3
+#define USER_LED_GREEN      4
+#define CAN_LED             5
 
-#define FORWARD 0
-#define REVERSE 1
-#define BRAKE 2
-#define FET_DISABLE 3
+#define FORWARD         0
+#define REVERSE         1
+#define BRAKE           2
+#define FET_DISABLE     3
 
-#define HIGH 0
-#define LOW 1 
+#define HIGH    0
+#define LOW     1 
 
-#define DRV_ENABLE HAL_GPIO_WritePin(MD_nSEEP_GPIO_Port, MD_nSEEP_Pin, GPIO_PIN_SET)
-#define DRV_DISABLE HAL_GPIO_WritePin(MD_nSEEP_GPIO_Port, MD_nSEEP_Pin, GPIO_PIN_RESET)
+#define DRV_ENABLE HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET)
+#define DRV_DISABLE HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_RESET)
 
 #define PWM_TIM3_FRQ_MAX 1000
 #define PWM_TIM3_FRQ_MIN 1
