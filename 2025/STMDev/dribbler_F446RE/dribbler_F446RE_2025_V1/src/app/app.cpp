@@ -1,21 +1,31 @@
 #include "app.hpp"
 #include "adc.h"
 
-uint16_t adc_val[4];
+uint16_t adc_val_ch1[1];
+uint16_t adc_val_ch2[2];
+uint16_t adc_val_ch3[1];
 
 void Setup(void){
-  read_ADC();
+  HAL_ADC_Start(&hadc1);
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val_ch1,1);
+  for(uint8_t i = 0;i < 1;i++){
+    while(!(adc_val_ch1[i] > 0));
+  }
+  HAL_ADC_Start(&hadc2);
+  HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,2);
+  for(uint8_t i = 0;i < 2;i++){
+    while(!(adc_val_ch2[i] > 0));
+  }
+  HAL_ADC_Start(&hadc3);
+  HAL_ADC_Start_DMA(&hadc3,(uint32_t *)&adc_val_ch3,1);
+  for(uint8_t i = 0;i < 1;i++){
+    while(!(adc_val_ch3[i] > 0));
+  }
 }
 
 void MainLoop(){
   while(1){
-    printf("%d\n",(int)adc_val[0]);
     
-
-    //DRV_ENABLE;
-
-    //__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
-    //__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 1);
   }
 }
 
@@ -86,21 +96,4 @@ void Motor_Rotate_Control(uint8_t mode,uint16_t speed){
     default:
     break;
   }
-}
-
-void read_ADC(){
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val,4);
-  for(uint8_t i = 0;i < 4;i++){
-    while(!(adc_val[i] > 0));
-  }
-}
-
-int GET_Mootr_Current(){
-  int t = 0;
-    for(int i = 0;i < 50;i++){
-      HAL_Delay(1);
-      t += adc_val[1];
-    }
-    return t / 50;
 }
