@@ -45,23 +45,20 @@ void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, MD_nSEEP_Pin|LED_RED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, CAN_LED_Pin|ENC_POWER_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : LED_BLUE_Pin */
-  GPIO_InitStruct.Pin = LED_BLUE_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED_BLUE_GPIO_Port, &GPIO_InitStruct);
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, USER_LED4_Pin|USER_LED3_Pin|USER_LED2_Pin|USER_LED1_Pin
+                          |BS_LED_Pin|BS_OUT_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : USER_SW_Pin */
   GPIO_InitStruct.Pin = USER_SW_Pin;
@@ -69,12 +66,28 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USER_SW_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : MD_nSEEP_Pin LED_RED_Pin */
-  GPIO_InitStruct.Pin = MD_nSEEP_Pin|LED_RED_Pin;
+  /*Configure GPIO pin : MD_nSLEEP_Pin */
+  GPIO_InitStruct.Pin = MD_nSLEEP_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(MD_nSLEEP_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : CAN_LED_Pin ENC_POWER_Pin */
+  GPIO_InitStruct.Pin = CAN_LED_Pin|ENC_POWER_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : USER_LED4_Pin USER_LED3_Pin USER_LED2_Pin USER_LED1_Pin
+                           BS_LED_Pin BS_OUT_Pin */
+  GPIO_InitStruct.Pin = USER_LED4_Pin|USER_LED3_Pin|USER_LED2_Pin|USER_LED1_Pin
+                          |BS_LED_Pin|BS_OUT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
 }
 
