@@ -3799,7 +3799,7 @@
 				)
 			)
 		)
-		(property "Value" "20k"
+		(property "Value" "10k"
 			(at 202.438 30.48 90)
 			(effects
 				(font
@@ -3872,7 +3872,7 @@
 				)
 			)
 		)
-		(property "Value" "20k"
+		(property "Value" "2.2k"
 			(at 109.22 160.528 90)
 			(effects
 				(font
@@ -5386,10 +5386,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "71fe3667-8146-4896-8ae8-c01bc2f2e03e")
 		(property "Reference" "D1"
-			(at 209.296 39.6875 90)
+			(at 209.55 39.6874 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5397,8 +5396,8 @@
 				(justify right)
 			)
 		)
-		(property "Value" "LED"
-			(at 209.296 42.2275 90)
+		(property "Value" "LED_Red"
+			(at 197.104 42.164 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7228,7 +7227,7 @@
 		(fields_autoplaced yes)
 		(uuid "dd8ca564-9151-4eb0-9352-2c3253e98934")
 		(property "Reference" "D2"
-			(at 219.202 39.6875 90)
+			(at 219.71 39.6874 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7236,8 +7235,8 @@
 				(justify right)
 			)
 		)
-		(property "Value" "LED"
-			(at 219.202 42.2275 90)
+		(property "Value" "LED_Blue"
+			(at 219.71 42.2274 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7592,7 +7591,7 @@
 				)
 			)
 		)
-		(property "Value" "2k"
+		(property "Value" "2.2k"
 			(at 212.598 30.48 90)
 			(effects
 				(font
