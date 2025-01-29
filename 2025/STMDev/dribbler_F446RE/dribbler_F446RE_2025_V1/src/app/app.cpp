@@ -3,37 +3,32 @@
 
 uint16_t adc_val_ch2[4];
 
+uint16_t motor_max_speed = 0;
+uint16_t motor_min_speed = 0;
+ 
 void Setup(void){
+  //ADC initialization
   HAL_ADC_Start(&hadc2);
   HAL_Delay(50);  //Do not delete this delay!!
   HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
   for(uint8_t i = 0;i < 4;i++){
     while(!(adc_val_ch2[i] > 0));
   }
-  // Set_LED(USER_LED_BLUE,HIGH);
-  // Set_LED(USER_LED_GREEN,HIGH);
-  // Set_LED(USER_LED_YELLOW,HIGH);
-  // Set_LED(USER_LED_RED,HIGH);
-}
 
-void MainLoop(){
-  while(1){
-    DRV_ENABLE;
-    Motor_Rotate_Control(FORWARD,70);
-    HAL_Delay(300);
-    Motor_Rotate_Control(BRAKE,0);
-    HAL_Delay(100);
-    Motor_Rotate_Control(REVERSE,70);
-    HAL_Delay(300);
-    Motor_Rotate_Control(BRAKE,0);
-    HAL_Delay(100);
-    //Motor_Rotate_Control(REVERSE,50);
-    //HAL_Delay(50);
+  //Motor initialization
+  int motor_cullent_init = 0;
+  for(;;){
 
   }
 }
 
-void Set_LED(uint8_t coller,uint8_t status){
+void MainLoop(){
+  while(1){
+    
+  }
+}
+
+void Set_LED(int coller,int status){
   switch(coller){
     case USER_LED_RED:
       if(status == HIGH){
@@ -75,27 +70,47 @@ void Set_LED(uint8_t coller,uint8_t status){
   }
 }
 
-void Motor_Rotate_Control(uint8_t mode,uint16_t speed){
+void Motor_Rotate(int mode,int speed){
+  int correction_speed = map(speed,motor_min_speed,motor_max_speed,PWM_TIM3_FRQ_MIN,PWM_TIM3_FRQ_MAX);
   switch(mode){
     case FORWARD:
-      DRV_ENABLE;
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, map(speed,1,100,PWM_TIM3_FRQ_MIN,PWM_TIM3_FRQ_MAX));
+      DRV_Control(MD_ENABLE);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, correction_speed);
       __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MIN);
     break;
     case REVERSE:
-      DRV_ENABLE;
+      DRV_Control(MD_ENABLE);
       __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MIN);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, map(speed,1,100,PWM_TIM3_FRQ_MIN,PWM_TIM3_FRQ_MAX));
-    break;
-    case BRAKE:
-      DRV_ENABLE;
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MAX);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MAX);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, correction_speed);
     break;
     case FET_DISABLE:
-      DRV_ENABLE;
+      DRV_Control(MD_ENABLE);
       __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MIN);
       __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MIN);
+    break;
+    default:
+    break;
+  }
+}
+
+void Motor_Brake(){
+  DRV_Control(MD_ENABLE);
+  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MAX);
+  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MAX);
+}
+
+void DRV_Control(int mode){
+  switch(mode){
+    case FET_DISABLE:
+      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MIN);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MIN);
+    break;
+    case MD_ENABLE:
+      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
+    break;
+    case MD_DISABLE:
+      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_RESET);
     break;
     default:
     break;

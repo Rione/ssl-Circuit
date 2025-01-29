@@ -14,12 +14,11 @@
 #define REVERSE         1
 #define BRAKE           2
 #define FET_DISABLE     3
+#define MD_ENABLE       4
+#define MD_DISABLE      5
 
 #define HIGH    0
 #define LOW     1 
-
-#define DRV_ENABLE HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET)
-#define DRV_DISABLE HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_RESET)
 
 #define PWM_TIM3_FRQ_MAX 800
 #define PWM_TIM3_FRQ_MIN 1
@@ -34,8 +33,11 @@ extern "C" {
 
 void Setup(void);
 void MainLoop(void);
-void Set_LED(uint8_t,uint8_t);
-void Motor_Rotate_Control(uint8_t,uint16_t);
+void Set_LED(int,int);
+void Motor_Rotate(int,int);
+void Motor_Brake();
+void DRV_Control(int);
+
 
 #ifdef __cplusplus
 }
