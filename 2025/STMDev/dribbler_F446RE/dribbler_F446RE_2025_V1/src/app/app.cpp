@@ -1,31 +1,35 @@
 #include "app.hpp"
 #include "adc.h"
 
-uint16_t adc_val_ch1[1];
-uint16_t adc_val_ch2[2];
-uint16_t adc_val_ch3[1];
+uint16_t adc_val_ch2[4];
 
 void Setup(void){
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val_ch1,1);
-  for(uint8_t i = 0;i < 1;i++){
-    while(!(adc_val_ch1[i] > 0));
-  }
   HAL_ADC_Start(&hadc2);
-  HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,2);
-  for(uint8_t i = 0;i < 2;i++){
+  HAL_Delay(50);  //Do not delete this delay!!
+  HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
+  for(uint8_t i = 0;i < 4;i++){
     while(!(adc_val_ch2[i] > 0));
   }
-  HAL_ADC_Start(&hadc3);
-  HAL_ADC_Start_DMA(&hadc3,(uint32_t *)&adc_val_ch3,1);
-  for(uint8_t i = 0;i < 1;i++){
-    while(!(adc_val_ch3[i] > 0));
-  }
+  // Set_LED(USER_LED_BLUE,HIGH);
+  // Set_LED(USER_LED_GREEN,HIGH);
+  // Set_LED(USER_LED_YELLOW,HIGH);
+  // Set_LED(USER_LED_RED,HIGH);
 }
 
 void MainLoop(){
   while(1){
-    
+    DRV_ENABLE;
+    Motor_Rotate_Control(FORWARD,70);
+    HAL_Delay(300);
+    Motor_Rotate_Control(BRAKE,0);
+    HAL_Delay(100);
+    Motor_Rotate_Control(REVERSE,70);
+    HAL_Delay(300);
+    Motor_Rotate_Control(BRAKE,0);
+    HAL_Delay(100);
+    //Motor_Rotate_Control(REVERSE,50);
+    //HAL_Delay(50);
+
   }
 }
 
