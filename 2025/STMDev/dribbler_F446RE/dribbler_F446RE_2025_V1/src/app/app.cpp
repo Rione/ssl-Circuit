@@ -1,7 +1,7 @@
 #include "app.hpp"
 #include "adc.h"
 #include "config.h"
-//#include "CAN.hpp"
+#include "CAN.hpp"
 
 uint16_t adc_val_ch2[4];
 
@@ -15,30 +15,27 @@ uint16_t motor_min_speed = 0;
 void Setup(void){
   //ADC initialization
   HAL_ADC_Start(&hadc2);
-  HAL_Delay(50);  //Do not delete this delay!!
   HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
   for(uint8_t i = 0;i < 4;i++){
     while(!(adc_val_ch2[i] > 0));
   }
 
 
-    int p = 0;
-    printf("%d\n",p);
+
+  int p = 0;
+  printf("%d\n",p);
 
   //Motor initialization
-  // Set_LED(USER_LED_GREEN,HIGH);
-  // Set_LED(USER_LED_BLUE,HIGH);
-  // Set_LED(USER_LED_RED,HIGH);
-  // Set_LED(USER_LED_YELLOW,HIGH);
+  Set_LED(USER_LED_GREEN,HIGH);
+  Set_LED(USER_LED_BLUE,HIGH);
+  Set_LED(USER_LED_RED,HIGH);
+  Set_LED(USER_LED_YELLOW,HIGH);
+  Set_LED(CAN_LED,HIGH);
 
-  HAL_GPIO_WritePin(test_GPIO_Port, test_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(test2_GPIO_Port, test2_Pin, GPIO_PIN_SET);
-  
 }
 
 void MainLoop(){
   while(1){
-    Set_LED(USER_LED_YELLOW,LOW);
     // uint16_t thr = 750;
     // CANBus::CANData data = {
     //     .stdId = 0x09,
@@ -48,13 +45,19 @@ void MainLoop(){
     //     },
     // };
     // can.send(data);
-    int p = 0;
-    //printf("aa\n");
 
-    HAL_Delay(100);
+    printf("aa\n");
 
-    Set_LED(USER_LED_YELLOW,HIGH);
-    HAL_Delay(100);
+    Motor_Rotate(FORWARD,70);
+    HAL_Delay(500);
+    Motor_Brake();
+    HAL_Delay(500);
+    Motor_Rotate(REVERSE,70);
+    HAL_Delay(500);
+    Motor_Brake();
+    HAL_Delay(500);
+
+
   }
 }
 

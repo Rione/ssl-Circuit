@@ -22,6 +22,7 @@
 #include "can.h"
 #include "dma.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -59,10 +60,10 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-// int _write(int file,char* ptr,int len){
-//   HAL_UART_Transmit(&huart1,(uint8_t*)ptr,len,100);
-//   return len;
-// }
+int _write(int file,char* ptr,int len){
+  HAL_UART_Transmit(&huart1,(uint8_t*)ptr,len,100);
+  return len;
+}
 /* USER CODE END 0 */
 
 /**
@@ -98,6 +99,7 @@ int main(void)
   MX_TIM3_Init();
   MX_ADC2_Init();
   MX_CAN1_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);

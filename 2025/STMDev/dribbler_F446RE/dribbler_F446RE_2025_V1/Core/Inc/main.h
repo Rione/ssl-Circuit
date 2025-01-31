@@ -83,10 +83,6 @@ void Error_Handler(void);
 #define USER_LED2_GPIO_Port GPIOC
 #define USER_LED1_Pin GPIO_PIN_9
 #define USER_LED1_GPIO_Port GPIOC
-#define test2_Pin GPIO_PIN_9
-#define test2_GPIO_Port GPIOA
-#define test_Pin GPIO_PIN_10
-#define test_GPIO_Port GPIOA
 #define BS_LED_Pin GPIO_PIN_11
 #define BS_LED_GPIO_Port GPIOC
 #define BS_OUT_Pin GPIO_PIN_12
