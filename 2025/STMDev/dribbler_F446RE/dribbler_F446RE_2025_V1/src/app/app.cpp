@@ -5,7 +5,7 @@
 
 uint16_t adc_val_ch2[4];
 
-uint16_t motor_max_speed = 0;
+uint16_t motor_max_speed = 100;
 uint16_t motor_min_speed = 0;
 
 // CANBus::CANData canRecvData;
@@ -13,23 +13,32 @@ uint16_t motor_min_speed = 0;
 // CANBus can = CANBus(&hcan1, 0);
 
 void Setup(void){
+  Set_LED(USER_LED_RED,HIGH);
+  HAL_Delay(500);
+  Set_LED(USER_LED_RED,HIGH);
   //ADC initialization
+  Set_LED(USER_LED_RED,HIGH);
   HAL_ADC_Start(&hadc2);
+  HAL_Delay(1000);
+  Set_LED(USER_LED_YELLOW,HIGH);
   HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
+  HAL_Delay(1000);
+  Set_LED(USER_LED_GREEN,HIGH);
   for(uint8_t i = 0;i < 4;i++){
     while(!(adc_val_ch2[i] > 0));
+    HAL_Delay(50);
   }
-
-
-
-  int p = 0;
-  printf("%d\n",p);
+  HAL_Delay(1000);
+  
+  Set_LED(USER_LED_BLUE,HIGH);
+  HAL_Delay(500);
+  printf("init acomplished\n");
 
   //Motor initialization
-  Set_LED(USER_LED_GREEN,HIGH);
-  Set_LED(USER_LED_BLUE,HIGH);
-  Set_LED(USER_LED_RED,HIGH);
-  Set_LED(USER_LED_YELLOW,HIGH);
+  //Set_LED(USER_LED_GREEN,HIGH);
+  //Set_LED(USER_LED_BLUE,HIGH);
+  //Set_LED(USER_LED_RED,HIGH);
+  //Set_LED(USER_LED_YELLOW,HIGH);
   Set_LED(CAN_LED,HIGH);
 
 }
@@ -46,16 +55,14 @@ void MainLoop(){
     // };
     // can.send(data);
 
-    printf("aa\n");
-
     Motor_Rotate(FORWARD,70);
-    HAL_Delay(500);
+    HAL_Delay(100);
     Motor_Brake();
-    HAL_Delay(500);
+    HAL_Delay(100);
     Motor_Rotate(REVERSE,70);
-    HAL_Delay(500);
+    HAL_Delay(100);
     Motor_Brake();
-    HAL_Delay(500);
+    HAL_Delay(100);
 
 
   }
