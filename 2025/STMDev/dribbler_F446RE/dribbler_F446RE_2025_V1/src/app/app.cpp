@@ -42,7 +42,67 @@ class Motor_Control {
     };
 };
 
+class LED_Control {
+  public:
+    void RED(int status){
+      if(status == HIGH){
+        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_SET);
+      } else if(status == LOW){
+        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_RESET);
+      }
+    };
+
+    void YELLOW(int status) {
+      if(status == HIGH){
+        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_SET);
+      } else if(status == LOW){
+        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_RESET);
+      }
+    };
+
+    void BLUE(int status){
+      if(status == HIGH){
+        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_SET);
+      } else if(status == LOW){
+        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_RESET);
+      }
+    };
+
+    void GREEN(int status){
+      if(status == HIGH){
+        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_SET);
+      } else if(status == LOW){
+        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_RESET);
+      }
+    };
+
+    void CAN_LED(int status){
+      if(status == HIGH){
+        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_SET);
+      } else if(status == LOW){
+        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_RESET);
+      }
+    };
+
+    void ALL_Control(int status){
+      if(status == HIGH){
+        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_SET);
+      } else if(status == LOW){
+        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_RESET);
+      }
+    };
+};
+
 Motor_Control Main_motor;
+LED_Control Set_LED;
 
 void Setup(void){
   HAL_Delay(500);
@@ -51,108 +111,70 @@ void Setup(void){
 
 void MainLoop(){
   while(1){
-    uint16_t thr = 750;
-    CANBus::CANData data = {
-        .stdId = 0x09,
-        .data = {
-            (uint8_t)(thr & 0xFF),
-            (uint8_t)((thr >> 8) & 0xFF),
-        },
-    };
-    can.send(data);
+    // uint16_t thr = 750;
+    // CANBus::CANData data = {
+    //     .stdId = 0x09,
+    //     .data = {
+    //         (uint8_t)(thr & 0xFF),
+    //         (uint8_t)((thr >> 8) & 0xFF),
+    //     },
+    // };
+    // can.send(data);
 
-    printf("in\n");
+    // printf("in\n");
 
-    Set_LED(USER_LED_GREEN,HIGH);
+    Set_LED.ALL_Control(HIGH);
 
-    Main_motor.Forward(70);
-    HAL_Delay(100);
+    Main_motor.Forward(100);
+    HAL_Delay(200);
     Main_motor.Brake();
-    HAL_Delay(100);
-    Main_motor.Reverse(70);
-    HAL_Delay(100);
+    HAL_Delay(200);
+    Main_motor.Reverse(100);
+    HAL_Delay(200);
     Main_motor.Brake();
-    HAL_Delay(100);
-  }
-}
+    HAL_Delay(200);
 
-void Set_LED(int coller,int status){
-  switch(coller){
-    case USER_LED_RED:
-      if(status == HIGH){
-        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_RESET);
-      }
-    break;
-    case USER_LED_YELLOW:
-      if(status == HIGH){
-        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_RESET);
-      }
-    break;
-    case USER_LED_BLUE:
-      if(status == HIGH){
-        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_RESET);
-      }
-    break;
-    case USER_LED_GREEN:
-      if(status == HIGH){
-        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_RESET);
-      }
-    break;
-    case CAN_LED:
-      if(status == HIGH){
-        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_RESET);
-      }
-    break;
-    default: 
-    break;
+    for(int i = 0;i < 4;i++){
+      printf("%d  ",(int)adc_val_ch2[i]);
+    }
+    printf("\n");
   }
 }
 
 void ADC_setup(){
-
   //ADC initialization
 
   printf("\n");
 
   printf("*** Start Initalization ***\n");
-  Set_LED(USER_LED_RED,HIGH);
+  Set_LED.RED(HIGH);
   HAL_Delay(1000);
-  Set_LED(USER_LED_RED,LOW);
+  Set_LED.RED(LOW);
 
   printf("HAL_ADC_Start ---- ");
-  Set_LED(USER_LED_BLUE,HIGH);
+  Set_LED.BLUE(HIGH);
   HAL_ADC_Start(&hadc2);
   printf("Success!\n");
   HAL_Delay(1000);
-  Set_LED(USER_LED_BLUE,LOW);
+  Set_LED.BLUE(LOW);
 
   printf("HAL_ADC_Start_DMA ---- ");
-  Set_LED(USER_LED_GREEN,HIGH);
+  Set_LED.GREEN(HIGH);
   HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
   printf("Success!\n");
   HAL_Delay(1000);
-  Set_LED(USER_LED_GREEN,LOW);
+  Set_LED.GREEN(LOW);
 
   for(uint8_t i = 0;i < 4;i++){
     int continue_num = 0;
     printf("Check_ADC_Val_%d ---- ",i + 1);
-    Set_LED(USER_LED_YELLOW,HIGH);
+    Set_LED.YELLOW(HIGH);
     while(!(adc_val_ch2[i] > 0)){
       continue_num ++;
       if(continue_num > 50){
         continue_num = 0;
 
-        Set_LED(USER_LED_RED,HIGH);
+        Set_LED.RED(HIGH);
         HAL_Delay(100);
         printf("FAIL!\n");
         printf("-- Restart_HAL_initialization\n");
@@ -169,12 +191,12 @@ void ADC_setup(){
 
         printf("Recheck_ADC_Val_%d ---- ",i + 1);
         HAL_Delay(100);
-        Set_LED(USER_LED_RED,LOW);
+        Set_LED.RED(LOW);
       }
     }
     printf("Success!\n");
     HAL_Delay(100);
-    Set_LED(USER_LED_YELLOW,LOW);
+    Set_LED.YELLOW(LOW);
   }
 
   printf("*** Initalization Acomplished ***\n\n");

@@ -5,12 +5,6 @@
 #include "tim.h"
 #include "CAN.hpp"
 
-#define USER_LED_RED        1
-#define USER_LED_YELLOW     2
-#define USER_LED_BLUE       3
-#define USER_LED_GREEN      4
-#define CAN_LED             5
-
 #define HIGH    0
 #define LOW     1 
 
@@ -27,7 +21,7 @@ extern "C" {
 
 void Setup(void);
 void MainLoop(void);
-void Set_LED(int,int);
+
 void ADC_setup();
 
 #ifdef __cplusplus
