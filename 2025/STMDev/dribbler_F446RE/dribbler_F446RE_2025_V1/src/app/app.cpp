@@ -1,70 +1,78 @@
 #include "app.hpp"
 #include "adc.h"
 #include "config.h"
-#include "CAN.hpp"
 
 uint16_t adc_val_ch2[4];
 
-uint16_t motor_max_speed = 100;
-uint16_t motor_min_speed = 0;
+CANBus can = CANBus(&hcan1, 0);
+CANBus::CANData canRecvData;
 
-// CANBus::CANData canRecvData;
+class Motor_Control {
+  public:      
+    void Reverse(int speed){
+      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MIN);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, map(speed, 1, 100, PWM_TIM3_FRQ_MIN, PWM_TIM3_FRQ_MAX));
+    };
 
-// CANBus can = CANBus(&hcan1, 0);
+    void Forward(int speed){
+      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, map(speed, 1, 100, PWM_TIM3_FRQ_MIN, PWM_TIM3_FRQ_MAX));
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MIN);
+    };
+
+    void Brake(){
+      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MAX);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MAX);
+    };
+
+    void FET_DISABLE(){
+      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MIN);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MIN);
+    };
+
+    void ENABLE(){
+      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
+    };
+
+    void DISABLE(){
+      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_RESET);
+    };
+};
+
+Motor_Control Main_motor;
 
 void Setup(void){
-  Set_LED(USER_LED_RED,HIGH);
   HAL_Delay(500);
-  Set_LED(USER_LED_RED,HIGH);
-  //ADC initialization
-  Set_LED(USER_LED_RED,HIGH);
-  HAL_ADC_Start(&hadc2);
-  HAL_Delay(1000);
-  Set_LED(USER_LED_YELLOW,HIGH);
-  HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
-  HAL_Delay(1000);
-  Set_LED(USER_LED_GREEN,HIGH);
-  for(uint8_t i = 0;i < 4;i++){
-    while(!(adc_val_ch2[i] > 0));
-    HAL_Delay(50);
-  }
-  HAL_Delay(1000);
-  
-  Set_LED(USER_LED_BLUE,HIGH);
-  HAL_Delay(500);
-  printf("init acomplished\n");
-
-  //Motor initialization
-  //Set_LED(USER_LED_GREEN,HIGH);
-  //Set_LED(USER_LED_BLUE,HIGH);
-  //Set_LED(USER_LED_RED,HIGH);
-  //Set_LED(USER_LED_YELLOW,HIGH);
-  Set_LED(CAN_LED,HIGH);
-
+  ADC_setup();
 }
 
 void MainLoop(){
   while(1){
-    // uint16_t thr = 750;
-    // CANBus::CANData data = {
-    //     .stdId = 0x09,
-    //     .data = {
-    //         (uint8_t)(thr & 0xFF),
-    //         (uint8_t)((thr >> 8) & 0xFF),
-    //     },
-    // };
-    // can.send(data);
+    uint16_t thr = 750;
+    CANBus::CANData data = {
+        .stdId = 0x09,
+        .data = {
+            (uint8_t)(thr & 0xFF),
+            (uint8_t)((thr >> 8) & 0xFF),
+        },
+    };
+    can.send(data);
 
-    Motor_Rotate(FORWARD,70);
-    HAL_Delay(100);
-    Motor_Brake();
-    HAL_Delay(100);
-    Motor_Rotate(REVERSE,70);
-    HAL_Delay(100);
-    Motor_Brake();
-    HAL_Delay(100);
+    printf("in\n");
 
+    Set_LED(USER_LED_GREEN,HIGH);
 
+    Main_motor.Forward(70);
+    HAL_Delay(100);
+    Main_motor.Brake();
+    HAL_Delay(100);
+    Main_motor.Reverse(70);
+    HAL_Delay(100);
+    Main_motor.Brake();
+    HAL_Delay(100);
   }
 }
 
@@ -84,14 +92,14 @@ void Set_LED(int coller,int status){
         HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_RESET);
       }
     break;
-    case USER_LED_GREEN:
+    case USER_LED_BLUE:
       if(status == HIGH){
         HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_SET);
       } else if(status == LOW){
         HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_RESET);
       }
     break;
-    case USER_LED_BLUE:
+    case USER_LED_GREEN:
       if(status == HIGH){
         HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_SET);
       } else if(status == LOW){
@@ -110,49 +118,66 @@ void Set_LED(int coller,int status){
   }
 }
 
-void Motor_Rotate(int mode,int speed){
-  int correction_speed = map(speed,motor_min_speed,motor_max_speed,PWM_TIM3_FRQ_MIN,PWM_TIM3_FRQ_MAX);
-  switch(mode){
-    case FORWARD:
-      DRV_Control(MD_ENABLE);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, correction_speed);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MIN);
-    break;
-    case REVERSE:
-      DRV_Control(MD_ENABLE);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MIN);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, correction_speed);
-    break;
-    case FET_DISABLE:
-      DRV_Control(MD_ENABLE);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MIN);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MIN);
-    break;
-    default:
-    break;
+void ADC_setup(){
+
+  //ADC initialization
+
+  printf("\n");
+
+  printf("*** Start Initalization ***\n");
+  Set_LED(USER_LED_RED,HIGH);
+  HAL_Delay(1000);
+  Set_LED(USER_LED_RED,LOW);
+
+  printf("HAL_ADC_Start ---- ");
+  Set_LED(USER_LED_BLUE,HIGH);
+  HAL_ADC_Start(&hadc2);
+  printf("Success!\n");
+  HAL_Delay(1000);
+  Set_LED(USER_LED_BLUE,LOW);
+
+  printf("HAL_ADC_Start_DMA ---- ");
+  Set_LED(USER_LED_GREEN,HIGH);
+  HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
+  printf("Success!\n");
+  HAL_Delay(1000);
+  Set_LED(USER_LED_GREEN,LOW);
+
+  for(uint8_t i = 0;i < 4;i++){
+    int continue_num = 0;
+    printf("Check_ADC_Val_%d ---- ",i + 1);
+    Set_LED(USER_LED_YELLOW,HIGH);
+    while(!(adc_val_ch2[i] > 0)){
+      continue_num ++;
+      if(continue_num > 50){
+        continue_num = 0;
+
+        Set_LED(USER_LED_RED,HIGH);
+        HAL_Delay(100);
+        printf("FAIL!\n");
+        printf("-- Restart_HAL_initialization\n");
+
+        printf("-- HAL_ADC_Restart ---- ");
+        HAL_Delay(100);
+        HAL_ADC_Start(&hadc2);
+        printf("Success!\n");
+
+        printf("-- HAL_ADC_Restart_DMA ---- ");
+        HAL_Delay(100);
+        HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
+        printf("Success!\n");
+
+        printf("Recheck_ADC_Val_%d ---- ",i + 1);
+        HAL_Delay(100);
+        Set_LED(USER_LED_RED,LOW);
+      }
+    }
+    printf("Success!\n");
+    HAL_Delay(100);
+    Set_LED(USER_LED_YELLOW,LOW);
   }
+
+  printf("*** Initalization Acomplished ***\n\n");
 }
 
-void Motor_Brake(){
-  DRV_Control(MD_ENABLE);
-  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MAX);
-  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MAX);
-}
 
-void DRV_Control(int mode){
-  switch(mode){
-    case FET_DISABLE:
-      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MIN);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MIN);
-    break;
-    case MD_ENABLE:
-      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
-    break;
-    case MD_DISABLE:
-      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_RESET);
-    break;
-    default:
-    break;
-  }
-}
