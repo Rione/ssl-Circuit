@@ -64,6 +64,16 @@ int _write(int file,char* ptr,int len){
   HAL_UART_Transmit(&huart1,(uint8_t*)ptr,len,100);
   return len;
 }
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+  if (htim == &htim6){
+    Interrupt_Processing_f10ms();
+  }
+  if (htim == &htim7){
+    Interrupt_Processing_f100ns();
+  }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -97,12 +107,16 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_TIM3_Init();
-  MX_ADC2_Init();
   MX_CAN1_Init();
   MX_USART1_UART_Init();
+  MX_TIM6_Init();
+  MX_TIM7_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+  HAL_TIM_Base_Start_IT(&htim6);
+  HAL_TIM_Base_Start_IT(&htim7);
 
   Setup();
   /* USER CODE END 2 */

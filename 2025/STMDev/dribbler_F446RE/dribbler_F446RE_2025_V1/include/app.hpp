@@ -16,6 +16,8 @@
 #define ENC2_VAL        2
 #define BALL_SENSOR_VAL 3
 
+#define ADC_CONTINUE_NUM 5
+
 #define DRV_MIN_CURRENT 47
 #define DRV_MIN_CURRENT_MINUS_RANGE 10
 
@@ -32,6 +34,8 @@ void MainLoop(void);
 
 void ADC_Setup();
 void DRV_Setup();
+void Interrupt_Processing_f10ms();
+void Interrupt_Processing_f100ns();
 
 #ifdef __cplusplus
 }

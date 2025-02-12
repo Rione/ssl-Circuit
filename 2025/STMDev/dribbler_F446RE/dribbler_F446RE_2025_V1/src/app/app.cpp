@@ -2,7 +2,8 @@
 #include "adc.h"
 #include "config.h"
 
-uint16_t adc_val_ch2[4];
+uint16_t adc_val_ch1[4];
+uint16_t sw_val = 0;
 
 CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
@@ -128,25 +129,8 @@ void MainLoop(){
     //     },
     // };
     // can.send(data);
-
-    // printf("in\n");
-
-    
-
-    Main_motor.Forward(50);
-    // HAL_Delay(50);
-    // Main_motor.Brake();
-    // HAL_Delay(200);
-    // Main_motor.Reverse(100);
-    // HAL_Delay(200);
-    // Main_motor.Brake();
-    // HAL_Delay(200);
-    int val = 0;
-    for(int i = 0;i < 100;i++){
-      val += adc_val_ch2[0];
-      HAL_Delay(1);
-    }
-    printf("%d\n",val / 100);
+    Set_LED.GREEN(HIGH);
+    HAL_Delay(500);
   }
 }
 
@@ -159,14 +143,14 @@ void ADC_Setup(){
 
   printf("HAL_ADC_Start ---- ");
   Set_LED.BLUE(HIGH);
-  HAL_ADC_Start(&hadc2);
+  HAL_ADC_Start(&hadc1);
   printf("Success!\n");
   HAL_Delay(500);
   Set_LED.BLUE(LOW);
 
   printf("HAL_ADC_Start_DMA ---- ");
   Set_LED.GREEN(HIGH);
-  HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val_ch1,4);
   printf("Success!\n");
   HAL_Delay(500);
   Set_LED.GREEN(LOW);
@@ -175,31 +159,31 @@ void ADC_Setup(){
     int continue_num = 0;
     printf("Check_ADC_Val_%d ---- ",i + 1);
     Set_LED.YELLOW(HIGH);
-    while(!(adc_val_ch2[i] > 0)){
-      continue_num ++;
-      if(continue_num > 50){
-        continue_num = 0;
-
-        Set_LED.RED(HIGH);
-        HAL_Delay(100);
-        printf("FAIL!\n");
-        printf("-- Restart_HAL_initialization\n");
-
-        printf("-- HAL_ADC_Restart ---- ");
-        HAL_Delay(100);
-        HAL_ADC_Start(&hadc2);
-        printf("Success!\n");
-
-        printf("-- HAL_ADC_Restart_DMA ---- ");
-        HAL_Delay(100);
-        HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
-        printf("Success!\n");
-
-        printf("Recheck_ADC_Val_%d ---- ",i + 1);
-        HAL_Delay(100);
-        Set_LED.RED(LOW);
-
-        HAL_Delay(1000);
+    for(int j = 0;j < ADC_CONTINUE_NUM;j++){
+      while(!(adc_val_ch1[i] > 0)){
+        continue_num ++;
+        if(continue_num > 50){
+          continue_num = 0;
+  
+          Set_LED.RED(HIGH);
+          HAL_Delay(100);
+          printf("FAIL!\n");
+          printf("-- Restart_HAL_initialization\n");
+  
+          printf("-- HAL_ADC_Restart ---- ");
+          HAL_Delay(100);
+          HAL_ADC_Start(&hadc1);
+          printf("Success!\n");
+  
+          printf("-- HAL_ADC_Restart_DMA ---- ");
+          HAL_Delay(100);
+          HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val_ch1,4);
+          printf("Success!\n");
+  
+          printf("Recheck_ADC_Val_%d ---- ",i + 1);
+          HAL_Delay(100);
+          Set_LED.RED(LOW);
+        }
       }
     }
     printf("Success!\n");
@@ -218,6 +202,7 @@ void DRV_Setup(){
   Set_LED.CAN_LED(HIGH);
 
   printf("*** Start Main Power Supply Check ***\n");
+  printf("Main Power Supply ---- ");
   Set_LED.BLUE(HIGH);
 
   Main_motor.ENABLE();
@@ -226,27 +211,38 @@ void DRV_Setup(){
   int current = 0;
   for(int i = 0;i < 50;i++){
     HAL_Delay(10);
-    current += adc_val_ch2[MOTOR_CURRENT];
+    current += adc_val_ch1[MOTOR_CURRENT];
   } 
   if((current / 50) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
     current = 0;
+    printf("Confirm!\n");
     printf("Main Power Supply Is Operating Normally\n");
   } else {
-    printf("CAUSION : Main Power Supply Is Too LOW\n");
+    printf("Unconfirm!\n");
+    printf("-- CAUSION : Main Power Supply Is Too LOW\n");
     printf("-- Cancel Causion or Conect Power Supply\n");
+    printf("Recheck Main Power Supply ---- ");
     Set_LED.RED(HIGH);
-    do{
+    for(;;){
       current = 0;
       for(int i = 0;i < 10;i++){
         HAL_Delay(5);
-        current += adc_val_ch2[MOTOR_CURRENT];
+        current += adc_val_ch1[MOTOR_CURRENT];
       } 
-    } while((current / 10) < DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE);
+      if((current / 10) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
+        printf("Confirm!\n");
+        printf("Main Power Supply Is Operating Normally\n");
+        break;
+      }
+      if(sw_val == 0){
+        printf("Unconfirm!\n");
+        printf("-- Confirm Cancel Causion\n");
+        break;
+      }
+    }
     Set_LED.RED(LOW);
-    printf("-- Confirm Main Power Supply\n");
-    printf("Main Power Supply Is Operating Normally\n");
-    //add extra code
   }
+
   HAL_Delay(500);
   Main_motor.Brake();
   Main_motor.DISABLE();
@@ -255,3 +251,16 @@ void DRV_Setup(){
   Set_LED.CAN_LED(LOW);
   HAL_Delay(500);
 }
+
+void Interrupt_Processing_f10ms(){
+  //Control User Switch 
+  sw_val = HAL_GPIO_ReadPin(USER_SW_GPIO_Port,USER_SW_Pin);
+}
+
+void Interrupt_Processing_f100ns(){
+  //extra code
+}
+
+
+
+
