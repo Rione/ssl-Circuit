@@ -129,8 +129,16 @@ void MainLoop(){
     //     },
     // };
     // can.send(data);
-    Set_LED.GREEN(HIGH);
-    HAL_Delay(500);
+
+    int t = 200;
+    Main_motor.Forward(80);
+    HAL_Delay(t);
+    Main_motor.Brake();
+    HAL_Delay(t);
+    Main_motor.Reverse(80);
+    HAL_Delay(t);
+    Main_motor.Brake();
+    HAL_Delay(t);
   }
 }
 
@@ -220,7 +228,7 @@ void DRV_Setup(){
   } else {
     printf("Unconfirm!\n");
     printf("-- CAUSION : Main Power Supply Is Too LOW\n");
-    printf("-- Cancel Causion or Conect Power Supply\n");
+    printf("-- Cancel Causion or Establish Power Supply\n");
     printf("Recheck Main Power Supply ---- ");
     Set_LED.RED(HIGH);
     for(;;){
@@ -245,6 +253,7 @@ void DRV_Setup(){
 
   HAL_Delay(500);
   Main_motor.Brake();
+  Main_motor.FET_DISABLE();
   Main_motor.DISABLE();
 
   printf("*** Main Power Supply Check Acomplished ***\n\n");
