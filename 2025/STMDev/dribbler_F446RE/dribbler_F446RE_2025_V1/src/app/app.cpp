@@ -105,8 +105,16 @@ Motor_Control Main_motor;
 LED_Control Set_LED;
 
 void Setup(void){
+  Set_LED.ALL_Control(HIGH);
   HAL_Delay(500);
-  ADC_setup();
+  Set_LED.ALL_Control(LOW);
+
+  ADC_Setup();
+  DRV_Setup();
+
+  HAL_Delay(500);
+  Set_LED.ALL_Control(LOW);
+  Set_LED.GREEN(HIGH);
 }
 
 void MainLoop(){
@@ -123,46 +131,44 @@ void MainLoop(){
 
     // printf("in\n");
 
-    Set_LED.ALL_Control(HIGH);
+    
 
-    Main_motor.Forward(100);
-    HAL_Delay(200);
-    Main_motor.Brake();
-    HAL_Delay(200);
-    Main_motor.Reverse(100);
-    HAL_Delay(200);
-    Main_motor.Brake();
-    HAL_Delay(200);
-
-    for(int i = 0;i < 4;i++){
-      printf("%d  ",(int)adc_val_ch2[i]);
+    Main_motor.Forward(50);
+    // HAL_Delay(50);
+    // Main_motor.Brake();
+    // HAL_Delay(200);
+    // Main_motor.Reverse(100);
+    // HAL_Delay(200);
+    // Main_motor.Brake();
+    // HAL_Delay(200);
+    int val = 0;
+    for(int i = 0;i < 100;i++){
+      val += adc_val_ch2[0];
+      HAL_Delay(1);
     }
-    printf("\n");
+    printf("%d\n",val / 100);
   }
 }
 
-void ADC_setup(){
+void ADC_Setup(){
   //ADC initialization
+  Set_LED.CAN_LED(HIGH);
 
   printf("\n");
-
-  printf("*** Start Initalization ***\n");
-  Set_LED.RED(HIGH);
-  HAL_Delay(1000);
-  Set_LED.RED(LOW);
+  printf("*** Start ADC Initalization ***\n");
 
   printf("HAL_ADC_Start ---- ");
   Set_LED.BLUE(HIGH);
   HAL_ADC_Start(&hadc2);
   printf("Success!\n");
-  HAL_Delay(1000);
+  HAL_Delay(500);
   Set_LED.BLUE(LOW);
 
   printf("HAL_ADC_Start_DMA ---- ");
   Set_LED.GREEN(HIGH);
   HAL_ADC_Start_DMA(&hadc2,(uint32_t *)&adc_val_ch2,4);
   printf("Success!\n");
-  HAL_Delay(1000);
+  HAL_Delay(500);
   Set_LED.GREEN(LOW);
 
   for(uint8_t i = 0;i < 4;i++){
@@ -192,6 +198,8 @@ void ADC_setup(){
         printf("Recheck_ADC_Val_%d ---- ",i + 1);
         HAL_Delay(100);
         Set_LED.RED(LOW);
+
+        HAL_Delay(1000);
       }
     }
     printf("Success!\n");
@@ -199,7 +207,51 @@ void ADC_setup(){
     Set_LED.YELLOW(LOW);
   }
 
-  printf("*** Initalization Acomplished ***\n\n");
+  printf("*** ADC Initalization Acomplished ***\n\n");
+  Set_LED.CAN_LED(LOW);
+  Set_LED.YELLOW(HIGH);
+  HAL_Delay(500);
 }
 
+void DRV_Setup(){
+  //ADC initialization
+  Set_LED.CAN_LED(HIGH);
 
+  printf("*** Start Main Power Supply Check ***\n");
+  Set_LED.BLUE(HIGH);
+
+  Main_motor.ENABLE();
+  Main_motor.Forward(70);
+  HAL_Delay(100);
+  int current = 0;
+  for(int i = 0;i < 50;i++){
+    HAL_Delay(10);
+    current += adc_val_ch2[MOTOR_CURRENT];
+  } 
+  if((current / 50) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
+    current = 0;
+    printf("Main Power Supply Is Operating Normally\n");
+  } else {
+    printf("CAUSION : Main Power Supply Is Too LOW\n");
+    printf("-- Cancel Causion or Conect Power Supply\n");
+    Set_LED.RED(HIGH);
+    do{
+      current = 0;
+      for(int i = 0;i < 10;i++){
+        HAL_Delay(5);
+        current += adc_val_ch2[MOTOR_CURRENT];
+      } 
+    } while((current / 10) < DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE);
+    Set_LED.RED(LOW);
+    printf("-- Confirm Main Power Supply\n");
+    printf("Main Power Supply Is Operating Normally\n");
+    //add extra code
+  }
+  HAL_Delay(500);
+  Main_motor.Brake();
+  Main_motor.DISABLE();
+
+  printf("*** Main Power Supply Check Acomplished ***\n\n");
+  Set_LED.CAN_LED(LOW);
+  HAL_Delay(500);
+}
