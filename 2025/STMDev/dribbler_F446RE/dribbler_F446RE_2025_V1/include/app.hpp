@@ -34,6 +34,7 @@ void MainLoop(void);
 
 void ADC_Setup();
 void DRV_Setup();
+void Main_Motor_Setup();
 void Interrupt_Processing_f10ms();
 void Interrupt_Processing_f100ns();
 

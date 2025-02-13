@@ -1,6 +1,7 @@
 #include "app.hpp"
 #include "adc.h"
 #include "config.h"
+#include "math.h"
 
 uint16_t adc_val_ch1[4];
 uint16_t sw_val = 0;
@@ -112,6 +113,7 @@ void Setup(void){
 
   ADC_Setup();
   DRV_Setup();
+  Main_Motor_Setup();
 
   HAL_Delay(500);
   Set_LED.ALL_Control(LOW);
@@ -130,15 +132,19 @@ void MainLoop(){
     // };
     // can.send(data);
 
-    int t = 200;
-    Main_motor.Forward(80);
-    HAL_Delay(t);
-    Main_motor.Brake();
-    HAL_Delay(t);
-    Main_motor.Reverse(80);
-    HAL_Delay(t);
-    Main_motor.Brake();
-    HAL_Delay(t);
+    int t = 1,p = 0;
+    Main_motor.Forward(30);
+    for(int i = 0;i < 50;i++){
+      p += adc_val_ch1[MOTOR_CURRENT];
+      HAL_Delay(t);
+    }
+    //printf("%d\n",p / 50);
+    // Main_motor.Brake();
+    // HAL_Delay(t);
+    // Main_motor.Reverse(80);
+    // HAL_Delay(t);
+    // Main_motor.Brake();
+    // HAL_Delay(t);
   }
 }
 
@@ -195,7 +201,7 @@ void ADC_Setup(){
       }
     }
     printf("Success!\n");
-    HAL_Delay(100);
+    HAL_Delay(200);
     Set_LED.YELLOW(LOW);
   }
 
@@ -206,15 +212,15 @@ void ADC_Setup(){
 }
 
 void DRV_Setup(){
-  //ADC initialization
+  //DRV initialization
   Set_LED.CAN_LED(HIGH);
 
   printf("*** Start Main Power Supply Check ***\n");
-  printf("Main Power Supply ---- ");
   Set_LED.BLUE(HIGH);
 
+  printf("Main Power Supply ---- ");
   Main_motor.ENABLE();
-  Main_motor.Forward(70);
+  Main_motor.Forward(5);
   HAL_Delay(100);
   int current = 0;
   for(int i = 0;i < 50;i++){
@@ -257,6 +263,108 @@ void DRV_Setup(){
   Main_motor.DISABLE();
 
   printf("*** Main Power Supply Check Acomplished ***\n\n");
+  Set_LED.CAN_LED(LOW);
+  HAL_Delay(500);
+}
+
+void Main_Motor_Setup(){
+  //Main Motor initialization
+  Set_LED.CAN_LED(HIGH);
+
+  bool error_status = false; 
+
+  printf("*** Start Main Motor Current Check ***\n");
+  Set_LED.GREEN(HIGH);
+
+  printf("Main Motor Forward Current ---- ");
+  Main_motor.ENABLE();
+  Main_motor.Forward(50);
+  HAL_Delay(1000);
+  int Forward_Current = 0;
+  for(int i = 0;i < 50;i++){
+    Forward_Current += adc_val_ch1[MOTOR_CURRENT];
+    HAL_Delay(1);
+  }
+  Forward_Current /= 50;
+  Main_motor.Brake();
+  Main_motor.FET_DISABLE();
+  Main_motor.DISABLE();
+  if(Forward_Current > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
+    printf("Confirm!\n");
+    printf("                           ---- Val = %d\n",Forward_Current);
+  } else {
+    error_status = true;
+    Set_LED.RED(HIGH);
+    printf("Unconfirm!\n");
+    printf("                           ---- Val = %d\n",Forward_Current);
+    printf("-- CAUSION : Main Motor Forward Current Is Not Normal\n");
+    printf("-- Check Cancel Causion\n");
+    while(sw_val != 0){
+      HAL_Delay(50);
+    }
+    printf("-- Confirm Cancel Causion\n");
+    Set_LED.RED(LOW);
+  }
+
+  Main_motor.ENABLE();
+  Main_motor.Forward(30);
+  HAL_Delay(10);
+  Main_motor.Brake();
+  Main_motor.FET_DISABLE();
+  Main_motor.DISABLE();
+  HAL_Delay(1000);
+
+  printf("Main Motor Reverse Current ---- ");
+  Main_motor.ENABLE();
+  Main_motor.Reverse(50);
+  HAL_Delay(1000);
+  int Reverse_Current = 0;
+  for(int i = 0;i < 50;i++){
+    Reverse_Current += adc_val_ch1[MOTOR_CURRENT];
+    HAL_Delay(1);
+  }
+  Reverse_Current /= 50;
+  Main_motor.Brake();
+  Main_motor.FET_DISABLE();
+  Main_motor.DISABLE();
+  if(Reverse_Current > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
+    printf("Confirm!\n");
+    printf("                           ---- Val = %d\n",Reverse_Current);
+  } else {
+    error_status = true;
+    Set_LED.RED(HIGH);
+    printf("Unconfirm!\n");
+    printf("                           ---- Val = %d\n",Reverse_Current);
+    printf("-- CAUSION : Main Motor Reverse Current Is Not Normal\n");
+    printf("-- Check Cancel Causion\n");
+    while(sw_val != 0){
+      HAL_Delay(50);
+    }
+    printf("-- Confirm Cancel Causion\n");
+    Set_LED.RED(LOW);
+  }
+
+  printf("Check Current Value Differ ---- ");
+  if(error_status == false){
+    if(abs(Reverse_Current - Forward_Current) < 10){
+      printf("Normal!\n");
+      printf("Main Motor Current Is Operating Normally\n");
+    } else {
+      Set_LED.RED(HIGH);
+      printf("Not Normal!\n");
+      printf("-- CAUSION : Current Value Differ Is Too Big\n");
+      printf("-- Check Cancel Causion\n");
+      while(sw_val != 0){
+        HAL_Delay(50);
+      }
+      printf("-- Confirm Cancel Causion\n");
+      Set_LED.RED(LOW);
+    }
+  } else {
+    printf("Skip!\n");
+  }
+
+  printf("*** Main Motor Current Check Acomplished ***\n\n");
   Set_LED.CAN_LED(LOW);
   HAL_Delay(500);
 }
