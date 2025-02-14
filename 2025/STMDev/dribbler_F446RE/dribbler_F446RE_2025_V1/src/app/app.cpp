@@ -8,6 +8,9 @@ uint16_t sw_val = 0;
 
 uint16_t IPf10ms_count = 1;
 
+static bool Administrator_Privilege = true;
+static bool Recheck_ADC_Setup = true;
+
 CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
 
@@ -48,11 +51,12 @@ class Motor_Control {
 
 class LED_Control {
   public:
-    uint8_t LED_Flash_RED_100ms = hold;
-    uint8_t LED_Flash_YELLOW_100ms = hold;
-    uint8_t LED_Flash_BLUE_100ms = hold;
-    uint8_t LED_Flash_GREEN_100ms = hold;
-    uint8_t LED_Flash_CAN_100ms = hold;
+    bool LED_Flash_Activate = false;
+    uint8_t LED_Flash_RED_100ms = HOLD;
+    uint8_t LED_Flash_YELLOW_100ms = HOLD;
+    uint8_t LED_Flash_BLUE_100ms = HOLD;
+    uint8_t LED_Flash_GREEN_100ms = HOLD;
+    uint8_t LED_Flash_CAN_100ms = HOLD;
 
     void RED(int status){
       if(status == HIGH){
@@ -132,14 +136,17 @@ void Setup(void){
   Set_LED.ALL_Control(HIGH);
   HAL_Delay(500);
   Set_LED.ALL_Control(LOW);
+  HAL_Delay(500);
 
+  Check_Administrator_Privilege();
   ADC_Setup();
   DRV_Setup();
   Main_Motor_Setup();
 
   HAL_Delay(500);
   Set_LED.ALL_Control(LOW);
-  Set_LED.GREEN(HIGH);
+  Set_LED.LED_Flash_Activate = true;
+  Set_LED.LED_Flash_GREEN_100ms = START;
 }
 
 void MainLoop(){
@@ -170,11 +177,29 @@ void MainLoop(){
   }
 }
 
+void Check_Administrator_Privilege(){
+  Set_LED.CAN_LED(HIGH);
+  printf("*** Start Administrator Privilege Check ***\n");
+
+  HAL_Delay(500);
+  printf("Administrator_Privilege ---- ");
+  if(Administrator_Privilege == true){
+    printf("Confirm!\n");
+    printf("Switch to Administrator Mode\n");
+    printf("Confirm Enforcement Processing\n");
+  } else {
+    printf("Unconfirm!\n");
+    printf("Switch to Normal Mode\n");
+  }
+
+  printf("*** Administrator Privilege Check Acomplished ***\n\n");
+  Set_LED.CAN_LED(LOW);
+}
+
 void ADC_Setup(){
   //ADC initialization
   Set_LED.CAN_LED(HIGH);
 
-  printf("\n");
   printf("*** Start ADC Initalization ***\n");
 
   printf("HAL_ADC_Start ---- ");
@@ -227,6 +252,7 @@ void ADC_Setup(){
     Set_LED.YELLOW(LOW);
   }
 
+  printf("ADC Is Operating Normally\n");
   printf("*** ADC Initalization Acomplished ***\n\n");
   Set_LED.CAN_LED(LOW);
   Set_LED.YELLOW(HIGH);
@@ -255,10 +281,11 @@ void DRV_Setup(){
     printf("Main Power Supply Is Operating Normally\n");
   } else {
     printf("Unconfirm!\n");
-    printf("-- CAUSION : Main Power Supply Is Too LOW\n");
-    printf("-- Cancel Causion or Establish Power Supply\n");
+    printf("-- [CAUSION] : Main Power Supply Is Too LOW\n");
+    printf("-- [ADVICE] : Cancel Causion or Establish Power Supply\n");
     printf("Recheck Main Power Supply ---- ");
     Set_LED.RED(HIGH);
+    int count = 1;
     for(;;){
       current = 0;
       for(int i = 0;i < 10;i++){
@@ -274,6 +301,15 @@ void DRV_Setup(){
         printf("Unconfirm!\n");
         printf("-- Confirm Cancel Causion\n");
         break;
+      }
+      if(Recheck_ADC_Setup == true){
+        if(count > 100){
+          printf("-- Recheck ADC Setup\n\n");
+          ADC_Setup();
+          printf("-- Recheck ADC Setup Acomplished\n\n");
+          count = 1;
+        }
+        count++;
       }
     }
     Set_LED.RED(LOW);
@@ -319,8 +355,8 @@ void Main_Motor_Setup(){
     Set_LED.RED(HIGH);
     printf("Unconfirm!\n");
     printf("                           ---- Val = %d\n",Forward_Current);
-    printf("-- CAUSION : Main Motor Forward Current Is Not Normal\n");
-    printf("-- Check Cancel Causion\n");
+    printf("-- [CAUSION] : Main Motor Forward Current Is Not Normal\n");
+    printf("-- [ADVICE] : Check Cancel Causion\n");
     while(sw_val != 0){
       HAL_Delay(50);
     }
@@ -357,8 +393,8 @@ void Main_Motor_Setup(){
     Set_LED.RED(HIGH);
     printf("Unconfirm!\n");
     printf("                           ---- Val = %d\n",Reverse_Current);
-    printf("-- CAUSION : Main Motor Reverse Current Is Not Normal\n");
-    printf("-- Check Cancel Causion\n");
+    printf("-- [CAUSION] : Main Motor Reverse Current Is Not Normal\n");
+    printf("-- [ADVICE] : Check Cancel Causion\n");
     while(sw_val != 0){
       HAL_Delay(50);
     }
@@ -398,12 +434,58 @@ void Interrupt_Processing_f10ms(){
 
   //frq = 100ms
   if(IPf10ms_count % 10 == 0){
-    //Control LED Flash
-    if(Set_LED.LED_Flash_RED_100ms == true)
+    Interrupt_Processing_f100ms();
   }
 
   IPf10ms_count++;
   if(IPf10ms_count > 100) IPf10ms_count = 1;
+}
+
+void Interrupt_Processing_f100ms(){
+  //frq = 100ms
+  //Control LED Flash
+  if(Set_LED.LED_Flash_Activate == true){
+    if(Set_LED.LED_Flash_RED_100ms != HOLD){
+      if(Set_LED.LED_Flash_RED_100ms == START){
+        HAL_GPIO_TogglePin(USER_LED1_GPIO_Port, USER_LED1_Pin);
+      } else if(Set_LED.LED_Flash_RED_100ms == STOP){
+        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_RESET);
+        Set_LED.LED_Flash_RED_100ms = HOLD;
+      }
+    }
+    if(Set_LED.LED_Flash_YELLOW_100ms != HOLD){
+      if(Set_LED.LED_Flash_YELLOW_100ms == START){
+        HAL_GPIO_TogglePin(USER_LED2_GPIO_Port, USER_LED2_Pin);
+      } else if(Set_LED.LED_Flash_YELLOW_100ms == STOP){
+        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_RESET);
+        Set_LED.LED_Flash_YELLOW_100ms = HOLD;
+      }
+    }
+    if(Set_LED.LED_Flash_BLUE_100ms != HOLD){
+      if(Set_LED.LED_Flash_BLUE_100ms == START){
+        HAL_GPIO_TogglePin(USER_LED3_GPIO_Port, USER_LED3_Pin);
+      } else if(Set_LED.LED_Flash_BLUE_100ms == STOP){
+        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_RESET);
+        Set_LED.LED_Flash_BLUE_100ms = HOLD;
+      }
+    }
+    if(Set_LED.LED_Flash_GREEN_100ms != HOLD){
+      if(Set_LED.LED_Flash_GREEN_100ms == START){
+        HAL_GPIO_TogglePin(USER_LED4_GPIO_Port, USER_LED4_Pin);
+      } else if(Set_LED.LED_Flash_GREEN_100ms == STOP){
+        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_RESET);
+        Set_LED.LED_Flash_GREEN_100ms = HOLD;
+      }
+    }
+    if(Set_LED.LED_Flash_CAN_100ms != HOLD){
+      if(Set_LED.LED_Flash_CAN_100ms == START){
+        HAL_GPIO_TogglePin(CAN_LED_GPIO_Port, CAN_LED_Pin);
+      } else if(Set_LED.LED_Flash_CAN_100ms == STOP){
+        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_RESET);
+        Set_LED.LED_Flash_CAN_100ms = HOLD;
+      }
+    }
+  }
 }
 
 void Interrupt_Processing_f100ns(){
