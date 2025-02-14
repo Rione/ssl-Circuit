@@ -6,6 +6,8 @@
 uint16_t adc_val_ch1[4];
 uint16_t sw_val = 0;
 
+uint16_t IPf10ms_count = 1;
+
 CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
 
@@ -46,6 +48,12 @@ class Motor_Control {
 
 class LED_Control {
   public:
+    uint8_t LED_Flash_RED_100ms = hold;
+    uint8_t LED_Flash_YELLOW_100ms = hold;
+    uint8_t LED_Flash_BLUE_100ms = hold;
+    uint8_t LED_Flash_GREEN_100ms = hold;
+    uint8_t LED_Flash_CAN_100ms = hold;
+
     void RED(int status){
       if(status == HIGH){
         HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_SET);
@@ -384,8 +392,18 @@ void Main_Motor_Setup(){
 }
 
 void Interrupt_Processing_f10ms(){
+  //frq = 10ms
   //Control User Switch 
   sw_val = HAL_GPIO_ReadPin(USER_SW_GPIO_Port,USER_SW_Pin);
+
+  //frq = 100ms
+  if(IPf10ms_count % 10 == 0){
+    //Control LED Flash
+    if(Set_LED.LED_Flash_RED_100ms == true)
+  }
+
+  IPf10ms_count++;
+  if(IPf10ms_count > 100) IPf10ms_count = 1;
 }
 
 void Interrupt_Processing_f100ns(){

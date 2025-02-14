@@ -21,6 +21,10 @@
 #define DRV_MIN_CURRENT 47
 #define DRV_MIN_CURRENT_MINUS_RANGE 10
 
+#define start       1
+#define stop        2
+#define hold        3
+
 double map(double target,double min1,double max1,double min2,double max2){
     return ((max2 - min2 + 1) / (max1 - min1 + 1)) * target;
 }
