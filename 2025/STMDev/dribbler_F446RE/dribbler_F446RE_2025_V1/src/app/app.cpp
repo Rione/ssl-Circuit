@@ -147,6 +147,7 @@ void Setup(void){
   Set_LED.ALL_Control(LOW);
   Set_LED.LED_Flash_Activate = true;
   Set_LED.LED_Flash_GREEN_100ms = START;
+  //Set_LED.LED_Flash_RED_100ms = START;
 }
 
 void MainLoop(){
@@ -182,7 +183,7 @@ void Check_Administrator_Privilege(){
   printf("*** Start Administrator Privilege Check ***\n");
 
   HAL_Delay(500);
-  printf("Administrator_Privilege ---- ");
+  printf("Administrator Privilege ---- ");
   if(Administrator_Privilege == true){
     printf("Confirm!\n");
     printf("Switch to Administrator Mode\n");
@@ -259,6 +260,58 @@ void ADC_Setup(){
   HAL_Delay(500);
 }
 
+void ADC_Setup_Restart(){
+  //ADC initialization
+  Set_LED.LED_Flash_Activate = true;
+  Set_LED.LED_Flash_RED_100ms = START;
+
+  printf("[ADC] HAL_ADC_Start ---- ");
+  HAL_ADC_Start(&hadc1);
+  printf("Success!\n");
+  HAL_Delay(500);
+
+  printf("[ADC] HAL_ADC_Start_DMA ---- ");
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val_ch1,4);
+  printf("Success!\n");
+  HAL_Delay(500);
+
+  for(uint8_t i = 0;i < 4;i++){
+    int continue_num = 0;
+    printf("[ADC] Check_ADC_Val_%d ---- ",i + 1);
+    for(int j = 0;j < ADC_CONTINUE_NUM;j++){
+      while(!(adc_val_ch1[i] > 0)){
+        continue_num ++;
+        if(continue_num > 50){
+          continue_num = 0;
+  
+          HAL_Delay(100);
+          printf("FAIL!\n");
+          printf("[ADC] -- Restart_HAL_initialization\n");
+  
+          printf("[ADC] -- HAL_ADC_Restart ---- ");
+          HAL_Delay(100);
+          HAL_ADC_Start(&hadc1);
+          printf("Success!\n");
+  
+          printf("[ADC] -- HAL_ADC_Restart_DMA ---- ");
+          HAL_Delay(100);
+          HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val_ch1,4);
+          printf("Success!\n");
+  
+          printf("[ADC] Recheck_ADC_Val_%d ---- ",i + 1);
+          HAL_Delay(100);
+        }
+      }
+    }
+    printf("Success!\n");
+    HAL_Delay(200);
+  }
+  Set_LED.LED_Flash_RED_100ms = STOP;
+  Set_LED.LED_Flash_Activate = false;
+  Set_LED.RED(HIGH);
+  HAL_Delay(500);
+}
+
 void DRV_Setup(){
   //DRV initialization
   Set_LED.CAN_LED(HIGH);
@@ -283,9 +336,9 @@ void DRV_Setup(){
     printf("Unconfirm!\n");
     printf("-- [CAUSION] : Main Power Supply Is Too LOW\n");
     printf("-- [ADVICE] : Cancel Causion or Establish Power Supply\n");
-    printf("Recheck Main Power Supply ---- ");
     Set_LED.RED(HIGH);
     int count = 1;
+    int ADC_Restart = 0;
     for(;;){
       current = 0;
       for(int i = 0;i < 10;i++){
@@ -293,21 +346,28 @@ void DRV_Setup(){
         current += adc_val_ch1[MOTOR_CURRENT];
       } 
       if((current / 10) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
+        printf("Recheck Main Power Supply ---- ");
         printf("Confirm!\n");
         printf("Main Power Supply Is Operating Normally\n");
         break;
       }
       if(sw_val == 0){
+        printf("Recheck Main Power Supply ---- ");
         printf("Unconfirm!\n");
         printf("-- Confirm Cancel Causion\n");
         break;
       }
       if(Recheck_ADC_Setup == true){
         if(count > 100){
-          printf("-- Recheck ADC Setup\n\n");
-          ADC_Setup();
-          printf("-- Recheck ADC Setup Acomplished\n\n");
+          if(ADC_Restart == 0){
+            printf("Recheck Main Power Supply ---- ");
+            printf("Unconfirm!\n");
+          }
+          printf("-- Recheck ADC Setup\n");
+          ADC_Setup_Restart();
+          printf("-- Recheck ADC Setup Acomplished\n");
           count = 1;
+          ADC_Restart++;
         }
         count++;
       }

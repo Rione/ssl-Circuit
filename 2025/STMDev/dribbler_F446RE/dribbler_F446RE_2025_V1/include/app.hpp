@@ -38,6 +38,7 @@ void MainLoop(void);
 
 void Check_Administrator_Privilege();
 void ADC_Setup();
+void ADC_Setup_Restart();
 void DRV_Setup();
 void Main_Motor_Setup();
 void Interrupt_Processing_f100ms();
