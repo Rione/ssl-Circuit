@@ -164,6 +164,8 @@ void MainLoop(){
     };
     can.send(data);
 
+    HAL_Delay(500);
+
     // int t = 1,p = 0;
     // Main_motor.Forward(30);
     // for(int i = 0;i < 50;i++){
