@@ -133,41 +133,43 @@ Motor_Control Main_motor;
 LED_Control Set_LED;
 
 void Setup(void){
-  Set_LED.ALL_Control(HIGH);
-  HAL_Delay(500);
-  Set_LED.ALL_Control(LOW);
-  HAL_Delay(500);
+  can.init();
 
-  Check_Administrator_Privilege();
-  ADC_Setup();
-  DRV_Setup();
-  Main_Motor_Setup();
+  // Set_LED.ALL_Control(HIGH);
+  // HAL_Delay(500);
+  // Set_LED.ALL_Control(LOW);
+  // HAL_Delay(500);
 
-  HAL_Delay(500);
-  Set_LED.ALL_Control(LOW);
-  Set_LED.LED_Flash_Activate = true;
-  Set_LED.LED_Flash_GREEN_100ms = START;
+  // Check_Administrator_Privilege();
+  // ADC_Setup();
+  // DRV_Setup();
+  // Main_Motor_Setup();
+
+  // HAL_Delay(500);
+  // Set_LED.ALL_Control(LOW);
+  // Set_LED.LED_Flash_Activate = true;
+  // Set_LED.LED_Flash_GREEN_100ms = START;
   //Set_LED.LED_Flash_RED_100ms = START;
 }
 
 void MainLoop(){
   while(1){
-    // uint16_t thr = 750;
-    // CANBus::CANData data = {
-    //     .stdId = 0x09,
-    //     .data = {
-    //         (uint8_t)(thr & 0xFF),
-    //         (uint8_t)((thr >> 8) & 0xFF),
-    //     },
-    // };
-    // can.send(data);
+    uint16_t thr = 750;
+    CANBus::CANData data = {
+        .stdId = 0x09,
+        .data = {
+            (uint8_t)(thr & 0xFF),
+            (uint8_t)((thr >> 8) & 0xFF),
+        },
+    };
+    can.send(data);
 
-    int t = 1,p = 0;
-    Main_motor.Forward(30);
-    for(int i = 0;i < 50;i++){
-      p += adc_val_ch1[MOTOR_CURRENT];
-      HAL_Delay(t);
-    }
+    // int t = 1,p = 0;
+    // Main_motor.Forward(30);
+    // for(int i = 0;i < 50;i++){
+    //   p += adc_val_ch1[MOTOR_CURRENT];
+    //   HAL_Delay(t);
+    // }
     //printf("%d\n",p / 50);
     // Main_motor.Brake();
     // HAL_Delay(t);
