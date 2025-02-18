@@ -98,6 +98,14 @@ class LED_Control {
       }
     };
 
+    void BS_LED(int status){
+      if(status == HIGH){
+        HAL_GPIO_WritePin(BS_LED_GPIO_Port, BS_LED_Pin, GPIO_PIN_SET);
+      } else if(status == LOW){
+        HAL_GPIO_WritePin(BS_LED_GPIO_Port, BS_LED_Pin, GPIO_PIN_RESET);
+      }
+    };
+
     void ALL_Control(int status){
       if(status == HIGH){
         HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_SET);
@@ -141,30 +149,37 @@ void Setup(void){
   // HAL_Delay(500);
 
   // Check_Administrator_Privilege();
-  // ADC_Setup();
+  ADC_Setup();
   // DRV_Setup();
   // Main_Motor_Setup();
 
-  // HAL_Delay(500);
-  // Set_LED.ALL_Control(LOW);
-  // Set_LED.LED_Flash_Activate = true;
-  // Set_LED.LED_Flash_GREEN_100ms = START;
-  //Set_LED.LED_Flash_RED_100ms = START;
+  HAL_Delay(500);
+  Set_LED.ALL_Control(LOW);
+  Set_LED.LED_Flash_Activate = true;
+  Set_LED.LED_Flash_GREEN_100ms = START;
+  Set_LED.LED_Flash_RED_100ms = START;
+
+  HAL_GPIO_WritePin(BS_OUT_GPIO_Port, BS_OUT_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(ENC_POWER_GPIO_Port, ENC_POWER_Pin, GPIO_PIN_SET);
 }
 
 void MainLoop(){
   while(1){
-    uint16_t thr = 750;
-    CANBus::CANData data = {
-        .stdId = 0x09,
-        .data = {
-            (uint8_t)(thr & 0xFF),
-            (uint8_t)((thr >> 8) & 0xFF),
-        },
-    };
-    can.send(data);
+    // uint16_t thr = 750;
+    // CANBus::CANData data = {
+    //     .stdId = 0x09,
+    //     .data = {
+    //         (uint8_t)(thr & 0xFF),
+    //         (uint8_t)((thr >> 8) & 0xFF),
+    //     },
+    // };
+    // can.send(data);
 
-    HAL_Delay(500);
+    Set_LED.BS_LED(HIGH);
+
+    HAL_Delay(100);
+
+    printf("%d\n",adc_val_ch1[ENC2_VAL]);
 
     // int t = 1,p = 0;
     // Main_motor.Forward(30);
