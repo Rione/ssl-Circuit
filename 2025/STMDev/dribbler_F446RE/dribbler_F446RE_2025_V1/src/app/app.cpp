@@ -137,6 +137,9 @@ class LED_Control {
     }
 };
 
+Motor_Control Main_motor;
+LED_Control Set_LED;
+
 class Expansion_Sensor_Control{
   public:
     void Ball_Sensor_Activate(){
@@ -158,13 +161,11 @@ class Expansion_Sensor_Control{
     }
 };
 
-Motor_Control Main_motor;
-LED_Control Set_LED;
 Expansion_Sensor_Control Set_Sensor;
 
 void Setup(void){
   can.init();
-  
+
   Set_Sensor.Ball_Sensor_Activate();
   Set_Sensor.ENC_Activate();
 
