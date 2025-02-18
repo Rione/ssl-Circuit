@@ -12,9 +12,9 @@
 #define PWM_TIM3_FRQ_MIN 1
 
 #define MOTOR_CURRENT   0
-#define ENC1_VAL        1
-#define ENC2_VAL        2
-#define BALL_SENSOR_VAL 3
+#define BALL_SENSOR_VAL 2
+#define ENC1_VAL        3
+#define ENC2_VAL        4
 
 #define ADC_CONTINUE_NUM 5
 

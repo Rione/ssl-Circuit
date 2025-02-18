@@ -137,30 +137,52 @@ class LED_Control {
     }
 };
 
+class Expansion_Sensor_Control{
+  public:
+    void Ball_Sensor_Activate(){
+      Set_LED.BS_LED(HIGH);
+      HAL_GPIO_WritePin(BS_OUT_GPIO_Port, BS_OUT_Pin, GPIO_PIN_SET);
+    }
+
+    void Ball_Sensor_Inactivate(){
+      Set_LED.BS_LED(LOW);
+      HAL_GPIO_WritePin(BS_OUT_GPIO_Port, BS_OUT_Pin, GPIO_PIN_RESET);
+    }
+
+    void ENC_Activate(){
+      HAL_GPIO_WritePin(ENC_POWER_GPIO_Port, ENC_POWER_Pin, GPIO_PIN_SET);
+    }
+
+    void ENC_Inactivate(){
+      HAL_GPIO_WritePin(ENC_POWER_GPIO_Port, ENC_POWER_Pin, GPIO_PIN_RESET);
+    }
+};
+
 Motor_Control Main_motor;
 LED_Control Set_LED;
+Expansion_Sensor_Control Set_Sensor;
 
 void Setup(void){
   can.init();
+  
+  Set_Sensor.Ball_Sensor_Activate();
+  Set_Sensor.ENC_Activate();
 
-  // Set_LED.ALL_Control(HIGH);
-  // HAL_Delay(500);
-  // Set_LED.ALL_Control(LOW);
-  // HAL_Delay(500);
+  Set_LED.ALL_Control(HIGH);
+  HAL_Delay(500);
+  Set_LED.ALL_Control(LOW);
+  HAL_Delay(500);
 
-  // Check_Administrator_Privilege();
+  Check_Administrator_Privilege();
   ADC_Setup();
-  // DRV_Setup();
-  // Main_Motor_Setup();
+  DRV_Setup();
+  Main_Motor_Setup();
 
   HAL_Delay(500);
   Set_LED.ALL_Control(LOW);
   Set_LED.LED_Flash_Activate = true;
   Set_LED.LED_Flash_GREEN_100ms = START;
   Set_LED.LED_Flash_RED_100ms = START;
-
-  HAL_GPIO_WritePin(BS_OUT_GPIO_Port, BS_OUT_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(ENC_POWER_GPIO_Port, ENC_POWER_Pin, GPIO_PIN_SET);
 }
 
 void MainLoop(){
