@@ -181,6 +181,10 @@ void Setup(void){
 
   HAL_Delay(500);
   Set_LED.ALL_Control(LOW);
+
+  Set_Sensor.Ball_Sensor_Activat();
+  Set_Sensor.ENC_Activate();
+
   Set_LED.LED_Flash_Activate = true;
   Set_LED.LED_Flash_GREEN_100ms = START;
   Set_LED.LED_Flash_RED_100ms = START;
@@ -538,6 +542,9 @@ void Interrupt_Processing_f10ms(){
   if(IPf10ms_count % 10 == 0){
     Interrupt_Processing_f100ms();
   }
+
+  //control Ball Sensor
+  
 
   IPf10ms_count++;
   if(IPf10ms_count > 100) IPf10ms_count = 1;
