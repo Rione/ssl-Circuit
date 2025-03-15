@@ -25,9 +25,6 @@
 #define STOP        2
 #define HOLD        3
 
-#define CANID_DRIBBLER_DRIVER 10
-#define CANID_MOTOR_POWER 11
-
 double map(double target,double min1,double max1,double min2,double max2){
     return ((max2 - min2 + 1) / (max1 - min1 + 1)) * target;
 }
@@ -39,14 +36,16 @@ extern "C" {
 void Setup(void);
 void MainLoop(void);
 
-void Check_Administrator_Privilege();
-void ADC_Setup();
-void ADC_Setup_Restart();
-void DRV_Setup();
-void Main_Motor_Setup();
+void Set_Administrator_Privilege();
+void Set_ADC();
+void Set_ADC_Restart();
+void Set_DRV();
+void Set_Main_Motor();
 void Interrupt_Processing_f10ms();
-void Interrupt_Processing_f100ms();
 void Interrupt_Processing_f1ms();
+void IPf10ms_LED_Flash_Control();
+void HAL_CAN_Data_Output_ID0x1d2_466();
+void HAL_CAN_Data_Input_ID0x1d1_465();
 
 #ifdef __cplusplus
 }

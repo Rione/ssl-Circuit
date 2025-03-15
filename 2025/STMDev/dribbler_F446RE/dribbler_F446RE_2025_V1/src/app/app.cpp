@@ -5,14 +5,15 @@
 
 uint16_t adc_val_ch1[4];
 uint16_t sw_val = 0;
-uint16_t IPf10ms_count = 1;
-uint16_t IPf1ms_count = 1;
 
-uint16_t current_sum = 0;
+uint32_t IPf10ms_count = 1;
+uint32_t IPf1ms_count = 1;
+
+long int current_sum = 0;
+uint8_t get_ball = 0;
 
 static bool Administrator_Privilege = true;
 static bool Recheck_ADC_Setup = true;
-static bool PWM_FRQ_Conversion = false;
 
 CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
@@ -140,18 +141,15 @@ class LED_Control {
     }
 };
 
-Motor_Control Main_motor;
-LED_Control Set_LED;
-
 class Expansion_Sensor_Control{
   public:
     void Ball_Sensor_Activate(){
-      Set_LED.BS_LED(HIGH);
+      HAL_GPIO_WritePin(BS_LED_GPIO_Port, BS_LED_Pin, GPIO_PIN_SET);
       HAL_GPIO_WritePin(BS_OUT_GPIO_Port, BS_OUT_Pin, GPIO_PIN_SET);
     };
 
     void Ball_Sensor_Inactivate(){
-      Set_LED.BS_LED(LOW);
+      HAL_GPIO_WritePin(BS_LED_GPIO_Port, BS_LED_Pin, GPIO_PIN_RESET);
       HAL_GPIO_WritePin(BS_OUT_GPIO_Port, BS_OUT_Pin, GPIO_PIN_RESET);
     };
 
@@ -164,6 +162,8 @@ class Expansion_Sensor_Control{
     };
 };
 
+Motor_Control Main_motor;
+LED_Control Set_LED;
 Expansion_Sensor_Control Set_Sensor;
 
 void Setup(void){
@@ -174,28 +174,23 @@ void Setup(void){
   Set_LED.ALL_Control(LOW);
   HAL_Delay(500);
 
-  Check_Administrator_Privilege();
-  ADC_Setup();
-  DRV_Setup();
-  Main_Motor_Setup();
+  Set_Administrator_Privilege();
+  Set_ADC();
+  Set_DRV();
+  Set_Main_Motor();
 
   HAL_Delay(500);
   Set_LED.ALL_Control(LOW);
 
   Set_Sensor.Ball_Sensor_Activate();
   Set_Sensor.ENC_Activate();
-
-  Set_LED.LED_Flash_Activate = true;
-  Set_LED.LED_Flash_GREEN_100ms = START;
-  Set_LED.LED_Flash_RED_100ms = START;
 }
 
 void MainLoop(){
-  printf("%d\n",adc_val_ch1[BALL_SENSOR_VAL]);
-  HAL_Delay(100);
+  
 }
 
-void Check_Administrator_Privilege(){
+void Set_Administrator_Privilege(){
   Set_LED.CAN_LED(HIGH);
   printf("*** Start Administrator Privilege Check ***\n");
 
@@ -214,7 +209,7 @@ void Check_Administrator_Privilege(){
   Set_LED.CAN_LED(LOW);
 }
 
-void ADC_Setup(){
+void Set_ADC(){
   //ADC initialization
   Set_LED.CAN_LED(HIGH);
 
@@ -277,7 +272,7 @@ void ADC_Setup(){
   HAL_Delay(500);
 }
 
-void ADC_Setup_Restart(){
+void Set_ADC_Restart(){
   //ADC initialization
   Set_LED.LED_Flash_Activate = true;
   Set_LED.LED_Flash_RED_100ms = START;
@@ -329,7 +324,7 @@ void ADC_Setup_Restart(){
   HAL_Delay(500);
 }
 
-void DRV_Setup(){
+void Set_DRV(){
   //DRV initialization
   Set_LED.CAN_LED(HIGH);
 
@@ -381,7 +376,7 @@ void DRV_Setup(){
             printf("Unconfirm!\n");
           }
           printf("-- Recheck ADC Setup\n");
-          ADC_Setup_Restart();
+          Set_ADC_Restart();
           printf("-- Recheck ADC Setup Acomplished\n");
           count = 1;
           ADC_Restart++;
@@ -402,7 +397,7 @@ void DRV_Setup(){
   HAL_Delay(500);
 }
 
-void Main_Motor_Setup(){
+void Set_Main_Motor(){
   //Main Motor initialization
   Set_LED.CAN_LED(HIGH);
 
@@ -504,24 +499,7 @@ void Main_Motor_Setup(){
   HAL_Delay(500);
 }
 
-void Interrupt_Processing_f10ms(){
-  //frq = 10ms
-  //Control User Switch 
-  sw_val = HAL_GPIO_ReadPin(USER_SW_GPIO_Port,USER_SW_Pin);
-
-  //frq = 100ms
-  if(IPf10ms_count % 10 == 0){
-    Interrupt_Processing_f100ms();
-  }
-
-  //control Ball Sensor
-  
-
-  IPf10ms_count++;
-  if(IPf10ms_count > 100) IPf10ms_count = 1;
-}
-
-void Interrupt_Processing_f100ms(){
+void IPf10ms_LED_Flash_Control(){
   //frq = 100ms
   //Control LED Flash
   if(Set_LED.LED_Flash_Activate == true){
@@ -568,48 +546,39 @@ void Interrupt_Processing_f100ms(){
   }
 }
 
-void Interrupt_Processing_f1ms(){
-  IPf1ms_count++;
-  current_sum += adc_val_ch1[MOTOR_CURRENT];
-  if(IPf1ms_count == 50){
-    uint16_t current = current_sum / 50;
-    uint8_t out = 0;
-    if(current > 150) out = 1;
-    CANBus::CANData data = {
-        .stdId = 0x1d2,
-        .data = {
-            out,
-            (uint8_t)(current_sum & 0xFF),
-            (uint8_t)((current_sum >> 8) & 0xFF),
-        },
-    };
-    can.send(data);
+void Interrupt_Processing_f10ms(){
+  //frq = 10ms
+  //Control User Switch 
+  sw_val = HAL_GPIO_ReadPin(USER_SW_GPIO_Port,USER_SW_Pin);
 
-    uint8_t out_ball = 0;
-    if(adc_val_ch1[BALL_SENSOR_VAL] < 50) out_ball = 1; //1:ball detected 0:ball not detected
-    CANBus::CANData data_1 = {
-      .stdId = 0x1d3,
-      .data = {
-        out_ball,
-        (uint8_t)(adc_val_ch1[BALL_SENSOR_VAL] & 0xFF),
-        (uint8_t)((adc_val_ch1[BALL_SENSOR_VAL] >> 8) & 0xFF),
-      },
-    };
-    can.send(data_1);
-    //printf("%d\n",current_sum / 50);
-    IPf1ms_count = 1;
-    current_sum = 0;
+  //frq = 100ms
+  if(IPf10ms_count % 10 == 0){
+    IPf10ms_LED_Flash_Control();
   }
+
+  IPf10ms_count++;
+  if(IPf10ms_count == 100) IPf10ms_count = 1;
+}
+
+void Interrupt_Processing_f1ms(){
+  //frq = 1ms
+  current_sum += adc_val_ch1[MOTOR_CURRENT];
+
+  //frq = 200ms
+  if(IPf1ms_count % 200 == 0){
+    HAL_CAN_Data_Input_ID0x1d1_465();
+  }
+
+  IPf1ms_count++;
+  if(IPf1ms_count == 1000) IPf1ms_count = 1;
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if (can.getHcan() == hcan){
     can.recv(canRecvData);
     switch (canRecvData.stdId){
-    case 0x1d1:
-      Main_motor.ENABLE();
-      Main_motor.Forward(canRecvData.data[0]);
-      Set_LED.BLUE(HIGH);
+    case 0x1d1: //465
+      HAL_CAN_Data_Output_ID0x1d2_466();
       break;
     default:
       break;
@@ -617,6 +586,42 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   }
 }
 
-    
+void HAL_CAN_Data_Output_ID0x1d2_466(){
+  uint16_t current_val = current_sum / 200;
+  uint8_t photo = 0;
+  uint8_t current = 0;
 
+  if (current_val > 150)
+    current = 1;
+  if (adc_val_ch1[BALL_SENSOR_VAL] < 100)
+    photo = 1;
 
+  if (current == 1 && get_ball == 0){
+    get_ball = 1;
+  }
+  else if (photo == 0 && get_ball == 1){
+    get_ball = 0;
+  }
+
+  CANBus::CANData data = {
+    .stdId = 0x1d2,
+    .data = {
+      get_ball,
+      current,
+      (uint8_t)(current_sum & 0xFF),
+      (uint8_t)((current_sum >> 8) & 0xFF),
+      photo,
+      (uint8_t)(adc_val_ch1[BALL_SENSOR_VAL] & 0xFF),
+      (uint8_t)((adc_val_ch1[BALL_SENSOR_VAL] >> 8) & 0xFF),
+    },
+  };
+  can.send(data);
+
+  current_sum = 0;
+}
+
+void HAL_CAN_Data_Input_ID0x1d1_465(){
+  Main_motor.ENABLE();
+  Main_motor.Forward(canRecvData.data[0]);
+  Set_LED.BLUE(HIGH);
+}
