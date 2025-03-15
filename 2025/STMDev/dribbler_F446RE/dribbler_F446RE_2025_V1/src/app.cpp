@@ -499,6 +499,33 @@ void Set_Main_Motor(){
   HAL_Delay(500);
 }
 
+void Interrupt_Processing_f10ms(){
+  //frq = 10ms
+  //Control User Switch 
+  sw_val = HAL_GPIO_ReadPin(USER_SW_GPIO_Port,USER_SW_Pin);
+
+  //frq = 100ms
+  if(IPf10ms_count % 10 == 0){
+    IPf10ms_LED_Flash_Control();
+  }
+
+  IPf10ms_count++;
+  if(IPf10ms_count == 100) IPf10ms_count = 1;
+}
+
+void Interrupt_Processing_f1ms(){
+  //frq = 1ms
+  current_sum += adc_val_ch1[MOTOR_CURRENT];
+
+  //frq = 200ms
+  if(IPf1ms_count % 200 == 0){
+    HAL_CAN_Data_Input_ID0x1d1_465();
+  }
+
+  IPf1ms_count++;
+  if(IPf1ms_count == 1000) IPf1ms_count = 1;
+}
+
 void IPf10ms_LED_Flash_Control(){
   //frq = 100ms
   //Control LED Flash
@@ -544,33 +571,6 @@ void IPf10ms_LED_Flash_Control(){
       }
     }
   }
-}
-
-void Interrupt_Processing_f10ms(){
-  //frq = 10ms
-  //Control User Switch 
-  sw_val = HAL_GPIO_ReadPin(USER_SW_GPIO_Port,USER_SW_Pin);
-
-  //frq = 100ms
-  if(IPf10ms_count % 10 == 0){
-    IPf10ms_LED_Flash_Control();
-  }
-
-  IPf10ms_count++;
-  if(IPf10ms_count == 100) IPf10ms_count = 1;
-}
-
-void Interrupt_Processing_f1ms(){
-  //frq = 1ms
-  current_sum += adc_val_ch1[MOTOR_CURRENT];
-
-  //frq = 200ms
-  if(IPf1ms_count % 200 == 0){
-    HAL_CAN_Data_Input_ID0x1d1_465();
-  }
-
-  IPf1ms_count++;
-  if(IPf1ms_count == 1000) IPf1ms_count = 1;
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
@@ -625,3 +625,8 @@ void HAL_CAN_Data_Input_ID0x1d1_465(){
   Main_motor.Forward(canRecvData.data[0]);
   Set_LED.BLUE(HIGH);
 }
+
+
+
+
+

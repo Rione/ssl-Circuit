@@ -71,6 +71,7 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_can.c \
 Core/Src/usart.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c
 
+
 # ASM sources
 ASM_SOURCES =  \
 startup_stm32f446xx.s
@@ -183,7 +184,7 @@ vpath %.S $(sort $(dir $(ASMM_SOURCES)))
 
 # 🍣 C++ source
 CXX_SOURCES = \
-$(wildcard src/app/*.cpp)
+$(wildcard src/*.cpp)
 
 # 🍣 C++ includes
 CXX_INCLUDES = \
