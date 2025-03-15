@@ -70,7 +70,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
     Interrupt_Processing_f10ms();
   }
   if (htim == &htim7){
-    Interrupt_Processing_f100ns();
+    Interrupt_Processing_f1ms();
   }
 }
 

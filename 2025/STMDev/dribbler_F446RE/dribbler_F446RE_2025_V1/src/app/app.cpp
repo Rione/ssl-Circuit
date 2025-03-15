@@ -5,11 +5,14 @@
 
 uint16_t adc_val_ch1[4];
 uint16_t sw_val = 0;
-
 uint16_t IPf10ms_count = 1;
+uint16_t IPf1ms_count = 1;
+
+int current_sum = 0;
 
 static bool Administrator_Privilege = true;
 static bool Recheck_ADC_Setup = true;
+static bool PWM_FRQ_Conversion = false;
 
 CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
@@ -145,29 +148,26 @@ class Expansion_Sensor_Control{
     void Ball_Sensor_Activate(){
       Set_LED.BS_LED(HIGH);
       HAL_GPIO_WritePin(BS_OUT_GPIO_Port, BS_OUT_Pin, GPIO_PIN_SET);
-    }
+    };
 
     void Ball_Sensor_Inactivate(){
       Set_LED.BS_LED(LOW);
       HAL_GPIO_WritePin(BS_OUT_GPIO_Port, BS_OUT_Pin, GPIO_PIN_RESET);
-    }
+    };
 
     void ENC_Activate(){
       HAL_GPIO_WritePin(ENC_POWER_GPIO_Port, ENC_POWER_Pin, GPIO_PIN_SET);
-    }
+    };
 
     void ENC_Inactivate(){
       HAL_GPIO_WritePin(ENC_POWER_GPIO_Port, ENC_POWER_Pin, GPIO_PIN_RESET);
-    }
+    };
 };
 
 Expansion_Sensor_Control Set_Sensor;
 
 void Setup(void){
   can.init();
-
-  Set_Sensor.Ball_Sensor_Activate();
-  Set_Sensor.ENC_Activate();
 
   Set_LED.ALL_Control(HIGH);
   HAL_Delay(500);
@@ -182,7 +182,7 @@ void Setup(void){
   HAL_Delay(500);
   Set_LED.ALL_Control(LOW);
 
-  Set_Sensor.Ball_Sensor_Activat();
+  Set_Sensor.Ball_Sensor_Activate();
   Set_Sensor.ENC_Activate();
 
   Set_LED.LED_Flash_Activate = true;
@@ -191,37 +191,16 @@ void Setup(void){
 }
 
 void MainLoop(){
-  while(1){
-    // uint16_t thr = 750;
-    // CANBus::CANData data = {
-    //     .stdId = 0x09,
-    //     .data = {
-    //         (uint8_t)(thr & 0xFF),
-    //         (uint8_t)((thr >> 8) & 0xFF),
-    //     },
-    // };
-    // can.send(data);
-
-    Set_LED.BS_LED(HIGH);
-
-    HAL_Delay(100);
-
-    printf("%d\n",adc_val_ch1[ENC2_VAL]);
-
-    // int t = 1,p = 0;
-    // Main_motor.Forward(30);
-    // for(int i = 0;i < 50;i++){
-    //   p += adc_val_ch1[MOTOR_CURRENT];
-    //   HAL_Delay(t);
-    // }
-    //printf("%d\n",p / 50);
-    // Main_motor.Brake();
-    // HAL_Delay(t);
-    // Main_motor.Reverse(80);
-    // HAL_Delay(t);
-    // Main_motor.Brake();
-    // HAL_Delay(t);
-  }
+  // while(1){
+  //   int da = 0;
+  //   for(int i = 0;i < 50;i++){
+  //     da += adc_val_ch1[MOTOR_CURRENT];
+  //     HAL_Delay(1);
+  //   }
+    
+  //   printf("%d\n",da / 50);
+    
+  // }
 }
 
 void Check_Administrator_Privilege(){
@@ -597,10 +576,41 @@ void Interrupt_Processing_f100ms(){
   }
 }
 
-void Interrupt_Processing_f100ns(){
-  //extra code
+void Interrupt_Processing_f1ms(){
+  IPf1ms_count++;
+  current_sum += adc_val_ch1[MOTOR_CURRENT];
+  if(IPf1ms_count == 50){
+    uint16_t out = 0;
+    if(current_sum / 50 > 150) out = 1;
+    CANBus::CANData data = {
+        .stdId = 0x09,
+        .data = {
+            (uint8_t)(out & 0xFF),
+            (uint8_t)((out >> 8) & 0xFF),
+        },
+    };
+    can.send(data);
+    printf("%d\n",current_sum / 50);
+    IPf1ms_count = 1;
+    current_sum = 0;
+  }
 }
 
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
+  if (can.getHcan() == hcan){
+    can.recv(canRecvData);
+    switch (canRecvData.stdId){
+    case 3:
+      Main_motor.ENABLE();
+      Main_motor.Forward(canRecvData.data[0]);
+      Set_LED.BLUE(HIGH);
+      break;
+    default:
+      break;
+    }
+  }
+}
 
+    
 
 
