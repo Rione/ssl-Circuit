@@ -8,7 +8,7 @@ uint16_t sw_val = 0;
 uint16_t IPf10ms_count = 1;
 uint16_t IPf1ms_count = 1;
 
-int current_sum = 0;
+uint16_t current_sum = 0;
 
 static bool Administrator_Privilege = true;
 static bool Recheck_ADC_Setup = true;
@@ -572,24 +572,27 @@ void Interrupt_Processing_f1ms(){
   IPf1ms_count++;
   current_sum += adc_val_ch1[MOTOR_CURRENT];
   if(IPf1ms_count == 50){
-    uint16_t out = 0;
-    if(current_sum / 50 > 150) out = 1;
+    uint16_t current = current_sum / 50;
+    uint8_t out = 0;
+    if(current > 150) out = 1;
     CANBus::CANData data = {
         .stdId = 0x1d2,
         .data = {
-            (uint8_t)(out & 0xFF),
-            (uint8_t)((out >> 8) & 0xFF),
+            out,
+            (uint8_t)(current_sum & 0xFF),
+            (uint8_t)((current_sum >> 8) & 0xFF),
         },
     };
     can.send(data);
 
-    uint16_t out_ball = 0;
-    if(adc_val_ch1[BALL_SENSOR_VAL] > 100) out_ball = 1;
+    uint8_t out_ball = 0;
+    if(adc_val_ch1[BALL_SENSOR_VAL] < 50) out_ball = 1; //1:ball detected 0:ball not detected
     CANBus::CANData data_1 = {
-      .stdId = 0x1d2,
+      .stdId = 0x1d3,
       .data = {
-          (uint8_t)(out_ball & 0xFF),
-          (uint8_t)((out_ball >> 8) & 0xFF),
+        out_ball,
+        (uint8_t)(adc_val_ch1[BALL_SENSOR_VAL] & 0xFF),
+        (uint8_t)((adc_val_ch1[BALL_SENSOR_VAL] >> 8) & 0xFF),
       },
     };
     can.send(data_1);
