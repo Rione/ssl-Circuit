@@ -191,16 +191,8 @@ void Setup(void){
 }
 
 void MainLoop(){
-  // while(1){
-  //   int da = 0;
-  //   for(int i = 0;i < 50;i++){
-  //     da += adc_val_ch1[MOTOR_CURRENT];
-  //     HAL_Delay(1);
-  //   }
-    
-  //   printf("%d\n",da / 50);
-    
-  // }
+  printf("%d\n",adc_val_ch1[BALL_SENSOR_VAL]);
+  HAL_Delay(100);
 }
 
 void Check_Administrator_Privilege(){
@@ -583,14 +575,25 @@ void Interrupt_Processing_f1ms(){
     uint16_t out = 0;
     if(current_sum / 50 > 150) out = 1;
     CANBus::CANData data = {
-        .stdId = 0x09,
+        .stdId = 0x1d2,
         .data = {
             (uint8_t)(out & 0xFF),
             (uint8_t)((out >> 8) & 0xFF),
         },
     };
     can.send(data);
-    printf("%d\n",current_sum / 50);
+
+    uint16_t out_ball = 0;
+    if(adc_val_ch1[BALL_SENSOR_VAL] > 100) out_ball = 1;
+    CANBus::CANData data_1 = {
+      .stdId = 0x1d2,
+      .data = {
+          (uint8_t)(out_ball & 0xFF),
+          (uint8_t)((out_ball >> 8) & 0xFF),
+      },
+    };
+    can.send(data_1);
+    //printf("%d\n",current_sum / 50);
     IPf1ms_count = 1;
     current_sum = 0;
   }
@@ -600,7 +603,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if (can.getHcan() == hcan){
     can.recv(canRecvData);
     switch (canRecvData.stdId){
-    case 3:
+    case 0x1d1:
       Main_motor.ENABLE();
       Main_motor.Forward(canRecvData.data[0]);
       Set_LED.BLUE(HIGH);
