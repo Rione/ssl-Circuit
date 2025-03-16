@@ -25,9 +25,9 @@
 #define STOP        2
 #define HOLD        3
 
-double map(double target,double min1,double max1,double min2,double max2){
-    return ((max2 - min2 + 1) / (max1 - min1 + 1)) * target;
-}
+// double map(double target,double min1,double max1,double min2,double max2){
+//     return ((max2 - min2 + 1) / (max1 - min1 + 1)) * target;
+// }
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,7 +1,7 @@
 #include "app.hpp"
 #include "adc.h"
-#include "config.h"
 #include "math.h"
+#include "basic_io_control.hpp"
 
 uint16_t adc_val_ch1[4];
 uint16_t sw_val = 0;
@@ -17,41 +17,6 @@ static bool Recheck_ADC_Setup = true;
 
 CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
-
-class Motor_Control {
-  public:      
-    void Reverse(int speed){
-      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MIN);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, map(speed, 1, 100, PWM_TIM3_FRQ_MIN, PWM_TIM3_FRQ_MAX));
-    };
-
-    void Forward(int speed){
-      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, map(speed, 1, 100, PWM_TIM3_FRQ_MIN, PWM_TIM3_FRQ_MAX));
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MIN);
-    };
-
-    void Brake(){
-      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MAX);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MAX);
-    };
-
-    void FET_DISABLE(){
-      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, PWM_TIM3_FRQ_MIN);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, PWM_TIM3_FRQ_MIN);
-    };
-
-    void ENABLE(){
-      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_SET);
-    };
-
-    void DISABLE(){
-      HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_RESET);
-    };
-};
 
 class LED_Control {
   public:
