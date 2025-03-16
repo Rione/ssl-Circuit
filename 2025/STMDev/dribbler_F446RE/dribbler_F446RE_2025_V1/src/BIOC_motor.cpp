@@ -1,4 +1,6 @@
-#include "basic_io_control.hpp"
+//basic_io_control_motor
+
+#include "BIOC_motor.hpp"
 
 void Motor_Control::Reverse(int speed){
   speed =  ((PWM_TIM3_FRQ_MAX - PWM_TIM3_FRQ_MIN + 1) / (100 - 1 + 1)) * speed;

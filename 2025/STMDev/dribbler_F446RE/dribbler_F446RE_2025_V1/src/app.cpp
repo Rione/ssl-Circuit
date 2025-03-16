@@ -1,7 +1,10 @@
+//basic_io_control_motor
+
 #include "app.hpp"
 #include "adc.h"
 #include "math.h"
-#include "basic_io_control.hpp"
+#include "BIOC_motor.hpp"
+#include "BIOC_LED.hpp"
 
 uint16_t adc_val_ch1[4];
 uint16_t sw_val = 0;
@@ -17,94 +20,6 @@ static bool Recheck_ADC_Setup = true;
 
 CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
-
-class LED_Control {
-  public:
-    bool LED_Flash_Activate = false;
-    uint8_t LED_Flash_RED_100ms = HOLD;
-    uint8_t LED_Flash_YELLOW_100ms = HOLD;
-    uint8_t LED_Flash_BLUE_100ms = HOLD;
-    uint8_t LED_Flash_GREEN_100ms = HOLD;
-    uint8_t LED_Flash_CAN_100ms = HOLD;
-
-    void RED(int status){
-      if(status == HIGH){
-        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_RESET);
-      }
-    };
-
-    void YELLOW(int status) {
-      if(status == HIGH){
-        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_RESET);
-      }
-    };
-
-    void BLUE(int status){
-      if(status == HIGH){
-        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_RESET);
-      }
-    };
-
-    void GREEN(int status){
-      if(status == HIGH){
-        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_RESET);
-      }
-    };
-
-    void CAN_LED(int status){
-      if(status == HIGH){
-        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_RESET);
-      }
-    };
-
-    void BS_LED(int status){
-      if(status == HIGH){
-        HAL_GPIO_WritePin(BS_LED_GPIO_Port, BS_LED_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(BS_LED_GPIO_Port, BS_LED_Pin, GPIO_PIN_RESET);
-      }
-    };
-
-    void ALL_Control(int status){
-      if(status == HIGH){
-        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_RESET);
-      }
-    };
-
-    void ALL_Control_EX_CAN(int status){
-      if(status == HIGH){
-        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_SET);
-      } else if(status == LOW){
-        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_RESET);
-      }
-    }
-};
 
 class Expansion_Sensor_Control{
   public:
