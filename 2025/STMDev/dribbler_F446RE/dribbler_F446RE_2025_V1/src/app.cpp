@@ -1,10 +1,7 @@
-//basic_io_control_motor
-
 #include "app.hpp"
 #include "adc.h"
 #include "math.h"
-#include "BIOC_motor.hpp"
-#include "BIOC_LED.hpp"
+#include "Basic_IO_Control.hpp"
 
 uint16_t adc_val_ch1[4];
 uint16_t sw_val = 0;
@@ -15,36 +12,12 @@ uint32_t IPf1ms_count = 1;
 long int current_sum = 0;
 uint8_t get_ball = 0;
 
-static bool Administrator_Privilege = true;
-static bool Recheck_ADC_Setup = true;
-
 CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
 
-class Expansion_Sensor_Control{
-  public:
-    void Ball_Sensor_Activate(){
-      HAL_GPIO_WritePin(BS_LED_GPIO_Port, BS_LED_Pin, GPIO_PIN_SET);
-      HAL_GPIO_WritePin(BS_OUT_GPIO_Port, BS_OUT_Pin, GPIO_PIN_SET);
-    };
-
-    void Ball_Sensor_Inactivate(){
-      HAL_GPIO_WritePin(BS_LED_GPIO_Port, BS_LED_Pin, GPIO_PIN_RESET);
-      HAL_GPIO_WritePin(BS_OUT_GPIO_Port, BS_OUT_Pin, GPIO_PIN_RESET);
-    };
-
-    void ENC_Activate(){
-      HAL_GPIO_WritePin(ENC_POWER_GPIO_Port, ENC_POWER_Pin, GPIO_PIN_SET);
-    };
-
-    void ENC_Inactivate(){
-      HAL_GPIO_WritePin(ENC_POWER_GPIO_Port, ENC_POWER_Pin, GPIO_PIN_RESET);
-    };
-};
-
-Motor_Control Main_motor;
-LED_Control Set_LED;
-Expansion_Sensor_Control Set_Sensor;
+Basic_IO_Control_Extension_Sensor Set_Sensor;
+Basic_IO_Control_Motor Main_motor;
+Basic_IO_Control_LED Set_LED;
 
 void Setup(void){
   can.init();

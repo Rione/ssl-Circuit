@@ -1,9 +1,17 @@
-//basic_io_control_LED
+//basic_io_control
 
 #include "main.h"
 #include "app.hpp"
 
-class LED_Control {
+class Basic_IO_Control_Extension_Sensor{
+  public:
+    void Ball_Sensor_Activate();
+    void Ball_Sensor_Inactivate();
+    void ENC_Activate();
+    void ENC_Inactivate();
+};
+
+class Basic_IO_Control_LED{
   public:
     bool LED_Flash_Activate = false;
     uint8_t LED_Flash_RED_100ms = HOLD;
@@ -20,4 +28,14 @@ class LED_Control {
     void BS_LED(int status);
     void ALL_Control(int status);
     void ALL_Control_EX_CAN(int status);
+};
+
+class Basic_IO_Control_Motor{
+  public:      
+    void Reverse(int speed);
+    void Forward(int speed);
+    void Brake();
+    void FET_DISABLE();
+    void ENABLE();
+    void DISABLE();
 };

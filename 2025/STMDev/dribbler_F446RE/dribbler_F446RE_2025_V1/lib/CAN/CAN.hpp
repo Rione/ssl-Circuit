@@ -71,6 +71,6 @@ class CANBus {
     CAN_TxHeaderTypeDef txHeader;
     CAN_RxHeaderTypeDef rxHeader;
 };
-};
+}
 #endif
 #endif
