@@ -22,25 +22,25 @@ Basic_IO_Control_LED Set_LED;
 void Setup(void){
   can.init();
 
-  Set_LED.ALL_Control(HIGH);
+  Set_LED.ALL_Control_EX_CAN(HIGH);
   HAL_Delay(500);
-  Set_LED.ALL_Control(LOW);
+  Set_LED.ALL_Control_EX_CAN(LOW);
   HAL_Delay(500);
 
   Set_Administrator_Privilege();
   Set_ADC();
-  Set_DRV();
-  Set_Main_Motor();
+  // Set_DRV();
+  // Set_Main_Motor();
 
   HAL_Delay(500);
-  Set_LED.ALL_Control(LOW);
+  Set_LED.ALL_Control_EX_CAN(LOW);
 
   Set_Sensor.Ball_Sensor_Activate();
   Set_Sensor.ENC_Activate();
 }
 
 void MainLoop(){
-  
+  Set_LED.RED(HIGH);
 }
 
 void Set_Administrator_Privilege(){
@@ -372,7 +372,7 @@ void Interrupt_Processing_f1ms(){
 
   //frq = 200ms
   if(IPf1ms_count % 200 == 0){
-    HAL_CAN_Data_Input_ID0x1d1_465();
+    HAL_CAN_Data_Output_ID0x1d2_466();
   }
 
   IPf1ms_count++;
@@ -428,14 +428,16 @@ void IPf10ms_LED_Flash_Control(){
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if (can.getHcan() == hcan){
+    Set_LED.CAN_LED(HIGH);
     can.recv(canRecvData);
     switch (canRecvData.stdId){
     case 0x1d1: //465
-      HAL_CAN_Data_Output_ID0x1d2_466();
+      HAL_CAN_Data_Input_ID0x1d1_465();
       break;
     default:
       break;
     }
+    Set_LED.CAN_LED(LOW);
   }
 }
 
@@ -450,11 +452,15 @@ void HAL_CAN_Data_Output_ID0x1d2_466(){
     photo = 1;
 
   if (current == 1 && get_ball == 0){
+    Set_LED.GREEN(HIGH);
     get_ball = 1;
   }
   else if (photo == 0 && get_ball == 1){
+    Set_LED.GREEN(LOW);
     get_ball = 0;
   }
+
+  Set_LED.CAN_LED(HIGH);
 
   CANBus::CANData data = {
     .stdId = 0x1d2,
@@ -469,6 +475,8 @@ void HAL_CAN_Data_Output_ID0x1d2_466(){
     },
   };
   can.send(data);
+
+  Set_LED.CAN_LED(LOW);
 
   current_sum = 0;
 }
