@@ -4,12 +4,7 @@
 #include "main.h"
 #include "tim.h"
 #include "CAN.hpp"
-
-#define HIGH    0
-#define LOW     1 
-
-#define PWM_TIM3_FRQ_MAX 800
-#define PWM_TIM3_FRQ_MIN 1
+#include "Basic_IO_Control.hpp"
 
 #define MOTOR_CURRENT   0
 #define BALL_SENSOR_VAL 1
@@ -20,10 +15,6 @@
 
 #define DRV_MIN_CURRENT 47
 #define DRV_MIN_CURRENT_MINUS_RANGE 10
-
-#define START       1
-#define STOP        2
-#define HOLD        3
 
 #define Administrator_Privilege   true
 #define Recheck_ADC_Setup         true

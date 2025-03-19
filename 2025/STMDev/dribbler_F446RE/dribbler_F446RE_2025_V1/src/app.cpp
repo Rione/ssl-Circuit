@@ -1,7 +1,6 @@
 #include "app.hpp"
 #include "adc.h"
 #include "math.h"
-#include "Basic_IO_Control.hpp"
 
 uint16_t adc_val_ch1[4];
 uint16_t sw_val = 0;
