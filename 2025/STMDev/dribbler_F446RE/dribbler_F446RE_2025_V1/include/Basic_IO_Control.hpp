@@ -1,19 +1,11 @@
 //basic_io_control
+
 #ifndef __BIOC_HPP__
 #define __BIOC_HPP__
 
 #include "main.h"
 #include "app.hpp"
-
-#define START       1
-#define STOP        2
-#define HOLD        3
-
-#define HIGH    0
-#define LOW     1 
-
-#define PWM_TIM3_FRQ_MAX 800
-#define PWM_TIM3_FRQ_MIN 1
+#include "Definishion_Control.hpp"
 
 #ifdef __cplusplus
 
@@ -55,6 +47,7 @@ extern "C" {
       void DISABLE();
   };
 }
+
 #endif
 
 #endif

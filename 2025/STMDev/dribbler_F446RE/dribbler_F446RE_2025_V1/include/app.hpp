@@ -4,20 +4,9 @@
 #include "main.h"
 #include "tim.h"
 #include "CAN.hpp"
+#include "Definishion_Control.hpp"
 #include "Basic_IO_Control.hpp"
-
-#define MOTOR_CURRENT   0
-#define BALL_SENSOR_VAL 1
-#define ENC1_VAL        2
-#define ENC2_VAL        3
-
-#define ADC_CONTINUE_NUM 5
-
-#define DRV_MIN_CURRENT 47
-#define DRV_MIN_CURRENT_MINUS_RANGE 10
-
-#define Administrator_Privilege   true
-#define Recheck_ADC_Setup         true
+#include "AD_Setup_Control.hpp"
 
 // double map(double target,double min1,double max1,double min2,double max2){
 //     return ((max2 - min2 + 1) / (max1 - min1 + 1)) * target;
@@ -30,8 +19,6 @@ extern "C" {
 void Setup(void);
 void MainLoop(void);
 
-void Set_Administrator_Privilege();
-void Set_ADC();
 void Set_ADC_Restart();
 void Set_DRV();
 void Set_Main_Motor();

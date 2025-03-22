@@ -2,7 +2,6 @@
 #include "adc.h"
 #include "math.h"
 
-uint16_t adc_val_ch1[4];
 uint16_t sw_val = 0;
 
 uint32_t IPf10ms_count = 1;
@@ -18,6 +17,8 @@ Basic_IO_Control_Extension_Sensor Set_Sensor;
 Basic_IO_Control_Motor Main_motor;
 Basic_IO_Control_LED Set_LED;
 
+AD_Setup_Control AD_Setup;
+
 void Setup(void){
   can.init();
 
@@ -26,8 +27,8 @@ void Setup(void){
   Set_LED.ALL_Control_EX_CAN(LOW);
   HAL_Delay(500);
 
-  Set_Administrator_Privilege();
-  Set_ADC();
+  AD_Setup.Administrator_Privilege();
+  AD_Setup.ADC_Check();
   // Set_DRV();
   // Set_Main_Motor();
 
@@ -40,88 +41,6 @@ void Setup(void){
 
 void MainLoop(){
   Set_LED.RED(HIGH);
-}
-
-void Set_Administrator_Privilege(){
-  Set_LED.CAN_LED(HIGH);
-  printf("*** Start Administrator Privilege Check ***\n");
-
-  HAL_Delay(500);
-  printf("Administrator Privilege ---- ");
-  if(Administrator_Privilege == true){
-    printf("Confirm!\n");
-    printf("Switch to Administrator Mode\n");
-    printf("Confirm Enforcement Processing\n");
-  } else {
-    printf("Unconfirm!\n");
-    printf("Switch to Normal Mode\n");
-  }
-
-  printf("*** Administrator Privilege Check Acomplished ***\n\n");
-  Set_LED.CAN_LED(LOW);
-}
-
-void Set_ADC(){
-  //ADC initialization
-  Set_LED.CAN_LED(HIGH);
-
-  printf("*** Start ADC Initalization ***\n");
-
-  printf("HAL_ADC_Start ---- ");
-  Set_LED.BLUE(HIGH);
-  HAL_ADC_Start(&hadc1);
-  printf("Success!\n");
-  HAL_Delay(500);
-  Set_LED.BLUE(LOW);
-
-  printf("HAL_ADC_Start_DMA ---- ");
-  Set_LED.GREEN(HIGH);
-  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val_ch1,4);
-  printf("Success!\n");
-  HAL_Delay(500);
-  Set_LED.GREEN(LOW);
-
-  for(uint8_t i = 0;i < 4;i++){
-    int continue_num = 0;
-    printf("Check_ADC_Val_%d ---- ",i + 1);
-    Set_LED.YELLOW(HIGH);
-    for(int j = 0;j < ADC_CONTINUE_NUM;j++){
-      while(!(adc_val_ch1[i] > 0)){
-        continue_num ++;
-        if(continue_num > 50){
-          continue_num = 0;
-  
-          Set_LED.RED(HIGH);
-          HAL_Delay(100);
-          printf("FAIL!\n");
-          printf("-- Restart_HAL_initialization\n");
-  
-          printf("-- HAL_ADC_Restart ---- ");
-          HAL_Delay(100);
-          HAL_ADC_Start(&hadc1);
-          printf("Success!\n");
-  
-          printf("-- HAL_ADC_Restart_DMA ---- ");
-          HAL_Delay(100);
-          HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val_ch1,4);
-          printf("Success!\n");
-  
-          printf("Recheck_ADC_Val_%d ---- ",i + 1);
-          HAL_Delay(100);
-          Set_LED.RED(LOW);
-        }
-      }
-    }
-    printf("Success!\n");
-    HAL_Delay(200);
-    Set_LED.YELLOW(LOW);
-  }
-
-  printf("ADC Is Operating Normally\n");
-  printf("*** ADC Initalization Acomplished ***\n\n");
-  Set_LED.CAN_LED(LOW);
-  Set_LED.YELLOW(HIGH);
-  HAL_Delay(500);
 }
 
 void Set_ADC_Restart(){
