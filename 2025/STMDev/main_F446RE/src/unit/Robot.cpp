@@ -116,7 +116,7 @@ void Robot::rasRecvSerial() {
 }
 
 void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
-    static const uint8_t dataSize = 4; // データのサイズ
+    static const uint8_t dataSize = 3; // データのサイズ
     static const uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
 
     if (rasSendInterval.read_ms() < interval) {
@@ -124,8 +124,7 @@ void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
     }
     uint8_t buffer[dataSize] = {
         info.batteryVoltage,
-        info.isDetectedBall,
-        info.isHoldBall,
+        info.dribbleStatus.data,
         info.capChargeCertitude,
     };
     serial5.write(startBytes, 4);
@@ -140,7 +139,7 @@ void Robot::getSensors(RobotInfo *info) {
     HAL_ADC_PollForConversion(&hadc1, 100);
     uint32_t batt = HAL_ADC_GetValue(&hadc1);
     info->batteryVoltage = medianBatteryValue.calc((uint8_t)((float)(batt) * 3.3 / 4095.0 * 58.5 - 5));
-    info->isHoldBall = (medianPhotoValue.calc(info->photoSensorValue) < PHOTOSENSOR_THRESHOLD); // config
+    // info->isHoldBall = (medianPhotoValue.calc(info->photoSensorValue) < PHOTOSENSOR_THRESHOLD); // config //ドリブラで判定
     info->capChargeCertitude = getCapChargeCertitude();
     if (info->batteryVoltage < BATTERY_CUT_OFF) {
         if (underVoltageCount < 1000) underVoltageCount++;

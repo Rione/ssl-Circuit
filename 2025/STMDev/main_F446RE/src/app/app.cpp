@@ -70,6 +70,12 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             // uint16_t photoSensorThreshold = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;
             robot.led0 = !robot.led0;
             break;
+        case DRIBBLE_RECV:
+            robot.setIsHoldBallValue(canRecvData.data[0]);
+            // data[1],data[2,3]ドリブラ検知の値は無視　CAN監視用
+            robot.setIsDetectedBallValue(canRecvData.data[4]);
+            robot.setPhotoSensorValue((uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8);
+            break;
         default:
             break;
         }

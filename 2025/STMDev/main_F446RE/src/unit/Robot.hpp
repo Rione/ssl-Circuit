@@ -128,8 +128,15 @@ typedef struct {
     } status;
 
     // Infomation STM32→RaspberryPi
-    uint8_t isHoldBall; // ボール保持（ドリブラーの検知とフォトセンサーの検知の論理積）
-    uint8_t isDetectedBall; // ボール検知（フォトセンサーの検知）2024版のisHolDBall
+    union {
+        struct {
+            bool isDetectedBall : 1; // ボール検知（フォトセンサーの検知）2024版のisHolDBall
+            bool isHoldBall : 1; // ボール保持（ドリブラーの検知とフォトセンサーの検知の論理積）
+            bool isHoldBallReliable : 1; // ボール保持の信頼性 0:信頼性なし 1:信頼性あり、パワーが変わって2秒は信頼性なし                  
+        };
+        uint8_t data;
+    } dribbleStatus; //ボール保持とボール検知の統合
+
     uint8_t batteryVoltage;
     uint8_t capChargeCertitude; // 0~100
 
@@ -311,21 +318,22 @@ class Robot {
         };
         can.send(canData);
     }
-    inline __attribute__((always_inline)) void dribble(uint8_t power, bool forceSend = false) {
+    inline __attribute__((always_inline)) bool dribble(uint8_t power, bool forceSend = false) {
         static Timer timer;
         static uint8_t dribblePowerPrev = power;
         if (timer.read_ms() > 10000) timer.set_ms(10000);
         if (power == dribblePowerPrev && forceSend == false) {
             if (timer.read_ms() < 100) // パワーが変わっていない場合は送信しない。 forceSendがtrueの場合は100msごとに送信する
-                return;
+                return 0;
         }
         CANBus::CANData canData = {
-            .stdId = DRIBBLE,
+            .stdId = DRIBBLE_SEND,
             .data = {power, 0, 0, 0, 0, 0, 0, 0},
         };
         can.send(canData);
         timer.reset();
         dribblePowerPrev = power;
+        return 1; // 送信した
     }
 
     inline __attribute__((always_inline)) void setPhotoSensorValue(uint16_t value) {
@@ -419,6 +427,14 @@ class Robot {
                 resetDoDirectChipKick();
             }
         }
+    }
+
+    inline __attribute__((always_inline)) void setIsHoldBallValue(uint8_t value) {
+        info.dribbleStatus.isHoldBall = value;
+    }
+
+    inline __attribute__((always_inline)) void setIsDetectedBallValue(uint8_t value) {
+        info.dribbleStatus.isDetectedBall = value;
     }
 
   private:
