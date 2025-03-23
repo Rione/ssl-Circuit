@@ -116,7 +116,7 @@ void Robot::rasRecvSerial() {
 }
 
 void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
-    static const uint8_t dataSize = 3; // データのサイズ
+    static const uint8_t dataSize = 4; // データのサイズ
     static const uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
 
     if (rasSendInterval.read_ms() < interval) {
@@ -124,6 +124,7 @@ void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
     }
     uint8_t buffer[dataSize] = {
         info.batteryVoltage,
+        info.isDetectedBall,
         info.isHoldBall,
         info.capChargeCertitude,
     };

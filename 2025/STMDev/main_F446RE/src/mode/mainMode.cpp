@@ -33,7 +33,7 @@ void MainMode::loop() {
         // Robot is Stop or Emergency Stop
         robot->stopRobot(500);
     }
-    robot->led1 = robot->info.isHoldBall;
+    robot->led1 = robot->info.isDetectedBall;
     printfDMA("Ball:%d Batt:%d Cap:%d doDirect:%d doDirectChip:%d directSt:%d directCh:%d Str:%d Chip:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage, robot->getCapChargeCertitude(), robot->info.status.doDirectKick, robot->info.status.doDirectChipKick, robot->info.kickerBoardDoDirectStatus.straight, robot->info.kickerBoardDoDirectStatus.chip, robot->info.kicker.straight, robot->info.kicker.chip);
     while (timer.read_us() < 1000)
         ; // 1ms time control

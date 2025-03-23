@@ -128,7 +128,8 @@ typedef struct {
     } status;
 
     // Infomation STM32→RaspberryPi
-    uint8_t isHoldBall;
+    uint8_t isHoldBall; // ボール保持（ドリブラーの検知とフォトセンサーの検知の論理積）
+    uint8_t isDetectedBall; // ボール検知（フォトセンサーの検知）2024版のisHolDBall
     uint8_t batteryVoltage;
     uint8_t capChargeCertitude; // 0~100
 

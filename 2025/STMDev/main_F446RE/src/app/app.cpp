@@ -63,7 +63,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         //     break;
         case KICKER_BOARD_PACKET: // フォトセンサの値・充電完了信号の受信
 
-            robot.setPhotoSensorValue((uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8);
+            // robot.setPhotoSensorValue((uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8); // フォトセンサの値の処理はドリブラで行う
             robot.setChageDoneSignal(canRecvData.data[2]);       // 充電完了信号の処理
             robot.setKickerBoardChargeMode(canRecvData.data[3]); // 充電モード信号の処理
             robot.setKickerBoardDoDirectMode(canRecvData.data[4]);
@@ -118,7 +118,7 @@ void setup() {
 
     uint16_t thr = PHOTOSENSOR_THRESHOLD;
     CANBus::CANData data = {
-        .stdId = 0x09,
+        .stdId = PHOTOTHRESHOLD,
         .data = {
             (uint8_t)(thr & 0xFF),
             (uint8_t)((thr >> 8) & 0xFF),
