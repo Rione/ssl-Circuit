@@ -6,42 +6,25 @@ Basic_IO_Control_Extension_Sensor ADSC_Sensor;
 Basic_IO_Control_Motor ADSC_Motor;
 Basic_IO_Control_LED ADSC_LED;
 
-void AD_Setup_Control::Administrator_Privilege(){
-  // printf("*** Start Administrator Privilege Check ***\n");
-
-  // HAL_Delay(500);
-  // printf("Administrator Privilege ---- ");
-  // if(Fnc_Administrator_Privilege == true){
-  //     printf("Confirm!\n");
-  //     printf("Switch to Administrator Mode\n");
-  //     printf("Confirm Enforcement Processing\n");
-  // } else {
-  //     printf("Unconfirm!\n");
-  //     printf("Switch to Normal Mode\n");
-  // }
-
-  // printf("*** Administrator Privilege Check Acomplished ***\n\n");
-}
-
 void AD_Setup_Control::ADC_Check(){
   //ADC initialization
   int hal_restart_tim = -1;
   bool hal_restart = false;
 
-  printf("*** Start ADC Initalization ***\n");
+  printf("\n*** Start ADC Initalization ***\n");
 
   do{
     hal_restart = false;
     hal_restart_tim ++;
 
-    printf("HAL_ADC_Start ---- ");
+    printf("HAL ADC Start ---- ");
     ADSC_LED.BLUE(HIGH);
     HAL_ADC_Start(&hadc1);
     printf("Success!\n");
     HAL_Delay(500);
     ADSC_LED.BLUE(LOW);
 
-    printf("HAL_ADC_Start_DMA ---- ");
+    printf("HAL ADC Start DMA ---- ");
     ADSC_LED.GREEN(HIGH);
     HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_val_ch1,4);
     printf("Success!\n");
@@ -50,18 +33,19 @@ void AD_Setup_Control::ADC_Check(){
 
     for(int i = 0;i < 4;i++){
       int continue_num = 0;
-      printf("Check_ADC_Val_%d ---- ",i + 1);
+      printf("Check ADC_Val_%d ---- ",i + 1);
       ADSC_LED.YELLOW(HIGH);
       while(!(adc_val_ch1[i] > 0)){
         HAL_Delay(10);
         continue_num ++;
         if(continue_num > 50){
           printf("FAIL!\n");
-          if(hal_restart_tim > 6){
+          ADSC_LED.RED(HIGH);
+          if(hal_restart_tim >= 6){
+            printf("\n[][][] Inisiate System Rest [][][]\n");
             HAL_NVIC_SystemReset();
           } else {
-            printf("-- Restart_HAL_initialization\n");
-            ADSC_LED.RED(HIGH);
+            printf("-- Restart HAL initialization\n");
             hal_restart = true; 
           }
         }
@@ -75,87 +59,91 @@ void AD_Setup_Control::ADC_Check(){
 
       HAL_Delay(200);
     }
-  }while(hal_restart != false);
+  } while(hal_restart != false);
 
   printf("ADC Is Operating Normally\n");
-  printf("*** ADC Initalization Acomplished ***\n\n");
+  printf("*** ADC Initalization Acomplished ***\n");
 
   ADSC_LED.YELLOW(HIGH);
   HAL_Delay(500);
 }
 
+void AD_Setup_Control::Administrator_Privilege(){
+  printf("\n*** Start Administrator Privilege Check ***\n");
+
+  HAL_Delay(500);
+  printf("Administrator Privilege ---- ");
+  if(Fnc_Administrator_Privilege == true){
+    printf("Confirm!\n");
+    printf("Switch to Administrator Mode\n");
+    printf("Confirm Enforcement Processing\n");
+    Enforcement_Processing = true;
+  } else {
+    printf("Unconfirm!\n");
+    printf("Switch to Normal Mode\n");
+    Enforcement_Processing = false;
+  }
+
+  printf("*** Administrator Privilege Check Acomplished ***\n");
+}
+
 void AD_Setup_Control::DRV_Check(){
   //DRV initialization
-  ADSC_LED.CAN_LED(HIGH);
+  int DRV_restart_tim = -1;
+  bool DRV_restart = false;
 
-  printf("*** Start Main Power Supply Check ***\n");
+  printf("\n*** Start Main Power Supply Check ***\n");
   ADSC_LED.BLUE(HIGH);
 
-  printf("Main Power Supply ---- ");
-  ADSC_Motor.ENABLE();
-  ADSC_Motor.Forward(5);
-  HAL_Delay(100);
-  int current = 0;
-  for(int i = 0;i < 50;i++){
-    current += adc_val_ch1[MOTOR_CURRENT];
-    HAL_Delay(10);
-  } 
-  printf("%d\n",current / 50);
-  if((current / 50) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
-    current = 0;
-    printf("Confirm!\n");
-    printf("Main Power Supply Is Operating Normally\n");
-  } else {
-    // printf("Unconfirm!\n");
-    // printf("-- [CAUSION] : Main Power Supply Is Too LOW\n");
-    // printf("-- [ADVICE] : Cancel Causion or Establish Power Supply\n");
-    // ADSC_LED.RED(HIGH);
-    // int count = 1;
-    // int ADC_Restart = 0;
-    // for(;;){
-    //   current = 0;
-    //   for(int i = 0;i < 10;i++){
-    //     HAL_Delay(5);
-    //     current += adc_val_ch1[MOTOR_CURRENT];
-    //   } 
-    //   if((current / 10) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
-    //     printf("Recheck Main Power Supply ---- ");
-    //     printf("Confirm!\n");
-    //     printf("Main Power Supply Is Operating Normally\n");
-    //     break;
-    //   }
-    //   if(sw_val == 0){
-    //     printf("Recheck Main Power Supply ---- ");
-    //     printf("Unconfirm!\n");
-    //     printf("-- Confirm Cancel Causion\n");
-    //     break;
-    //   }
-    //   if(Recheck_ADC_Setup == true){
-    //     if(count > 100){
-    //       if(ADC_Restart == 0){
-    //         printf("Recheck Main Power Supply ---- ");
-    //         printf("Unconfirm!\n");
-    //       }
-    //       printf("-- Recheck ADC Setup\n");
-    //       //Set_ADC_Restart();
-    //       printf("-- Recheck ADC Setup Acomplished\n");
-    //       count = 1;
-    //       ADC_Restart++;
-    //     }
-    //     count++;
-    //   }
-    // }
-    // ADSC_LED.RED(LOW);
-    HAL_NVIC_SystemReset();
-  }
+  do {
+    int current = 0;
+    DRV_restart = false;
+    DRV_restart_tim ++;
+
+    printf("Main Power Supply ---- ");
+    ADSC_Motor.ENABLE();
+    ADSC_Motor.Forward(5);
+    HAL_Delay(1000);
+
+    for(int i = 0;i < 50;i++){
+      current += adc_val_ch1[MOTOR_CURRENT];
+      HAL_Delay(5);
+    } 
+
+    if((current / 50) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
+      current = 0;
+      printf("Confirm!\n");
+      printf("                           ---- Val = %d\n",current / 50);
+      printf("Main Power Supply Is Operating Normally\n");
+    } else {
+      ADSC_LED.RED(HIGH);
+      printf("Unconfirm!\n");
+      printf("-- Main Power Supply Is Too LOW\n");
+      DRV_restart = true;
+
+      if(Enforcement_Processing == true){
+        if(DRV_restart_tim >= 6){
+          printf("\n[][][] Inisiate System Rest [][][]\n");
+          HAL_NVIC_SystemReset();
+        } else {
+          printf("-- Restart Main Power Supply Check\n");
+        }
+      } else {
+        if(sw_val == 0){
+          DRV_restart = false;
+          printf("Confirm Cancel Causion\n");
+        } else printf("-- Restart Main Power Supply Check\n");
+      }
+    }
+  } while(DRV_restart != false);
+
+  ADSC_LED.RED(LOW);
 
   HAL_Delay(500);
   ADSC_Motor.Brake();
-  ADSC_Motor.FET_DISABLE();
   ADSC_Motor.DISABLE();
 
-  printf("*** Main Power Supply Check Acomplished ***\n\n");
-  ADSC_LED.CAN_LED(LOW);
+  printf("*** Main Power Supply Check Acomplished ***\n");
   HAL_Delay(500);
 }
 

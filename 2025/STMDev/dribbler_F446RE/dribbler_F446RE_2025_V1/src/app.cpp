@@ -24,13 +24,13 @@ void Setup(void){
   can.init();
 
   Set_LED.ALL_Control_EX_CAN(HIGH);
-  HAL_Delay(500);
+  HAL_Delay(1000);
   Set_LED.ALL_Control_EX_CAN(LOW);
   HAL_Delay(500);
 
-  AD_Setup.Administrator_Privilege();
   AD_Setup.ADC_Check();
-  //AD_Setup.DRV_Check();
+  AD_Setup.Administrator_Privilege();
+  AD_Setup.DRV_Check();
   //AD_Setup.Motor_Check();
 
   HAL_Delay(500);
