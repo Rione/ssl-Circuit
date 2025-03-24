@@ -30,9 +30,8 @@ void Setup(void){
 
   AD_Setup.Administrator_Privilege();
   AD_Setup.ADC_Check();
-  //AD_Setup.ADC_Recheck();
-  AD_Setup.DRV_Check();
-  AD_Setup.Motor_Check();
+  //AD_Setup.DRV_Check();
+  //AD_Setup.Motor_Check();
 
   HAL_Delay(500);
   Set_LED.ALL_Control_EX_CAN(LOW);
@@ -42,7 +41,7 @@ void Setup(void){
 }
 
 void MainLoop(){
-  Set_LED.RED(HIGH);
+  //Set_LED.RED(HIGH);
 }
 
 void Interrupt_Processing_f10ms(){
@@ -62,8 +61,6 @@ void Interrupt_Processing_f10ms(){
 void Interrupt_Processing_f1ms(){
   //frq = 1ms
   current_sum += adc_val_ch1[MOTOR_CURRENT];
-
-  
 
   //frq = 200ms
   if(IPf1ms_count % 200 == 0){

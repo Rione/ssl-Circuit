@@ -12,11 +12,13 @@
 #ifdef __cplusplus
 
 extern "C" {
+  extern uint16_t sw_val;
+  extern uint16_t adc_val_ch1[4];
+
   class AD_Setup_Control{
     public:
       void Administrator_Privilege();
       void ADC_Check();
-      void ADC_Recheck();
       void DRV_Check();
       void Motor_Check();
   };

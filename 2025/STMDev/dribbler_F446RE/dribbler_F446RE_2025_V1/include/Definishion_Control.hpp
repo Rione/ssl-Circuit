@@ -31,7 +31,6 @@
 
 extern "C" {
   const bool Fnc_Administrator_Privilege = true;
-  const bool Recheck_ADC_Setup = true;
 }
 
 #endif
