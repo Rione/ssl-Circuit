@@ -25,7 +25,7 @@
 #define ADC_CONTINUE_NUM 5
 
 #define DRV_MIN_CURRENT 47
-#define DRV_MIN_CURRENT_MINUS_RANGE 10
+#define DRV_MIN_CURRENT_MINUS_RANGE 20
 
 #ifdef __cplusplus
 

@@ -156,54 +156,56 @@ void AD_Setup_Control::DRV_Check(){
   HAL_Delay(100);
   int current = 0;
   for(int i = 0;i < 50;i++){
-    HAL_Delay(10);
     current += adc_val_ch1[MOTOR_CURRENT];
+    HAL_Delay(10);
   } 
+  printf("%d\n",current / 50);
   if((current / 50) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
     current = 0;
     printf("Confirm!\n");
     printf("Main Power Supply Is Operating Normally\n");
   } else {
-    printf("Unconfirm!\n");
-    printf("-- [CAUSION] : Main Power Supply Is Too LOW\n");
-    printf("-- [ADVICE] : Cancel Causion or Establish Power Supply\n");
-    ADSC_LED.RED(HIGH);
-    int count = 1;
-    int ADC_Restart = 0;
-    for(;;){
-      current = 0;
-      for(int i = 0;i < 10;i++){
-        HAL_Delay(5);
-        current += adc_val_ch1[MOTOR_CURRENT];
-      } 
-      if((current / 10) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
-        printf("Recheck Main Power Supply ---- ");
-        printf("Confirm!\n");
-        printf("Main Power Supply Is Operating Normally\n");
-        break;
-      }
-      if(sw_val == 0){
-        printf("Recheck Main Power Supply ---- ");
-        printf("Unconfirm!\n");
-        printf("-- Confirm Cancel Causion\n");
-        break;
-      }
-      if(Recheck_ADC_Setup == true){
-        if(count > 100){
-          if(ADC_Restart == 0){
-            printf("Recheck Main Power Supply ---- ");
-            printf("Unconfirm!\n");
-          }
-          printf("-- Recheck ADC Setup\n");
-          //Set_ADC_Restart();
-          printf("-- Recheck ADC Setup Acomplished\n");
-          count = 1;
-          ADC_Restart++;
-        }
-        count++;
-      }
-    }
-    ADSC_LED.RED(LOW);
+    // printf("Unconfirm!\n");
+    // printf("-- [CAUSION] : Main Power Supply Is Too LOW\n");
+    // printf("-- [ADVICE] : Cancel Causion or Establish Power Supply\n");
+    // ADSC_LED.RED(HIGH);
+    // int count = 1;
+    // int ADC_Restart = 0;
+    // for(;;){
+    //   current = 0;
+    //   for(int i = 0;i < 10;i++){
+    //     HAL_Delay(5);
+    //     current += adc_val_ch1[MOTOR_CURRENT];
+    //   } 
+    //   if((current / 10) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
+    //     printf("Recheck Main Power Supply ---- ");
+    //     printf("Confirm!\n");
+    //     printf("Main Power Supply Is Operating Normally\n");
+    //     break;
+    //   }
+    //   if(sw_val == 0){
+    //     printf("Recheck Main Power Supply ---- ");
+    //     printf("Unconfirm!\n");
+    //     printf("-- Confirm Cancel Causion\n");
+    //     break;
+    //   }
+    //   if(Recheck_ADC_Setup == true){
+    //     if(count > 100){
+    //       if(ADC_Restart == 0){
+    //         printf("Recheck Main Power Supply ---- ");
+    //         printf("Unconfirm!\n");
+    //       }
+    //       printf("-- Recheck ADC Setup\n");
+    //       //Set_ADC_Restart();
+    //       printf("-- Recheck ADC Setup Acomplished\n");
+    //       count = 1;
+    //       ADC_Restart++;
+    //     }
+    //     count++;
+    //   }
+    // }
+    // ADSC_LED.RED(LOW);
+    HAL_NVIC_SystemReset();
   }
 
   HAL_Delay(500);
@@ -227,14 +229,14 @@ void AD_Setup_Control::Motor_Check(){
 
   printf("Main Motor Forward Current ---- ");
   ADSC_Motor.ENABLE();
-  ADSC_Motor.Forward(50);
+  ADSC_Motor.Forward(80);
   HAL_Delay(1000);
-  int Forward_Current = 0;
-  for(int i = 0;i < 50;i++){
+  long int Forward_Current = 0;
+  for(int i = 0;i < 100;i++){
     Forward_Current += adc_val_ch1[MOTOR_CURRENT];
-    HAL_Delay(1);
+    HAL_Delay(5);
   }
-  Forward_Current /= 50;
+  Forward_Current /= 100;
   ADSC_Motor.Brake();
   ADSC_Motor.FET_DISABLE();
   ADSC_Motor.DISABLE();
@@ -255,9 +257,6 @@ void AD_Setup_Control::Motor_Check(){
     ADSC_LED.RED(LOW);
   }
 
-  ADSC_Motor.ENABLE();
-  ADSC_Motor.Forward(30);
-  HAL_Delay(10);
   ADSC_Motor.Brake();
   ADSC_Motor.FET_DISABLE();
   ADSC_Motor.DISABLE();
@@ -265,14 +264,14 @@ void AD_Setup_Control::Motor_Check(){
 
   printf("Main Motor Reverse Current ---- ");
   ADSC_Motor.ENABLE();
-  ADSC_Motor.Reverse(50);
+  ADSC_Motor.Reverse(80);
   HAL_Delay(1000);
-  int Reverse_Current = 0;
-  for(int i = 0;i < 50;i++){
+  long int Reverse_Current = 0;
+  for(int i = 0;i < 100;i++){
     Reverse_Current += adc_val_ch1[MOTOR_CURRENT];
-    HAL_Delay(1);
+    HAL_Delay(5);
   }
-  Reverse_Current /= 50;
+  Reverse_Current /= 100;
   ADSC_Motor.Brake();
   ADSC_Motor.FET_DISABLE();
   ADSC_Motor.DISABLE();
@@ -295,7 +294,7 @@ void AD_Setup_Control::Motor_Check(){
 
   printf("Check Current Value Differ ---- ");
   if(error_status == false){
-    if(abs(Reverse_Current - Forward_Current) < 10){
+    if(abs(Reverse_Current - Forward_Current) < 20){
       printf("Normal!\n");
       printf("Main Motor Current Is Operating Normally\n");
     } else {

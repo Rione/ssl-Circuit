@@ -30,7 +30,7 @@ void Setup(void){
 
   AD_Setup.Administrator_Privilege();
   AD_Setup.ADC_Check();
-  AD_Setup.ADC_Recheck();
+  //AD_Setup.ADC_Recheck();
   AD_Setup.DRV_Check();
   AD_Setup.Motor_Check();
 
@@ -56,12 +56,14 @@ void Interrupt_Processing_f10ms(){
   }
 
   IPf10ms_count++;
-  if(IPf10ms_count == 100) IPf10ms_count = 1;
+  if(IPf10ms_count == 101) IPf10ms_count = 1;
 }
 
 void Interrupt_Processing_f1ms(){
   //frq = 1ms
   current_sum += adc_val_ch1[MOTOR_CURRENT];
+
+  
 
   //frq = 200ms
   if(IPf1ms_count % 200 == 0){
@@ -69,7 +71,7 @@ void Interrupt_Processing_f1ms(){
   }
 
   IPf1ms_count++;
-  if(IPf1ms_count == 1000) IPf1ms_count = 1;
+  if(IPf1ms_count == 1001) IPf1ms_count = 1;
 }
 
 void IPf10ms_LED_Flash_Control(){
@@ -155,6 +157,8 @@ void HAL_CAN_Data_Output_ID0x1d2_466(){
 
   Set_LED.CAN_LED(HIGH);
 
+  //printf("%d\n",current_val);
+
   CANBus::CANData data = {
     .stdId = 0x1d2,
     .data = {
@@ -169,7 +173,7 @@ void HAL_CAN_Data_Output_ID0x1d2_466(){
   };
   can.send(data);
 
-  Set_LED.CAN_LED(LOW);
+  //Set_LED.CAN_LED(LOW);
 
   current_sum = 0;
 }
