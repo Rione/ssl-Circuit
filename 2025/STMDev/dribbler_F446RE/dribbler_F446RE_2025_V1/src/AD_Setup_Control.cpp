@@ -237,6 +237,8 @@ void AD_Setup_Control::Motor_Check(){
   }while(motor_restart != false);
 
   ADSC_LED.RED(LOW);
+  ADSC_Motor.Brake();
+  ADSC_Motor.DISABLE();
 
   printf("Main Motor Is Operating Normally\n");
   printf("*** Main Motor Check Acomplished ***\n");

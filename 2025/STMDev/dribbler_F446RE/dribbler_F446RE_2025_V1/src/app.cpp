@@ -4,15 +4,14 @@
 
 uint16_t sw_val = 0;
 uint16_t adc_val_ch1[4];
-
 uint32_t IPf10ms_count = 1;
 uint32_t IPf1ms_count = 1;
-
 long int current_sum = 0;
 uint8_t get_ball = 0;
 
 CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
+bool Halt_CAN_Data_Send;
 
 Basic_IO_Control_Extension_Sensor Set_Sensor;
 Basic_IO_Control_Motor Main_motor;
@@ -21,23 +20,31 @@ Basic_IO_Control_LED Set_LED;
 AD_Setup_Control AD_Setup;
 
 void Setup(void){
-  can.init();
+  Halt_CAN_Data_Send = true;
 
-  Set_LED.ALL_Control_EX_CAN(HIGH);
+  HAL_Delay(500);
+  Set_LED.ALL_Control(HIGH);
   HAL_Delay(1000);
-  Set_LED.ALL_Control_EX_CAN(LOW);
+  Set_LED.ALL_Control(LOW);
   HAL_Delay(500);
 
+  Set_LED.LED_Flash_Activate = true;
+  Set_LED.LED_Flash_CAN_100ms = START;
   AD_Setup.ADC_Check();
   AD_Setup.Administrator_Privilege();
   AD_Setup.DRV_Check();
   AD_Setup.Motor_Check();
+  Set_LED.LED_Flash_CAN_100ms = STOP;
+  Set_LED.LED_Flash_Activate = false;
 
   HAL_Delay(500);
   Set_LED.ALL_Control_EX_CAN(LOW);
 
+  can.init();
   Set_Sensor.Ball_Sensor_Activate();
   Set_Sensor.ENC_Activate();
+
+  Halt_CAN_Data_Send = false;
 }
 
 void MainLoop(){
@@ -60,7 +67,9 @@ void Interrupt_Processing_f10ms(){
 
 void Interrupt_Processing_f1ms(){
   //frq = 1ms
-  current_sum += adc_val_ch1[MOTOR_CURRENT];
+  if(Halt_CAN_Data_Send == false){
+    current_sum += adc_val_ch1[MOTOR_CURRENT];
+  }
 
   //frq = 200ms
   if(IPf1ms_count % 200 == 0){
@@ -138,41 +147,46 @@ void HAL_CAN_Data_Output_ID0x1d2_466(){
   uint8_t photo = 0;
   uint8_t current = 0;
 
-  if (current_val > 150)
-    current = 1;
-  if (adc_val_ch1[BALL_SENSOR_VAL] < 100)
-    photo = 1;
+  if(Halt_CAN_Data_Send == false){
+    if (current_val > 150){
+      current = 1;
+      Set_LED.GREEN(HIGH);
+    } else Set_LED.GREEN(LOW);
+    if (adc_val_ch1[BALL_SENSOR_VAL] < 100){
+      photo = 1;
+      Set_LED.BLUE(HIGH);
+    } else Set_LED.BLUE(LOW);
+      
+    if (current == 1 && get_ball == 0){
+      Set_LED.YELLOW(HIGH);
+      get_ball = 1;
+    } else if (photo == 0 && get_ball == 1){
+      Set_LED.YELLOW(LOW);
+      get_ball = 0;
+    }
 
-  if (current == 1 && get_ball == 0){
-    Set_LED.GREEN(HIGH);
-    get_ball = 1;
+    printf("get ball : %d\n",get_ball);
+    printf("current : %d,current val : %d\n",current,current_val);
+    printf("photo   : %d,photo val   : %d\n",photo,adc_val_ch1[BALL_SENSOR_VAL]);
+
+    Set_LED.CAN_LED(HIGH);
+    
+    CANBus::CANData data = {
+      .stdId = 0x1d2,
+      .data = {
+        get_ball,
+        current,
+        (uint8_t)(current_sum & 0xFF),
+        (uint8_t)((current_sum >> 8) & 0xFF),
+        photo,
+        (uint8_t)(adc_val_ch1[BALL_SENSOR_VAL] & 0xFF),
+        (uint8_t)((adc_val_ch1[BALL_SENSOR_VAL] >> 8) & 0xFF),
+      },
+    };
+    can.send(data);
+
+    current_sum = 0;
   }
-  else if (photo == 0 && get_ball == 1){
-    Set_LED.GREEN(LOW);
-    get_ball = 0;
-  }
-
-  Set_LED.CAN_LED(HIGH);
-
-  //printf("%d\n",current_val);
-
-  CANBus::CANData data = {
-    .stdId = 0x1d2,
-    .data = {
-      get_ball,
-      current,
-      (uint8_t)(current_sum & 0xFF),
-      (uint8_t)((current_sum >> 8) & 0xFF),
-      photo,
-      (uint8_t)(adc_val_ch1[BALL_SENSOR_VAL] & 0xFF),
-      (uint8_t)((adc_val_ch1[BALL_SENSOR_VAL] >> 8) & 0xFF),
-    },
-  };
-  can.send(data);
-
-  //Set_LED.CAN_LED(LOW);
-
-  current_sum = 0;
 }
 
 void HAL_CAN_Data_Input_ID0x1d1_465(){
