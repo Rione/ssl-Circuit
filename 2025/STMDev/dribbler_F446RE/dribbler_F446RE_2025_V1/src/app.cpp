@@ -17,6 +17,8 @@ Basic_IO_Control_Extension_Sensor Set_Sensor;
 Basic_IO_Control_Motor Main_motor;
 Basic_IO_Control_LED Set_LED;
 Basic_IO_Control_LED_Flash IPf100ms_Flash;
+Basic_IO_Control_LED_Flash IPf200ms_Flash;
+Basic_IO_Control_LED_Flash IPf300ms_Flash;
 Basic_IO_Control_LED_Flash IPf500ms_Flash;
 
 AD_Setup_Control AD_Setup;
@@ -30,16 +32,17 @@ void Setup(void){
   Set_LED.ALL_Control(LOW);
   HAL_Delay(500);
 
-  IPf500ms_Flash.LED_Flash_Activate = true;
-  IPf500ms_Flash.LED_Flash_CAN = START;
+  IPf100ms_Flash.LED_Flash_Activate = true;
+  IPf100ms_Flash.LED_Flash_CAN = START;
   AD_Setup.ADC_Check();
   AD_Setup.Administrator_Privilege();
   AD_Setup.DRV_Check();
   AD_Setup.Motor_Check();
-  IPf500ms_Flash.LED_Flash_CAN = STOP;
-  IPf500ms_Flash.LED_Flash_Activate = false;
+  HAL_Delay(2000);
+  IPf100ms_Flash.LED_Flash_CAN = STOP;
+  IPf100ms_Flash.LED_Flash_Activate = false;
 
-  HAL_Delay(500);
+  HAL_Delay(1000);
   Set_LED.ALL_Control_EX_CAN(LOW);
 
   can.init();
@@ -47,10 +50,13 @@ void Setup(void){
   Set_Sensor.ENC_Activate();
 
   Halt_CAN_Data_Send = false;
+
+  IPf500ms_Flash.LED_Flash_Activate = true;
+  IPf500ms_Flash.LED_Flash_RED = START;
 }
 
 void MainLoop(){
-  //Set_LED.RED(HIGH);
+  
 }
 
 void Interrupt_Processing_f10ms(){
@@ -61,6 +67,16 @@ void Interrupt_Processing_f10ms(){
   //frq = 100ms
   if(IPf10ms_count % 10 == 0){
     IPf100ms_Flash.LED_Flash_Control();
+  }
+
+  //frq = 200ms
+  if(IPf10ms_count % 20 == 0){
+    IPf200ms_Flash.LED_Flash_Control();
+  }
+
+  //frq = 300ms
+  if(IPf10ms_count % 30 == 0){
+    IPf300ms_Flash.LED_Flash_Control();
   }
 
   //frq = 500ms
@@ -108,7 +124,7 @@ void HAL_CAN_Data_Output_ID0x1d2_466(){
   uint8_t current = 0;
 
   if(Halt_CAN_Data_Send == false){
-    if (current_val > 150){
+    if (current_val > 190){
       current = 1;
       Set_LED.GREEN(HIGH);
     } else Set_LED.GREEN(LOW);

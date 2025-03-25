@@ -5,6 +5,7 @@
 Basic_IO_Control_Extension_Sensor ADSC_Sensor;
 Basic_IO_Control_Motor ADSC_Motor;
 Basic_IO_Control_LED ADSC_LED;
+extern Basic_IO_Control_LED_Flash IPf100ms_Flash;
 
 bool Enforcement_Processing;
 
@@ -98,7 +99,7 @@ void AD_Setup_Control::DRV_Check(){
   const int Main_Power_min = Main_Power_Constant - Main_Power_Constant_Range;
   
   printf("\n*** Start Main Power Supply Check ***\n");
-  ADSC_LED.BLUE(HIGH);
+  IPf100ms_Flash.LED_Flash_BLUE = START;
 
   do {
     int current = 0;
@@ -146,6 +147,10 @@ void AD_Setup_Control::DRV_Check(){
   ADSC_Motor.Brake();
   ADSC_Motor.DISABLE();
 
+  IPf100ms_Flash.LED_Flash_BLUE = STOP;
+  HAL_Delay(100);
+  ADSC_LED.BLUE(HIGH);
+
   printf("*** Main Power Supply Check Acomplished ***\n");
   HAL_Delay(500);
 }
@@ -159,7 +164,7 @@ void AD_Setup_Control::Motor_Check(){
   const int motor_current_min = Motor_Base_Current - Motor_Base_Current_RANGE;
 
   printf("\n*** Start Main Motor Check ***\n");
-  ADSC_LED.GREEN(HIGH);
+  IPf100ms_Flash.LED_Flash_GREEN = START;
   ADSC_Motor.ENABLE();
 
   do{
@@ -240,8 +245,12 @@ void AD_Setup_Control::Motor_Check(){
   ADSC_Motor.Brake();
   ADSC_Motor.DISABLE();
 
+  IPf100ms_Flash.LED_Flash_GREEN = STOP;
+  HAL_Delay(100);
+  ADSC_LED.GREEN(HIGH);
+
   printf("Main Motor Is Operating Normally\n");
-  printf("*** Main Motor Check Acomplished ***\n");
+  printf("*** Main Motor Check Acomplished ***\n\n");
   HAL_Delay(500);
 }
 
