@@ -94,8 +94,8 @@ void AD_Setup_Control::DRV_Check(){
   int DRV_restart_tim = -1;
   bool DRV_restart = false;
 
-  int Main_Power_max = Main_Power_Constant + Main_Power_Constant_Range;
-  int Main_Power_min = Main_Power_Constant - Main_Power_Constant_Range;
+  const int Main_Power_max = Main_Power_Constant + Main_Power_Constant_Range;
+  const int Main_Power_min = Main_Power_Constant - Main_Power_Constant_Range;
   
   printf("\n*** Start Main Power Supply Check ***\n");
   ADSC_LED.BLUE(HIGH);
@@ -155,8 +155,8 @@ void AD_Setup_Control::Motor_Check(){
   int motor_restart_tim = -1;
   bool motor_restart = false;
 
-  int motor_current_max = Motor_Base_Current + Motor_Base_Current_RANGE;
-  int motor_current_min = Motor_Base_Current - Motor_Base_Current_RANGE;
+  const int motor_current_max = Motor_Base_Current + Motor_Base_Current_RANGE;
+  const int motor_current_min = Motor_Base_Current - Motor_Base_Current_RANGE;
 
   printf("\n*** Start Main Motor Check ***\n");
   ADSC_LED.GREEN(HIGH);
@@ -171,20 +171,20 @@ void AD_Setup_Control::Motor_Check(){
 
     ADSC_Motor.Forward(80);
     HAL_Delay(1000);
-    for(int i = 0;i < 100;i++){
+    for(int i = 0;i < 200;i++){
       Forward_Current += adc_val_ch1[MOTOR_CURRENT];
-      HAL_Delay(10);
+      HAL_Delay(3);
     }
-    Forward_Current /= 100;
+    Forward_Current /= 200;
     ADSC_Motor.Brake();
     HAL_Delay(1000);
     ADSC_Motor.Reverse(80);
     HAL_Delay(1000);
-    for(int i = 0;i < 100;i++){
+    for(int i = 0;i < 200;i++){
       Reverse_Current += adc_val_ch1[MOTOR_CURRENT];
-      HAL_Delay(10);
+      HAL_Delay(3);
     }
-    Reverse_Current /= 100;
+    Reverse_Current /= 200;
     ADSC_Motor.Brake();
 
     printf("Main Motor Forward Current ---- ");

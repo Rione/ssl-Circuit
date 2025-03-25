@@ -16,6 +16,8 @@ bool Halt_CAN_Data_Send;
 Basic_IO_Control_Extension_Sensor Set_Sensor;
 Basic_IO_Control_Motor Main_motor;
 Basic_IO_Control_LED Set_LED;
+Basic_IO_Control_LED_Flash IPf100ms_Flash;
+Basic_IO_Control_LED_Flash IPf500ms_Flash;
 
 AD_Setup_Control AD_Setup;
 
@@ -28,14 +30,14 @@ void Setup(void){
   Set_LED.ALL_Control(LOW);
   HAL_Delay(500);
 
-  Set_LED.LED_Flash_Activate = true;
-  Set_LED.LED_Flash_CAN_100ms = START;
+  IPf500ms_Flash.LED_Flash_Activate = true;
+  IPf500ms_Flash.LED_Flash_CAN = START;
   AD_Setup.ADC_Check();
   AD_Setup.Administrator_Privilege();
   AD_Setup.DRV_Check();
   AD_Setup.Motor_Check();
-  Set_LED.LED_Flash_CAN_100ms = STOP;
-  Set_LED.LED_Flash_Activate = false;
+  IPf500ms_Flash.LED_Flash_CAN = STOP;
+  IPf500ms_Flash.LED_Flash_Activate = false;
 
   HAL_Delay(500);
   Set_LED.ALL_Control_EX_CAN(LOW);
@@ -58,7 +60,12 @@ void Interrupt_Processing_f10ms(){
 
   //frq = 100ms
   if(IPf10ms_count % 10 == 0){
-    IPf10ms_LED_Flash_Control();
+    IPf100ms_Flash.LED_Flash_Control();
+  }
+
+  //frq = 500ms
+  if(IPf10ms_count % 50 == 0){
+    IPf500ms_Flash.LED_Flash_Control();
   }
 
   IPf10ms_count++;
@@ -78,53 +85,6 @@ void Interrupt_Processing_f1ms(){
 
   IPf1ms_count++;
   if(IPf1ms_count == 1001) IPf1ms_count = 1;
-}
-
-void IPf10ms_LED_Flash_Control(){
-  //frq = 100ms
-  //Control LED Flash
-  if(Set_LED.LED_Flash_Activate == true){
-    if(Set_LED.LED_Flash_RED_100ms != HOLD){
-      if(Set_LED.LED_Flash_RED_100ms == START){
-        HAL_GPIO_TogglePin(USER_LED1_GPIO_Port, USER_LED1_Pin);
-      } else if(Set_LED.LED_Flash_RED_100ms == STOP){
-        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_RESET);
-        Set_LED.LED_Flash_RED_100ms = HOLD;
-      }
-    }
-    if(Set_LED.LED_Flash_YELLOW_100ms != HOLD){
-      if(Set_LED.LED_Flash_YELLOW_100ms == START){
-        HAL_GPIO_TogglePin(USER_LED2_GPIO_Port, USER_LED2_Pin);
-      } else if(Set_LED.LED_Flash_YELLOW_100ms == STOP){
-        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_RESET);
-        Set_LED.LED_Flash_YELLOW_100ms = HOLD;
-      }
-    }
-    if(Set_LED.LED_Flash_BLUE_100ms != HOLD){
-      if(Set_LED.LED_Flash_BLUE_100ms == START){
-        HAL_GPIO_TogglePin(USER_LED3_GPIO_Port, USER_LED3_Pin);
-      } else if(Set_LED.LED_Flash_BLUE_100ms == STOP){
-        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_RESET);
-        Set_LED.LED_Flash_BLUE_100ms = HOLD;
-      }
-    }
-    if(Set_LED.LED_Flash_GREEN_100ms != HOLD){
-      if(Set_LED.LED_Flash_GREEN_100ms == START){
-        HAL_GPIO_TogglePin(USER_LED4_GPIO_Port, USER_LED4_Pin);
-      } else if(Set_LED.LED_Flash_GREEN_100ms == STOP){
-        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_RESET);
-        Set_LED.LED_Flash_GREEN_100ms = HOLD;
-      }
-    }
-    if(Set_LED.LED_Flash_CAN_100ms != HOLD){
-      if(Set_LED.LED_Flash_CAN_100ms == START){
-        HAL_GPIO_TogglePin(CAN_LED_GPIO_Port, CAN_LED_Pin);
-      } else if(Set_LED.LED_Flash_CAN_100ms == STOP){
-        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_RESET);
-        Set_LED.LED_Flash_CAN_100ms = HOLD;
-      }
-    }
-  }
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){

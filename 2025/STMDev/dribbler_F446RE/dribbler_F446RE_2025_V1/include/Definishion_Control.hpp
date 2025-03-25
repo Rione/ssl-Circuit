@@ -26,12 +26,12 @@
 #define PWM_TIM3_FRQ_MAX 800
 #define PWM_TIM3_FRQ_MIN 1
 
-#define Motor_Base_Current 65
+#define Motor_Base_Current 125
 #define Motor_Base_Current_RANGE 20
 #define Motor_Current_Differ_Tolerance 20
 
-#define Main_Power_Constant 40
-#define Main_Power_Constant_Range 20
+#define Main_Power_Constant 50
+#define Main_Power_Constant_Range 10
 
 #ifdef __cplusplus
 

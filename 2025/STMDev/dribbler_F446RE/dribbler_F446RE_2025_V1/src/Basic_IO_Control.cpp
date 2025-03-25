@@ -132,5 +132,52 @@ void Basic_IO_Control_Motor::DISABLE(){
   HAL_GPIO_WritePin(MD_nSLEEP_GPIO_Port, MD_nSLEEP_Pin, GPIO_PIN_RESET);
 }
 
+void Basic_IO_Control_LED_Flash::LED_Flash_Control(){
+  //Control LED Flash
+  if(LED_Flash_Activate == true){
+    if(LED_Flash_RED != HOLD){
+      if(LED_Flash_RED == START){
+        HAL_GPIO_TogglePin(USER_LED1_GPIO_Port, USER_LED1_Pin);
+      } else if(LED_Flash_RED == STOP){
+        HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, GPIO_PIN_RESET);
+        LED_Flash_RED = HOLD;
+      }
+    }
+    if(LED_Flash_YELLOW != HOLD){
+      if(LED_Flash_YELLOW == START){
+        HAL_GPIO_TogglePin(USER_LED2_GPIO_Port, USER_LED2_Pin);
+      } else if(LED_Flash_YELLOW == STOP){
+        HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, GPIO_PIN_RESET);
+        LED_Flash_YELLOW = HOLD;
+      }
+    }
+    if(LED_Flash_BLUE != HOLD){
+      if(LED_Flash_BLUE == START){
+        HAL_GPIO_TogglePin(USER_LED3_GPIO_Port, USER_LED3_Pin);
+      } else if(LED_Flash_BLUE == STOP){
+        HAL_GPIO_WritePin(USER_LED3_GPIO_Port, USER_LED3_Pin, GPIO_PIN_RESET);
+        LED_Flash_BLUE = HOLD;
+      }
+    }
+    if(LED_Flash_GREEN != HOLD){
+      if(LED_Flash_GREEN == START){
+        HAL_GPIO_TogglePin(USER_LED4_GPIO_Port, USER_LED4_Pin);
+      } else if(LED_Flash_GREEN == STOP){
+        HAL_GPIO_WritePin(USER_LED4_GPIO_Port, USER_LED4_Pin, GPIO_PIN_RESET);
+        LED_Flash_GREEN = HOLD;
+      }
+    }
+    if(LED_Flash_CAN != HOLD){
+      if(LED_Flash_CAN == START){
+        HAL_GPIO_TogglePin(CAN_LED_GPIO_Port, CAN_LED_Pin);
+      } else if(LED_Flash_CAN == STOP){
+        HAL_GPIO_WritePin(CAN_LED_GPIO_Port, CAN_LED_Pin, GPIO_PIN_RESET);
+        LED_Flash_CAN = HOLD;
+      }
+    }
+  }
+}
+
+
 
 
