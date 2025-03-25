@@ -31,7 +31,7 @@ void Setup(void){
   AD_Setup.ADC_Check();
   AD_Setup.Administrator_Privilege();
   AD_Setup.DRV_Check();
-  //AD_Setup.Motor_Check();
+  AD_Setup.Motor_Check();
 
   HAL_Delay(500);
   Set_LED.ALL_Control_EX_CAN(LOW);

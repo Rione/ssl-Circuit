@@ -6,6 +6,8 @@ Basic_IO_Control_Extension_Sensor ADSC_Sensor;
 Basic_IO_Control_Motor ADSC_Motor;
 Basic_IO_Control_LED ADSC_LED;
 
+bool Enforcement_Processing;
+
 void AD_Setup_Control::ADC_Check(){
   //ADC initialization
   int hal_restart_tim = -1;
@@ -92,6 +94,9 @@ void AD_Setup_Control::DRV_Check(){
   int DRV_restart_tim = -1;
   bool DRV_restart = false;
 
+  int Main_Power_max = Main_Power_Constant + Main_Power_Constant_Range;
+  int Main_Power_min = Main_Power_Constant - Main_Power_Constant_Range;
+  
   printf("\n*** Start Main Power Supply Check ***\n");
   ADSC_LED.BLUE(HIGH);
 
@@ -102,18 +107,16 @@ void AD_Setup_Control::DRV_Check(){
 
     printf("Main Power Supply ---- ");
     ADSC_Motor.ENABLE();
-    ADSC_Motor.Forward(5);
+    ADSC_Motor.Forward(10);
     HAL_Delay(1000);
 
     for(int i = 0;i < 50;i++){
       current += adc_val_ch1[MOTOR_CURRENT];
-      HAL_Delay(5);
+      HAL_Delay(10);
     } 
 
-    if((current / 50) > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
-      current = 0;
-      printf("Confirm!\n");
-      printf("                           ---- Val = %d\n",current / 50);
+    if((current / 50) > Main_Power_min && (current / 50) < Main_Power_max){
+      printf("Confirm! (Val = %d)\n",current / 50);
       printf("Main Power Supply Is Operating Normally\n");
     } else {
       ADSC_LED.RED(HIGH);
@@ -149,100 +152,94 @@ void AD_Setup_Control::DRV_Check(){
 
 void AD_Setup_Control::Motor_Check(){
   //Main Motor initialization
-  ADSC_LED.CAN_LED(HIGH);
+  int motor_restart_tim = -1;
+  bool motor_restart = false;
 
-  bool error_status = false; 
+  int motor_current_max = Motor_Base_Current + Motor_Base_Current_RANGE;
+  int motor_current_min = Motor_Base_Current - Motor_Base_Current_RANGE;
 
-  printf("*** Start Main Motor Current Check ***\n");
+  printf("\n*** Start Main Motor Check ***\n");
   ADSC_LED.GREEN(HIGH);
-
-  printf("Main Motor Forward Current ---- ");
   ADSC_Motor.ENABLE();
-  ADSC_Motor.Forward(80);
-  HAL_Delay(1000);
-  long int Forward_Current = 0;
-  for(int i = 0;i < 100;i++){
-    Forward_Current += adc_val_ch1[MOTOR_CURRENT];
-    HAL_Delay(5);
-  }
-  Forward_Current /= 100;
-  ADSC_Motor.Brake();
-  ADSC_Motor.FET_DISABLE();
-  ADSC_Motor.DISABLE();
-  if(Forward_Current > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
-    printf("Confirm!\n");
-    printf("                           ---- Val = %d\n",Forward_Current);
-  } else {
-    error_status = true;
-    ADSC_LED.RED(HIGH);
-    printf("Unconfirm!\n");
-    printf("                           ---- Val = %d\n",Forward_Current);
-    printf("-- [CAUSION] : Main Motor Forward Current Is Not Normal\n");
-    printf("-- [ADVICE] : Check Cancel Causion\n");
-    while(sw_val != 0){
-      HAL_Delay(50);
+
+  do{
+    int Forward_Current = 0;
+    int Reverse_Current = 0;
+
+    motor_restart = false;
+    motor_restart_tim ++;
+
+    ADSC_Motor.Forward(80);
+    HAL_Delay(1000);
+    for(int i = 0;i < 100;i++){
+      Forward_Current += adc_val_ch1[MOTOR_CURRENT];
+      HAL_Delay(10);
     }
-    printf("-- Confirm Cancel Causion\n");
-    ADSC_LED.RED(LOW);
-  }
-
-  ADSC_Motor.Brake();
-  ADSC_Motor.FET_DISABLE();
-  ADSC_Motor.DISABLE();
-  HAL_Delay(1000);
-
-  printf("Main Motor Reverse Current ---- ");
-  ADSC_Motor.ENABLE();
-  ADSC_Motor.Reverse(80);
-  HAL_Delay(1000);
-  long int Reverse_Current = 0;
-  for(int i = 0;i < 100;i++){
-    Reverse_Current += adc_val_ch1[MOTOR_CURRENT];
-    HAL_Delay(5);
-  }
-  Reverse_Current /= 100;
-  ADSC_Motor.Brake();
-  ADSC_Motor.FET_DISABLE();
-  ADSC_Motor.DISABLE();
-  if(Reverse_Current > DRV_MIN_CURRENT - DRV_MIN_CURRENT_MINUS_RANGE){
-    printf("Confirm!\n");
-    printf("                           ---- Val = %d\n",Reverse_Current);
-  } else {
-    error_status = true;
-    ADSC_LED.RED(HIGH);
-    printf("Unconfirm!\n");
-    printf("                           ---- Val = %d\n",Reverse_Current);
-    printf("-- [CAUSION] : Main Motor Reverse Current Is Not Normal\n");
-    printf("-- [ADVICE] : Check Cancel Causion\n");
-    while(sw_val != 0){
-      HAL_Delay(50);
+    Forward_Current /= 100;
+    ADSC_Motor.Brake();
+    HAL_Delay(1000);
+    ADSC_Motor.Reverse(80);
+    HAL_Delay(1000);
+    for(int i = 0;i < 100;i++){
+      Reverse_Current += adc_val_ch1[MOTOR_CURRENT];
+      HAL_Delay(10);
     }
-    printf("-- Confirm Cancel Causion\n");
-    ADSC_LED.RED(LOW);
-  }
+    Reverse_Current /= 100;
+    ADSC_Motor.Brake();
 
-  printf("Check Current Value Differ ---- ");
-  if(error_status == false){
-    if(abs(Reverse_Current - Forward_Current) < 20){
-      printf("Normal!\n");
-      printf("Main Motor Current Is Operating Normally\n");
+    printf("Main Motor Forward Current ---- ");
+    if(Forward_Current > motor_current_min && Forward_Current < motor_current_max){
+      printf("Confirm! (Val = %d)\n",Forward_Current);
     } else {
-      ADSC_LED.RED(HIGH);
-      printf("Not Normal!\n");
-      printf("-- CAUSION : Current Value Differ Is Too Big\n");
-      printf("-- Check Cancel Causion\n");
-      while(sw_val != 0){
-        HAL_Delay(50);
-      }
-      printf("-- Confirm Cancel Causion\n");
-      ADSC_LED.RED(LOW);
+      printf("Unconfirm! (Val = %d)\n",Forward_Current);
+      printf("-- Main Motor Forward Current Is Not Normal\n");
+      motor_restart = true;
     }
-  } else {
-    printf("Skip!\n");
-  }
+  
+    printf("Main Motor Reverse Current ---- ");
+    if(Reverse_Current > motor_current_min && Reverse_Current < motor_current_max){
+      printf("Confirm! (Val = %d)\n",Reverse_Current);
+    } else {
+      printf("Unconfirm! (Val = %d)\n",Reverse_Current);
+      printf("-- Main Motor Reverse Current Is Not Normal\n");
+      motor_restart = true;
+    }
+  
+    printf("Check Current Value Differ ---- ");
+    if(abs(Forward_Current - Reverse_Current) < Motor_Current_Differ_Tolerance){
+      printf("Confirm! (Val = %d)\n",abs(Forward_Current - Reverse_Current));
+    } else {
+      printf("Unconfirm! (Val = %d)\n",abs(Forward_Current - Reverse_Current));
+      printf("-- Current Value Differ Is Not Normal\n");
+      motor_restart = true;
+    }
+    
+    if(motor_restart == true){
+      ADSC_LED.RED(HIGH);
+      if(Enforcement_Processing == true){
+        if(motor_restart_tim >= 6){
+          printf("\n[][][] Inisiate System Rest [][][]\n");
+          HAL_NVIC_SystemReset();
+        } else {
+          printf("-- Restart Main Motor Check\n");
+          HAL_Delay(1000);
+        }
+      } else {
+        if(sw_val == 0){
+          motor_restart = false;
+          printf("Confirm Cancel Causion\n");
+        } else {
+          printf("-- Restart Main Motor Check\n");
+          HAL_Delay(1000);
+        }
+      }
+    }
+  }while(motor_restart != false);
 
-  printf("*** Main Motor Current Check Acomplished ***\n\n");
-  ADSC_LED.CAN_LED(LOW);
+  ADSC_LED.RED(LOW);
+
+  printf("Main Motor Is Operating Normally\n");
+  printf("*** Main Motor Check Acomplished ***\n");
   HAL_Delay(500);
 }
 
