@@ -46,7 +46,7 @@ void MotorDriver:: setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
 
 void MotorDriver::setMotors(int16_t M0, int16_t M1, int16_t M2, int16_t M3) {
     CANBus::CANData data = {
-        .stdId = 0x1AA,
+        .stdId = MD_SEND, 
         .data = {
             (uint8_t)(M0 & 0xFF),
             (uint8_t)((M0 >> 8) & 0xFF),
@@ -63,7 +63,7 @@ void MotorDriver::setMotors(int16_t M0, int16_t M1, int16_t M2, int16_t M3) {
 
 void MotorDriver::sendEmg() {
     CANBus::CANData data = {
-        .stdId = 0x00,
+        .stdId = SEND_EMG,
         .data = {0},
     };
     _canBus->send(data);

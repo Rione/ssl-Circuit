@@ -19,6 +19,7 @@
 
 // motor driver board
 #define MD_SEND 0x1AA        // 426
+#define SEND_EMG 0x00       // 0
 
 // dribbler board
 #define DRIBBLE_SEND 0x1D1        // 465

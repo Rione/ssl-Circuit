@@ -430,11 +430,11 @@ class Robot {
     }
 
     inline __attribute__((always_inline)) void setIsHoldBallValue(uint8_t value) {
-        info.dribbleStatus.isHoldBall = value;
+        info.dribbleStatus.isHoldBall = (value != 0);
     }
 
     inline __attribute__((always_inline)) void setIsDetectedBallValue(uint8_t value) {
-        info.dribbleStatus.isDetectedBall = value;
+        info.dribbleStatus.isDetectedBall = (value != 0);
     }
 
   private:

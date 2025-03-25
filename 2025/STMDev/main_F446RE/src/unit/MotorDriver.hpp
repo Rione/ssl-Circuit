@@ -3,6 +3,7 @@
 
 #include "CAN.hpp"
 #include "MyMath.hpp"
+#include "config.h"
 
 // 単位について
 // vel [m/s]
