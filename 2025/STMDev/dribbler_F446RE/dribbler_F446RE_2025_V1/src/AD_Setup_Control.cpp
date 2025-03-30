@@ -73,8 +73,6 @@ void AD_Setup_Control::ADC_Check(){
 
 void AD_Setup_Control::Administrator_Privilege(){
   printf("\n*** Start Administrator Privilege Check ***\n");
-
-  HAL_Delay(500);
   printf("Administrator Privilege ---- ");
   if(Fnc_Administrator_Privilege == true){
     printf("Confirm!\n");
@@ -88,6 +86,8 @@ void AD_Setup_Control::Administrator_Privilege(){
   }
 
   printf("*** Administrator Privilege Check Acomplished ***\n");
+
+  HAL_Delay(500);
 }
 
 void AD_Setup_Control::DRV_Check(){
