@@ -33,6 +33,8 @@
 #define Main_Power_Constant 50
 #define Main_Power_Constant_Range 10
 
+#define Current_Threshold 100
+
 #ifdef __cplusplus
 
 extern "C" {

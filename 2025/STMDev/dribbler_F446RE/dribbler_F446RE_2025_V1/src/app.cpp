@@ -15,6 +15,7 @@ CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
 bool Halt_CAN_Data_Send;
 bool Halt_Interrupt_Processing_f1ms;
+bool Change_Motor_Speed = false;
 
 Basic_IO_Control_Extension_Sensor Set_Sensor;
 Basic_IO_Control_Motor Main_motor;
@@ -46,15 +47,16 @@ void Setup(void){
   IPf100ms_Flash.LED_Flash_CAN = STOP;
   IPf100ms_Flash.LED_Flash_Activate = false;
 
-  HAL_Delay(1000);
-  Set_LED.ALL_Control_EX_CAN(LOW);
-
   can.init();
   Set_Sensor.Ball_Sensor_Activate();
   Set_Sensor.ENC_Activate();
 
-  Halt_CAN_Data_Send = false;
   Halt_Interrupt_Processing_f1ms = false;
+
+  HAL_Delay(1000);
+  Set_LED.ALL_Control_EX_CAN(LOW);
+
+  Halt_CAN_Data_Send = false;
 
   IPf500ms_Flash.LED_Flash_Activate = true;
   IPf500ms_Flash.LED_Flash_RED = START;
@@ -87,6 +89,8 @@ void Interrupt_Processing_f10ms(){
   //frq = 500ms
   if(IPf10ms_count % 50 == 0){
     IPf500ms_Flash.LED_Flash_Control();
+
+    Change_Motor_Speed = false;
   }
 
   IPf10ms_count++;
@@ -144,10 +148,14 @@ void HAL_CAN_Data_Output_ID0x1d2_466(){
       current = 1;
       Set_LED.GREEN(HIGH);
     } else Set_LED.GREEN(LOW);
-    if (adc_val_ch1[BALL_SENSOR_VAL] < 100){
+    if (adc_val_ch1[BALL_SENSOR_VAL] < Current_Threshold){
       photo = 1;
       Set_LED.BLUE(HIGH);
     } else Set_LED.BLUE(LOW);
+
+    if(Change_Motor_Speed == true){
+      current = 0;
+    }
       
     if (current == 1 && get_ball == 0){
       Set_LED.YELLOW(HIGH);
@@ -176,6 +184,7 @@ void HAL_CAN_Data_Output_ID0x1d2_466(){
 }
 
 void HAL_CAN_Data_Input_ID0x1d1_465(){
+  Change_Motor_Speed = true;
   Main_motor.ENABLE();
   if(canRecvData.data[0] > 0){
     Main_motor.Forward(canRecvData.data[0]);
