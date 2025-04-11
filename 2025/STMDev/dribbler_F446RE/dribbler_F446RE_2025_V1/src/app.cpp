@@ -15,7 +15,7 @@ CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
 bool Halt_CAN_Data_Send;
 bool Halt_Interrupt_Processing_f1ms;
-bool Change_Motor_Speed = false;
+uint8_t Change_Motor_Speed = 0;
 
 Basic_IO_Control_Extension_Sensor Set_Sensor;
 Basic_IO_Control_Motor Main_motor;
@@ -74,6 +74,17 @@ void Interrupt_Processing_f10ms(){
   //frq = 100ms
   if(IPf10ms_count % 10 == 0){
     IPf100ms_Flash.LED_Flash_Control();
+
+    if(Change_Motor_Speed != 0){
+      Change_Motor_Speed++;
+    }
+    if(Change_Motor_Speed > 10){
+      Halt_Interrupt_Processing_f1ms = false;
+    }
+    if(Change_Motor_Speed > 15){
+      Halt_CAN_Data_Send = false;
+      Change_Motor_Speed = 0;
+    }
   }
 
   //frq = 200ms
@@ -89,8 +100,6 @@ void Interrupt_Processing_f10ms(){
   //frq = 500ms
   if(IPf10ms_count % 50 == 0){
     IPf500ms_Flash.LED_Flash_Control();
-
-    Change_Motor_Speed = false;
   }
 
   IPf10ms_count++;
@@ -106,7 +115,7 @@ void Interrupt_Processing_f1ms(){
 
     //frq = 10ms
     if(IPf1ms_count % 10 == 0){
-      HAL_CAN_Data_Output_ID0x1d2_466();
+      CAN_Data_Output_ID0x1d2_466();
     }
 
     IPf1ms_count++;
@@ -119,7 +128,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
     can.recv(canRecvData);
     switch (canRecvData.stdId){
     case 0x1d1: //465
-      HAL_CAN_Data_Input_ID0x1d1_465();
+      CAN_Data_Input_ID0x1d1_465();
       break;
     default:
       break;
@@ -127,7 +136,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   }
 }
 
-void HAL_CAN_Data_Output_ID0x1d2_466(){
+void CAN_Data_Output_ID0x1d2_466(){
   uint16_t current_val = 0;
   uint8_t photo = 0;
   uint8_t current = 0;
@@ -144,18 +153,14 @@ void HAL_CAN_Data_Output_ID0x1d2_466(){
   if(Halt_CAN_Data_Send == false){
     Set_LED.CAN_LED(HIGH);
 
-    if (current_val > 140){
+    if (current_val > MOTOR_CURRENT_THRESHOLD){
       current = 1;
       Set_LED.GREEN(HIGH);
     } else Set_LED.GREEN(LOW);
-    if (adc_val_ch1[BALL_SENSOR_VAL] < Current_Threshold){
+    if (adc_val_ch1[BALL_SENSOR_VAL] < PHOTO_THRESHOLD){
       photo = 1;
       Set_LED.BLUE(HIGH);
     } else Set_LED.BLUE(LOW);
-
-    if(Change_Motor_Speed == true){
-      current = 0;
-    }
       
     if (current == 1 && get_ball == 0){
       Set_LED.YELLOW(HIGH);
@@ -178,13 +183,16 @@ void HAL_CAN_Data_Output_ID0x1d2_466(){
       },
     };
     can.send(data);
+    printf("ball:%d__I:%d,val=%3d__P:%d,val=%3d\n",get_ball,current,current_val,photo,adc_val_ch1[BALL_SENSOR_VAL]);
   } else {
     Set_LED.CAN_LED(LOW);
   }
 }
 
-void HAL_CAN_Data_Input_ID0x1d1_465(){
-  Change_Motor_Speed = true;
+void CAN_Data_Input_ID0x1d1_465(){
+  Change_Motor_Speed = 1;
+  Halt_Interrupt_Processing_f1ms = true;
+  Halt_CAN_Data_Send = true;
   Main_motor.ENABLE();
   if(canRecvData.data[0] > 0){
     Main_motor.Forward(canRecvData.data[0]);

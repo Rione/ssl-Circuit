@@ -19,8 +19,8 @@ extern "C" {
   void MainLoop(void);
   void Interrupt_Processing_f10ms();
   void Interrupt_Processing_f1ms();
-  void HAL_CAN_Data_Output_ID0x1d2_466();
-  void HAL_CAN_Data_Input_ID0x1d1_465();
+  void CAN_Data_Output_ID0x1d2_466();
+  void CAN_Data_Input_ID0x1d1_465();
 }
 
 #endif

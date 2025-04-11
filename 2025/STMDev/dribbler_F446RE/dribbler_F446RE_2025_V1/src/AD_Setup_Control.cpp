@@ -121,7 +121,7 @@ void AD_Setup_Control::DRV_Check(){
       printf("Main Power Supply Is Operating Normally\n");
     } else {
       ADSC_LED.RED(HIGH);
-      printf("Unconfirm!\n");
+      printf("Unconfirm! (Val = %d)\n",current / 50);
       printf("-- Main Power Supply Is Too LOW\n");
       DRV_restart = true;
 
