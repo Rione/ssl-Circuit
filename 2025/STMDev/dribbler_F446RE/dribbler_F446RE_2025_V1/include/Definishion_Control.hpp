@@ -39,7 +39,7 @@
 #ifdef __cplusplus
 
 extern "C" {
-  const bool Fnc_Administrator_Privilege = false;
+  const bool Fnc_Administrator_Privilege = true;
 }
 
 #endif
