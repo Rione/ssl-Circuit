@@ -26,11 +26,11 @@
 #define PWM_TIM3_FRQ_MAX 800
 #define PWM_TIM3_FRQ_MIN 1
 
-#define Motor_Base_Current 70
+#define Motor_Base_Current 75
 #define Motor_Base_Current_RANGE 20
 #define Motor_Current_Differ_Tolerance 10
 
-#define Main_Power_Constant 30
+#define Main_Power_Constant 50
 #define Main_Power_Constant_Range 10
 
 #define PHOTO_THRESHOLD 100

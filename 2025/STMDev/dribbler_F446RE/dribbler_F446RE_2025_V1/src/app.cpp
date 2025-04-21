@@ -4,6 +4,7 @@
 
 uint16_t sw_val = 0;
 uint16_t adc_val_ch1[4];
+bool change_current = false;
 
 uint32_t IPf10ms_count = 1;
 uint32_t IPf1ms_count = 1;
@@ -79,10 +80,11 @@ void Interrupt_Processing_f10ms(){
       Change_Motor_Speed++;
     }
     if(Change_Motor_Speed > 10){
-      Halt_Interrupt_Processing_f1ms = false;
+      //Halt_Interrupt_Processing_f1ms = false;
     }
     if(Change_Motor_Speed > 15){
-      Halt_CAN_Data_Send = false;
+      //Halt_CAN_Data_Send = false;
+      change_current = false;
       Change_Motor_Speed = 0;
     }
   }
@@ -169,6 +171,8 @@ void CAN_Data_Output_ID0x1d2_466(){
       Set_LED.YELLOW(LOW);
       get_ball = 0;
     }
+
+    if(change_current == true) get_ball = 0;
     
     CANBus::CANData data = {
       .stdId = 0x1d2,
@@ -191,8 +195,9 @@ void CAN_Data_Output_ID0x1d2_466(){
 
 void CAN_Data_Input_ID0x1d1_465(){
   Change_Motor_Speed = 1;
-  Halt_Interrupt_Processing_f1ms = true;
-  Halt_CAN_Data_Send = true;
+  change_current = true;
+  //Halt_Interrupt_Processing_f1ms = false;
+  //Halt_CAN_Data_Send = false;
   Main_motor.ENABLE();
   if(canRecvData.data[0] > 0){
     Main_motor.Forward(canRecvData.data[0]);
