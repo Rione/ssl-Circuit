@@ -221,10 +221,8 @@ void AD_Setup_Control::Motor_Check(){
       motor_restart = true;
     }
 
-    if(motor_restart_tim >= 1 && motor_restart == true){
-      Motor_Ajust_Value = (Forward_Current + Reverse_Current) / 2 - Motor_Base_Current;
-      printf("-- Motor Value Ajusted! (Val = %d)\n",Motor_Ajust_Value);
-    }
+    Motor_Ajust_Value = (Forward_Current + Reverse_Current) / 2 - Motor_Base_Current;
+    printf("-- Motor Value Ajusted! (Val = %d)\n",Motor_Ajust_Value);
     
     if(motor_restart == true){
       ADSC_LED.RED(HIGH);
