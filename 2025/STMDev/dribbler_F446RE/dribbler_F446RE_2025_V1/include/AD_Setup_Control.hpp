@@ -14,6 +14,7 @@
 extern "C" {
   extern uint16_t sw_val;
   extern uint16_t adc_val_ch1[4];
+  extern int Motor_Ajust_Value;
 
   class AD_Setup_Control{
     public:

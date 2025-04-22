@@ -44,7 +44,7 @@ void AD_Setup_Control::ADC_Check(){
         if(continue_num > 50){
           printf("FAIL!\n");
           ADSC_LED.RED(HIGH);
-          if(hal_restart_tim >= 6){
+          if(hal_restart_tim >= 3){
             printf("\n[][][] Inisiate System Rest [][][]\n");
             HAL_NVIC_SystemReset();
           } else {
@@ -126,7 +126,7 @@ void AD_Setup_Control::DRV_Check(){
       DRV_restart = true;
 
       if(Enforcement_Processing == true){
-        if(DRV_restart_tim >= 6){
+        if(DRV_restart_tim >= 3){
           printf("\n[][][] Inisiate System Rest [][][]\n");
           HAL_NVIC_SystemReset();
         } else {
@@ -160,36 +160,38 @@ void AD_Setup_Control::Motor_Check(){
   int motor_restart_tim = -1;
   bool motor_restart = false;
 
-  const int motor_current_max = Motor_Base_Current + Motor_Base_Current_RANGE;
-  const int motor_current_min = Motor_Base_Current - Motor_Base_Current_RANGE;
+  Motor_Ajust_Value = 0;
 
   printf("\n*** Start Main Motor Check ***\n");
   IPf100ms_Flash.LED_Flash_GREEN = START;
   ADSC_Motor.ENABLE();
 
   do{
+    const int motor_current_max = Motor_Base_Current + Motor_Ajust_Value + Motor_Base_Current_RANGE;
+    const int motor_current_min = Motor_Base_Current + Motor_Ajust_Value - Motor_Base_Current_RANGE;
+
     int Forward_Current = 0;
     int Reverse_Current = 0;
 
     motor_restart = false;
     motor_restart_tim ++;
 
-    ADSC_Motor.Forward(80);
-    HAL_Delay(1000);
-    for(int i = 0;i < 200;i++){
+    ADSC_Motor.Forward(100);
+    HAL_Delay(500);
+    for(int i = 0;i < 100;i++){
       Forward_Current += adc_val_ch1[MOTOR_CURRENT];
-      HAL_Delay(3);
+      HAL_Delay(2);
     }
-    Forward_Current /= 200;
+    Forward_Current /= 100;
     ADSC_Motor.Brake();
-    HAL_Delay(1000);
-    ADSC_Motor.Reverse(80);
-    HAL_Delay(1000);
-    for(int i = 0;i < 200;i++){
+    HAL_Delay(500);
+    ADSC_Motor.Reverse(100);
+    HAL_Delay(500);
+    for(int i = 0;i < 100;i++){
       Reverse_Current += adc_val_ch1[MOTOR_CURRENT];
-      HAL_Delay(3);
+      HAL_Delay(2);
     }
-    Reverse_Current /= 200;
+    Reverse_Current /= 100;
     ADSC_Motor.Brake();
 
     printf("Main Motor Forward Current ---- ");
@@ -218,11 +220,16 @@ void AD_Setup_Control::Motor_Check(){
       printf("-- Current Value Differ Is Not Normal\n");
       motor_restart = true;
     }
+
+    if(motor_restart_tim >= 1 && motor_restart == true){
+      Motor_Ajust_Value = (Forward_Current + Reverse_Current) / 2 - Motor_Base_Current;
+      printf("-- Motor Value Ajusted! (Val = %d)\n",Motor_Ajust_Value);
+    }
     
     if(motor_restart == true){
       ADSC_LED.RED(HIGH);
       if(Enforcement_Processing == true){
-        if(motor_restart_tim >= 6){
+        if(motor_restart_tim >= 3){
           printf("\n[][][] Inisiate System Rest [][][]\n");
           HAL_NVIC_SystemReset();
         } else {
