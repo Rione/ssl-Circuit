@@ -11,6 +11,7 @@ uint32_t IPf1ms_count = 1;
 int current_sum[10] = {0,0,0,0,0,0,0,0,0,0};
 int Motor_Ajust_Value;
 uint8_t get_ball = 0;
+int speed = 0;
 
 CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
@@ -164,6 +165,9 @@ void CAN_Data_Output_ID0x1d2_466(){
     if (current == 1 && photo == 1 && get_ball == 0){
       Set_LED.YELLOW(HIGH);
       get_ball = 1;
+    } else if (current == 1 && photo == 1){
+      Set_LED.YELLOW(HIGH);
+      get_ball = 1;
     } else if (photo == 0 && get_ball == 1){
       Set_LED.YELLOW(LOW);
       get_ball = 0;
@@ -197,14 +201,18 @@ void CAN_Data_Output_ID0x1d2_466(){
 }
 
 void CAN_Data_Input_ID0x1d1_465(){
-  Halt_Get_Current = true;
-  Change_Motor_Speed = 1;
   Main_motor.ENABLE();
-  if(canRecvData.data[0] > 0){
-    Main_motor.Forward(canRecvData.data[0]);
-  } else if(canRecvData.data[0] == 0){
-    Main_motor.Brake();
+  if(speed == canRecvData.data[0]){
+    if(canRecvData.data[0] > 0){
+      Main_motor.Forward(canRecvData.data[0]);
+    } else if(canRecvData.data[0] == 0){
+      Main_motor.Brake();
+    }
+  } else {
+    Halt_Get_Current = true;
+    Change_Motor_Speed = 1;
   }
+  speed = canRecvData.data[0];
 }
 
 
