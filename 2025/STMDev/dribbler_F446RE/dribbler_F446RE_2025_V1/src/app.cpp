@@ -202,13 +202,12 @@ void CAN_Data_Output_ID0x1d2_466(){
 
 void CAN_Data_Input_ID0x1d1_465(){
   Main_motor.ENABLE();
-  if(speed == canRecvData.data[0]){
-    if(canRecvData.data[0] > 0){
-      Main_motor.Forward(canRecvData.data[0]);
-    } else if(canRecvData.data[0] == 0){
-      Main_motor.Brake();
-    }
-  } else {
+  if(canRecvData.data[0] > 0){
+    Main_motor.Forward(canRecvData.data[0]);
+  } else if(canRecvData.data[0] == 0){
+    Main_motor.Brake();
+  }
+  if(speed != canRecvData.data[0]){
     Halt_Get_Current = true;
     Change_Motor_Speed = 1;
   }
