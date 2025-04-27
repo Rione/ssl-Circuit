@@ -122,6 +122,7 @@ void Robot::rasSendSerial(RobotInfo &info, uint16_t interval) {
     if (rasSendInterval.read_ms() < interval) {
         return;
     }
+    info.dribbleStatus.isHoldBallReliable = 0; //　ドリブラ基板で処理
     uint8_t buffer[dataSize] = {
         info.batteryVoltage,
         info.dribbleStatus.data,
