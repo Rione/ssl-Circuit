@@ -22,6 +22,7 @@ CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
 bool Halt_Get_Current;
 bool Halt_CAN_Data_Send;
+bool Halt_CAN_Data_Output_ID0x1d2_466;
 uint8_t Change_Motor_Speed = 0;
 
 Basic_IO_Control_Extension_Sensor Set_Sensor;
@@ -35,6 +36,7 @@ Basic_IO_Control_LED_Flash IPf500ms_Flash;
 AD_Setup_Control AD_Setup;
 
 void Setup(void){
+  Halt_CAN_Data_Output_ID0x1d2_466 = true;
   Halt_Get_Current = true;
   Halt_CAN_Data_Send = true;
 
@@ -45,8 +47,7 @@ void Setup(void){
   HAL_Delay(500);
 
   IPf100ms_Flash.LED_Flash_Activate = true;
-  IPf500ms_Flash.LED_Flash_Activate = true;
-  IPf500ms_Flash.LED_Flash_CAN = START;
+  IPf100ms_Flash.LED_Flash_CAN = START;
   AD_Setup.ADC_Check();
   AD_Setup.Administrator_Privilege();
   AD_Setup.DRV_Check();
@@ -61,6 +62,7 @@ void Setup(void){
   Set_Sensor.Ball_Sensor_Activate();
   Set_Sensor.ENC_Activate();
 
+  Halt_CAN_Data_Output_ID0x1d2_466 = false;
   Halt_Get_Current = false;
 
   HAL_Delay(1000);
@@ -123,7 +125,9 @@ void Interrupt_Processing_f1ms(){
 
   //frq = 10ms
   if(IPf1ms_count % 10 == 0){
-    CAN_Data_Output_ID0x1d2_466();
+    if(Halt_CAN_Data_Output_ID0x1d2_466 == false){
+      CAN_Data_Output_ID0x1d2_466();
+    }
   }
 
   IPf1ms_count++;
