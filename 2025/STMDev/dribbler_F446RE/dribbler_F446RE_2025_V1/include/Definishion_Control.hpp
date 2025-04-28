@@ -31,15 +31,15 @@
 #define Motor_Current_Differ_Tolerance 30
 
 #define Main_Power_Constant 30
-#define Main_Power_Constant_Range 10
+#define Main_Power_Constant_Range 20
 
 #define PHOTO_THRESHOLD 90
-#define MOTOR_CURRENT_THRESHOLD 90
+#define MOTOR_CURRENT_THRESHOLD 100
 
 #ifdef __cplusplus
 
 extern "C" {
-  const bool Fnc_Administrator_Privilege = true;
+  const bool Fnc_Administrator_Privilege = false;
 }
 
 #endif

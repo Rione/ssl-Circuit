@@ -45,7 +45,8 @@ void Setup(void){
   HAL_Delay(500);
 
   IPf100ms_Flash.LED_Flash_Activate = true;
-  IPf100ms_Flash.LED_Flash_CAN = START;
+  IPf500ms_Flash.LED_Flash_Activate = true;
+  IPf500ms_Flash.LED_Flash_CAN = START;
   AD_Setup.ADC_Check();
   AD_Setup.Administrator_Privilege();
   AD_Setup.DRV_Check();
@@ -53,6 +54,8 @@ void Setup(void){
   HAL_Delay(500);
   IPf100ms_Flash.LED_Flash_CAN = STOP;
   IPf100ms_Flash.LED_Flash_Activate = false;
+
+  Main_motor.Brake();
 
   can.init();
   Set_Sensor.Ball_Sensor_Activate();
