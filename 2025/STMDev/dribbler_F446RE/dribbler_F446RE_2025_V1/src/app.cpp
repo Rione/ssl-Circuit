@@ -46,15 +46,15 @@ void Setup(void){
   Set_LED.ALL_Control(LOW);
   HAL_Delay(500);
 
-  IPf100ms_Flash.LED_Flash_Activate = true;
-  IPf100ms_Flash.LED_Flash_CAN = START;
+  IPf200ms_Flash.LED_Flash_Activate = true;
+  IPf200ms_Flash.LED_Flash_CAN = START;
   AD_Setup.ADC_Check();
   AD_Setup.Administrator_Privilege();
   AD_Setup.DRV_Check();
   AD_Setup.Motor_Check();
   HAL_Delay(500);
-  IPf100ms_Flash.LED_Flash_CAN = STOP;
-  IPf100ms_Flash.LED_Flash_Activate = false;
+  IPf200ms_Flash.LED_Flash_CAN = STOP;
+  IPf200ms_Flash.LED_Flash_Activate = false;
 
   Main_motor.Brake();
 
@@ -90,10 +90,10 @@ void Interrupt_Processing_f10ms(){
     if(Change_Motor_Speed != 0){
       Change_Motor_Speed++;
     }
-    if(Change_Motor_Speed > 5){
+    if(Change_Motor_Speed > 2){
       Halt_Get_Current = false;
     }
-    if(Change_Motor_Speed > 10){
+    if(Change_Motor_Speed > 4){
       Change_Motor_Speed = 0;
     }
   }
