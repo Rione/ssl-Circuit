@@ -36,7 +36,7 @@ void MainMode::loop() {
     }
     robot->led1 = robot->info.dribbleStatus.isDetectedBall;
     // printfDMA("Ball:%d Batt:%d Cap:%d doDirect:%d doDirectChip:%d directSt:%d directCh:%d Str:%d Chip:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage, robot->getCapChargeCertitude(), robot->info.status.doDirectKick, robot->info.status.doDirectChipKick, robot->info.kickerBoardDoDirectStatus.straight, robot->info.kickerBoardDoDirectStatus.chip, robot->info.kicker.straight, robot->info.kicker.chip);
-    printfDMA("Ball:%d, Photo:%d,  DribbleStatus:%d\n", robot->info.dribbleStatus.isHoldBall, robot->info.dribbleStatus.isDetectedBall, robot->info.dribbleStatus.data);
+    printfDMA("Ball:%d, Photo:%d, NewDrib:%d, DribbleStatus:%d\n", robot->info.dribbleStatus.isHoldBall, robot->info.dribbleStatus.isDetectedBall, robot->info.dribbleStatus.isNewDrib, robot->info.dribbleStatus.data);
     while (timer.read_us() < 1000)
         ; // 1ms time control
 }

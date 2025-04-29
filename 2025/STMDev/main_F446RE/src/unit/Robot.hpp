@@ -130,9 +130,10 @@ typedef struct {
     // Infomation STM32→RaspberryPi
     union {
         struct {
-            bool isDetectedBall : 1; // ボール検知（フォトセンサーの検知）2024版のisHolDBall
-            bool isHoldBall : 1; // ボール保持（ドリブラーの検知とフォトセンサーの検知の論理積）
-            bool isHoldBallReliable : 1; // ボール保持の信頼性 0:信頼性なし 1:信頼性あり、パワーが変わって2秒は信頼性なし                  
+            uint8_t reserved : 5; 
+            bool isNewDrib : 1; //　新機体:1
+            bool isHoldBall : 1; // ボール保持（ドリブラーの検知とフォトセンサーの検知の論理積）  
+            bool isDetectedBall : 1; // ボール検知（フォトセンサーの検知）2024版のisHolDBall  
         };
         uint8_t data;
     } dribbleStatus; //ボール保持とボール検知の統合
@@ -325,6 +326,9 @@ class Robot {
         if (power == dribblePowerPrev && forceSend == false) {
             if (timer.read_ms() < 100) // パワーが変わっていない場合は送信しない。 forceSendがtrueの場合は100msごとに送信する
                 return 0;
+        }
+        if(power != 0) {
+            power = 100; // 新ドリブラーはpowerは100でしか送らない
         }
         CANBus::CANData canData = {
             .stdId = DRIBBLE_SEND,
