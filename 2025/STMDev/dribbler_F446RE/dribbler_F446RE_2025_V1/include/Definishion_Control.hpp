@@ -33,7 +33,7 @@
 #define Main_Power_Constant 10
 #define Main_Power_Constant_Range 100
 
-#define PHOTO_THRESHOLD 90
+#define PHOTO_THRESHOLD 60
 #define MOTOR_CURRENT_THRESHOLD 113
 
 #ifdef __cplusplus
