@@ -130,10 +130,10 @@ typedef struct {
     // Infomation STM32→RaspberryPi
     union {
         struct {
-            uint8_t reserved : 5; 
-            bool isNewDrib : 1; //　新機体:1
+            bool isDetectedBall : 1; // ボール検知（フォトセンサーの検知）2024版のisHolDBall 
             bool isHoldBall : 1; // ボール保持（ドリブラーの検知とフォトセンサーの検知の論理積）  
-            bool isDetectedBall : 1; // ボール検知（フォトセンサーの検知）2024版のisHolDBall  
+            bool isNewDrib : 1; //　新機体:1
+            uint8_t reserved : 5; 
         };
         uint8_t data;
     } dribbleStatus; //ボール保持とボール検知の統合
