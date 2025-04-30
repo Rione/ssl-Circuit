@@ -31,7 +31,7 @@
 #define Motor_Current_Differ_Tolerance 20
 
 #define Main_Power_Constant 10
-#define Main_Power_Constant_Range 100
+#define Main_Power_Constant_Range 90
 
 #define PHOTO_THRESHOLD 100
 #define MOTOR_CURRENT_THRESHOLD 113

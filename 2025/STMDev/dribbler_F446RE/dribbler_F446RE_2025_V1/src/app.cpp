@@ -1,8 +1,3 @@
-//STMDev_dribbler_V1.1 Stabilization completed! 
-//2025_04_26_1535
-
-//以降の変更を禁止 Forbid further changes!
-
 #include "app.hpp"
 #include "adc.h"
 #include "math.h"
