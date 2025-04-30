@@ -46,6 +46,7 @@ void Setup(void){
   Set_LED.ALL_Control(LOW);
   HAL_Delay(500);
 
+  IPf100ms_Flash.LED_Flash_Activate = true;
   IPf200ms_Flash.LED_Flash_Activate = true;
   IPf200ms_Flash.LED_Flash_CAN = START;
   AD_Setup.ADC_Check();
@@ -55,6 +56,7 @@ void Setup(void){
   HAL_Delay(500);
   IPf200ms_Flash.LED_Flash_CAN = STOP;
   IPf200ms_Flash.LED_Flash_Activate = false;
+  IPf100ms_Flash.LED_Flash_Activate = false;
 
   Main_motor.Brake();
 

@@ -96,7 +96,7 @@ void AD_Setup_Control::DRV_Check(){
   bool DRV_restart = false;
 
   const int Main_Power_max = Main_Power_Constant + Main_Power_Constant_Range;
-  const int Main_Power_min = Main_Power_Constant - Main_Power_Constant_Range;
+  const int Main_Power_min = Main_Power_Constant;
   
   printf("\n*** Start Main Power Supply Check ***\n");
   IPf100ms_Flash.LED_Flash_BLUE = START;
