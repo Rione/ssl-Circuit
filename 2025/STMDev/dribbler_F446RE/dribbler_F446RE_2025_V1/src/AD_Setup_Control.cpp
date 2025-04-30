@@ -108,7 +108,7 @@ void AD_Setup_Control::DRV_Check(){
 
     printf("Main Power Supply ---- ");
     ADSC_Motor.ENABLE();
-    ADSC_Motor.Forward(10);
+    ADSC_Motor.Forward(5);
     HAL_Delay(1000);
 
     for(int i = 0;i < 50;i++){
