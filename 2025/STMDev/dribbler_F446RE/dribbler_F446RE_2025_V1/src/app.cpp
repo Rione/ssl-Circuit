@@ -216,16 +216,17 @@ void CAN_Data_Output_ID0x1d2_466(){
 
 void CAN_Data_Input_ID0x1d1_465(){
   Main_motor.ENABLE();
-  if(canRecvData.data[0] > 0){
-    Main_motor.Forward(canRecvData.data[0]);
-  } else if(canRecvData.data[0] == 0){
+  int data = canRecvData.data[0];
+  if(data > 0){
+    Main_motor.Forward(data);
+  } else if(data == 0){
     Main_motor.Brake();
   }
-  if(speed != canRecvData.data[0]){
+  if(speed != data){
     Halt_Get_Current = true;
     Change_Motor_Speed = 1;
   }
-  speed = canRecvData.data[0];
+  speed = data;
 }
 
 
