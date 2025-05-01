@@ -50,11 +50,11 @@ extern "C" {
 //1:FUBUKI TYPE
 #ifdef FUBUKI_TYPE
   //Current_THRESHOLD
-  #define Motor_Base_Current 100
-  #define Main_Power_Constant 50
+  #define Motor_Base_Current 80
+  #define Main_Power_Constant 40
   //Sensor_THRESHOLD
   #define PHOTO_THRESHOLD 100
-  #define MOTOR_CURRENT_THRESHOLD 113
+  #define MOTOR_CURRENT_THRESHOLD 13
 #endif
 
 //2:SIRAYUKI TYPE

@@ -119,7 +119,7 @@ void Interrupt_Processing_f1ms(){
   //frq = 1ms
   if(Halt_Get_Current == false){
     current_sum[0] += adc_val_ch1[MOTOR_CURRENT];
-    current_sum_count++
+    current_sum_count++;
     if(current_sum_count == 10){
       if(Halt_CAN_Data_Output_ID0x1d2_466 == false){
         CAN_Data_Output_ID0x1d2_466();
@@ -163,7 +163,7 @@ void CAN_Data_Output_ID0x1d2_466(){
   if(Halt_CAN_Data_Send == false){
     Set_LED.CAN_LED(HIGH);
 
-    if (current_val > MOTOR_CURRENT_THRESHOLD + Motor_Ajust_Value){
+    if (current_val > Motor_Base_Current +  MOTOR_CURRENT_THRESHOLD + Motor_Ajust_Value){
       current = 1;
       Set_LED.GREEN(HIGH);
       if(Change_Motor_Speed != 0) Set_LED.GREEN(LOW);
