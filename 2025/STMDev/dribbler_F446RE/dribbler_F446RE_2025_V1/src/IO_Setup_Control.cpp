@@ -1,6 +1,6 @@
 //AD_Setup_Control
 
-#include "AD_Setup_Control.hpp"
+#include "IO_Setup_Control.hpp"
 
 Basic_IO_Control_Extension_Sensor ADSC_Sensor;
 Basic_IO_Control_Motor ADSC_Motor;
@@ -96,7 +96,7 @@ void AD_Setup_Control::DRV_Check(){
   bool DRV_restart = false;
 
   const int Main_Power_max = Main_Power_Constant + Main_Power_Constant_Range;
-  const int Main_Power_min = Main_Power_Constant;
+  const int Main_Power_min = Main_Power_Constant - Main_Power_Constant_Range;
   
   printf("\n*** Start Main Power Supply Check ***\n");
   IPf100ms_Flash.LED_Flash_BLUE = START;
@@ -221,7 +221,7 @@ void AD_Setup_Control::Motor_Check(){
       motor_restart = true;
     }
 
-    Motor_Ajust_Value = (Forward_Current + Reverse_Current) / 2 - Motor_Base_Current;
+    Motor_Ajust_Value = Forward_Current - Motor_Base_Current;
     printf("-- Motor Value Ajusted! (Val = %d)\n",Motor_Ajust_Value);
     
     if(motor_restart == true){

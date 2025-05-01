@@ -1,13 +1,13 @@
 //AD_Setup_Control
 
-#ifndef __ADSC_HPP__
-#define __ADSC_HPP__
+#ifndef __IOSC_HPP__
+#define __IOSC_HPP__
 
 #include "math.h"
 #include "main.h"
 #include "app.hpp"
 #include "adc.h"
-#include "Definishion_Control.hpp"
+#include "Parameter_Control.hpp"
 
 #ifdef __cplusplus
 

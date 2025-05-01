@@ -4,13 +4,9 @@
 #include "main.h"
 #include "tim.h"
 #include "CAN.hpp"
-#include "Definishion_Control.hpp"
-#include "Basic_IO_Control.hpp"
-#include "AD_Setup_Control.hpp"
-
-// double map(double target,double min1,double max1,double min2,double max2){
-//     return ((max2 - min2 + 1) / (max1 - min1 + 1)) * target;
-// }
+#include "Parameter_Control.hpp"
+#include "IO_Basic_Control.hpp"
+#include "IO_Setup_Control.hpp"
 
 #ifdef __cplusplus
 
