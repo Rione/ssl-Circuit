@@ -9,6 +9,7 @@ uint32_t IPf10ms_count = 1;
 uint32_t IPf1ms_count = 1;
 
 int current_sum[10] = {0,0,0,0,0,0,0,0,0,0};
+int current_sum_count = 0;
 int Motor_Ajust_Value;
 uint8_t get_ball = 0;
 int speed = 0;
@@ -118,12 +119,13 @@ void Interrupt_Processing_f1ms(){
   //frq = 1ms
   if(Halt_Get_Current == false){
     current_sum[0] += adc_val_ch1[MOTOR_CURRENT];
-  }
-
-  //frq = 10ms
-  if(IPf1ms_count % 10 == 0){
-    if(Halt_CAN_Data_Output_ID0x1d2_466 == false){
-      CAN_Data_Output_ID0x1d2_466();
+    current_sum_count++
+    if(current_sum_count == 10){
+      if(Halt_CAN_Data_Output_ID0x1d2_466 == false){
+        CAN_Data_Output_ID0x1d2_466();
+      }
+      current_sum_count = 0;
+      current_sum[0] = 0;
     }
   }
 
