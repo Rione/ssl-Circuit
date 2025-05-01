@@ -170,24 +170,28 @@ void CAN_Data_Output_ID0x1d2_466(){
       photo = 1;
       Set_LED.BLUE(HIGH);
     } else Set_LED.BLUE(LOW);
-      
-    if (current == 1 && photo == 1 && get_ball == 0){
-      Set_LED.YELLOW(HIGH);
-      get_ball = 1;
-    } else if (current == 1 && photo == 1){
-      Set_LED.YELLOW(HIGH);
-      get_ball = 1;
-    } else if (photo == 0 && get_ball == 1){
-      Set_LED.YELLOW(LOW);
-      get_ball = 0;
-    } else if (current == 0 && photo == 0){
-      Set_LED.YELLOW(LOW);
-      get_ball = 0;
-    }
 
-    if(Change_Motor_Speed != 0){
+    if(Change_Motor_Speed == 0){
+      if(photo == 0 && current == 0){
+        get_ball = 0;
+        Set_LED.YELLOW(LOW);
+      } else if(photo == 0 && current == 1){
+        get_ball = 0;
+        Set_LED.YELLOW(LOW);
+      } else if(photo == 1 && current == 1){
+        get_ball = 1;
+        Set_LED.YELLOW(HIGH);
+      } else if(photo == 1 && current == 0 && get_ball == 0){
+        get_ball = 0;
+        Set_LED.YELLOW(LOW);
+      } else if(photo == 1 && current == 0 && get_ball == 1){
+        get_ball = 1;
+        Set_LED.YELLOW(HIGH);
+      }
+    } else {
       get_ball = 0;
       current_val = 0;
+      Set_LED.YELLOW(LOW);
     }
     
     CANBus::CANData data = {
