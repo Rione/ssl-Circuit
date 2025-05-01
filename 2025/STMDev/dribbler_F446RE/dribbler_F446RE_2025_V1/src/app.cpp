@@ -174,21 +174,17 @@ void CAN_Data_Output_ID0x1d2_466(){
     } else Set_LED.BLUE(LOW);
 
     if(Change_Motor_Speed == 0){
-      if(photo == 0 && current == 0){
+      if(photo == 1){
+        if(current == 1 || (current == 0 && get_ball == 1)){
+          get_ball = 1;
+          Set_LED.YELLOW(HIGH);
+        } else {
+          get_ball = 0;
+          Set_LED.YELLOW(LOW);
+        }
+      } else {
         get_ball = 0;
         Set_LED.YELLOW(LOW);
-      } else if(photo == 0 && current == 1){
-        get_ball = 0;
-        Set_LED.YELLOW(LOW);
-      } else if(photo == 1 && current == 1){
-        get_ball = 1;
-        Set_LED.YELLOW(HIGH);
-      } else if(photo == 1 && current == 0 && get_ball == 0){
-        get_ball = 0;
-        Set_LED.YELLOW(LOW);
-      } else if(photo == 1 && current == 0 && get_ball == 1){
-        get_ball = 1;
-        Set_LED.YELLOW(HIGH);
       }
     } else {
       get_ball = 0;
