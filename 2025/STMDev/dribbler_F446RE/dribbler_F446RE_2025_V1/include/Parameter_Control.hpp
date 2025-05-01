@@ -9,11 +9,11 @@
 
 //*** User Definishion BEGIN ***
 
-#define FUBUKI_TYPE
+#define SIRAYUKI_TYPE
 //CODE MAP
 /**
-  1:FUBUKI
-  2:SIRAYUKI
+  1:FUBUKI old 
+  9:SIRAYUKI old black
   3:HATSUYUKI
   4:MIYUKI
 **/
@@ -61,10 +61,10 @@ extern "C" {
 #ifdef SIRAYUKI_TYPE
   //Current_THRESHOLD
   #define Motor_Base_Current 100
-  #define Main_Power_Constant 10
+  #define Main_Power_Constant 45
   //Sensor_THRESHOLD
   #define PHOTO_THRESHOLD 100
-  #define MOTOR_CURRENT_THRESHOLD 113
+  #define MOTOR_CURRENT_THRESHOLD 13
 #endif
 
 //3:HATSUYUKI TYPE
