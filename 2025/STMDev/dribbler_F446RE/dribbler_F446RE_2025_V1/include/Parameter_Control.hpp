@@ -9,13 +9,14 @@
 
 //*** User Definishion BEGIN ***
 
-#define HATSUYUKI_TYPE
+#define MIYUKI_TYPE
 //CODE MAP
 /**
   1:FUBUKI old 
   9:SIRAYUKI old black
   11/5:HATSUYUKI new
-  4:MIYUKI
+  4:MIYUKI white
+  5:SIKINAMI
 **/
 
 #ifdef __cplusplus
@@ -80,13 +81,22 @@ extern "C" {
 //4:MIYUKI TYPE
 #ifdef MIYUKI_TYPE
   //Current_THRESHOLD
-  #define Motor_Base_Current 100
-  #define Main_Power_Constant 10
+  #define Motor_Base_Current 138
+  #define Main_Power_Constant 60
   //Sensor_THRESHOLD
   #define PHOTO_THRESHOLD 100
-  #define MOTOR_CURRENT_THRESHOLD 113
+  #define MOTOR_CURRENT_THRESHOLD 10
 #endif
 
+//test:SIKINAMI_TYPE
+#ifdef SIKINAMI_TYPE
+  //Current_THRESHOLD
+  #define Motor_Base_Current 100
+  #define Main_Power_Constant 50
+  //Sensor_THRESHOLD
+  #define PHOTO_THRESHOLD 100
+  #define MOTOR_CURRENT_THRESHOLD 15
+#endif
 
 
 #endif
