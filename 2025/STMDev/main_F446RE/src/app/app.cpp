@@ -166,10 +166,41 @@ void ballMoving() {
     }
 }
 
+void dribbleHoldBack() {
+    Timer timer;
+    Timer initialHoldtimer;
+    static bool ballHoldPrev = false;
+    timer.reset();
+
+    static int velX = 0;
+    while (1){
+        robot.dribble(100);
+        if(robot.info.dribbleStatus.isHoldBall == true) {
+            if (ballHoldPrev != robot.info.dribbleStatus.isHoldBall) {
+                initialHoldtimer.reset();// first time hold ball
+            }
+            if (initialHoldtimer.read_ms() > 300){ // 開始300ms以降から加速
+                if (timer.read_ms() > 10 && velX > -700) {
+                    velX -= 5;
+                    timer.reset();
+                }
+            }
+            robot.motorDriver.setVelocityFF(velX, 0, 0);
+        } else {
+            velX = 0;
+            robot.motorDriver.setVelocityFF(0, 0, 0);
+        }
+        printf("velX: %d\n", velX);
+        HAL_Delay(10);
+        ballHoldPrev = robot.info.dribbleStatus.isHoldBall;
+    }
+}
+
 
 void main_app() {
     frontDeg = att.z;
     // ballMoving();
+    // dribbleHoldBack();
     while (1) {
         mainMode.loop();
     }
