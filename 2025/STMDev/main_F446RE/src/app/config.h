@@ -22,7 +22,7 @@
 #define SEND_EMG 0x00       // 0
 
 // dribbler board
-#define DRIBBLE_SEND 0x1D1        // 465
-#define DRIBBLE_RECV 0x1D2        // 466
+#define DRIBBLE_SEND 0xF4
+#define DRIBBLE_RECV 0xF5
 
 #endif
