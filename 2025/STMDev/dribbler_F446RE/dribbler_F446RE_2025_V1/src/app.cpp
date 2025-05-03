@@ -18,7 +18,7 @@ CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
 bool Halt_Get_Current;
 bool Halt_CAN_Data_Send;
-bool Halt_CAN_Data_Output_ID0x1d2_246;
+bool Halt_CAN_Data_Output_ID0x1d2_245;
 uint8_t Change_Motor_Speed = 0;
 
 Basic_IO_Control_Extension_Sensor Set_Sensor;
@@ -32,7 +32,7 @@ Basic_IO_Control_LED_Flash IPf500ms_Flash;
 AD_Setup_Control AD_Setup;
 
 void Setup(void){
-  Halt_CAN_Data_Output_ID0x1d2_246 = true;
+  Halt_CAN_Data_Output_ID0x1d2_245 = true;
   Halt_Get_Current = true;
   Halt_CAN_Data_Send = true;
 
@@ -60,7 +60,7 @@ void Setup(void){
   Set_Sensor.Ball_Sensor_Activate();
   Set_Sensor.ENC_Activate();
 
-  Halt_CAN_Data_Output_ID0x1d2_246 = false;
+  Halt_CAN_Data_Output_ID0x1d2_245 = false;
   Halt_Get_Current = false;
 
   HAL_Delay(1000);
@@ -121,8 +121,8 @@ void Interrupt_Processing_f1ms(){
     current_sum[0] += adc_val_ch1[MOTOR_CURRENT];
     current_sum_count++;
     if(current_sum_count == 10){
-      if(Halt_CAN_Data_Output_ID0x1d2_246 == false){
-        CAN_Data_Output_ID0x1d2_246();
+      if(Halt_CAN_Data_Output_ID0x1d2_245 == false){
+        CAN_Data_Output_ID0x1d2_245();
       }
       current_sum_count = 0;
       current_sum[0] = 0;
@@ -137,8 +137,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if (can.getHcan() == hcan){
     can.recv(canRecvData);
     switch (canRecvData.stdId){
-    case 0xf5: //245
-      CAN_Data_Input_ID0x1d1_245();
+    case 0xf4: //244
+      CAN_Data_Input_ID0x1d1_244();
       break;
     default:
       break;
@@ -146,7 +146,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   }
 }
 
-void CAN_Data_Output_ID0x1d2_246(){
+void CAN_Data_Output_ID0x1d2_245(){
   uint16_t current_val = 0;
   uint8_t photo = 0;
   uint8_t current = 0;
@@ -211,7 +211,7 @@ void CAN_Data_Output_ID0x1d2_246(){
   }
 }
 
-void CAN_Data_Input_ID0x1d1_245(){
+void CAN_Data_Input_ID0x1d1_244(){
   Main_motor.ENABLE();
   int data = canRecvData.data[0];
   if(data > 0){

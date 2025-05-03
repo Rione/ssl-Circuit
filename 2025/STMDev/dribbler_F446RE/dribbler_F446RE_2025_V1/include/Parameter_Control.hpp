@@ -9,7 +9,7 @@
 
 //*** User Definishion BEGIN ***
 
-#define MIYUKI_TYPE
+#define FUBUKI_TYPE
 //CODE MAP
 /**
   1:FUBUKI old 
