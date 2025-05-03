@@ -28,7 +28,11 @@ void MainMode::loop() {
         int16_t __velX = meanVelX.calc((float)robot->info.velX.vel);
         int16_t __velY = meanVelY.calc((float)robot->info.velY.vel);
         int16_t __velAngler = meanVelAngler.calc((float)robot->info.velAngler.vel);
-        robot->motorDriver.setVelocityFF(__velX, __velY, __velAngler);
+        static uint8_t md_sendcount = 0;
+        md_sendcount ++;
+        if (md_sendcount % 5 == 0) {
+            robot->motorDriver.setVelocityFF(__velX, __velY, __velAngler);
+        }
     } else {
         // Robot is Stop or Emergency Stop
         robot->stopRobot(500);
