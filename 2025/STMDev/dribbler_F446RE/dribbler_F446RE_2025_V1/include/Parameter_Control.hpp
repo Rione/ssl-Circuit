@@ -9,7 +9,7 @@
 
 //*** User Definishion BEGIN ***
 
-#define FUBUKI_TYPE
+#define MIYUKI_TYPE
 //CODE MAP
 /**
   1:FUBUKI old 
@@ -64,7 +64,7 @@ extern "C" {
   #define Motor_Base_Current 100
   #define Main_Power_Constant 45
   //Sensor_THRESHOLD
-  #define PHOTO_THRESHOLD 100
+  #define PHOTO_THRESHOLD 2500
   #define MOTOR_CURRENT_THRESHOLD 13
 #endif
 
@@ -74,7 +74,7 @@ extern "C" {
   #define Motor_Base_Current 130
   #define Main_Power_Constant 47
   //Sensor_THRESHOLD
-  #define PHOTO_THRESHOLD 100
+  #define PHOTO_THRESHOLD 2500
   #define MOTOR_CURRENT_THRESHOLD 30
 #endif
 
@@ -84,7 +84,7 @@ extern "C" {
   #define Motor_Base_Current 138
   #define Main_Power_Constant 60
   //Sensor_THRESHOLD
-  #define PHOTO_THRESHOLD 100
+  #define PHOTO_THRESHOLD 2500
   #define MOTOR_CURRENT_THRESHOLD 10
 #endif
 
@@ -94,7 +94,7 @@ extern "C" {
   #define Motor_Base_Current 100
   #define Main_Power_Constant 50
   //Sensor_THRESHOLD
-  #define PHOTO_THRESHOLD 100
+  #define PHOTO_THRESHOLD 2500
   #define MOTOR_CURRENT_THRESHOLD 15
 #endif
 

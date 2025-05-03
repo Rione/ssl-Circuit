@@ -15,8 +15,8 @@ extern "C" {
   void MainLoop(void);
   void Interrupt_Processing_f10ms();
   void Interrupt_Processing_f1ms();
-  void CAN_Data_Output_ID0x1d2_245();
-  void CAN_Data_Input_ID0x1d1_244();
+  void CAN_Data_Output_ID0x1d2_246();
+  void CAN_Data_Input_ID0x1d1_245();
 }
 
 #endif
