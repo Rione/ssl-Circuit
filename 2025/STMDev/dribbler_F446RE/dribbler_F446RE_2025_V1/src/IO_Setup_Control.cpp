@@ -1,6 +1,6 @@
 //AD_Setup_Control
 
-#include "AD_Setup_Control.hpp"
+#include "IO_Setup_Control.hpp"
 
 Basic_IO_Control_Extension_Sensor ADSC_Sensor;
 Basic_IO_Control_Motor ADSC_Motor;
@@ -108,7 +108,7 @@ void AD_Setup_Control::DRV_Check(){
 
     printf("Main Power Supply ---- ");
     ADSC_Motor.ENABLE();
-    ADSC_Motor.Forward(10);
+    ADSC_Motor.Forward(5);
     HAL_Delay(1000);
 
     for(int i = 0;i < 50;i++){
@@ -221,7 +221,7 @@ void AD_Setup_Control::Motor_Check(){
       motor_restart = true;
     }
 
-    Motor_Ajust_Value = (Forward_Current + Reverse_Current) / 2 - Motor_Base_Current;
+    Motor_Ajust_Value = Forward_Current - Motor_Base_Current;
     printf("-- Motor Value Ajusted! (Val = %d)\n",Motor_Ajust_Value);
     
     if(motor_restart == true){

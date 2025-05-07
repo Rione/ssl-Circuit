@@ -1,8 +1,3 @@
-//STMDev_dribbler_V1.1 Stabilization completed! 
-//2025_04_26_1535
-
-//以降の変更を禁止 Forbid further changes!
-
 #include "app.hpp"
 #include "adc.h"
 #include "math.h"
@@ -14,6 +9,7 @@ uint32_t IPf10ms_count = 1;
 uint32_t IPf1ms_count = 1;
 
 int current_sum[10] = {0,0,0,0,0,0,0,0,0,0};
+int current_sum_count = 0;
 int Motor_Ajust_Value;
 uint8_t get_ball = 0;
 int speed = 0;
@@ -22,6 +18,7 @@ CANBus can = CANBus(&hcan1, 0);
 CANBus::CANData canRecvData;
 bool Halt_Get_Current;
 bool Halt_CAN_Data_Send;
+bool Halt_CAN_Data_Output_ID0x1d2_246;
 uint8_t Change_Motor_Speed = 0;
 
 Basic_IO_Control_Extension_Sensor Set_Sensor;
@@ -35,6 +32,7 @@ Basic_IO_Control_LED_Flash IPf500ms_Flash;
 AD_Setup_Control AD_Setup;
 
 void Setup(void){
+  Halt_CAN_Data_Output_ID0x1d2_246 = true;
   Halt_Get_Current = true;
   Halt_CAN_Data_Send = true;
 
@@ -45,19 +43,24 @@ void Setup(void){
   HAL_Delay(500);
 
   IPf100ms_Flash.LED_Flash_Activate = true;
-  IPf100ms_Flash.LED_Flash_CAN = START;
+  IPf200ms_Flash.LED_Flash_Activate = true;
+  IPf200ms_Flash.LED_Flash_CAN = START;
   AD_Setup.ADC_Check();
   AD_Setup.Administrator_Privilege();
   AD_Setup.DRV_Check();
   AD_Setup.Motor_Check();
   HAL_Delay(500);
-  IPf100ms_Flash.LED_Flash_CAN = STOP;
+  IPf200ms_Flash.LED_Flash_CAN = STOP;
+  IPf200ms_Flash.LED_Flash_Activate = false;
   IPf100ms_Flash.LED_Flash_Activate = false;
+
+  Main_motor.Brake();
 
   can.init();
   Set_Sensor.Ball_Sensor_Activate();
   Set_Sensor.ENC_Activate();
 
+  Halt_CAN_Data_Output_ID0x1d2_246 = false;
   Halt_Get_Current = false;
 
   HAL_Delay(1000);
@@ -85,10 +88,10 @@ void Interrupt_Processing_f10ms(){
     if(Change_Motor_Speed != 0){
       Change_Motor_Speed++;
     }
-    if(Change_Motor_Speed > 5){
+    if(Change_Motor_Speed > 2){
       Halt_Get_Current = false;
     }
-    if(Change_Motor_Speed > 10){
+    if(Change_Motor_Speed > 4){
       Change_Motor_Speed = 0;
     }
   }
@@ -116,11 +119,14 @@ void Interrupt_Processing_f1ms(){
   //frq = 1ms
   if(Halt_Get_Current == false){
     current_sum[0] += adc_val_ch1[MOTOR_CURRENT];
-  }
-
-  //frq = 10ms
-  if(IPf1ms_count % 10 == 0){
-    CAN_Data_Output_ID0x1d2_466();
+    current_sum_count++;
+    if(current_sum_count == 10){
+      if(Halt_CAN_Data_Output_ID0x1d2_246 == false){
+        CAN_Data_Output_ID0x1d2_246();
+      }
+      current_sum_count = 0;
+      current_sum[0] = 0;
+    }
   }
 
   IPf1ms_count++;
@@ -131,8 +137,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if (can.getHcan() == hcan){
     can.recv(canRecvData);
     switch (canRecvData.stdId){
-    case 0x1d1: //465
-      CAN_Data_Input_ID0x1d1_465();
+    case 0xf4: //244
+      CAN_Data_Input_ID0x1d1_245();
       break;
     default:
       break;
@@ -140,7 +146,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   }
 }
 
-void CAN_Data_Output_ID0x1d2_466(){
+void CAN_Data_Output_ID0x1d2_246(){
   uint16_t current_val = 0;
   uint8_t photo = 0;
   uint8_t current = 0;
@@ -157,7 +163,7 @@ void CAN_Data_Output_ID0x1d2_466(){
   if(Halt_CAN_Data_Send == false){
     Set_LED.CAN_LED(HIGH);
 
-    if (current_val > MOTOR_CURRENT_THRESHOLD + Motor_Ajust_Value){
+    if (current_val > Motor_Base_Current +  MOTOR_CURRENT_THRESHOLD + Motor_Ajust_Value){
       current = 1;
       Set_LED.GREEN(HIGH);
       if(Change_Motor_Speed != 0) Set_LED.GREEN(LOW);
@@ -166,28 +172,28 @@ void CAN_Data_Output_ID0x1d2_466(){
       photo = 1;
       Set_LED.BLUE(HIGH);
     } else Set_LED.BLUE(LOW);
-      
-    if (current == 1 && photo == 1 && get_ball == 0){
-      Set_LED.YELLOW(HIGH);
-      get_ball = 1;
-    } else if (current == 1 && photo == 1){
-      Set_LED.YELLOW(HIGH);
-      get_ball = 1;
-    } else if (photo == 0 && get_ball == 1){
-      Set_LED.YELLOW(LOW);
-      get_ball = 0;
-    } else if (current == 0 && photo == 0){
-      Set_LED.YELLOW(LOW);
-      get_ball = 0;
-    }
 
-    if(Change_Motor_Speed != 0){
+    if(Change_Motor_Speed == 0){
+      if(photo == 1){
+        if(current == 1 || (current == 0 && get_ball == 1)){
+          get_ball = 1;
+          Set_LED.YELLOW(HIGH);
+        } else {
+          get_ball = 0;
+          Set_LED.YELLOW(LOW);
+        }
+      } else {
+        get_ball = 0;
+        Set_LED.YELLOW(LOW);
+      }
+    } else {
       get_ball = 0;
       current_val = 0;
+      Set_LED.YELLOW(LOW);
     }
     
     CANBus::CANData data = {
-      .stdId = 0x1d2,
+      .stdId = 0xf5,
       .data = {
         get_ball,
         current,
@@ -205,18 +211,19 @@ void CAN_Data_Output_ID0x1d2_466(){
   }
 }
 
-void CAN_Data_Input_ID0x1d1_465(){
+void CAN_Data_Input_ID0x1d1_245(){
   Main_motor.ENABLE();
-  if(canRecvData.data[0] > 0){
-    Main_motor.Forward(canRecvData.data[0]);
-  } else if(canRecvData.data[0] == 0){
+  int data = canRecvData.data[0];
+  if(data > 0){
+    Main_motor.Forward(data);
+  } else if(data == 0){
     Main_motor.Brake();
   }
-  if(speed != canRecvData.data[0]){
+  if(speed != data){
     Halt_Get_Current = true;
     Change_Motor_Speed = 1;
   }
-  speed = canRecvData.data[0];
+  speed = data;
 }
 
 
