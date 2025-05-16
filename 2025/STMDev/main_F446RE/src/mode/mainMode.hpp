@@ -34,7 +34,7 @@ class MainMode : public Mode {
             // 　パケットに代入
             robot->UIrobotInfo.batteryGet = robot->info.batteryVoltage;
             robot->UIrobotInfo.capaData.chargeState = robot->info.isKickerChargeMode;
-            robot->UIrobotInfo.capaData.chargeVol = robot->info.capChargeCertitude;
+            robot->UIrobotInfo.capaData.chargeVal = robot->info.capValEstimate;
 
             // send the state to ui(UIに送るのここなのおかしくね？)
             robot->serial4.write(0xFF);
@@ -70,12 +70,12 @@ class MainMode : public Mode {
 
                 if (robot->UImodeData.status.charge_state == 1) {
                     if (robot->info.isKickerChargeMode == false) {
-                        robot->chargeStart();
+                        robot->kickerBoard.chargeControl(CHARGE);
                         // printf("UI Start charge\n");
                         robot->led2 = true;
                         // robot->serial4.write(0x01);
                     } else {
-                        robot->discharge();
+                        robot->kickerBoard.chargeControl(DISCHARGE);
                         // printf("UI Start discharge\n");
                         robot->led2 = false;
                         // robot->serial4.write(0x00);
@@ -84,7 +84,7 @@ class MainMode : public Mode {
                     robot->UImodeData.status.charge_state = 0;
 
                 } else if (robot->UImodeData.status.kick == 1) {
-                    robot->kickStraight(50);
+                    robot->kickerBoard.kick(STRAIGHT, 50);
                     printf("kick\n");
                     robot->UImodeData.status.kick = 0;
                 }
@@ -95,18 +95,19 @@ class MainMode : public Mode {
 
         if (robot->swDischarge.isRelease()) {
             if (robot->swDischarge.readPressedTime() > 1600) {
-                robot->discharge();
+                robot->kickerBoard.chargeControl(DISCHARGE);
                 robot->led2 = false;
                 printf("discharge start\n");
             } else if (robot->swDischarge.readPressedTime() > 800) {
-                robot->chargeStart();
+                robot->kickerBoard.chargeControl(CHARGE);
                 robot->led2 = true;
                 printf("charge start\n");
             } else if (robot->swDischarge.readPressedTime() > 200) {
-                robot->kickStraight(100);
+                robot->kickerBoard.kick(STRAIGHT, 100);
                 printf("kick\n");
             }
             manageByUserCounter.reset();
+
         } else {
             if (manageByUserCounter.read_ms() >= 15000) { // ユーザーがスイッチでキッカーの充電or放電をしてから15秒以上経過したらPiの指示に従う
                 if (doChargeTimer.read_ms() > 100) {      // 100msごとに実行
@@ -117,7 +118,7 @@ class MainMode : public Mode {
                             // KickerBoardから充電していないとの情報を得ている。噛み合っていない
                             countD++;
                             if (countD > 10) {
-                                robot->chargeStart();
+                                robot->kickerBoard.chargeControl(CHARGE);
                                 printf("charge from Pi\n");
                                 countD = 0;
                             }
@@ -128,7 +129,7 @@ class MainMode : public Mode {
                         if (robot->info.isKickerChargeMode == true) {
                             countC++;
                             if (countC > 10) {
-                                robot->discharge();
+                                robot->kickerBoard.chargeControl(DISCHARGE);
                                 printf("discharge from Pi\n");
                                 countC = 0;
                             }

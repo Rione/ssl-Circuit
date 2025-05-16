@@ -11,10 +11,17 @@
 #include "CAN.hpp"
 #include "Timer.hpp"
 #include "Button.hpp"
-#include "MotorDriver.hpp"
 #include "adc.h"
 #include "Median.h"
 #include "Average.h"
+
+#include "MotorDriver.hpp"
+#include "KickerBoard.hpp"
+
+#define STRAIGHT 0
+#define CHIP 1
+#define CHARGE 0
+#define DISCHARGE 1
 
 enum class playType {
     NONE,
@@ -139,7 +146,7 @@ typedef struct {
     } dribbleStatus; //ボール保持とボール検知の統合
 
     uint8_t batteryVoltage;
-    uint8_t capChargeCertitude; // 0~100
+    uint8_t capValEstimate; // 0~100
 
     // local
     volatile uint16_t photoSensorValue;
@@ -154,14 +161,14 @@ typedef struct {
         uint8_t status;
     } kickerBoardDoDirectStatus;
 
-} RobotInfo;
+} RobotInfo_t;
 
 typedef struct {
     uint8_t batteryGet;
     union {
         struct {
             bool chargeState : 1;  // stmから送られてくる充電状態
-            uint8_t chargeVol : 7; // capChargeCertitude
+            uint8_t chargeVal : 7; // capValEstimate
         };
         uint8_t data;
 
@@ -190,7 +197,7 @@ class Robot {
     Robot();
 
     // values
-    RobotInfo info;
+    RobotInfo_t info;
 
     UIRobotInfo_t UIrobotInfo;
     UIModeSwitch_t UImodeData;
@@ -210,13 +217,18 @@ class Robot {
     BufferedSerial serial5 = BufferedSerial(&huart5, 256); // RasPi
 
     MotorDriver motorDriver = MotorDriver(&can);
+    KickerBoard kickerBoard = KickerBoard(&can);
 
     Timer rasSendInterval = Timer();
 
     void hardwareInit();
     void rasRecvSerial();
-    void rasSendSerial(RobotInfo &info, uint16_t interval);
-    void getSensors(RobotInfo *info);
+    void rasSendSerial(RobotInfo_t &info, uint16_t interval);
+    void getSensors(RobotInfo_t *info);
+    void dribble(uint8_t power, bool forceSend = false);
+    void checkRobotRest(RobotInfo_t &info);
+    void stopRobot(Robot &robot, uint16_t interval);
+    // void processKicker(RobotInfo_t &info, KickerBoard &kickerBoard);
 
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;
@@ -224,129 +236,10 @@ class Robot {
         ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 1 : 5))) / 2 + 0.5);
     }
 
-    inline __attribute__((always_inline)) void chargeStart() {
-        CANBus::CANData canData = {
-            .stdId = CHARGE_START,
-            .data = {0},
-        };
-        can.send(canData);
-    }
-
-    inline __attribute__((always_inline)) void discharge() {
-        CANBus::CANData canData = {
-            .stdId = DISCHARGE_START,
-            .data = {0},
-        };
-        can.send(canData);
-        minusCapChargeCertitude(100);
-    }
-
-    inline __attribute__((always_inline)) void kickStraight(uint8_t power, bool forceSend = false) {
-        static Timer timer;
-        if (timer.read_ms() < (forceSend ? 10 : 1000)) {
-            return;
-        } else if (timer.read_ms() > 1000) {
-            timer.set_ms(1000);
-        }
-        CANBus::CANData canData = {
-            .stdId = KICK_STRAIGHT,
-            .data = {power, 0, 0, 0, 0, 0, 0, 0},
-        };
-        can.send(canData);
-        timer.reset();
-        minusCapChargeCertitude(power);
-    }
-
-    inline __attribute__((always_inline)) void kickChip(uint8_t power, bool forceSend = false) {
-        static Timer timer;
-        if (timer.read_ms() < (forceSend ? 100 : 1000)) {
-            return;
-        } else if (timer.read_ms() > 1000) {
-            timer.set_ms(1000);
-        }
-        // doDirectをする時はdata[1]に0xFFを入れてKickerBoardに投げる
-        CANBus::CANData canData = {
-            .stdId = KICK_CHIP,
-            .data = {power, 0, 0, 0, 0, 0, 0, 0},
-        };
-        can.send(canData);
-        timer.reset();
-        minusCapChargeCertitude(power);
-    }
-
-    inline __attribute__((always_inline)) void directStraightKick(uint8_t power) {
-        static Timer timer;
-        if (timer.read_ms() < 500) {
-            return;
-        } else if (timer.read_ms() > 500) {
-            timer.set_ms(500);
-        }
-        CANBus::CANData canData = {
-            .stdId = KICK_STRAIGHT,
-            .data = {power, 0xFF, 0, 0, 0, 0, 0, 0},
-        };
-        can.send(canData);
-        timer.reset();
-    }
-
-    inline __attribute__((always_inline)) void directChipKick(uint8_t power) {
-        static Timer timer;
-        if (timer.read_ms() < 500) {
-            return;
-        } else if (timer.read_ms() > 500) {
-            timer.set_ms(500);
-        }
-        CANBus::CANData canData = {
-            .stdId = KICK_CHIP,
-            .data = {power, 0xFF, 0, 0, 0, 0, 0, 0},
-        };
-        can.send(canData);
-        timer.reset();
-    }
-
-    inline __attribute__((always_inline)) void resetDoDirectKick() {
-        CANBus::CANData canData = {
-            .stdId = KICK_STRAIGHT,
-            .data = {0, 0, 0, 0, 0, 0, 0, 0xFF},
-        };
-        can.send(canData);
-    }
-
-    inline __attribute__((always_inline)) void resetDoDirectChipKick() {
-        CANBus::CANData canData = {
-            .stdId = KICK_CHIP,
-            .data = {0, 0, 0, 0, 0, 0, 0, 0xFF},
-        };
-        can.send(canData);
-    }
-    inline __attribute__((always_inline)) bool dribble(uint8_t power, bool forceSend = false) {
-        static Timer timer;
-        static uint8_t dribblePowerPrev = power;
-        if (timer.read_ms() > 10000) timer.set_ms(10000);
-        if (power == dribblePowerPrev && forceSend == false) {
-            if (timer.read_ms() < 100) // パワーが変わっていない場合は送信しない。 forceSendがtrueの場合は100msごとに送信する
-                return 0;
-        }
-        if(power != 0) {
-            power = 100; // 新ドリブラーはpowerは100でしか送らない
-        }
-        CANBus::CANData canData = {
-            .stdId = DRIBBLE_SEND,
-            .data = {power, 0, 0, 0, 0, 0, 0, 0},
-        };
-        can.send(canData);
-        timer.reset();
-        dribblePowerPrev = power;
-        return 1; // 送信した
-    }
-
-    inline __attribute__((always_inline)) void setPhotoSensorValue(uint16_t value) {
-        info.photoSensorValue = value;
-    }
-
     inline __attribute__((always_inline)) void setChageDoneSignal(uint16_t value) {
         if (value == 0xFF) { // Done
-            capChargeCertitude = 100;
+            // info.capValEstimate = 100;
+            kickerBoard.setCapValEstimate(100);
             led2 = true;
         }
     }
@@ -361,86 +254,6 @@ class Robot {
         }
     }
 
-    inline __attribute__((always_inline)) void setKickerBoardDoDirectMode(uint8_t value) {
-
-        info.kickerBoardDoDirectStatus.status = value;
-    }
-
-    inline __attribute__((always_inline)) void minusCapChargeCertitude(uint8_t value) {
-        if (capChargeCertitude < value) {
-            capChargeCertitude = 0;
-            return;
-        }
-        capChargeCertitude -= value;
-    }
-
-    inline __attribute__((always_inline)) uint8_t getCapChargeCertitude() {
-        return capChargeCertitude;
-    }
-
-    // FF速度ベクトルからロボットが止まっているかを判断する
-    inline __attribute__((always_inline)) void checkRobotRest() {
-        static int velZeroCount = 0;
-        if (info.velX.vel == 0 && info.velY.vel == 0 && info.velAngler.vel == 0) {
-            if (velZeroCount < 1000) {
-                velZeroCount++;
-            } else {
-                velZeroCount = 1000;
-                info.isRobotStopFF = true;
-            }
-        } else {
-            velZeroCount = 0;
-            info.isRobotStopFF = false;
-        }
-    }
-
-    inline __attribute__((always_inline)) void stopRobot(uint16_t interval) {
-        static Timer timer;
-        if (timer.read_ms() > interval) {
-            dribble(0);
-            motorDriver.sendEmg();
-            resetDoDirectKick();
-            resetDoDirectChipKick();
-            timer.reset();
-        }
-    }
-
-    inline __attribute__((always_inline)) void processKicker() {
-        // ストレートキックを優先する処理。
-        // doDirectXXがtrueの場合はボールセンサが反応した瞬間にキックする
-        if (info.kicker.straight > 0) {
-            if (info.status.doDirectKick) {
-                directStraightKick(info.kicker.straight); // doDirectをKickerBoardに投げる
-            } else {
-                kickStraight(info.kicker.straight);
-            }
-        } else if (info.kicker.chip > 0) {
-            if (info.status.doDirectChipKick) {
-                directChipKick(info.kicker.chip); // doDirectをKickerBoardに投げる
-            } else {
-                kickChip(info.kicker.chip);
-            }
-        } else {
-            // どっちも0の場合はキックしない
-            if (info.status.doDirectKick != info.kickerBoardDoDirectStatus.straight && info.kickerBoardDoDirectStatus.straight) {
-                // kickStraight(0, false); // パワー0のキックを投げてdoDirectをリセットする
-                resetDoDirectKick();
-            }
-            if (info.status.doDirectChipKick != info.kickerBoardDoDirectStatus.chip && info.kickerBoardDoDirectStatus.chip) {
-                // kickChip(0, false); // パワー0のキックを投げてdoDirectをリセットする
-                resetDoDirectChipKick();
-            }
-        }
-    }
-
-    inline __attribute__((always_inline)) void setIsHoldBallValue(uint8_t value) {
-        info.dribbleStatus.isHoldBall = (value != 0);
-    }
-
-    inline __attribute__((always_inline)) void setIsDetectedBallValue(uint8_t value) {
-        info.dribbleStatus.isDetectedBall = (value != 0);
-    }
-
   private:
     uint16_t photoSensorValueBuff[15];
     Median<uint16_t> medianPhotoValue = Median(photoSensorValueBuff, 15);
@@ -448,7 +261,6 @@ class Robot {
     uint8_t batteryValueBuff[15];
     Median<uint8_t> medianBatteryValue = Median(batteryValueBuff, 15);
 
-    uint8_t capChargeCertitude; // 0~100
 };
 
 #endif

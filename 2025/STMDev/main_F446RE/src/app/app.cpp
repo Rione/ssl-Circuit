@@ -48,33 +48,32 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             robot.led2 = true;
             break;
         case DISCHARGE_START: // 17: charge Disable
-            robot.minusCapChargeCertitude(100);
+            robot.kickerBoard.setCapValEstimate(0);
             robot.led2 = false;
             break;
         case KICK_STRAIGHT: // 18: kick
-            robot.minusCapChargeCertitude(canRecvData.data[0]);
+            robot.kickerBoard.minusCapValEstimate(canRecvData.data[0]);
             break;
         case KICK_CHIP: // 19: chip kick
-            robot.minusCapChargeCertitude(canRecvData.data[0]);
+            robot.kickerBoard.minusCapValEstimate(canRecvData.data[0]);
             break;
         // case DRIBBLE: // 20: dribbler run
         //     break;
         // case DRIBLE_STOP: // 21: dribbler stop
         //     break;
         case KICKER_BOARD_PACKET: // フォトセンサの値・充電完了信号の受信
-
             // robot.setPhotoSensorValue((uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8); // フォトセンサの値の処理はドリブラで行う
             robot.setChageDoneSignal(canRecvData.data[2]);       // 充電完了信号の処理
             robot.setKickerBoardChargeMode(canRecvData.data[3]); // 充電モード信号の処理
-            robot.setKickerBoardDoDirectMode(canRecvData.data[4]);
+            robot.info.kickerBoardDoDirectStatus.status = canRecvData.data[4]; // doDirectの状態を受信
             // uint16_t photoSensorThreshold = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;
             robot.led0 = !robot.led0;
             break;
         case DRIBBLE_RECV:
-            robot.setIsHoldBallValue(canRecvData.data[0]);
+            robot.info.dribbleStatus.isHoldBall = (canRecvData.data[0] != 0);
             // data[1],data[2,3]ドリブラ検知の値は無視　CAN監視用
-            robot.setIsDetectedBallValue(canRecvData.data[4]);
-            robot.setPhotoSensorValue((uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8);
+            robot.info.dribbleStatus.isDetectedBall = (canRecvData.data[4] != 0);
+            robot.info.photoSensorValue = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;        
             break;
         default:
             break;
@@ -145,7 +144,7 @@ void ballMoving() {
         case 0:
             velX = 1500 * MyMath::sinDeg(time * 0.18 * 0.5); // 加速のためにタイマーを使った sinの加速をしてる
             robot.motorDriver.setVelocityFF(velX, 0, 0);     // 前進
-            robot.dribble(100);                              // ドリブラー100%
+            robot.dribble(100);                       // ドリブラー100%
             if (time > 2000) {
                 state = 1;
                 stateSwitchTimer.reset(); // 2秒経ったら状態遷移

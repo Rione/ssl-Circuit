@@ -18,7 +18,7 @@ void MotorDriver:: setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
     /*==============constans============*/
     // gear ratio 56：15
     static constexpr float gearRatio = (56.0 / 15.0);
-    // // 杉山機体のギア比 56:20
+    // --------杉山機体のギア比 56:20
     // static constexpr float gearRatio = (56.0 / 20.0);
     // wheel diameter 55mm
     static constexpr float wheelDiameter = 54;
