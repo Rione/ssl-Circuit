@@ -27,7 +27,7 @@ void Robot::hardwareInit() {
     // HAL_Delay(1000);
 }
 
-void Robot::rasRecvSerial() {
+void Robot::rasRecvSerial(RobotInfo_t &info) {
     static const uint8_t HEADER = 0xFF;  // ヘッダ
     static const uint8_t dataSize = 18;  // データのサイズ
     static bool headerReceived = false;  // ヘッダを受信したかどうか
@@ -90,8 +90,9 @@ void Robot::rasRecvSerial() {
 void Robot::rasSendSerial(RobotInfo_t &info, uint16_t interval) {
     static const uint8_t dataSize = 3; // データのサイズ
     static const uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
+    static Timer timer;
 
-    if (rasSendInterval.read_ms() < interval) {
+    if (timer.read_ms() < interval) {
         return;
     }
     
@@ -104,7 +105,7 @@ void Robot::rasSendSerial(RobotInfo_t &info, uint16_t interval) {
     };
     serial5.write(startBytes, 4);
     serial5.write(buffer, dataSize);
-    rasSendInterval.reset();
+    timer.reset();
 }
 
 void Robot::getSensors(RobotInfo_t *info) {
@@ -157,13 +158,56 @@ void Robot::checkRobotRest(RobotInfo_t &info) {
     }
 }
 
-void Robot::stopRobot(Robot &robot, uint16_t interval) {
+void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
+    // UIにデータを送信する
+    static const uint8_t HEADER = 0xFF;  // ヘッダ
+    static const uint8_t dataSize = 3;   // データのサイズ
     static Timer timer;
-    if (timer.read_ms() > interval) {
-        robot.dribble(0);
-        robot.motorDriver.sendEmg();
-        robot.kickerBoard.resetDoDirect(STRAIGHT);
-        robot.kickerBoard.resetDoDirect(CHIP);
-        timer.reset();
+
+    if (timer.read_ms() < interval) {
+        return;
     }
-}
+
+    info.capaData.chargeState = info.isKickerChargeMode;
+    info.capaData.chargeVal = info.capValEstimate;    
+
+    uint8_t buffer[dataSize] = {
+        info.batteryVoltage,
+        info.capaData.data,
+        (uint8_t)info.buzzer,
+    };
+    serial4.write(HEADER);
+    serial4.write(buffer, dataSize);
+    printf("send %d %d %d\n", buffer[0], info.capaData.chargeState, info.capaData.chargeVal);
+    
+    timer.reset();
+}  
+
+void Robot::uiRecvSerial(RobotInfo_t &info) {
+    // UIにデータを送信する
+    static const uint8_t HEADER = 0xFF;  // ヘッダ
+    static const uint8_t dataSize = 1;   // データのサイズ
+    static bool headerReceived = false;  // ヘッダを受信したかどうか
+    static uint8_t index = 0;            // 受信したデータのインデックスカウンター
+    static uint8_t data[dataSize] = {0}; // 受信したデータ
+
+    while (serial4.available()) {
+        uint8_t receivedByte = serial4.read();
+        if (!headerReceived) {
+            index = 0;
+            if (receivedByte == HEADER) headerReceived = true;
+        } else {
+            data[index] = receivedByte;
+            index++;
+            if (index == dataSize) {
+                info.uiStatus.data = data[0];
+                headerReceived = false;
+                index = 0;
+            }
+        }
+    }
+
+}   
+
+
+

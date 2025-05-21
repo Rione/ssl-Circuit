@@ -22,7 +22,7 @@ class KickerBoard {
     void resetDoDirect(uint8_t type);
 
     // -- charge, dischargeのコントロール
-    // state: 0: charge, 1: discharge  
+    // state: 0: discharge, 1: doCharge  
     void chargeControl(uint8_t state);
 
     void minusCapValEstimate(uint8_t val) {

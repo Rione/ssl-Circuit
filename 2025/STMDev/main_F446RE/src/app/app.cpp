@@ -1,6 +1,6 @@
 #include "app.h"
 
-#include "Robot.hpp"
+#include "RobotSequence.hpp"
 #include "mainMode.hpp"
 #include "MPU6500.hpp"
 #include "MadgwickAHRS.h"

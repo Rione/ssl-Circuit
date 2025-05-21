@@ -62,7 +62,7 @@ typedef struct {
     //   . bit6: isCtrlByRobot (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
     //   . bit7: parity
 
-    // Infomation RaspberryPi→STM32
+    // Infomation RaspberryPi→STM32 --------------------------
     union {
         struct {
             char L : 8;
@@ -134,7 +134,8 @@ typedef struct {
         uint8_t data;
     } status;
 
-    // Infomation STM32→RaspberryPi
+
+    // Infomation STM32→RaspberryPi -------------------------
     union {
         struct {
             bool isDetectedBall : 1; // ボール検知（フォトセンサーの検知）2024版のisHolDBall 
@@ -148,12 +149,36 @@ typedef struct {
     uint8_t batteryVoltage;
     uint8_t capValEstimate; // 0~100
 
+
+    // Information STM32→Xiao(UI) -----------------------------
+    union {
+        struct {
+            bool chargeState : 1;  // stmから送られてくる充電状態
+            uint8_t chargeVal : 7; // capValEstimate
+        };
+        uint8_t data;
+    } capaData;
+    playType buzzer;
+
+
+    // Information Xiao(UI)→STM32 ---------------------------
+    union {
+        struct {
+            uint8_t mode : 5;
+            bool emergencyStop : 1;
+            bool chargeStateChange : 1; // 1.切替、0.切替なし
+            bool kick : 1;         // キック
+        };
+        uint8_t data;
+    } uiStatus;
+
+
     // local
     volatile uint16_t photoSensorValue;
     bool isUnderVoltage;
     bool isRobotStopFF; // ロボットのFF速度ベクトルも元にロボットが止まっているかを判断する
     bool isKickerChargeMode;
-    union {
+    union { // kickerBoardの自認
         struct {
             bool straight : 1;
             bool chip : 1;
@@ -161,36 +186,11 @@ typedef struct {
         uint8_t status;
     } kickerBoardDoDirectStatus;
 
+    float meanVelXBuf[15];
+    float meanVelYBuf[15];
+    float meanVelAngBuf[15];    
+
 } RobotInfo_t;
-
-typedef struct {
-    uint8_t batteryGet;
-    union {
-        struct {
-            bool chargeState : 1;  // stmから送られてくる充電状態
-            uint8_t chargeVal : 7; // capValEstimate
-        };
-        uint8_t data;
-
-    } capaData;
-    playType buzzer;
-
-} UIRobotInfo_t; // 送るデータ
-
-typedef struct {
-    union {
-        struct {
-            uint8_t mode : 5;
-            bool emergencyStop : 1;
-            bool charge_state : 1; // 1.切替、0.切替なし
-            bool kick : 1;         // キック
-        };
-        uint8_t data;
-    } status;
-
-    uint8_t modePrev = 0;
-
-} UIModeSwitch_t; // main用、一番最初に受け取るデータ
 
 class Robot {
   public:
@@ -198,9 +198,6 @@ class Robot {
 
     // values
     RobotInfo_t info;
-
-    UIRobotInfo_t UIrobotInfo;
-    UIModeSwitch_t UImodeData;
 
     // peripherals
     CANBus can = CANBus(&hcan1, 0);
@@ -219,16 +216,20 @@ class Robot {
     MotorDriver motorDriver = MotorDriver(&can);
     KickerBoard kickerBoard = KickerBoard(&can);
 
-    Timer rasSendInterval = Timer();
+    Average<float> meanVelX = Average(info.meanVelXBuf, 15);
+    Average<float> meanVelY = Average(info.meanVelYBuf, 15);
+    Average<float> meanVelAngler = Average(info.meanVelAngBuf, 15);
+
+    Timer manageByUserCounter; // ユーザーがスイッチでキッカーの充電or放電をしてから15秒以上経過したらPiの指示に従う
 
     void hardwareInit();
-    void rasRecvSerial();
+    void rasRecvSerial(RobotInfo_t &info);
     void rasSendSerial(RobotInfo_t &info, uint16_t interval);
     void getSensors(RobotInfo_t *info);
     void dribble(uint8_t power, bool forceSend = false);
     void checkRobotRest(RobotInfo_t &info);
-    void stopRobot(Robot &robot, uint16_t interval);
-    // void processKicker(RobotInfo_t &info, KickerBoard &kickerBoard);
+    void uiSendSerial(RobotInfo_t &info, uint16_t interval);
+    void uiRecvSerial(RobotInfo_t &info);
 
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;
@@ -254,12 +255,17 @@ class Robot {
         }
     }
 
+    
+
   private:
     uint16_t photoSensorValueBuff[15];
     Median<uint16_t> medianPhotoValue = Median(photoSensorValueBuff, 15);
 
     uint8_t batteryValueBuff[15];
     Median<uint8_t> medianBatteryValue = Median(batteryValueBuff, 15);
+
+
+    
 
 };
 

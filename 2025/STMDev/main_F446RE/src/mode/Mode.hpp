@@ -1,7 +1,7 @@
 #ifndef __MODE__
 #define __MODE__
 
-#include <./unit/Robot.hpp>
+#include <./unit/RobotSequence.hpp>
 
 class Mode {
   public:
