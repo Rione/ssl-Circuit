@@ -23,6 +23,10 @@ void Robot::hardwareInit() {
     medianPhotoValue.init();
     medianBatteryValue.init();
 
+    filter.begin(33000); // 4000のはずなんだけど、何故か8.25倍しないとmain_appで使い物にならなかった...
+
+    mpu.init();
+
     // bno.setAttitudeZero();
     // HAL_Delay(1000);
 }
@@ -124,7 +128,7 @@ void Robot::getSensors(RobotInfo_t *info) {
     info->capValEstimate = kickerBoard.getCapValEstimate();
 }
 
-void Robot::dribble(uint8_t power, bool forceSend) {
+void Robot::sendDribble(uint8_t power, bool forceSend) {
     static Timer timer;
     static uint8_t dribblePowerPrev = power;
     if (timer.read_ms() > 10000) timer.set_ms(10000);
@@ -140,6 +144,40 @@ void Robot::dribble(uint8_t power, bool forceSend) {
     can.send(canData);
     timer.reset();
     dribblePowerPrev = power;
+}
+
+
+void Robot::sendKicker(RobotInfo_t &info) {
+    // キックの処理
+    // ストレートを優先してキック
+    if (info.kicker.straight > 0) {
+        kickerBoard.kick(STRAIGHT, info.kicker.straight, info.status.doDirectKick);
+    } else if (info.kicker.chip > 0) {
+        kickerBoard.kick(CHIP, info.kicker.chip, info.status.doDirectChipKick);
+    } else {
+        // どっちも0の場合はキックしない
+        if (info.status.doDirectKick != info.kickerBoardDoDirectStatus.straight && info.kickerBoardDoDirectStatus.straight) {
+            // kickStraight(0, false); // パワー0のキックを投げてdoDirectをリセットする
+            kickerBoard.resetDoDirect(STRAIGHT);
+        }
+        if (info.status.doDirectChipKick != info.kickerBoardDoDirectStatus.chip && info.kickerBoardDoDirectStatus.chip) {
+            // kickChip(0, false); // パワー0のキックを投げてdoDirectをリセットする
+            kickerBoard.resetDoDirect(CHIP);
+        }
+    }
+}
+
+void Robot::sendMotor(RobotInfo_t &info, uint8_t interval) {
+    // MDの処理
+    // モータードライバの送信速度決め
+    int16_t __velX = meanVelX.calc((float)info.velX.vel);
+    int16_t __velY = meanVelY.calc((float)info.velY.vel);
+    int16_t __velAngler = meanVelAngler.calc((float)info.velAngler.vel);
+    static uint8_t md_sendcount = 0;
+    md_sendcount ++;
+    if (md_sendcount % interval == 0) { // 5msごとに送信
+        motorDriver.setVelocityFF(__velX, __velY, __velAngler);
+    }
 }
 
 // FF速度ベクトルからロボットが止まっているかを判断する
@@ -206,8 +244,47 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
             }
         }
     }
-
 }   
 
+void Robot::mpuget(RobotInfo_t &info) {
+    if (mpu.isCalibrated() == true) {
+        mpu.getAccGyro(&acc, &gyro, false);
+        filter.updateIMU(gyro.x, gyro.y, gyro.z, acc.x, acc.y, acc.z);
+        att.z = (float)MyMath::gapDegrees180(filter.getYaw(), info.frontDeg);
+    }
+}
 
+void Robot::mpuSetup(RobotInfo_t &info) {
+    if (swImu.read() == false) {
+        // set flash
+        printf("IMU calibrating\n");
+        HAL_Delay(1000);
+        mpu.calibrateAccGyro();
+        mpu.getOffset(&info.imuOffsets.acc, &info.imuOffsets.gyro);
+        flash.writeFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
+        HAL_Delay(1000);
+        flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
+        printf("ACC offset saved %.6f, %.6f, %.6f\n", info.imuOffsets.acc.x, info.imuOffsets.acc.y, info.imuOffsets.acc.z);
+        printf("GYR offset saved %.6f, %.6f, %.6f\n", info.imuOffsets.gyro.x, info.imuOffsets.gyro.y, info.imuOffsets.gyro.z);
+    } else {
+        // load flash オフセット値をFlashから読み出す(初回起動時はimu resetスイッチを押して起動すること)
+        flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
+        mpu.setOffset(&info.imuOffsets.acc, &info.imuOffsets.gyro);
+        printf("ACC offset loaded %.6f, %.6f, %.6f\n", info.imuOffsets.acc.x, info.imuOffsets.acc.y, info.imuOffsets.acc.z);
+        printf("GYR offset loaded %.6f, %.6f, %.6f\n", info.imuOffsets.gyro.x, info.imuOffsets.gyro.y, info.imuOffsets.gyro.z);
+        HAL_Delay(1000);
+    }  
+    info.frontDeg = att.z;
+}
 
+void Robot::photoThresholdSet() {
+    uint16_t thr = PHOTOSENSOR_THRESHOLD;
+    CANBus::CANData data = {
+        .stdId = PHOTOTHRESHOLD,
+        .data = {
+            (uint8_t)(thr & 0xFF),
+            (uint8_t)((thr >> 8) & 0xFF),
+        },
+    };
+    can.send(data);
+} 

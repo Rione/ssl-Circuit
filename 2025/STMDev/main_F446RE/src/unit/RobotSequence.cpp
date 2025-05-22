@@ -9,44 +9,11 @@ void stopRobot(uint16_t interval) {
     // ロボットの動作を停止
     static Timer timer;
     if (timer.read_ms() > interval) {
-        robot.dribble(0);
+        robot.sendDribble(0);
         robot.motorDriver.sendEmg();
         robot.kickerBoard.resetDoDirect(STRAIGHT);
         robot.kickerBoard.resetDoDirect(CHIP);
         timer.reset();
-    }
-}
-
-void sendKicker(RobotInfo_t &info) {
-    // キックの処理
-    // ストレートを優先してキック
-    if (info.kicker.straight > 0) {
-        robot.kickerBoard.kick(STRAIGHT, info.kicker.straight, info.status.doDirectKick);
-    } else if (info.kicker.chip > 0) {
-        robot.kickerBoard.kick(CHIP, info.kicker.chip, info.status.doDirectChipKick);
-    } else {
-        // どっちも0の場合はキックしない
-        if (info.status.doDirectKick != info.kickerBoardDoDirectStatus.straight && info.kickerBoardDoDirectStatus.straight) {
-            // kickStraight(0, false); // パワー0のキックを投げてdoDirectをリセットする
-            robot.kickerBoard.resetDoDirect(STRAIGHT);
-        }
-        if (info.status.doDirectChipKick != info.kickerBoardDoDirectStatus.chip && info.kickerBoardDoDirectStatus.chip) {
-            // kickChip(0, false); // パワー0のキックを投げてdoDirectをリセットする
-            robot.kickerBoard.resetDoDirect(CHIP);
-        }
-    }
-}
-
-void sendMotor(RobotInfo_t &info, uint8_t interval) {
-    // MDの処理
-    // モータードライバの送信速度決め
-    int16_t __velX = robot.meanVelX.calc((float)info.velX.vel);
-    int16_t __velY = robot.meanVelY.calc((float)info.velY.vel);
-    int16_t __velAngler = robot.meanVelAngler.calc((float)info.velAngler.vel);
-    static uint8_t md_sendcount = 0;
-    md_sendcount ++;
-    if (md_sendcount % interval == 0) { // 5msごとに送信
-        robot.motorDriver.setVelocityFF(__velX, __velY, __velAngler);
     }
 }
 
@@ -137,3 +104,69 @@ void swKickControl(RobotInfo_t &info) {
         }
     }
 }   
+
+
+void ballMoving() {
+    // ボール保持したまま移動する
+    uint8_t state = 0;
+    Timer stateSwitchTimer;
+    uint16_t velX = 0;
+    uint16_t time;
+    while (1) {
+        time = stateSwitchTimer.read_ms();
+
+        switch (state) {
+        case 0:
+            velX = 1500 * MyMath::sinDeg(time * 0.18 * 0.5); // 加速のためにタイマーを使った sinの加速をしてる
+            robot.motorDriver.setVelocityFF(velX, 0, 0);     // 前進
+            robot.sendDribble(100);                       // ドリブラー100%
+            if (time > 2000) {
+                state = 1;
+                stateSwitchTimer.reset(); // 2秒経ったら状態遷移
+            }
+            printf("0\n");
+            break;
+        case 1:
+            robot.motorDriver.setVelocityFF(600, -600, 3600); // 斜め前に進みながら回転(CMDragonsのTDPより)
+            robot.sendDribble(100);
+            if (time > 500) {
+                state = 0;
+                stateSwitchTimer.reset();
+            }
+            printf("1\n");
+            break;
+        }
+        HAL_Delay(20);
+    }
+}
+
+void dribbleHoldBack() {
+    // ボールを保持しながら後退する
+    Timer timer;
+    Timer initialHoldtimer;
+    static bool ballHoldPrev = false;
+    timer.reset();
+
+    static int velX = 0;
+    while (1){
+        robot.sendDribble(100);
+        if(robot.info.dribbleStatus.isHoldBall == true) {
+            if (ballHoldPrev != robot.info.dribbleStatus.isHoldBall) {
+                initialHoldtimer.reset();// first time hold ball
+            }
+            if (initialHoldtimer.read_ms() > 300){ // 開始300ms以降から加速
+                if (timer.read_ms() > 10 && velX > -700) {
+                    velX -= 5;
+                    timer.reset();
+                }
+            }
+            robot.motorDriver.setVelocityFF(velX, 0, 0);
+        } else {
+            velX = 0;
+            robot.motorDriver.setVelocityFF(0, 0, 0);
+        }
+        printf("velX: %d\n", velX);
+        HAL_Delay(10);
+        ballHoldPrev = robot.info.dribbleStatus.isHoldBall;
+    }
+}

@@ -23,10 +23,10 @@ void MainMode::loop() {
 
     if (!robot->info.status.emergencyStop && robot->info.status.isSignalReceived) {
         // Robot is Running
-        robot->dribble(robot->info.dribblePower);
-        sendKicker(robot->info);
+        robot->sendDribble(robot->info.dribblePower);
+        robot->sendKicker(robot->info);
         robot->kickerBoard.chargeControl(robot->info.status.doCharge);
-        sendMotor(robot->info, 5); // 5msごとに送信
+        robot->sendMotor(robot->info, 5); // 5msごとに送信
 
     } else {
         // Robot is Stop or Emergency Stop

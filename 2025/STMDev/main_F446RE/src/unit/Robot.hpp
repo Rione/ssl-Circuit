@@ -14,6 +14,9 @@
 #include "adc.h"
 #include "Median.h"
 #include "Average.h"
+#include "MPU6500.hpp"
+#include "MadgwickAHRS.h"
+#include "FLASH_EEPROM.hpp"
 
 #include "MotorDriver.hpp"
 #include "KickerBoard.hpp"
@@ -188,7 +191,17 @@ typedef struct {
 
     float meanVelXBuf[15];
     float meanVelYBuf[15];
-    float meanVelAngBuf[15];    
+    float meanVelAngBuf[15];   
+    
+    union{
+        struct{
+            MPU6500::acc_t acc;
+            MPU6500::gyro_t gyro;
+        };
+    }imuOffsets;
+    
+
+    float frontDeg;
 
 } RobotInfo_t;
 
@@ -220,16 +233,36 @@ class Robot {
     Average<float> meanVelY = Average(info.meanVelYBuf, 15);
     Average<float> meanVelAngler = Average(info.meanVelAngBuf, 15);
 
+    MPU6500 mpu = MPU6500(&hspi2, SPI2_CS0_GPIO_Port, SPI2_CS0_Pin);
+    MPU6500::acc_t acc;
+    MPU6500::gyro_t gyro;
+    MPU6500::xyz_t att;
+
+    Flash_EEPROM flash;
+
+    Madgwick filter;
+
+
     Timer manageByUserCounter; // ユーザーがスイッチでキッカーの充電or放電をしてから15秒以上経過したらPiの指示に従う
 
     void hardwareInit();
     void rasRecvSerial(RobotInfo_t &info);
     void rasSendSerial(RobotInfo_t &info, uint16_t interval);
     void getSensors(RobotInfo_t *info);
-    void dribble(uint8_t power, bool forceSend = false);
+
+    void sendDribble(uint8_t power, bool forceSend = false);
+    void sendKicker(RobotInfo_t &info);
+    void sendMotor(RobotInfo_t &info, uint8_t interval);
+
     void checkRobotRest(RobotInfo_t &info);
+
     void uiSendSerial(RobotInfo_t &info, uint16_t interval);
     void uiRecvSerial(RobotInfo_t &info);
+
+    void mpuget(RobotInfo_t &info);
+    void mpuSetup(RobotInfo_t &info);
+
+    void photoThresholdSet();
 
     inline __attribute__((always_inline)) void heartBeat() {
         static int i = 0;
@@ -254,7 +287,6 @@ class Robot {
             led2 = false;
         }
     }
-
     
 
   private:
@@ -264,8 +296,6 @@ class Robot {
     uint8_t batteryValueBuff[15];
     Median<uint8_t> medianBatteryValue = Median(batteryValueBuff, 15);
 
-
-    
 
 };
 
