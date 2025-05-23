@@ -8,11 +8,11 @@
 // 単位について
 // vel [m/s]
 // angler [rad/s]
-
-typedef union {
-      int16_t data;
-      uint8_t byte[2];
-} twoByteSplitter;
+#define GEAR_RATIO (56.0 / 15.0)                                                                // gear ratio 56：15
+#define WHEEL_DIAMETER 54                                                                       // wheel diameter 54mm
+#define WHEEL_BASE_DIAMETER 170                                                                 // robot wheel base diameter
+#define ROBOT_SPIN_TO_MOTOR_ROTATE_RATIO ((WHEEL_BASE_DIAMETER / WHEEL_DIAMETER) * GEAR_RATIO)  // robot spins → wheelRotate → motorRotate
+#define VELOCITY_XY_TO_MOTOR_ROTATE_RATIO (GEAR_RATIO / (WHEEL_DIAMETER / 2))                   // robot moves XY → wheelRotate → motoRotate
 
 class MotorDriver {
      public:
@@ -23,6 +23,8 @@ class MotorDriver {
       void setVelocityFF(int16_t velX, int16_t velY, int16_t velAng);
 
       void setMotors(int16_t M0, int16_t M1, int16_t M2, int16_t M3);
+
+      void getVelocity(int16_t *velX, int16_t *velY, int16_t *motorAngulerVelocity);
 
       void sendEmg();
       // void setVelocity(int16_t velX, int16_t velY, float velAng);

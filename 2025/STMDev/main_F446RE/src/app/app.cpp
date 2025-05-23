@@ -51,16 +51,16 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
                         robot.info.photoSensorValue = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;
                         break;
                   case MD0_RECV:
-                        robot.info.mdStatus.vel[0] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+                        robot.info.mdStatus.motorAngularVelocity[0] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
                         break;
                   case MD1_RECV:
-                        robot.info.mdStatus.vel[1] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+                        robot.info.mdStatus.motorAngularVelocity[1] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
                         break;
                   case MD2_RECV:
-                        robot.info.mdStatus.vel[2] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+                        robot.info.mdStatus.motorAngularVelocity[2] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
                         break;
                   case MD3_RECV:
-                        robot.info.mdStatus.vel[3] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+                        robot.info.mdStatus.motorAngularVelocity[3] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
                         break;
                   default:
                         break;
@@ -79,6 +79,5 @@ void main_app() {
       // dribbleHoldBack();
       while (1) {
             mainMode.loop();
-            printf("vel1:%d vel2:%d vel3:%d vel4:%d\n", robot.info.mdStatus.vel[0], robot.info.mdStatus.vel[1], robot.info.mdStatus.vel[2], robot.info.mdStatus.vel[3]);
       }
 }

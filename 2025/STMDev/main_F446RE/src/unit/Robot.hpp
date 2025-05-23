@@ -175,7 +175,7 @@ typedef struct {
             int16_t velX;
             int16_t velY;
 
-            int16_t vel[4];
+            int16_t motorAngularVelocity[4];
       } mdStatus;
 
       // local

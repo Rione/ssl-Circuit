@@ -1,6 +1,6 @@
 #include <MotorDriver.hpp>
 
-MotorDriver::MotorDriver(CANBus *canBus) : _canBus(canBus) {
+MotorDriver::MotorDriver(CANBus* canBus) : _canBus(canBus) {
 }
 
 void MotorDriver::init() {
@@ -14,29 +14,29 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
       /*================unit==============*/
       // velX, velY [mm/s]
       // velAng [m rad/s]
-      /*==============constans============*/
-      // gear ratio 56：15
-      static constexpr float gearRatio = (56.0 / 15.0);
-      // --------杉山機体のギア比 56:20
-      // static constexpr float gearRatio = (56.0 / 20.0);
-      // wheel diameter 55mm
-      static constexpr float wheelDiameter = 54;
-      // robot wheel base diameter
-      static constexpr float wheelBaseDiameter = 170;
-      // robot spins → wheelRotate → motorRotate convert Ratio constant
-      static constexpr float robotSpinToMotorRotateRatio = (wheelBaseDiameter / wheelDiameter) * gearRatio;
-      // robot moves XY → wheelRotate → motoRotate convert constant
-      static constexpr float velXYToMotorRotateRatio = gearRatio / (wheelDiameter / 2);
+      //   /*==============constans============*/
+      //   // gear ratio 56：15
+      //   static constexpr float gearRatio = (56.0 / 15.0);
+      //   // --------杉山機体のギア比 56:20
+      //   // static constexpr float gearRatio = (56.0 / 20.0);
+      //   // wheel diameter 54mm
+      //   static constexpr float wheelDiameter = 54;
+      //   // robot wheel base diameter
+      //   static constexpr float wheelBaseDiameter = 170;
+      //   // robot spins → wheelRotate → motorRotate convert Ratio constant
+      //   static constexpr float robotSpinToMotorRotateRatio = (wheelBaseDiameter / wheelDiameter) * gearRatio;
+      //   // robot moves XY → wheelRotate → motoRotate convert constant
+      //   static constexpr float velXYToMotorRotateRatio = gearRatio / (wheelDiameter / 2);
 
-      int16_t rotation = _velAng * -robotSpinToMotorRotateRatio;
+      int16_t rotation = _velAng * -ROBOT_SPIN_TO_MOTOR_ROTATE_RATIO;
 
       rotation = Constrain(rotation, -100, 100);
 
       /*==============calculation============*/
-      int16_t M0 = (_velX * MyMath::sinDeg(55) - _velY * MyMath::cosDeg(55) * 1.05) * velXYToMotorRotateRatio + rotation;
-      int16_t M1 = (_velX * MyMath::sinDeg(135) - _velY * MyMath::cosDeg(135)) * velXYToMotorRotateRatio + rotation;
-      int16_t M2 = (_velX * MyMath::sinDeg(-135) - _velY * MyMath::cosDeg(-135)) * velXYToMotorRotateRatio + rotation;
-      int16_t M3 = (_velX * MyMath::sinDeg(-55) - _velY * MyMath::cosDeg(-55) * 1.05) * velXYToMotorRotateRatio + rotation;
+      int16_t M0 = (_velX * MyMath::sinDeg(55) - _velY * MyMath::cosDeg(55) * 1.05) * VELOCITY_XY_TO_MOTOR_ROTATE_RATIO + rotation;
+      int16_t M1 = (_velX * MyMath::sinDeg(135) - _velY * MyMath::cosDeg(135)) * VELOCITY_XY_TO_MOTOR_ROTATE_RATIO + rotation;
+      int16_t M2 = (_velX * MyMath::sinDeg(-135) - _velY * MyMath::cosDeg(-135)) * VELOCITY_XY_TO_MOTOR_ROTATE_RATIO + rotation;
+      int16_t M3 = (_velX * MyMath::sinDeg(-55) - _velY * MyMath::cosDeg(-55) * 1.05) * VELOCITY_XY_TO_MOTOR_ROTATE_RATIO + rotation;
 
       /*==============send data============*/
       // printf("%f, %f, %f\n", _velX, _velY, _velAng);
@@ -68,4 +68,33 @@ void MotorDriver::sendEmg() {
           .data = {0},
       };
       _canBus->send(data);
+}
+
+void MotorDriver::getVelocity(int16_t* velX, int16_t* velY, int16_t* motorAngulerVelocity) {
+      float M[4];
+      for (int i = 0; i < 4; i++) {
+            M[i] = motorAngulerVelocity[i];
+      }
+
+      // 回転成分を除去
+      // Todo: もっと良い方法を考える
+      float rot = (M[0] + M[1] + M[2] + M[3]) / 4.0f;
+      for (int i = 0; i < 4; i++) {
+            M[i] -= rot;
+      }
+
+      // 逆行列計算
+      float a = MyMath::sinDeg(55), b = MyMath::cosDeg(55) * 1.05f;
+      float c = MyMath::sinDeg(135), d = MyMath::cosDeg(135);
+      float e = MyMath::sinDeg(-135), f = MyMath::cosDeg(-135);
+      float g = MyMath::sinDeg(-55), h = MyMath::cosDeg(-55) * 1.05f;
+
+      float denom = (a * a + c * c + e * e + g * g) + (b * b + d * d + f * f + h * h);
+
+      float vx = (M[0] * a + M[1] * c + M[2] * e + M[3] * g) / (VELOCITY_XY_TO_MOTOR_ROTATE_RATIO * (a * a + c * c + e * e + g * g));
+      float vy = -(M[0] * b + M[1] * d + M[2] * f + M[3] * h) / (VELOCITY_XY_TO_MOTOR_ROTATE_RATIO * (b * b + d * d + f * f + h * h));
+
+      *velX = vx;
+      *velY = vy;
+      printf("velX:%d velY:%d\n", *velX, *velY);
 }
