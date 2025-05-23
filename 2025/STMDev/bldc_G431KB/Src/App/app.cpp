@@ -231,7 +231,7 @@ void main_app() {
                         // モータの回転
                         motor.drive();
 
-                        if (canSendInterval.read_ms() > 1) {
+                        if (canSendInterval.read_ms() > 5) {
                               CAN_Data_Output(motor.getAngularVelocity());
                               canSendInterval.reset();
                         }

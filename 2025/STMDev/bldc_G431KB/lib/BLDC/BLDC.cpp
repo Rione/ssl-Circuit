@@ -297,8 +297,7 @@ inline void BLDCMotor::openLoopControl(float _Uq, float _elAngle) {
 void BLDCMotor::drive() {
       updateEncoder();
       updateAngularVelocity();
-      velocity = getAngularVelocity();
-      velocityPID.appendError(targetVelocity - velocity);
+      velocityPID.appendError(targetVelocity - getAngularVelocity());
       float Uq = velocityPID.getPID();
       float Ud = 0;
       setPhaseVoltage(Uq, Ud, elAngle);
