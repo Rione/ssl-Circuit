@@ -4,6 +4,7 @@ void UiKit::init() {
     touch.begin();
     display.init();
 
+    // stmとの通信開始
     Serial1.setTX(28);
     Serial1.setRX(29);
     Serial1.begin(115200);
@@ -160,6 +161,13 @@ void UiKit::infoTab() {
         break;
     default:
         break;
+    }
+}
+
+void UiKit::setBlackScreen(uint8_t interval) {
+    if (BackLightFlag && (millis() - BackLightTime) > 15000) {
+        BackLightFlag = false;
+        digitalWrite(display.backlightPin, LOW);
     }
 }
 

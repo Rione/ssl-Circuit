@@ -15,15 +15,6 @@
 #include "UI/image/main_img.h"
 #include "UI/image/home_img.h"
 
-extern XPT2046_Touchscreen ts;
-extern TOUCHSCREEN touch;
-extern TFT_eSPI tft;
-extern TFT_eSprite sprite;
-extern DISPLAY_DEVICE display;
-
-static const uint16_t charge_back = sprite.color565(255, 210, 51); // 充電中の背景色
-static const uint16_t tabBack = sprite.color565(195, 216, 242);    // タブの背景色
-
 typedef struct {
     uint8_t batteryGet;
     union {
@@ -75,6 +66,16 @@ class UiKit {
     UIModeSwitch_t modeData;
     KickMode_t kickModeData = {0, 0, 0};
 
+    TFT_eSPI tft = TFT_eSPI();
+    TFT_eSprite sprite = TFT_eSprite(&tft);
+    DISPLAY_DEVICE display = DISPLAY_DEVICE(&tft, &sprite);
+
+    XPT2046_Touchscreen ts = XPT2046_Touchscreen(TOUCH_CS);
+    TOUCHSCREEN touch = TOUCHSCREEN(&ts, TOUCH_CS);
+
+    const uint16_t charge_back = sprite.color565(255, 210, 51); // 充電中の背景色
+    const uint16_t tabBack = sprite.color565(195, 216, 242);    // タブの背景色
+
     UiKit() {
     }
 
@@ -88,6 +89,8 @@ class UiKit {
 
     void infoTab();
 
+    void setBlackScreen(uint8_t interval);
+
     bool changeFlag_overMode = true;
     bool changeFlag_inMode = false;
 
@@ -100,6 +103,7 @@ class UiKit {
     bool timeInterval = true; // 電圧の情報出力は一定時間（１秒）ごとに行う
 
   private:
+  
 };
 
 #endif

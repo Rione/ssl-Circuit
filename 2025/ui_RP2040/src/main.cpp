@@ -6,20 +6,9 @@ MediaExecutor media;
 #include "UI/ui_kit.hpp"
 UiKit ui;
 
-#include "UI/unit/touchscreen.h"
-XPT2046_Touchscreen ts = XPT2046_Touchscreen(TOUCH_CS);
-TOUCHSCREEN touch = TOUCHSCREEN(&ts, TOUCH_CS);
-
-#include "UI/unit/display.h"
-TFT_eSPI tft = TFT_eSPI();
-TFT_eSprite sprite = TFT_eSprite(&tft);
-DISPLAY_DEVICE display = DISPLAY_DEVICE(&tft, &sprite);
-
-#include <exception>
-
-#include "UI/mode/mainMode.hpp"
-#include "UI/mode/kickTestMode.hpp"
-#include "UI/mode/home.hpp"
+#include "Mode/mainMode.hpp"
+#include "Mode/kickTestMode.hpp"
+#include "Mode/home.hpp"
 MainMode mainMode('M', "Main", &ui, &media);
 KickTestMode kickTestMode('K', "Kick", &ui, &media);
 Home home('H', "Home", &ui, &media);
@@ -27,19 +16,19 @@ Home home('H', "Home", &ui, &media);
 Mode *modes[] = {&mainMode, &kickTestMode};
 Mode *currentMode = &mainMode;
 
-void modeSwitch(UiKit *_ui) {
+void modeSwitch() {
     // if (_ui->modeData.status.mode != _ui->modeData.modePrev) {
     //     currentMode = modes[_ui->modeData.status.mode];
     //     _ui->modeData.modePrev = _ui->modeData.status.mode;
     // }
 
-    if (_ui->changeFlag_overMode) {
+    if (ui.changeFlag_overMode) {
         Serial.println("modeSwitch");
-        if (_ui->homeFlag) {
+        if (ui.homeFlag) {
             currentMode = &home;
         } else {
-            currentMode = modes[_ui->modeData.status.mode];
-            _ui->modeData.modePrev = _ui->modeData.status.mode;
+            currentMode = modes[ui.modeData.status.mode];
+            ui.modeData.modePrev = ui.modeData.status.mode;
         }
     }
 }
@@ -52,27 +41,17 @@ void setup() {
     ui.modeData.status.mode = 0;
     ui.modeData.modePrev = 0;
 
-    currentMode->displaySet(&ui);
+    currentMode->displaySet();
 
     ui.BackLightTime = millis();
-
-    // ui.robotInfoData.capaData.chargeState = 0;
-    // ui.robotInfoData.capaData.chargeVol = 0;
-    // ui.robotInfoData.batteryVoltage = 15.0;
 }
 
 void loop() {
-
-    if (ui.BackLightFlag && (millis() - ui.BackLightTime) > 15000) {
-        ui.BackLightFlag = false;
-        digitalWrite(display.backlightPin, LOW);
-    }
-
     ui.touchUpdate();
 
-    currentMode->determine(&ui);
-    modeSwitch(&ui);
-    currentMode->displaySet(&ui);
+    currentMode->determine();
+    modeSwitch();
+    currentMode->displaySet();
 
     ui.stmRecvSerial(&ui.robotInfoData);
 
@@ -91,6 +70,7 @@ void setup1() {
 void loop1() {
     media.execute();
 }
+
 // メモ
 //  基本的には縦、横の順で座標を指定する
 //  画像の表示はcreateSprite(320, 240)で作成(横、縦)になる

@@ -6,22 +6,21 @@
 
 class Mode {
   public:
-    Mode(char letter, const char name[], UiKit *uiPtr) : modeLetter(letter), ui(uiPtr) {
+    Mode(char letter, const char name[], UiKit *uiPtr, MediaExecutor *mediaPtr) : modeLetter(letter), ui(uiPtr), media(mediaPtr) {
         strcpy(modeName, name);
     }
 
-    virtual void displaySet(UiKit *_ui) {
-
+    virtual void displaySet() {
     };
 
-    virtual void determine(UiKit *_ui) {
-
+    virtual void determine() {
     };
 
-  private:
+  protected:
     char modeName[24];
     char modeLetter;
     UiKit *ui;
+    MediaExecutor *media;
 };
 
 #endif
