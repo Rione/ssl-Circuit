@@ -20,11 +20,11 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "/Users/tomixrm/Documents/Dev/Robots/ssl-bldc/BLDC_programV3/.pio/build/nucleo_g431kb/firmware.elf",
+            "executable": "/Users/banbatakumi/GitHub/ssl-Circuit/2025/STMDev/bldc_G431KB/.pio/build/nucleo_g431kb/firmware.elf",
             "projectEnvName": "nucleo_g431kb",
-            "toolchainBinDir": "/Users/tomixrm/.platformio/packages/toolchain-gccarmnoneeabi@1.70201.0/bin",
+            "toolchainBinDir": "/Users/banbatakumi/.platformio/packages/toolchain-gccarmnoneeabi@1.70201.0/bin",
             "internalConsoleOptions": "openOnSessionStart",
-            "svdPath": "/Users/tomixrm/.platformio/platforms/ststm32/misc/svd/STM32G431xx.svd",
+            "svdPath": "/Users/banbatakumi/.platformio/platforms/ststm32/misc/svd/STM32G431xx.svd",
             "preLaunchTask": {
                 "type": "PlatformIO",
                 "task": "Pre-Debug"
@@ -34,21 +34,21 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "/Users/tomixrm/Documents/Dev/Robots/ssl-bldc/BLDC_programV3/.pio/build/nucleo_g431kb/firmware.elf",
+            "executable": "/Users/banbatakumi/GitHub/ssl-Circuit/2025/STMDev/bldc_G431KB/.pio/build/nucleo_g431kb/firmware.elf",
             "projectEnvName": "nucleo_g431kb",
-            "toolchainBinDir": "/Users/tomixrm/.platformio/packages/toolchain-gccarmnoneeabi@1.70201.0/bin",
+            "toolchainBinDir": "/Users/banbatakumi/.platformio/packages/toolchain-gccarmnoneeabi@1.70201.0/bin",
             "internalConsoleOptions": "openOnSessionStart",
-            "svdPath": "/Users/tomixrm/.platformio/platforms/ststm32/misc/svd/STM32G431xx.svd"
+            "svdPath": "/Users/banbatakumi/.platformio/platforms/ststm32/misc/svd/STM32G431xx.svd"
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (without uploading)",
-            "executable": "/Users/tomixrm/Documents/Dev/Robots/ssl-bldc/BLDC_programV3/.pio/build/nucleo_g431kb/firmware.elf",
+            "executable": "/Users/banbatakumi/GitHub/ssl-Circuit/2025/STMDev/bldc_G431KB/.pio/build/nucleo_g431kb/firmware.elf",
             "projectEnvName": "nucleo_g431kb",
-            "toolchainBinDir": "/Users/tomixrm/.platformio/packages/toolchain-gccarmnoneeabi@1.70201.0/bin",
+            "toolchainBinDir": "/Users/banbatakumi/.platformio/packages/toolchain-gccarmnoneeabi@1.70201.0/bin",
             "internalConsoleOptions": "openOnSessionStart",
-            "svdPath": "/Users/tomixrm/.platformio/platforms/ststm32/misc/svd/STM32G431xx.svd",
+            "svdPath": "/Users/banbatakumi/.platformio/platforms/ststm32/misc/svd/STM32G431xx.svd",
             "loadMode": "manual"
         }
     ]
