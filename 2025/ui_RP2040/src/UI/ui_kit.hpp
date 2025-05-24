@@ -4,16 +4,16 @@
 #include "UI/unit/display.h"
 #include "UI/unit/touchscreen.h"
 
-#include "UI/font/bold40.h"
-#include "UI/font/bold20.h"
-#include "UI/font/bold25.h"
-#include "UI/font/regular15.h"
-
 #include "UI/image/image.h"
 #include "UI/image/top.h"
 #include "UI/image/kick.h"
 #include "UI/image/main_img.h"
 #include "UI/image/home_img.h"
+
+#include "UI/font/bold40.h"
+#include "UI/font/bold20.h"
+#include "UI/font/bold25.h"
+#include "UI/font/regular15.h"
 
 typedef struct {
     // 受け取るデータ
@@ -43,12 +43,8 @@ typedef struct {
         uint8_t data;
     } modeStatus;
     uint8_t modePrev = 0;
-    
-} RobotInfo_t;
 
-typedef struct {
-    
-} KickMode_t;
+} RobotInfo_t;
 
 class UiKit {
   public:
@@ -61,7 +57,7 @@ class UiKit {
     XPT2046_Touchscreen ts = XPT2046_Touchscreen(TOUCH_CS);
     TOUCHSCREEN touch = TOUCHSCREEN(&ts, TOUCH_CS);
 
-    const uint16_t charge_back = sprite.color565(255, 210, 51); // 充電中の背景色
+    const uint16_t chargeBack = sprite.color565(255, 210, 51); // 充電中の背景色
     const uint16_t tabBack = sprite.color565(195, 216, 242);    // タブの背景色
 
     UiKit() {
@@ -76,8 +72,6 @@ class UiKit {
     void stmSendSerial(RobotInfo_t *robotInfo);
 
     void infoTab();
-
-    void setBlackScreen(uint8_t interval);
 
     bool changeFlag_overMode = true;
     bool changeFlag_inMode = false;

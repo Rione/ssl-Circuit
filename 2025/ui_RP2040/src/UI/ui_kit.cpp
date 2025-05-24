@@ -32,6 +32,10 @@ void UiKit::touchUpdate() {
             digitalWrite(display.backlightPin, HIGH);
             BackLightFlag = true;
         }
+    }else if (BackLightFlag && (millis() - BackLightTime) > 15000) {
+        // 15秒間タッチがなければバックライトを消す
+        BackLightFlag = false;
+        digitalWrite(display.backlightPin, LOW);
     }
 }
 
@@ -160,13 +164,6 @@ void UiKit::infoTab() {
         break;
     default:
         break;
-    }
-}
-
-void UiKit::setBlackScreen(uint8_t interval) {
-    if (BackLightFlag && (millis() - BackLightTime) > 15000) {
-        BackLightFlag = false;
-        digitalWrite(display.backlightPin, LOW);
     }
 }
 

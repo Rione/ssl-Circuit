@@ -29,11 +29,11 @@ void MainMode::displaySet() {
             ui->display.setParttImage(260, 60, main_chargeImg);
             ui->display.publish(30, 60);
 
-            ui->sprite.setTextColor(TFT_BLACK, ui->charge_back);
+            ui->sprite.setTextColor(TFT_BLACK, ui->chargeBack);
             ui->sprite.loadFont(bold25);
 
             ui->display.createSprite(45, 25);
-            ui->sprite.fillSprite(ui->charge_back);
+            ui->sprite.fillSprite(ui->chargeBack);
             ui->sprite.setCursor(0, 0);
             ui->sprite.print(ui->robotInfo.capaData.chargeVol);
             ui->display.publish(187, 80);
@@ -42,11 +42,11 @@ void MainMode::displaySet() {
 
     // chargeVolの変更
     if (ui->robotInfo.capaData.chargeVol != ui->robotInfo.chargeVolePrev) {
-        ui->sprite.setTextColor(TFT_BLACK, ui->charge_back);
+        ui->sprite.setTextColor(TFT_BLACK, ui->chargeBack);
         ui->sprite.loadFont(bold25);
 
         ui->display.createSprite(45, 25);
-        ui->sprite.fillSprite(ui->charge_back);
+        ui->sprite.fillSprite(ui->chargeBack);
         ui->sprite.setCursor(0, 0);
         ui->sprite.print(ui->robotInfo.capaData.chargeVol);
         ui->display.publish(187, 80);
@@ -103,11 +103,11 @@ void MainMode::mainUI() {
         ui->display.setParttImage(260, 60, main_chargeImg);
         ui->display.publish(30, 60);
 
-        ui->sprite.setTextColor(TFT_BLACK, ui->charge_back);
+        ui->sprite.setTextColor(TFT_BLACK, ui->chargeBack);
         ui->sprite.loadFont(bold25);
 
         ui->display.createSprite(45, 25);
-        ui->sprite.fillSprite(ui->charge_back);
+        ui->sprite.fillSprite(ui->chargeBack);
         ui->sprite.setCursor(0, 0);
         ui->sprite.print(ui->robotInfo.capaData.chargeVol);
         ui->display.publish(187, 80);
