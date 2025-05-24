@@ -12,6 +12,5 @@ void Home::determine() {
 }
 
 void Home::homeUI() {
-    ui->display.setParttImage(320, 210, homeImg);
-    ui->display.publish(0, 30);
+    ui->display.setParttImage(0, 30, 320, 210, homeImg);
 }

@@ -19,8 +19,7 @@ void UiKit::init() {
     }
 
     // tab部分の出力
-    display.setParttImage(320, 30, infoTabImg);
-    display.publish();
+    display.setParttImage(0, 0, 320, 30, infoTabImg);
 }
 
 void UiKit::touchUpdate() {
@@ -126,14 +125,11 @@ void UiKit::infoTab() {
         display.publish(281, 8);
 
         if (robotInfo.batteryVoltage < 14.5) {
-            display.setParttImage(16, 16, redCircleImg);
-            display.publish(262, 7);
+            display.setParttImage(262, 7, 16, 16, redCircleImg);
         } else if (robotInfo.batteryVoltage < 16.0) {
-            display.setParttImage(16, 16, yellowCircleImg);
-            display.publish(262, 7);
+            display.setParttImage(262, 7, 16, 16, yellowCircleImg);
         } else {
-            display.setParttImage(16, 16, greenCircleImg);
-            display.publish(262, 7);
+            display.setParttImage(262, 7, 16, 16, greenCircleImg);
         }
     }
 
@@ -145,22 +141,18 @@ void UiKit::infoTab() {
     display.publish(191, 8);
 
     if (robotInfo.capaData.chargeState == 0) {
-        display.setParttImage(16, 16, greenCircleImg);
-        display.publish(172, 7);
+        display.setParttImage(172, 7, 16, 16, greenCircleImg);
     } else if (robotInfo.capaData.chargeState == 1) {
-        display.setParttImage(16, 16, yellowCircleImg);
-        display.publish(172, 7);
+        display.setParttImage(172, 7, 16, 16, yellowCircleImg);
     }
 
     // modeの出力
     switch (robotInfo.modeStatus.mode) {
     case 0: // main
-        display.setParttImage(80, 13, Tab_mainImg);
-        display.publish(12, 8);
+        display.setParttImage(12, 8, 80, 13, Tab_mainImg);
         break;
     case 1: // kick
-        display.setParttImage(80, 13, Tab_kickImg);
-        display.publish(12, 8);
+        display.setParttImage(12, 8, 80, 13, Tab_kickImg);
         break;
     default:
         break;

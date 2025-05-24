@@ -15,7 +15,7 @@ class DISPLAY_DEVICE {
 
     void publish(int x = 0, int y = 0);
     void setBackgroundImage(const uint16_t *imagePtr);
-    void setParttImage(int w, int h, const uint16_t *imagePtr);
+    void setParttImage(int x, int y, int w, int h, const uint16_t *imagePtr);
 
     void createSprite(int x = 320, int y = 240);
 

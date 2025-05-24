@@ -31,9 +31,12 @@ void DISPLAY_DEVICE::setBackgroundImage(const uint16_t *imagePtr) {
     spritePtr->pushImage(0, 0, 320, 240, imagePtr);
 }
 
-void DISPLAY_DEVICE::setParttImage(int w, int h, const uint16_t *imagePtr) {
+void DISPLAY_DEVICE::setParttImage(int x, int y, int w, int h, const uint16_t *imagePtr) {
     spritePtr->createSprite(w, h);
     spritePtr->pushImage(0, 0, w, h, imagePtr);
+    setSPIClockFast();
+    spritePtr->pushSprite(x, y);
+    spritePtr->deleteSprite();
 }
 
 void DISPLAY_DEVICE::publish(int x, int y) {

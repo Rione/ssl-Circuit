@@ -12,11 +12,9 @@ void MainMode::displaySet() {
     // 　stateの変更
     if (ui->robotInfo.capaData.chargeState != ui->robotInfo.chargeStatePrev) {
         if (ui->robotInfo.capaData.chargeState == 0) {
-            ui->display.setParttImage(260, 60, main_dischargeImg);
-            ui->display.publish(30, 60);
+            ui->display.setParttImage(30, 60, 260, 60, main_dischargeImg);
         } else if (ui->robotInfo.capaData.chargeState == 1) {
-            ui->display.setParttImage(260, 60, main_chargeImg);
-            ui->display.publish(30, 60);
+            ui->display.setParttImage(30, 60, 260, 60, main_chargeImg);
 
             ui->sprite.setTextColor(TFT_BLACK, ui->chargeBack);
             ui->sprite.loadFont(bold25);
@@ -70,15 +68,10 @@ void MainMode::determine() {
 }
 
 void MainMode::mainUI() {
-    ui->display.setParttImage(320, 210, main_BackImg);
-    ui->display.publish(0, 30);
+    ui->display.setParttImage(0, 30, 320, 210, main_BackImg);
 
     if (ui->robotInfo.capaData.chargeState == 1) {
-        ui->display.setParttImage(260, 60, main_dischargeImg);
-        ui->display.publish(30, 60);
-
-        ui->display.setParttImage(260, 60, main_chargeImg);
-        ui->display.publish(30, 60);
+        ui->display.setParttImage(30, 60, 260, 60, main_chargeImg);
 
         ui->sprite.setTextColor(TFT_BLACK, ui->chargeBack);
         ui->sprite.loadFont(bold25);

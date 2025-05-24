@@ -6,8 +6,7 @@ bool BUTTON::determine() {
     // 
     if (touch->isTouched && !touch->isTouchedPrev) {
         if (touch->point.x > x && touch->point.x < x + w && touch->point.y > y && touch->point.y < y + h) {
-            display->setParttImage(w, h, redimage);
-            display->publish(x, y);
+            display->setParttImage(x, y, w, h, redimage);
             return false; // ボタンが押された
         }
     } else if (!touch->isTouched && touch->isTouchedPrev) {
@@ -25,8 +24,7 @@ void BUTTON::setWhiteImg() {
     // ただし、ボタンが押された時間が0の時は無視する
     if(time != 0 && millis() - time > 500) {
         // 500ms以上経過していたら白色に戻す
-        display->setParttImage(w, h, whiteimage);
-        display->publish(x, y);
+        display->setParttImage(x, y, w, h, whiteimage);
         time = 0; // 時間をリセット
     }
 }
