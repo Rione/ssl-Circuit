@@ -7,13 +7,11 @@ MediaExecutor media;
 UiKit ui;
 
 #include "Mode/mainMode.hpp"
-#include "Mode/kickTestMode.hpp"
 #include "Mode/home.hpp"
 MainMode mainMode('M', "Main", &ui, &media);
-KickTestMode kickTestMode('K', "Kick", &ui, &media);
 Home home('H', "Home", &ui, &media);
 
-Mode *modes[] = {&mainMode, &kickTestMode};
+Mode *modes[] = {&mainMode};
 Mode *currentMode = &mainMode;
 
 void modeSwitch() {
@@ -27,8 +25,8 @@ void modeSwitch() {
         if (ui.homeFlag) {
             currentMode = &home;
         } else {
-            currentMode = modes[ui.modeData.status.mode];
-            ui.modeData.modePrev = ui.modeData.status.mode;
+            currentMode = modes[ui.robotInfo.modeStatus.mode];
+            ui.robotInfo.modePrev = ui.robotInfo.modeStatus.mode;
         }
     }
 }
@@ -38,8 +36,8 @@ void setup() {
 
     ui.init();
 
-    ui.modeData.status.mode = 0;
-    ui.modeData.modePrev = 0;
+    ui.robotInfo.modeStatus.mode = 0;
+    ui.robotInfo.modePrev = 0;
 
     currentMode->displaySet();
 
@@ -53,11 +51,11 @@ void loop() {
     modeSwitch();
     currentMode->displaySet();
 
-    ui.stmRecvSerial(&ui.robotInfoData);
+    ui.stmRecvSerial(&ui.robotInfo);
 
     ui.infoTab();
 
-    media.setBuzzerType((playType)ui.robotInfoData.buzzerState);
+    media.setBuzzerType((playType)ui.robotInfo.buzzerState);
     // ui.homeScreenGesture();
 }
 

@@ -21,11 +21,11 @@ void MainMode::displaySet() {
     }
 
     // 　stateの変更
-    if (ui->robotInfoData.capaData.chargeState != ui->robotInfoData.chargeStatePrev) {
-        if (ui->robotInfoData.capaData.chargeState == 0) {
+    if (ui->robotInfo.capaData.chargeState != ui->robotInfo.chargeStatePrev) {
+        if (ui->robotInfo.capaData.chargeState == 0) {
             ui->display.setParttImage(260, 60, main_dischargeImg);
             ui->display.publish(30, 60);
-        } else if (ui->robotInfoData.capaData.chargeState == 1) {
+        } else if (ui->robotInfo.capaData.chargeState == 1) {
             ui->display.setParttImage(260, 60, main_chargeImg);
             ui->display.publish(30, 60);
 
@@ -35,20 +35,20 @@ void MainMode::displaySet() {
             ui->display.createSprite(45, 25);
             ui->sprite.fillSprite(ui->charge_back);
             ui->sprite.setCursor(0, 0);
-            ui->sprite.print(ui->robotInfoData.capaData.chargeVol);
+            ui->sprite.print(ui->robotInfo.capaData.chargeVol);
             ui->display.publish(187, 80);
         }
     }
 
     // chargeVolの変更
-    if (ui->robotInfoData.capaData.chargeVol != ui->robotInfoData.chargeVolePrev) {
+    if (ui->robotInfo.capaData.chargeVol != ui->robotInfo.chargeVolePrev) {
         ui->sprite.setTextColor(TFT_BLACK, ui->charge_back);
         ui->sprite.loadFont(bold25);
 
         ui->display.createSprite(45, 25);
         ui->sprite.fillSprite(ui->charge_back);
         ui->sprite.setCursor(0, 0);
-        ui->sprite.print(ui->robotInfoData.capaData.chargeVol);
+        ui->sprite.print(ui->robotInfo.capaData.chargeVol);
         ui->display.publish(187, 80);
     }
 }
@@ -66,9 +66,9 @@ void MainMode::determine() {
             isTouchedTime = millis();
 
             // 送信用にデータを変更
-            ui->modeData.status.charge_state = 1;
-            ui->stmSendSerial(&ui->modeData); // 送信
-            ui->modeData.status.charge_state = 0;
+            ui->robotInfo.modeStatus.charge_state = 1;
+            ui->stmSendSerial(&ui->robotInfo); // 送信
+            ui->robotInfo.modeStatus.charge_state = 0;
 
             // ブザーを鳴らす
             media->setBuzzerType(NOTIFY);
@@ -82,9 +82,9 @@ void MainMode::determine() {
             isTouchedTime = millis();
 
             // 送信用にデータを変更
-            ui->modeData.status.kick = 1;
-            ui->stmSendSerial(&ui->modeData); // 送信
-            ui->modeData.status.kick = 0;
+            ui->robotInfo.modeStatus.kick = 1;
+            ui->stmSendSerial(&ui->robotInfo); // 送信
+            ui->robotInfo.modeStatus.kick = 0;
 
             // ブザーを鳴らす
             media->setBuzzerType(NOTIFY);
@@ -96,7 +96,7 @@ void MainMode::mainUI() {
     ui->display.setParttImage(320, 210, main_BackImg);
     ui->display.publish(0, 30);
 
-    if (ui->robotInfoData.capaData.chargeState == 1) {
+    if (ui->robotInfo.capaData.chargeState == 1) {
         ui->display.setParttImage(260, 60, main_dischargeImg);
         ui->display.publish(30, 60);
 
@@ -109,7 +109,7 @@ void MainMode::mainUI() {
         ui->display.createSprite(45, 25);
         ui->sprite.fillSprite(ui->charge_back);
         ui->sprite.setCursor(0, 0);
-        ui->sprite.print(ui->robotInfoData.capaData.chargeVol);
+        ui->sprite.print(ui->robotInfo.capaData.chargeVol);
         ui->display.publish(187, 80);
     }
 }

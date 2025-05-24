@@ -16,6 +16,7 @@
 #include "UI/image/home_img.h"
 
 typedef struct {
+    // 受け取るデータ
     uint8_t batteryGet;
     union {
         struct {
@@ -30,9 +31,8 @@ typedef struct {
     bool chargeStatePrev;
     uint8_t chargeVolePrev;
     uint8_t buzzerState;
-} RobotInfo_t; // 受けとるデータ
 
-typedef struct {
+    // modeの状態
     union {
         struct {
             uint8_t mode : 5;
@@ -41,30 +41,18 @@ typedef struct {
             bool kick : 1;         // キック
         };
         uint8_t data;
-    } status;
-
+    } modeStatus;
     uint8_t modePrev = 0;
-
-} UIModeSwitch_t; // main用、一番最初に送るデータ
+    
+} RobotInfo_t;
 
 typedef struct {
-    union {
-        struct {
-            uint8_t mode : 6;
-            bool charge : 1;
-            bool chargePrev : 1;
-        };
-        uint8_t data;
-    } status;
-    uint8_t KickPower;
-    uint8_t DribblePower;
+    
 } KickMode_t;
 
 class UiKit {
   public:
-    RobotInfo_t robotInfoData;
-    UIModeSwitch_t modeData;
-    KickMode_t kickModeData = {0, 0, 0};
+    RobotInfo_t robotInfo;
 
     TFT_eSPI tft = TFT_eSPI();
     TFT_eSprite sprite = TFT_eSprite(&tft);
@@ -84,8 +72,8 @@ class UiKit {
     void touchUpdate();
     void homeScreenGesture();
 
-    void stmRecvSerial(RobotInfo_t *_robotInfoData);
-    void stmSendSerial(UIModeSwitch_t *_modeData);
+    void stmRecvSerial(RobotInfo_t *robotInfo);
+    void stmSendSerial(RobotInfo_t *robotInfo);
 
     void infoTab();
 

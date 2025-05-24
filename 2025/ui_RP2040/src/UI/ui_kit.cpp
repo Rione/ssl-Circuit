@@ -15,7 +15,7 @@ void UiKit::init() {
     display.publish();
 
     while (millis() < 3000) {
-        stmRecvSerial(&robotInfoData);
+        stmRecvSerial(&robotInfo);
     }
 
     // tab部分の出力
@@ -59,7 +59,7 @@ void UiKit::homeScreenGesture() {
     }
 }
 
-void UiKit::stmRecvSerial(RobotInfo_t *_robotInfoData) {
+void UiKit::stmRecvSerial(RobotInfo_t *robotInfo) {
     static const uint8_t HEADER = 0xFF;  // ヘッダ
     static const uint8_t dataSize = 3;   // データのサイズ
     static bool headerReceived = false;  // ヘッダを受信したかどうか
@@ -81,25 +81,24 @@ void UiKit::stmRecvSerial(RobotInfo_t *_robotInfoData) {
                 headerReceived = false;
                 index = 0;
 
-                _robotInfoData->chargeStatePrev = _robotInfoData->capaData.chargeState;
-                _robotInfoData->chargeVolePrev = _robotInfoData->capaData.chargeVol;
+                robotInfo->chargeStatePrev = robotInfo->capaData.chargeState;
+                robotInfo->chargeVolePrev = robotInfo->capaData.chargeVol;
 
-                _robotInfoData->batteryGet = data[0];
-                _robotInfoData->capaData.data = data[1];
-                _robotInfoData->buzzerState = data[2];
+                robotInfo->batteryGet = data[0];
+                robotInfo->capaData.data = data[1];
+                robotInfo->buzzerState = data[2];
 
-                _robotInfoData->batteryVoltage = (float)_robotInfoData->batteryGet / 10.0;
+                robotInfo->batteryVoltage = (float)robotInfo->batteryGet / 10.0;
             }
         }
     }
 }
 
-void UiKit::stmSendSerial(UIModeSwitch_t *_modeData) {
+void UiKit::stmSendSerial(RobotInfo_t *robotInfo) {
     static const uint8_t HEADER = 0xFF;
 
     Serial1.write(HEADER);
-    Serial1.write(_modeData->status.data);
-
+    Serial1.write(robotInfo->modeStatus.data);
     // Serial.write(_modeData->status.data); // シリアルデバッグ用
 }
 
@@ -119,13 +118,13 @@ void UiKit::infoTab() {
         display.createSprite(36, 15);
         sprite.fillScreen(tabBack);
         sprite.setCursor(0, 0);
-        sprite.print(robotInfoData.batteryVoltage);
+        sprite.print(robotInfo.batteryVoltage);
         display.publish(281, 8);
 
-        if (robotInfoData.batteryVoltage < 14.5) {
+        if (robotInfo.batteryVoltage < 14.5) {
             display.setParttImage(16, 16, redCircleImg);
             display.publish(262, 7);
-        } else if (robotInfoData.batteryVoltage < 16.0) {
+        } else if (robotInfo.batteryVoltage < 16.0) {
             display.setParttImage(16, 16, yellowCircleImg);
             display.publish(262, 7);
         } else {
@@ -138,19 +137,19 @@ void UiKit::infoTab() {
     display.createSprite(36, 15);
     sprite.fillScreen(tabBack);
     sprite.setCursor(0, 0);
-    sprite.print(robotInfoData.capaData.chargeVol);
+    sprite.print(robotInfo.capaData.chargeVol);
     display.publish(191, 8);
 
-    if (robotInfoData.capaData.chargeState == 0) {
+    if (robotInfo.capaData.chargeState == 0) {
         display.setParttImage(16, 16, greenCircleImg);
         display.publish(172, 7);
-    } else if (robotInfoData.capaData.chargeState == 1) {
+    } else if (robotInfo.capaData.chargeState == 1) {
         display.setParttImage(16, 16, yellowCircleImg);
         display.publish(172, 7);
     }
 
     // modeの出力
-    switch (modeData.status.mode) {
+    switch (robotInfo.modeStatus.mode) {
     case 0: // main
         display.setParttImage(80, 13, Tab_mainImg);
         display.publish(12, 8);
