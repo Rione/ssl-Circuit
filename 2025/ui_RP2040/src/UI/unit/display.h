@@ -8,9 +8,6 @@
 
 class DISPLAY_DEVICE {
   public:
-    TFT_eSPI *tftPtr;
-    TFT_eSprite *spritePtr;
-
     DISPLAY_DEVICE(TFT_eSPI *tftPtr, TFT_eSprite *spritePtr);
 
     void init(void);
@@ -27,6 +24,8 @@ class DISPLAY_DEVICE {
     static const int backlightPin = 0;
 
   private:
+    TFT_eSPI *tftPtr;
+    TFT_eSprite *spritePtr;
     
 };
 
