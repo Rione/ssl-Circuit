@@ -50,6 +50,7 @@ void MainMode::determine() {
 
         // ブザーを鳴らす
         media->setBuzzerType(NOTIFY);
+        
     }else {
         ui->main_ChargeButton.setWhiteImg();
     }

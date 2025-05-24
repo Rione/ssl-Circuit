@@ -10,6 +10,8 @@
 #include "UI/font/bold25.h"
 #include "UI/font/regular15.h"
 
+#include "Media/MediaExecutor.hpp"
+
 typedef struct {
     // 受け取るデータ
     uint8_t batteryGet;

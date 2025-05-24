@@ -31,34 +31,37 @@ void UiKit::touchUpdate() {
             digitalWrite(display.backlightPin, HIGH);
             BackLightFlag = true;
         }
-    }else if (BackLightFlag && (millis() - BackLightTime) > 15000) {
+    }else if (BackLightFlag && (millis() - BackLightTime) > 10000) {
         // 15秒間タッチがなければバックライトを消す
         BackLightFlag = false;
         digitalWrite(display.backlightPin, LOW);
     }
+
+    
 }
 
 void UiKit::homeScreenGesture() {
     static bool flag = false;
-
-    static int yWhenFlagged = 0;
     static unsigned long timeWhenFlagged = 0;
 
     if (touch.isTouched) {
-        if (abs(2000 - touch.raw.x) < 800 && touch.raw.y > 3000 && !touch.isTouchedPrev) {
+        if (touch.point.y < 60 && !touch.isTouchedPrev && !flag) {
+            // Serial.println("flagged");
             flag = true;
-            yWhenFlagged = touch.raw.y;
             timeWhenFlagged = millis();
-        }
-
-        if (flag && millis() - timeWhenFlagged < 200) {
-            if (touch.raw.y < yWhenFlagged - 300) {
+        }else if (flag && (millis() - timeWhenFlagged) > 400) {
+            if (millis() - timeWhenFlagged < 600) {
+                media.setBuzzerType(playType::NOTIFY);
+            } else {
+                media.setBuzzerType(playType::SUCCESS);
                 flag = false;
                 homeFlag = !homeFlag;
                 changeFlag_overMode = true;
-                Serial.println("homeFlag");
+                // Serial.println("homeFlag");
             }
         }
+    } else {
+        flag = false;
     }
 }
 

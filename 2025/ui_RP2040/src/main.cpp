@@ -1,10 +1,8 @@
 #include <Arduino.h>
 
-#include "Media/MediaExecutor.hpp"
-MediaExecutor media;
-
 #include "UI/ui_kit.hpp"
 UiKit ui;
+MediaExecutor media;
 
 #include "Mode/mainMode.hpp"
 #include "Mode/home.hpp"
@@ -45,6 +43,10 @@ void setup() {
 }
 
 void loop() {
+    static int time;
+    static int interval = 0;
+    time = millis();
+
     ui.touchUpdate();
 
     currentMode->determine();
@@ -56,7 +58,10 @@ void loop() {
     ui.infoTab();
 
     media.setBuzzerType((playType)ui.robotInfo.buzzerState);
-    // ui.homeScreenGesture();
+    ui.homeScreenGesture();
+
+    interval = millis() - time;
+    Serial.println(interval);
 }
 
 void setup1() {
