@@ -39,6 +39,13 @@ void MainMode::displaySet() {
 
 void MainMode::determine() {
     // ボタンの判定
+    if(ui->main_ChargeButton.buttonDisable() || ui->main_KickButton.buttonDisable()) {
+        // ボタンが無効化されている場合は何もしない
+        ui->main_ChargeButton.setWhiteImg();
+        ui->main_KickButton.setWhiteImg();
+        return;
+    }
+
     if (ui->main_ChargeButton.determine()) {
         // 送信用にデータを変更
         ui->info.modeStatus.charge_state = 1;

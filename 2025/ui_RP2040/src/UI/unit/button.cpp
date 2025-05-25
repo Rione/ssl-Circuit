@@ -5,7 +5,7 @@ bool BUTTON::determine() {
     // ボタンが離された時を検出する
     if (touch->isTouched) {
         if (touch->point.x > x && touch->point.x < x + w && touch->point.y > y && touch->point.y < y + h) {
-            display->setParttImage(x, y, w, h, redimage);
+            if(!touch->isTouchedPrev) display->setParttImage(x, y, w, h, redimage);
             pressTime = millis(); // ボタンが押された時間を記録
             return false; // ボタンが押された
         }
@@ -28,3 +28,11 @@ void BUTTON::setWhiteImg() {
         pressTime = 0; // 時間をリセット
     }
 }
+
+bool BUTTON::buttonDisable() {
+    // ボタンを無効化する
+    // ボタンが押されてから500ms以内なら無効化
+    if(millis() - releaseTime < 1000) return true; // ボタン無効化
+    else return false; // ボタン有効化
+}
+    

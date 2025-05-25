@@ -30,6 +30,8 @@ class BUTTON {
 
     void setWhiteImg();
 
+    bool buttonDisable(); //ボタンの連続押しを防ぐための関数 500ms、1->ボタン無効化
+
   private:
     DISPLAY_DEVICE *display;
     TOUCHSCREEN *touch;
