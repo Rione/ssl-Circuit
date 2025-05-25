@@ -1028,14 +1028,14 @@
 			(pin bidirectional line
 				(at -19.05 38.1 0)
 				(length 2.54)
-				(name "VM"
+				(name "VREF+"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "61"
+				(number "26"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1046,14 +1046,14 @@
 			(pin bidirectional line
 				(at -19.05 35.56 0)
 				(length 2.54)
-				(name "SW"
+				(name "VDDA"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "62"
+				(number "27"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1100,14 +1100,14 @@
 			(pin bidirectional line
 				(at -19.05 27.94 0)
 				(length 2.54)
-				(name "VREF+"
+				(name "VM"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "26"
+				(number "61"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1118,14 +1118,14 @@
 			(pin bidirectional line
 				(at -19.05 25.4 0)
 				(length 2.54)
-				(name "VDDA"
+				(name "SW"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "27"
+				(number "62"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1135,96 +1135,6 @@
 			)
 			(pin bidirectional line
 				(at -19.05 20.32 0)
-				(length 2.54)
-				(name "PG10/nRST"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "8"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -19.05 17.78 0)
-				(length 2.54)
-				(name "PA10/USART_RX"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "46"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -19.05 15.24 0)
-				(length 2.54)
-				(name "PA9/USART1_TX"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "45"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -19.05 12.7 0)
-				(length 2.54)
-				(name "PA13/SWDIO"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "49"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -19.05 10.16 0)
-				(length 2.54)
-				(name "PA14/SWCLK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "50"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -19.05 5.08 0)
 				(length 2.54)
 				(name "PA1/OP1_VINP"
 					(effects
@@ -1242,7 +1152,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 2.54 0)
+				(at -19.05 17.78 0)
 				(length 2.54)
 				(name "PA2/OP1_VOUT"
 					(effects
@@ -1260,7 +1170,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 0 0)
+				(at -19.05 15.24 0)
 				(length 2.54)
 				(name "PA3/OP1_VINM"
 					(effects
@@ -1278,7 +1188,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -2.54 0)
+				(at -19.05 12.7 0)
 				(length 2.54)
 				(name "PA7/OP2_VINP"
 					(effects
@@ -1296,7 +1206,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -5.08 0)
+				(at -19.05 10.16 0)
 				(length 2.54)
 				(name "PA6/OP2_VOUT"
 					(effects
@@ -1314,7 +1224,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -7.62 0)
+				(at -19.05 7.62 0)
 				(length 2.54)
 				(name "PA5/OP2_VINM"
 					(effects
@@ -1332,7 +1242,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -10.16 0)
+				(at -19.05 5.08 0)
 				(length 2.54)
 				(name "PB0/OP3_VINP"
 					(effects
@@ -1350,7 +1260,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -12.7 0)
+				(at -19.05 2.54 0)
 				(length 2.54)
 				(name "PB1/OP3_VOUT"
 					(effects
@@ -1368,7 +1278,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -15.24 0)
+				(at -19.05 0 0)
 				(length 2.54)
 				(name "PB2/OP3_VINM"
 					(effects
@@ -1386,7 +1296,7 @@
 				)
 			)
 			(pin input line
-				(at -19.05 -17.78 0)
+				(at -19.05 -2.54 0)
 				(length 2.54)
 				(name "SCREF"
 					(effects
@@ -1404,7 +1314,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -22.86 0)
+				(at -19.05 -7.62 0)
 				(length 2.54)
 				(name "PC13"
 					(effects
@@ -1422,7 +1332,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -25.4 0)
+				(at -19.05 -10.16 0)
 				(length 2.54)
 				(name "PC14"
 					(effects
@@ -1440,7 +1350,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -27.94 0)
+				(at -19.05 -12.7 0)
 				(length 2.54)
 				(name "PC15"
 					(effects
@@ -1458,7 +1368,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -30.48 0)
+				(at -19.05 -15.24 0)
 				(length 2.54)
 				(name "PF0"
 					(effects
@@ -1476,7 +1386,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -33.02 0)
+				(at -19.05 -17.78 0)
 				(length 2.54)
 				(name "PF1"
 					(effects
@@ -1494,7 +1404,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -35.56 0)
+				(at -19.05 -20.32 0)
 				(length 2.54)
 				(name "PC0"
 					(effects
@@ -1512,7 +1422,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -38.1 0)
+				(at -19.05 -22.86 0)
 				(length 2.54)
 				(name "PC1"
 					(effects
@@ -1530,7 +1440,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -40.64 0)
+				(at -19.05 -25.4 0)
 				(length 2.54)
 				(name "PC2"
 					(effects
@@ -1548,7 +1458,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -19.05 -43.18 0)
+				(at -19.05 -27.94 0)
 				(length 2.54)
 				(name "PC3"
 					(effects
@@ -1558,6 +1468,96 @@
 					)
 				)
 				(number "12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -19.05 -33.02 0)
+				(length 2.54)
+				(name "PA10/USART_RX"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "46"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -19.05 -35.56 0)
+				(length 2.54)
+				(name "PA9/USART1_TX"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "45"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -19.05 -38.1 0)
+				(length 2.54)
+				(name "PG10/nRST"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -19.05 -40.64 0)
+				(length 2.54)
+				(name "PA14/SWCLK"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "50"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -19.05 -43.18 0)
+				(length 2.54)
+				(name "PA13/SWDIO"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "49"
 					(effects
 						(font
 							(size 1.27 1.27)

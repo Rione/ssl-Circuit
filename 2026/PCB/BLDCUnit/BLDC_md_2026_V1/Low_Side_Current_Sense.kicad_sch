@@ -686,7 +686,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "311b14ae-e424-49e1-a42c-eb20adf874c1")
-		(property "Reference" "R"
+		(property "Reference" "R?"
 			(at 49.53 44.4499 0)
 			(effects
 				(font
@@ -743,6 +743,10 @@
 					(reference "R21")
 					(unit 1)
 				)
+				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53/5c4f69f3-3114-4f5e-bd0f-c26379d66c14"
+					(reference "R?")
+					(unit 1)
+				)
 				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53/835db413-4ea6-4a9e-b79b-8d5651181ff1"
 					(reference "R16")
 					(unit 1)
@@ -760,7 +764,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "5310d51b-c00b-462a-8f67-ad94d46fd6ca")
-		(property "Reference" "R"
+		(property "Reference" "R?"
 			(at 49.53 31.7499 0)
 			(effects
 				(font
@@ -817,6 +821,10 @@
 					(reference "R20")
 					(unit 1)
 				)
+				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53/5c4f69f3-3114-4f5e-bd0f-c26379d66c14"
+					(reference "R?")
+					(unit 1)
+				)
 				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53/835db413-4ea6-4a9e-b79b-8d5651181ff1"
 					(reference "R15")
 					(unit 1)
@@ -833,7 +841,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "75700c16-4404-4e32-8e2d-cc82b7ca8f72")
-		(property "Reference" "C"
+		(property "Reference" "C?"
 			(at 49.276 70.612 90)
 			(effects
 				(font
@@ -886,6 +894,10 @@
 			(project "BLDC_md_2026_V1"
 				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53/2217763b-0d89-43b9-825f-c3babc22b9a0"
 					(reference "C3")
+					(unit 1)
+				)
+				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53/5c4f69f3-3114-4f5e-bd0f-c26379d66c14"
+					(reference "C?")
 					(unit 1)
 				)
 				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53/835db413-4ea6-4a9e-b79b-8d5651181ff1"
@@ -981,7 +993,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ee4534d0-a2ce-449d-956d-60b51070b09d")
-		(property "Reference" "R"
+		(property "Reference" "R?"
 			(at 40.64 33.02 90)
 			(effects
 				(font
@@ -1034,6 +1046,10 @@
 			(project "BLDC_md_2026_V1"
 				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53/2217763b-0d89-43b9-825f-c3babc22b9a0"
 					(reference "R18")
+					(unit 1)
+				)
+				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53/5c4f69f3-3114-4f5e-bd0f-c26379d66c14"
+					(reference "R?")
 					(unit 1)
 				)
 				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53/835db413-4ea6-4a9e-b79b-8d5651181ff1"
