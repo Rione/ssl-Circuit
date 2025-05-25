@@ -6,7 +6,7 @@ void TOUCHSCREEN::read() {
     isTouchedPrev = isTouched;
 
     // 誤タップ防止
-    // 1msごとのタッチ判定
+    // 1msごとのタッチ判定（周期的には4ms）
     // タッチカウントの最大値を超えたらタッチ判定
     // 離されてタッチカウントの最小値を超えたらタッチ判定を解除
     if (isTouched_1ms && !isTouched) {

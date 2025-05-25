@@ -3,15 +3,14 @@
 bool BUTTON::determine() {
     // タッチ判定
     // ボタンが離された時を検出する
-    // 
-    if (touch->isTouched && !touch->isTouchedPrev) {
+    if (touch->isTouched) {
         if (touch->point.x > x && touch->point.x < x + w && touch->point.y > y && touch->point.y < y + h) {
             display->setParttImage(x, y, w, h, redimage);
+            time = millis(); // ボタンが押された時間を記録
             return false; // ボタンが押された
         }
     } else if (!touch->isTouched && touch->isTouchedPrev) {
         if (touch->point.x > x && touch->point.x < x + w && touch->point.y > y && touch->point.y < y + h) {
-            time = millis();
             return true; // ボタンが離された
         }
     }

@@ -40,13 +40,11 @@ void setup() {
     currentMode->displaySet();
 
     ui.BackLightTime = millis();
+
+
 }
 
 void loop() {
-    static int time;
-    static int interval = 0;
-    time = millis();
-
     ui.touchUpdate();
 
     currentMode->determine();
@@ -59,9 +57,6 @@ void loop() {
 
     media.setBuzzerType((playType)ui.robotInfo.buzzerState);
     ui.homeScreenGesture();
-
-    interval = millis() - time;
-    Serial.println(interval);
 }
 
 void setup1() {
