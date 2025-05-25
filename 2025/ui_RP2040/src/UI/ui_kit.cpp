@@ -10,9 +10,7 @@ void UiKit::init() {
     Serial1.begin(115200);
 
     // 起動画面の出力
-    display.createSprite();
     display.setBackgroundImage(rione);
-    display.publish();
 
     while (millis() < 3000) {
         stmRecvSerial(&robotInfo);
@@ -109,15 +107,14 @@ void UiKit::stmSendSerial(RobotInfo_t *robotInfo) {
 }
 
 void UiKit::infoTab() {
-
     sprite.setTextColor(TFT_BLACK, tabBack);
     sprite.loadFont(regular15);
 
     // 電圧は１秒に１回のみ出力
     if (!timeInterval) {
-        time = millis();
+        InfoTime = millis();
         timeInterval = true;
-    } else if (millis() - time > 1000) {
+    } else if (millis() - InfoTime > 1000) {
         timeInterval = false;
 
         // 電圧の情報出力
@@ -150,15 +147,17 @@ void UiKit::infoTab() {
     }
 
     // modeの出力
-    switch (robotInfo.modeStatus.mode) {
-    case 0: // main
-        display.setParttImage(12, 8, 80, 13, Tab_mainImg);
-        break;
-    case 1: // kick
-        display.setParttImage(12, 8, 80, 13, Tab_kickImg);
-        break;
-    default:
-        break;
+    if(changeFlag_overMode){
+        switch (robotInfo.modeStatus.mode) {
+        case 0: // main
+            display.setParttImage(12, 8, 80, 13, Tab_mainImg);
+            break;
+        case 1: // kick
+            display.setParttImage(12, 8, 80, 13, Tab_kickImg);
+            break;
+        default:
+            break;
+        }
     }
 }
 

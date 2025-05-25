@@ -19,7 +19,7 @@ class DISPLAY_DEVICE {
 
     void createSprite(int x = 320, int y = 240);
 
-    void displayLight(bool light);
+    void setMainImage(const uint16_t *imagePtr); // info tabを抜いた320x210の画像をセットする
 
     static const int backlightPin = 0;
 

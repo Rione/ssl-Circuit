@@ -51,12 +51,12 @@ void loop() {
     modeSwitch();
     currentMode->displaySet();
 
-    ui.stmRecvSerial(&ui.robotInfo);
-
-    ui.infoTab();
-
-    media.setBuzzerType((playType)ui.robotInfo.buzzerState);
     ui.homeScreenGesture();
+    ui.stmRecvSerial(&ui.robotInfo);    
+    ui.infoTab();
+    
+    media.setBuzzerType((playType)ui.robotInfo.buzzerState);
+    
 }
 
 void setup1() {

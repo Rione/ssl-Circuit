@@ -28,25 +28,34 @@ void DISPLAY_DEVICE::setSPIClockFast(void) {
 }
 
 void DISPLAY_DEVICE::setBackgroundImage(const uint16_t *imagePtr) {
+    createSprite(320, 240);
     spritePtr->pushImage(0, 0, 320, 240, imagePtr);
+    publish(0, 0);
 }
 
 void DISPLAY_DEVICE::setParttImage(int x, int y, int w, int h, const uint16_t *imagePtr) {
-    spritePtr->createSprite(w, h);
+    // spritePtr->createSprite(w, h);
+    createSprite(w, h);
     spritePtr->pushImage(0, 0, w, h, imagePtr);
-    setSPIClockFast();
-    spritePtr->pushSprite(x, y);
-    spritePtr->deleteSprite();
+    publish(x, y);
 }
 
 void DISPLAY_DEVICE::publish(int x, int y) {
     setSPIClockFast();
     spritePtr->pushSprite(x, y);
     spritePtr->deleteSprite();
-    // digitalWrite(backlightPin, HIGH);
 }
 
 void DISPLAY_DEVICE::createSprite(int x, int y) {
     spritePtr->createSprite(x, y);
-    spritePtr->setColorDepth(5);
+    spritePtr->setColorDepth(8);
 }
+
+void DISPLAY_DEVICE::setMainImage(const uint16_t *imagePtr) {
+    // info tabを抜いた320x210の画像をセットする
+    createSprite(320, 210);
+    spritePtr->pushImage(0, 0, 320, 210, imagePtr);
+    publish(0, 30);
+}
+
+

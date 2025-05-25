@@ -73,15 +73,13 @@ class UiKit {
 
     void infoTab();
 
-    bool changeFlag_overMode = true;
-    bool changeFlag_inMode = false;
-
-    bool homeFlag = false;
+    bool changeFlag_overMode = true; // モード切り替えのフラグ
+    bool homeFlag = false;  // ホーム画面遷移のフラグ
 
     bool BackLightFlag = true; // true:ON false:OFF
     int BackLightTime = 0;
 
-    int time = 0;
+    int InfoTime = 0;
     bool timeInterval = true; // 電圧の情報出力は一定時間（１秒）ごとに行う
 
   private:

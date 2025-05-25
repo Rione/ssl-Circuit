@@ -69,7 +69,7 @@ void MainMode::determine() {
 }
 
 void MainMode::mainUI() {
-    ui->display.setParttImage(0, 30, 320, 210, main_BackImg);
+    ui->display.setMainImage(main_BackImg);
 
     if (ui->robotInfo.capaData.chargeState == 1) {
         ui->display.setParttImage(30, 60, 260, 60, main_chargeImg);
