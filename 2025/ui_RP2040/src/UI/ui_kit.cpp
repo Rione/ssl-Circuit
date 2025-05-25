@@ -13,11 +13,12 @@ void UiKit::init() {
     display.setBackgroundImage(rione);
 
     while (millis() < 3000) {
-        stmRecvSerial(&robotInfo);
+        stmRecvSerial(&info, &infoPrev);
     }
 
     // tab部分の出力
     display.setParttImage(0, 0, 320, 30, infoTabImg);
+    infoTab(true); // 初回は強制的に更新
 }
 
 void UiKit::touchUpdate() {
@@ -30,12 +31,11 @@ void UiKit::touchUpdate() {
             BackLightFlag = true;
         }
     }else if (BackLightFlag && (millis() - BackLightTime) > 10000) {
-        // 15秒間タッチがなければバックライトを消す
+        // 10秒間タッチがなければバックライトを消す
         BackLightFlag = false;
         digitalWrite(display.backlightPin, LOW);
     }
-
-    
+        
 }
 
 void UiKit::homeScreenGesture() {
@@ -63,7 +63,7 @@ void UiKit::homeScreenGesture() {
     }
 }
 
-void UiKit::stmRecvSerial(RobotInfo_t *robotInfo) {
+void UiKit::stmRecvSerial(RobotInfo_t *info, RobotInfo_t *infoPrev) {
     static const uint8_t HEADER = 0xFF;  // ヘッダ
     static const uint8_t dataSize = 3;   // データのサイズ
     static bool headerReceived = false;  // ヘッダを受信したかどうか
@@ -84,29 +84,27 @@ void UiKit::stmRecvSerial(RobotInfo_t *robotInfo) {
             if (index == dataSize) {
                 headerReceived = false;
                 index = 0;
+                
+                infoPrev->batteryVoltage = info->batteryVoltage; // 前回の電圧を保存
+                infoPrev->capaData.data = info->capaData.data; // 前回のデータを保存
 
-                robotInfo->chargeStatePrev = robotInfo->capaData.chargeState;
-                robotInfo->chargeVolePrev = robotInfo->capaData.chargeVol;
-
-                robotInfo->batteryGet = data[0];
-                robotInfo->capaData.data = data[1];
-                robotInfo->buzzerState = data[2];
-
-                robotInfo->batteryVoltage = (float)robotInfo->batteryGet / 10.0;
+                info->batteryVoltage = (float)data[0] / 10.0;
+                info->capaData.data = data[1];
+                info->buzzerState = data[2];
             }
         }
     }
 }
 
-void UiKit::stmSendSerial(RobotInfo_t *robotInfo) {
+void UiKit::stmSendSerial(RobotInfo_t *info) {
     static const uint8_t HEADER = 0xFF;
 
     Serial1.write(HEADER);
-    Serial1.write(robotInfo->modeStatus.data);
+    Serial1.write(info->modeStatus.data);
     // Serial.write(_modeData->status.data); // シリアルデバッグ用
 }
 
-void UiKit::infoTab() {
+void UiKit::infoTab(bool forceUpdate) {
     sprite.setTextColor(TFT_BLACK, tabBack);
     sprite.loadFont(regular15);
 
@@ -114,41 +112,43 @@ void UiKit::infoTab() {
     if (!timeInterval) {
         InfoTime = millis();
         timeInterval = true;
-    } else if (millis() - InfoTime > 1000) {
+    } else if (millis() - InfoTime > 1000 && info.batteryVoltage != infoPrev.batteryVoltage || forceUpdate) {
         timeInterval = false;
 
         // 電圧の情報出力
         display.createSprite(36, 15);
         sprite.fillScreen(tabBack);
         sprite.setCursor(0, 0);
-        sprite.print(robotInfo.batteryVoltage);
+        sprite.print(info.batteryVoltage);
         display.publish(281, 8);
 
-        if (robotInfo.batteryVoltage < 14.5) {
+        if (info.batteryVoltage < 14.5) {
             display.setParttImage(262, 7, 16, 16, redCircleImg);
-        } else if (robotInfo.batteryVoltage < 16.0) {
+        } else if (info.batteryVoltage < 16.0) {
             display.setParttImage(262, 7, 16, 16, yellowCircleImg);
         } else {
             display.setParttImage(262, 7, 16, 16, greenCircleImg);
         }
     }
 
-    // コンデンサの情報出力
-    display.createSprite(36, 15);
-    sprite.fillScreen(tabBack);
-    sprite.setCursor(0, 0);
-    sprite.print(robotInfo.capaData.chargeVol);
-    display.publish(191, 8);
+    if(info.capaData.data != infoPrev.capaData.data || forceUpdate) {
+        // コンデンサの情報出力
+        display.createSprite(36, 15);
+        sprite.fillScreen(tabBack);
+        sprite.setCursor(0, 0);
+        sprite.print(info.capaData.chargeVol);
+        display.publish(191, 8);
 
-    if (robotInfo.capaData.chargeState == 0) {
-        display.setParttImage(172, 7, 16, 16, greenCircleImg);
-    } else if (robotInfo.capaData.chargeState == 1) {
-        display.setParttImage(172, 7, 16, 16, yellowCircleImg);
+        if (info.capaData.chargeState == 0) {
+            display.setParttImage(172, 7, 16, 16, greenCircleImg);
+        } else if (info.capaData.chargeState == 1) {
+            display.setParttImage(172, 7, 16, 16, yellowCircleImg);
+        }
     }
 
     // modeの出力
-    if(changeFlag_overMode){
-        switch (robotInfo.modeStatus.mode) {
+    if(changeFlag_overMode || forceUpdate){
+        switch (info.modeStatus.mode) {
         case 0: // main
             display.setParttImage(12, 8, 80, 13, Tab_mainImg);
             break;

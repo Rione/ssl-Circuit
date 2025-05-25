@@ -10,10 +10,10 @@ void MainMode::displaySet() {
     }
 
     // 　stateの変更
-    if (ui->robotInfo.capaData.chargeState != ui->robotInfo.chargeStatePrev) {
-        if (ui->robotInfo.capaData.chargeState == 0) {
+    if (ui->info.capaData.chargeState != ui->infoPrev.capaData.chargeState) {
+        if (ui->info.capaData.chargeState == 0) {
             ui->display.setParttImage(30, 60, 260, 60, main_dischargeImg);
-        } else if (ui->robotInfo.capaData.chargeState == 1) {
+        } else if (ui->info.capaData.chargeState == 1) {
             ui->display.setParttImage(30, 60, 260, 60, main_chargeImg);
 
             ui->sprite.setTextColor(TFT_BLACK, ui->chargeBack);
@@ -22,20 +22,20 @@ void MainMode::displaySet() {
             ui->display.createSprite(45, 25);
             ui->sprite.fillSprite(ui->chargeBack);
             ui->sprite.setCursor(0, 0);
-            ui->sprite.print(ui->robotInfo.capaData.chargeVol);
+            ui->sprite.print(ui->info.capaData.chargeVol);
             ui->display.publish(187, 80);
         }
     }
 
     // chargeVolの変更
-    if (ui->robotInfo.capaData.chargeVol != ui->robotInfo.chargeVolePrev) {
+    if (ui->info.capaData.chargeVol != ui->infoPrev.capaData.chargeVol) {
         ui->sprite.setTextColor(TFT_BLACK, ui->chargeBack);
         ui->sprite.loadFont(bold25);
 
         ui->display.createSprite(45, 25);
         ui->sprite.fillSprite(ui->chargeBack);
         ui->sprite.setCursor(0, 0);
-        ui->sprite.print(ui->robotInfo.capaData.chargeVol);
+        ui->sprite.print(ui->info.capaData.chargeVol);
         ui->display.publish(187, 80);
     }
 }
@@ -44,9 +44,9 @@ void MainMode::determine() {
     // ボタンの判定
     if (ui->main_ChargeButton.determine()) {
         // 送信用にデータを変更
-        ui->robotInfo.modeStatus.charge_state = 1;
-        ui->stmSendSerial(&ui->robotInfo); // 送信
-        ui->robotInfo.modeStatus.charge_state = 0;
+        ui->info.modeStatus.charge_state = 1;
+        ui->stmSendSerial(&ui->info); // 送信
+        ui->info.modeStatus.charge_state = 0;
 
         // ブザーを鳴らす
         media->setBuzzerType(NOTIFY);
@@ -57,9 +57,9 @@ void MainMode::determine() {
 
     if(ui->main_KickButton.determine()) {
         // 送信用にデータを変更
-        ui->robotInfo.modeStatus.kick = 1;
-        ui->stmSendSerial(&ui->robotInfo); // 送信
-        ui->robotInfo.modeStatus.kick = 0;
+        ui->info.modeStatus.kick = 1;
+        ui->stmSendSerial(&ui->info); // 送信
+        ui->info.modeStatus.kick = 0;
 
         // ブザーを鳴らす
         media->setBuzzerType(NOTIFY);
@@ -71,7 +71,7 @@ void MainMode::determine() {
 void MainMode::mainUI() {
     ui->display.setMainImage(main_BackImg);
 
-    if (ui->robotInfo.capaData.chargeState == 1) {
+    if (ui->info.capaData.chargeState == 1) {
         ui->display.setParttImage(30, 60, 260, 60, main_chargeImg);
 
         ui->sprite.setTextColor(TFT_BLACK, ui->chargeBack);
@@ -80,7 +80,7 @@ void MainMode::mainUI() {
         ui->display.createSprite(45, 25);
         ui->sprite.fillSprite(ui->chargeBack);
         ui->sprite.setCursor(0, 0);
-        ui->sprite.print(ui->robotInfo.capaData.chargeVol);
+        ui->sprite.print(ui->info.capaData.chargeVol);
         ui->display.publish(187, 80);
     }
 }

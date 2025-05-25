@@ -23,8 +23,8 @@ void modeSwitch() {
         if (ui.homeFlag) {
             currentMode = &home;
         } else {
-            currentMode = modes[ui.robotInfo.modeStatus.mode];
-            ui.robotInfo.modePrev = ui.robotInfo.modeStatus.mode;
+            currentMode = modes[ui.info.modeStatus.mode];
+            ui.info.modePrev = ui.info.modeStatus.mode;
         }
     }
 }
@@ -34,8 +34,8 @@ void setup() {
 
     ui.init();
 
-    ui.robotInfo.modeStatus.mode = 0;
-    ui.robotInfo.modePrev = 0;
+    ui.info.modeStatus.mode = 0;
+    ui.info.modePrev = 0;
 
     currentMode->displaySet();
 
@@ -52,10 +52,10 @@ void loop() {
     currentMode->displaySet();
 
     ui.homeScreenGesture();
-    ui.stmRecvSerial(&ui.robotInfo);    
+    ui.stmRecvSerial(&ui.info, &ui.infoPrev);    
     ui.infoTab();
     
-    media.setBuzzerType((playType)ui.robotInfo.buzzerState);
+    media.setBuzzerType((playType)ui.info.buzzerState);
     
 }
 

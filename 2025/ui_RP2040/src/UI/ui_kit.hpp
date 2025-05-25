@@ -14,19 +14,14 @@
 
 typedef struct {
     // 受け取るデータ
-    uint8_t batteryGet;
+    float batteryVoltage;
     union {
         struct {
             bool chargeState : 1;  // stmから送られてくる充電状態
             uint8_t chargeVol : 7; // capChargeCertitude
         };
         uint8_t data;
-
-    } capaData;
-
-    float batteryVoltage;
-    bool chargeStatePrev;
-    uint8_t chargeVolePrev;
+    } capaData; 
     uint8_t buzzerState;
 
     // modeの状態
@@ -43,9 +38,18 @@ typedef struct {
 
 } RobotInfo_t;
 
+typedef struct {
+    uint8_t mode; // モードの状態
+    bool emergencyStop; // 緊急停止
+    bool charge_state; // 充電状態
+    bool kick; // キック状態
+} FlagStatus_t;
+
 class UiKit {
   public:
-    RobotInfo_t robotInfo;
+    RobotInfo_t info;
+    RobotInfo_t infoPrev;
+    FlagStatus_t flagStatus;
 
     TFT_eSPI tft = TFT_eSPI();
     TFT_eSprite sprite = TFT_eSprite(&tft);
@@ -68,10 +72,10 @@ class UiKit {
     void touchUpdate();
     void homeScreenGesture();
 
-    void stmRecvSerial(RobotInfo_t *robotInfo);
-    void stmSendSerial(RobotInfo_t *robotInfo);
+    void stmRecvSerial(RobotInfo_t *info, RobotInfo_t *infoPrev);
+    void stmSendSerial(RobotInfo_t *info);
 
-    void infoTab();
+    void infoTab(bool forceUpdate = false);
 
     bool changeFlag_overMode = true; // モード切り替えのフラグ
     bool homeFlag = false;  // ホーム画面遷移のフラグ
