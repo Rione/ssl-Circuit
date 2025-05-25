@@ -10,10 +10,5 @@ class MainMode : public Mode {
     void determine() override;
 
   private:
-    bool isTouched_state = false;
-    bool isTouched_kick = false;
-    int isTouchedTime = 0;
-    int TouchedInterval;
-
     void mainUI();
 };

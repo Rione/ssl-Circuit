@@ -48,7 +48,7 @@ class TOUCHSCREEN {
 
     bool isTouched_1ms = false; // 1msごとのタッチ判定。
     int touchCount_1ms = 0; // 1msごとのタッチカウント
-    int Time_touchStart = 0;
+    uint32_t Time_touchStart = 0;
     static const int countMax = 10; // タッチカウントの最大値
     static const int countMin = -10; // タッチカウントの最小値
 };

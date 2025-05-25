@@ -12,6 +12,10 @@ void UiKit::init() {
     // 起動画面の出力
     display.setBackgroundImage(rione);
 
+    // 初期モードの選択
+    info.modeStatus.mode = 0;
+    info.modePrev = 0;
+
     while (millis() < 3000) {
         stmRecvSerial(&info, &infoPrev);
     }
@@ -22,7 +26,12 @@ void UiKit::init() {
 }
 
 void UiKit::touchUpdate() {
+    static bool BackLightFlag = true; // バックライトのフラグ
+    static uint32_t BackLightTime = 0;
+    
     touch.read();
+
+    if(BackLightTime == 0) BackLightTime = millis();
 
     if (touch.isTouched) {
         BackLightTime = millis();
@@ -35,12 +44,12 @@ void UiKit::touchUpdate() {
         BackLightFlag = false;
         digitalWrite(display.backlightPin, LOW);
     }
-        
+
 }
 
 void UiKit::homeScreenGesture() {
     static bool flag = false;
-    static unsigned long timeWhenFlagged = 0;
+    static uint32_t timeWhenFlagged = 0;
 
     if (touch.isTouched) {
         if (touch.point.y < 60 && !touch.isTouchedPrev && !flag) {
@@ -107,13 +116,11 @@ void UiKit::stmSendSerial(RobotInfo_t *info) {
 void UiKit::infoTab(bool forceUpdate) {
     sprite.setTextColor(TFT_BLACK, tabBack);
     sprite.loadFont(regular15);
+    static uint32_t timeUpdate = 0;
 
     // 電圧は１秒に１回のみ出力
-    if (!timeInterval) {
-        InfoTime = millis();
-        timeInterval = true;
-    } else if (millis() - InfoTime > 1000 && info.batteryVoltage != infoPrev.batteryVoltage || forceUpdate) {
-        timeInterval = false;
+    if (millis() - timeUpdate > 1000 && info.batteryVoltage != infoPrev.batteryVoltage || forceUpdate) {
+        timeUpdate = millis();
 
         // 電圧の情報出力
         display.createSprite(36, 15);
@@ -136,7 +143,7 @@ void UiKit::infoTab(bool forceUpdate) {
         display.createSprite(36, 15);
         sprite.fillScreen(tabBack);
         sprite.setCursor(0, 0);
-        sprite.print(info.capaData.chargeVol);
+        sprite.print(info.capaData.chargeVal);
         display.publish(191, 8);
 
         if (info.capaData.chargeState == 0) {
@@ -159,16 +166,6 @@ void UiKit::infoTab(bool forceUpdate) {
             break;
         }
     }
+
+    if(!forceUpdate) changeFlag_overMode = false;  //初回のみtrueのまま
 }
-
-//   //受け取る
-//   // if(Serial1.available() ){
-//   //   uint8_t data = Serial1.read();
-//   //   Serial.print(data);
-//   // }
-
-//   //送る
-//   // uint8_t data = 100;
-//   // Serial1.write(data);
-//   // Serial.print(data,DEC);
-//   // delay(1000);

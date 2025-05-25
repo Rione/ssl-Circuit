@@ -3,10 +3,7 @@
 void MainMode::displaySet() {
     // 　モード切替時に画面を変更
     if (ui->changeFlag_overMode) {
-
         mainUI();
-
-        ui->changeFlag_overMode = false;
     }
 
     // 　stateの変更
@@ -22,20 +19,20 @@ void MainMode::displaySet() {
             ui->display.createSprite(45, 25);
             ui->sprite.fillSprite(ui->chargeBack);
             ui->sprite.setCursor(0, 0);
-            ui->sprite.print(ui->info.capaData.chargeVol);
+            ui->sprite.print(ui->info.capaData.chargeVal);
             ui->display.publish(187, 80);
         }
     }
 
-    // chargeVolの変更
-    if (ui->info.capaData.chargeVol != ui->infoPrev.capaData.chargeVol) {
+    // chargeValの変更
+    if (ui->info.capaData.chargeVal != ui->infoPrev.capaData.chargeVal) {
         ui->sprite.setTextColor(TFT_BLACK, ui->chargeBack);
         ui->sprite.loadFont(bold25);
 
         ui->display.createSprite(45, 25);
         ui->sprite.fillSprite(ui->chargeBack);
         ui->sprite.setCursor(0, 0);
-        ui->sprite.print(ui->info.capaData.chargeVol);
+        ui->sprite.print(ui->info.capaData.chargeVal);
         ui->display.publish(187, 80);
     }
 }
@@ -80,7 +77,7 @@ void MainMode::mainUI() {
         ui->display.createSprite(45, 25);
         ui->sprite.fillSprite(ui->chargeBack);
         ui->sprite.setCursor(0, 0);
-        ui->sprite.print(ui->info.capaData.chargeVol);
+        ui->sprite.print(ui->info.capaData.chargeVal);
         ui->display.publish(187, 80);
     }
 }

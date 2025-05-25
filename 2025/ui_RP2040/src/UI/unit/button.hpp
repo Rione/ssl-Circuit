@@ -40,7 +40,8 @@ class BUTTON {
     const uint16_t *redimage;   
     const uint16_t *whiteimage; 
 
-    int time = 0; // ボタンが押された時間
+    uint32_t pressTime = 0; // ボタンが押された時間
+    uint32_t releaseTime = 0; // ボタンが離された時間
 };
 
 #endif

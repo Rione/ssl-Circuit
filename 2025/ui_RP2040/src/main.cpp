@@ -10,14 +10,9 @@ MainMode mainMode('M', "Main", &ui, &media);
 Home home('H', "Home", &ui, &media);
 
 Mode *modes[] = {&mainMode};
-Mode *currentMode = &mainMode;
+Mode *currentMode; // 初期モードをmainModeに設定
 
 void modeSwitch() {
-    // if (_ui->modeData.status.mode != _ui->modeData.modePrev) {
-    //     currentMode = modes[_ui->modeData.status.mode];
-    //     _ui->modeData.modePrev = _ui->modeData.status.mode;
-    // }
-
     if (ui.changeFlag_overMode) {
         Serial.println("modeSwitch");
         if (ui.homeFlag) {
@@ -34,29 +29,30 @@ void setup() {
 
     ui.init();
 
-    ui.info.modeStatus.mode = 0;
-    ui.info.modePrev = 0;
-
+    currentMode =  modes[ui.info.modeStatus.mode];
     currentMode->displaySet();
-
-    ui.BackLightTime = millis();
-
-
 }
 
 void loop() {
+    static uint32_t time = 0;
+    static int interval = 0;
+    time = millis();
+
     ui.touchUpdate();
 
     currentMode->determine();
+    ui.homeScreenGesture();
+
     modeSwitch();
     currentMode->displaySet();
-
-    ui.homeScreenGesture();
+    
     ui.stmRecvSerial(&ui.info, &ui.infoPrev);    
     ui.infoTab();
     
     media.setBuzzerType((playType)ui.info.buzzerState);
-    
+
+    interval = millis() - time;
+    // Serial.println(interval);
 }
 
 void setup1() {

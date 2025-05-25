@@ -4,7 +4,6 @@ void Home::displaySet() {
     if (ui->changeFlag_overMode) {
         Serial.println("Home displaySet");
         homeUI();
-        ui->changeFlag_overMode = false;
     }
 }
 
