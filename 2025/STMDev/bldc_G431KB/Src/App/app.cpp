@@ -197,6 +197,13 @@ void main_app() {
       }
 
       while (1) {
+            motor.updateEncoder();
+            motor.updateAngularVelocity();
+            if (canSendInterval.read_ms() > 5) {
+                  CAN_Data_Output(motor.getAngularVelocity());
+                  canSendInterval.reset();
+            }
+
             if (isEmergency || canLastRecv.read_ms() > 1000) {
                   motor.writePwm(1, 1, 1);
                   rgb.led(rgb_t::MAGENTA);
@@ -230,11 +237,6 @@ void main_app() {
                   } else {
                         // モータの回転
                         motor.drive();
-
-                        if (canSendInterval.read_ms() > 5) {
-                              CAN_Data_Output(motor.getAngularVelocity());
-                              canSendInterval.reset();
-                        }
 
                         abs(motor.getTargetVelocity() - motor.getAngularVelocity()) < 3 ? rgb.led(rgb_t::GREEN) : (motor.getTargetVelocity() - motor.getAngularVelocity() > 0 ? rgb.led(rgb_t::MAGENTA) : rgb.led(rgb_t::CYAN));
                         // readADC();

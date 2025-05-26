@@ -57,9 +57,9 @@ class BLDCMotor {
 
       void writePwm(float _pwmA, float _pwmB, float _pwmC);
 
-      inline void updateAngularVelocity();
+      void updateAngularVelocity();
 
-      inline float updateEncoder();
+      float updateEncoder();
       float getShaftAngle();
       float getElectricAngle();
       float getAngularVelocity();

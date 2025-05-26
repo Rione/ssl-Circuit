@@ -138,7 +138,7 @@ void BLDCMotor::writePwm(float pwmA, float pwmB, float pwmC) {
       //     printf("%f %f %f\n", pwmA * 1000, pwmB * 1000, pwmC * 1000);
 }
 
-inline float BLDCMotor::updateEncoder() {
+float BLDCMotor::updateEncoder() {
       float _angle = encoder->getAngleRad();
       shAngle = MyMath::gapRadians(shAngleZero, _angle);
       elAngle = MyMath::normalizeRadians(shAngle * polePairQty);
@@ -156,7 +156,8 @@ float BLDCMotor::getElectricAngle() {
 float BLDCMotor::getAngularVelocity() {
       return angularVelocity;
 }
-inline void BLDCMotor::updateAngularVelocity() {
+
+void BLDCMotor::updateAngularVelocity() {
       float dt = timer.read();
       timer.reset();
       float angleDiff = shAnglePrev - shAngle;
@@ -295,8 +296,6 @@ inline void BLDCMotor::openLoopControl(float _Uq, float _elAngle) {
 }
 
 void BLDCMotor::drive() {
-      updateEncoder();
-      updateAngularVelocity();
       velocityPID.appendError(targetVelocity - getAngularVelocity());
       float Uq = velocityPID.getPID();
       float Ud = 0;
