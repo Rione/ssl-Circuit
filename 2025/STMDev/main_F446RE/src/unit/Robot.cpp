@@ -4,13 +4,13 @@ Robot::Robot() {
 }
 
 void Robot::hardwareInit() {
-      // led1 = bno.check();
-      // bno.setUnit(1, 1, 1, 0);
-      // bno.setPowerMode();
-      // // bno.setOperaitonMode(OPERATION_MODE_AMG);
-      // bno.setOperaitonMode(OPERATION_MODE_NDOF);
-      // // bno.accConfig();
-      // bno.init();
+      led1 = bno.check();
+      bno.setUnit(1, 1, 1, 0);
+      bno.setPowerMode();
+      // bno.setOperaitonMode(OPERATION_MODE_AMG);
+      bno.setOperaitonMode(OPERATION_MODE_NDOF);
+      // bno.accConfig();
+      bno.init();
       can.init();
 
       serial1.init();
@@ -25,7 +25,7 @@ void Robot::hardwareInit() {
 
       filter.begin(33000);  // 4000のはずなんだけど、何故か8.25倍しないとmain_appで使い物にならなかった...
 
-      mpu.init();
+      // mpu.init();
 
       // bno.setAttitudeZero();
       // HAL_Delay(1000);
@@ -245,36 +245,41 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
       }
 }
 
-void Robot::mpuget(RobotInfo_t &info) {
-      if (mpu.isCalibrated() == true) {
-            mpu.getAccGyro(&acc, &gyro, false);
-            filter.updateIMU(gyro.x, gyro.y, gyro.z, acc.x, acc.y, acc.z);
-            att.z = (float)MyMath::gapDegrees180(filter.getYaw(), info.frontDeg);
-      }
+void Robot::bnoGet(RobotInfo_t &info) {
+      info.imuState.acc = bno.getAcc();
+      info.imuState.gyro = bno.getGyro();
+      printf("Acc: %.2f %.2f\n", info.imuState.acc.x, info.imuState.acc.y);
 }
+// void Robot::mpuget(RobotInfo_t &info) {
+//       if (mpu.isCalibrated() == true) {
+//             mpu.getAccGyro(&acc, &gyro, false);
+//             filter.updateIMU(gyro.x, gyro.y, gyro.z, acc.x, acc.y, acc.z);
+//             att.z = (float)MyMath::gapDegrees180(filter.getYaw(), info.frontDeg);
+//       }
+// }
 
-void Robot::mpuSetup(RobotInfo_t &info) {
-      if (swImu.read() == false) {
-            // set flash
-            printf("IMU calibrating\n");
-            HAL_Delay(1000);
-            mpu.calibrateAccGyro();
-            mpu.getOffset(&info.imuOffsets.acc, &info.imuOffsets.gyro);
-            flash.writeFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
-            HAL_Delay(1000);
-            flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
-            printf("ACC offset saved %.6f, %.6f, %.6f\n", info.imuOffsets.acc.x, info.imuOffsets.acc.y, info.imuOffsets.acc.z);
-            printf("GYR offset saved %.6f, %.6f, %.6f\n", info.imuOffsets.gyro.x, info.imuOffsets.gyro.y, info.imuOffsets.gyro.z);
-      } else {
-            // load flash オフセット値をFlashから読み出す(初回起動時はimu resetスイッチを押して起動すること)
-            flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
-            mpu.setOffset(&info.imuOffsets.acc, &info.imuOffsets.gyro);
-            printf("ACC offset loaded %.6f, %.6f, %.6f\n", info.imuOffsets.acc.x, info.imuOffsets.acc.y, info.imuOffsets.acc.z);
-            printf("GYR offset loaded %.6f, %.6f, %.6f\n", info.imuOffsets.gyro.x, info.imuOffsets.gyro.y, info.imuOffsets.gyro.z);
-            HAL_Delay(1000);
-      }
-      info.frontDeg = att.z;
-}
+// void Robot::mpuSetup(RobotInfo_t &info) {
+//       if (swImu.read() == false) {
+//             // set flash
+//             printf("IMU calibrating\n");
+//             HAL_Delay(1000);
+//             mpu.calibrateAccGyro();
+//             mpu.getOffset(&info.imuOffsets.acc, &info.imuOffsets.gyro);
+//             flash.writeFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
+//             HAL_Delay(1000);
+//             flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
+//             printf("ACC offset saved %.6f, %.6f, %.6f\n", info.imuOffsets.acc.x, info.imuOffsets.acc.y, info.imuOffsets.acc.z);
+//             printf("GYR offset saved %.6f, %.6f, %.6f\n", info.imuOffsets.gyro.x, info.imuOffsets.gyro.y, info.imuOffsets.gyro.z);
+//       } else {
+//             // load flash オフセット値をFlashから読み出す(初回起動時はimu resetスイッチを押して起動すること)
+//             flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
+//             mpu.setOffset(&info.imuOffsets.acc, &info.imuOffsets.gyro);
+//             printf("ACC offset loaded %.6f, %.6f, %.6f\n", info.imuOffsets.acc.x, info.imuOffsets.acc.y, info.imuOffsets.acc.z);
+//             printf("GYR offset loaded %.6f, %.6f, %.6f\n", info.imuOffsets.gyro.x, info.imuOffsets.gyro.y, info.imuOffsets.gyro.z);
+//             HAL_Delay(1000);
+//       }
+//       info.frontDeg = att.z;
+// }
 
 void Robot::photoThresholdSet() {
       uint16_t thr = PHOTOSENSOR_THRESHOLD;

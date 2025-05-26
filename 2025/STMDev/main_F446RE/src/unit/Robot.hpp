@@ -9,7 +9,8 @@
 #include "DigitalInOut.hpp"
 #include "FLASH_EEPROM.hpp"
 #include "KickerBoard.hpp"
-#include "MPU6500.hpp"
+// #include "MPU6500.hpp"
+#include "BNO055.hpp"
 #include "MadgwickAHRS.h"
 #include "Median.h"
 #include "MotorDriver.hpp"
@@ -195,14 +196,18 @@ typedef struct {
       float meanVelYBuf[15];
       float meanVelAngBuf[15];
 
+      // union {
+      //       struct {
+      //             MPU6500::acc_t acc;
+      //             MPU6500::gyro_t gyro;
+      //       };
+      // } imuOffsets;
       union {
             struct {
-                  MPU6500::acc_t acc;
-                  MPU6500::gyro_t gyro;
+                  acc_t acc;    // BNO055の加速度センサ
+                  gyro_t gyro;  // BNO055のジャイロセンサ
             };
-      } imuOffsets;
-
-      float frontDeg;
+      } imuState;
 
 } RobotInfo_t;
 
@@ -234,10 +239,11 @@ class Robot {
       Average<float> meanVelY = Average(info.meanVelYBuf, 15);
       Average<float> meanVelAngler = Average(info.meanVelAngBuf, 15);
 
-      MPU6500 mpu = MPU6500(&hspi2, SPI2_CS0_GPIO_Port, SPI2_CS0_Pin);
-      MPU6500::acc_t acc;
-      MPU6500::gyro_t gyro;
-      MPU6500::xyz_t att;
+      // MPU6500 mpu = MPU6500(&hspi2, SPI2_CS0_GPIO_Port, SPI2_CS0_Pin);
+      // MPU6500::acc_t acc;
+      // MPU6500::gyro_t gyro;
+      // MPU6500::xyz_t att;
+      BNO055 bno = BNO055(&hi2c1);
 
       Flash_EEPROM flash;
 
@@ -259,8 +265,9 @@ class Robot {
       void uiSendSerial(RobotInfo_t &info, uint16_t interval);
       void uiRecvSerial(RobotInfo_t &info);
 
-      void mpuget(RobotInfo_t &info);
-      void mpuSetup(RobotInfo_t &info);
+      // void mpuget(RobotInfo_t &info);
+      // void mpuSetup(RobotInfo_t &info);
+      void bnoGet(RobotInfo_t &info);
 
       void photoThresholdSet();
 

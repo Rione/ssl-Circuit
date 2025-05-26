@@ -89,12 +89,10 @@ void MotorDriver::getVelocity(int16_t* velX, int16_t* velY, int16_t* motorAngule
       float e = MyMath::sinDeg(-135), f = MyMath::cosDeg(-135);
       float g = MyMath::sinDeg(-55), h = MyMath::cosDeg(-55) * 1.05f;
 
-      float denom = (a * a + c * c + e * e + g * g) + (b * b + d * d + f * f + h * h);
-
       float vx = (M[0] * a + M[1] * c + M[2] * e + M[3] * g) / (VELOCITY_XY_TO_MOTOR_ROTATE_RATIO * (a * a + c * c + e * e + g * g));
       float vy = -(M[0] * b + M[1] * d + M[2] * f + M[3] * h) / (VELOCITY_XY_TO_MOTOR_ROTATE_RATIO * (b * b + d * d + f * f + h * h));
 
       *velX = vx;
       *velY = vy;
-      printf("velX:%d velY:%d\n", *velX, *velY);
+      // printf("velX:%d velY:%d\n", *velX, *velY);
 }
