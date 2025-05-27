@@ -4,6 +4,10 @@
 	(generator_version "9.0")
 	(uuid "b60d34e1-e978-4abb-befd-6af7b603dc53")
 	(paper "A4")
+	(title_block
+		(title "BLDC md 2026 V1")
+		(date "2025-05-27")
+	)
 	(lib_symbols
 		(symbol "BLDCUnit_LIB_SYM:AS5048A-HTSP-500"
 			(exclude_from_sim no)
@@ -3889,8 +3893,8 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "D"
-				(at 0 9.398 0)
+			(property "Reference" "D4"
+				(at 0 -8.89 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -3898,7 +3902,7 @@
 				)
 			)
 			(property "Value" "LED_BRGK"
-				(at 0 -8.89 0)
+				(at 0 10.16 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -3977,6 +3981,17 @@
 				)
 			)
 			(symbol "LED_BRGK_0_1"
+				(rectangle
+					(start -3.175 8.255)
+					(end 3.175 -7.62)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
 				(circle
 					(center -2.032 0)
 					(radius 0.254)
@@ -4296,17 +4311,6 @@
 						(type none)
 					)
 				)
-				(rectangle
-					(start 2.794 8.382)
-					(end -2.794 -7.62)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
 			)
 			(symbol "LED_BRGK_1_1"
 				(pin passive line
@@ -4515,8 +4519,8 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at -10.16 8.89 0)
+			(property "Reference" "U1"
+				(at 2.1433 12.7 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4525,7 +4529,7 @@
 				)
 			)
 			(property "Value" "MAX3051"
-				(at 2.54 8.89 0)
+				(at 2.1433 10.16 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4584,11 +4588,11 @@
 					(start -10.16 7.62)
 					(end 10.16 -7.62)
 					(stroke
-						(width 0.254)
+						(width 0)
 						(type default)
 					)
 					(fill
-						(type background)
+						(type none)
 					)
 				)
 			)
