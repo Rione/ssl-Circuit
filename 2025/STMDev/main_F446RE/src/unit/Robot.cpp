@@ -11,6 +11,7 @@ void Robot::hardwareInit() {
       bno.setOperaitonMode(OPERATION_MODE_NDOF);
       // bno.accConfig();
       bno.init();
+      // bno.getCalibration();
       can.init();
 
       serial1.init();
@@ -28,7 +29,9 @@ void Robot::hardwareInit() {
       // mpu.init();
 
       // bno.setAttitudeZero();
-      // HAL_Delay(1000);
+      HAL_Delay(1000);
+
+      bnoCalibrate();
 }
 
 void Robot::rasRecvSerial(RobotInfo_t &info) {
@@ -248,7 +251,30 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
 void Robot::bnoGet(RobotInfo_t &info) {
       info.imuState.acc = bno.getAcc();
       info.imuState.gyro = bno.getGyro();
-      printf("Acc: %.2f %.2f\n", info.imuState.acc.x, info.imuState.acc.y);
+      printf("Acc: %.6f %.6f\n", info.imuState.acc.x, info.imuState.acc.y);
+}
+
+void Robot::bnoCalibrate() {
+      if (swImu.read() == false) {
+            // // set flash
+            printf("IMU calibrating\n");
+            HAL_Delay(1000);
+            bno.getOffset(&info.imuOffsets.acc, &info.imuOffsets.gyro);
+            bno.setOffset(&info.imuOffsets.acc, &info.imuOffsets.gyro);
+            printf("IMU calibrated\n");
+            flash.writeFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
+            HAL_Delay(1000);
+            flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
+            printf("ACC offset saved %.6f, %.6f, %.6f\n", info.imuOffsets.acc.x, info.imuOffsets.acc.y, info.imuOffsets.acc.z);
+            printf("GYR offset saved %.6f, %.6f, %.6f\n", info.imuOffsets.gyro.x, info.imuOffsets.gyro.y, info.imuOffsets.gyro.z);
+      } else {
+            // load flash オフセット値をFlashから読み出す(初回起動時はimu resetスイッチを押して起動すること)
+            flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&info.imuOffsets, sizeof(info.imuOffsets));
+            HAL_Delay(1000);
+            printf("ACC offset loaded %.6f, %.6f, %.6f\n", info.imuOffsets.acc.x, info.imuOffsets.acc.y, info.imuOffsets.acc.z);
+            printf("GYR offset loaded %.6f, %.6f, %.6f\n", info.imuOffsets.gyro.x, info.imuOffsets.gyro.y, info.imuOffsets.gyro.z);
+            bno.setOffset(&info.imuOffsets.acc, &info.imuOffsets.gyro);
+      }
 }
 // void Robot::mpuget(RobotInfo_t &info) {
 //       if (mpu.isCalibrated() == true) {

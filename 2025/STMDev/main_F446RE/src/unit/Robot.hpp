@@ -208,6 +208,12 @@ typedef struct {
                   gyro_t gyro;  // BNO055のジャイロセンサ
             };
       } imuState;
+      union {
+            struct {
+                  acc_t acc;    // BNO055の加速度センサのオフセット
+                  gyro_t gyro;  // BNO055のジャイロセンサのオフセット
+            };
+      } imuOffsets;
 
 } RobotInfo_t;
 
@@ -268,6 +274,7 @@ class Robot {
       // void mpuget(RobotInfo_t &info);
       // void mpuSetup(RobotInfo_t &info);
       void bnoGet(RobotInfo_t &info);
+      void bnoCalibrate();
 
       void photoThresholdSet();
 
