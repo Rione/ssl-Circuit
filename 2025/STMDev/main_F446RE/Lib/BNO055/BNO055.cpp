@@ -145,6 +145,24 @@ gyro_t BNO055::getGyro() {
       return gyro;
 }
 
+vel_t BNO055::getVel() {
+      // 前回の加速度を保存しておく
+      acc_t acc = getAcc();
+      // dtを計算
+      dt = dt_timer.read_us() / 1000000.0f;
+      dt_timer.reset();
+
+      // 加速度から速度を計算
+      vel.x += (acc.x + prevAcc.x) * dt / 2.0f;
+      vel.y += (acc.y + prevAcc.y) * dt / 2.0f;
+      vel.z += (acc.z + prevAcc.z) * dt / 2.0f;
+
+      // 前回の加速度を更新
+      prevAcc = acc;
+
+      return vel;
+}
+
 void BNO055::getOffset(acc_t *offset_acc, gyro_t *offset_gyro) {
       acc_t acc;
       acc_t acc_sum = {0, 0, 0};

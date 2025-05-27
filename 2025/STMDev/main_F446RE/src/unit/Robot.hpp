@@ -206,6 +206,7 @@ typedef struct {
             struct {
                   acc_t acc;    // BNO055の加速度センサ
                   gyro_t gyro;  // BNO055のジャイロセンサ
+                  vel_t vel;    // BNO055の速度
             };
       } imuState;
       union {

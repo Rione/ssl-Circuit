@@ -173,6 +173,12 @@ typedef struct {
 } gyro_t;
 
 typedef struct {
+      float x;
+      float y;
+      float z;
+} vel_t;
+
+typedef struct {
       uint8_t sys;
       uint8_t gyr;
       uint8_t acc;
@@ -194,11 +200,12 @@ class BNO055 {
       acc_t getAcc();
       gyro_t getGyro();
 
+      vel_t getVel();
+
       void getOffset(acc_t *acc, gyro_t *gyro);
       void setOffset(acc_t *acc, gyro_t *gyro);
 
-      float
-      getAttitude();
+      float getAttitude();
       void setAttitudeZero();
       void setAngle(float rad);
 
@@ -207,9 +214,13 @@ class BNO055 {
      private:
       const uint16_t cnt_calib = 5000;
 
+      float dt;  // サンプリング周期
+      vel_t vel;
+      acc_t prevAcc;
+      Timer dt_timer;
+
       acc_t offsetAcc = {0, 0, 0};
       gyro_t offsetGyro = {0, 0, 0};
       I2C_HandleTypeDef *_hi2c;
-      Timer _timer;
 };
 #endif

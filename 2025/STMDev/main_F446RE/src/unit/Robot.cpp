@@ -249,9 +249,8 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
 }
 
 void Robot::bnoGet(RobotInfo_t &info) {
-      info.imuState.acc = bno.getAcc();
-      info.imuState.gyro = bno.getGyro();
-      printf("Acc: %.6f %.6f\n", info.imuState.acc.x, info.imuState.acc.y);
+      info.imuState.vel = bno.getVel();  // 加速度から速度を計算
+      // printf("Acc: %.6f %.6f\n", info.imuState.acc.x, info.imuState.acc.y);
 }
 
 void Robot::bnoCalibrate() {
