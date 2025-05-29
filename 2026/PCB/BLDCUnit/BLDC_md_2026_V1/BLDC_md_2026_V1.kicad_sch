@@ -5506,12 +5506,6 @@
 		(uuid "2df1a94f-04d2-42dc-a7fe-13b028aec34d")
 	)
 	(junction
-		(at 203.2 59.69)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "31f26c3c-ef62-43eb-b928-bb86e7f48731")
-	)
-	(junction
 		(at 50.8 80.01)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5542,6 +5536,12 @@
 		(uuid "4abca802-1064-4c0e-aea8-9faa56204e10")
 	)
 	(junction
+		(at 205.74 90.17)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4c8ecd6c-1936-417f-ab68-529da6ce5748")
+	)
+	(junction
 		(at 43.18 41.91)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5564,12 +5564,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "52ee617c-b8cd-4c4a-b85c-2d816d71f456")
-	)
-	(junction
-		(at 205.74 39.37)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "53bc253f-f870-42af-a41c-82492c203028")
 	)
 	(junction
 		(at 194.31 95.25)
@@ -5626,16 +5620,34 @@
 		(uuid "632a86d0-c4c8-4bb1-b151-b59025f1bffd")
 	)
 	(junction
+		(at 200.66 80.01)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "63f8f10a-8ec9-4b1d-ad09-1f14d6928f57")
+	)
+	(junction
 		(at 205.74 34.29)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "646d5764-ea64-4346-84c0-0c38a89d7d5f")
 	)
 	(junction
+		(at 200.66 95.25)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "65bbc399-70a5-4818-b357-9182d236aeed")
+	)
+	(junction
 		(at 184.15 87.63)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "66d68c83-7146-423a-be21-ee136917255e")
+	)
+	(junction
+		(at 203.2 92.71)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "67e0a6ee-a348-4004-821a-3ba5ad24c66e")
 	)
 	(junction
 		(at 40.64 85.09)
@@ -5686,12 +5698,6 @@
 		(uuid "85cce3e7-ff49-4318-bd36-b33dbcb77f6c")
 	)
 	(junction
-		(at 200.66 80.01)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "871efe45-74b5-4c32-bcff-3e1a8680095b")
-	)
-	(junction
 		(at 229.87 144.78)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5738,6 +5744,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a0e8a1c7-1fe4-41da-b9d4-a01275bce3c6")
+	)
+	(junction
+		(at 203.2 59.69)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a2283b60-8715-4a47-a9d1-dcb7bea79cfb")
 	)
 	(junction
 		(at 52.07 166.37)
@@ -5828,6 +5840,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e46baf67-d0e0-446f-8e81-3b00628da14c")
+	)
+	(junction
+		(at 205.74 39.37)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ef580085-d6ab-481a-a6fc-61927696f9d3")
 	)
 	(junction
 		(at 63.5 24.13)
@@ -6071,7 +6089,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 100.33) (xy 208.28 100.33)
+			(xy 200.66 95.25) (xy 208.28 95.25)
 		)
 		(stroke
 			(width 0)
@@ -6138,6 +6156,16 @@
 			(type default)
 		)
 		(uuid "16ea1f53-f8c0-489c-90a7-982eab377a63")
+	)
+	(wire
+		(pts
+			(xy 200.66 80.01) (xy 200.66 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "17423bbc-103f-4a7f-972f-a516ff996fae")
 	)
 	(wire
 		(pts
@@ -6488,16 +6516,6 @@
 			(type default)
 		)
 		(uuid "2cec70fb-b290-4ba4-95e1-339315ec48dd")
-	)
-	(wire
-		(pts
-			(xy 200.66 80.01) (xy 200.66 100.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2d60fe5d-4ce8-4876-813c-7e1a58a1156b")
 	)
 	(wire
 		(pts
@@ -7231,7 +7249,7 @@
 	)
 	(wire
 		(pts
-			(xy 203.2 97.79) (xy 208.28 97.79)
+			(xy 203.2 92.71) (xy 208.28 92.71)
 		)
 		(stroke
 			(width 0)
@@ -7338,6 +7356,16 @@
 			(type default)
 		)
 		(uuid "73215459-2979-47ce-9f59-76a008105360")
+	)
+	(wire
+		(pts
+			(xy 203.2 92.71) (xy 203.2 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7404c137-bf5b-4d03-b675-0cf27e1aa1c2")
 	)
 	(wire
 		(pts
@@ -7691,6 +7719,16 @@
 	)
 	(wire
 		(pts
+			(xy 205.74 39.37) (xy 205.74 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8dc960fa-7b09-4e74-9a14-9e0e31301aeb")
+	)
+	(wire
+		(pts
 			(xy 106.68 113.03) (xy 106.68 115.57)
 		)
 		(stroke
@@ -7818,16 +7856,6 @@
 			(type default)
 		)
 		(uuid "9545c53c-495c-4c8f-bf38-dcd378467bee")
-	)
-	(wire
-		(pts
-			(xy 205.74 39.37) (xy 205.74 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9586c48a-ce58-41c9-963f-22061f2ee062")
 	)
 	(wire
 		(pts
@@ -8071,7 +8099,7 @@
 	)
 	(wire
 		(pts
-			(xy 205.74 95.25) (xy 208.28 95.25)
+			(xy 205.74 90.17) (xy 208.28 90.17)
 		)
 		(stroke
 			(width 0)
@@ -8141,6 +8169,16 @@
 	)
 	(wire
 		(pts
+			(xy 200.66 95.25) (xy 200.66 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b047a1f9-689f-4f80-adad-b880cf0b640d")
+	)
+	(wire
+		(pts
 			(xy 255.27 133.35) (xy 252.73 133.35)
 		)
 		(stroke
@@ -8178,6 +8216,16 @@
 			(type default)
 		)
 		(uuid "b4e2b425-42b5-4384-90e9-178810bc7626")
+	)
+	(wire
+		(pts
+			(xy 205.74 90.17) (xy 205.74 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b52605c3-b924-48f7-a7d3-9c24ba7e3998")
 	)
 	(wire
 		(pts
@@ -8298,16 +8346,6 @@
 			(type default)
 		)
 		(uuid "bca4ce52-1605-4e71-a1f3-0e765385bca4")
-	)
-	(wire
-		(pts
-			(xy 203.2 59.69) (xy 203.2 97.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bd1b5c17-1270-4586-b5ac-028daa57fef3")
 	)
 	(wire
 		(pts
@@ -8688,6 +8726,16 @@
 			(type default)
 		)
 		(uuid "e08984a3-84d1-45c5-adf1-5dce18d44ec3")
+	)
+	(wire
+		(pts
+			(xy 203.2 59.69) (xy 203.2 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e133329e-d0ee-4bea-938f-bad6ad8a0f1a")
 	)
 	(wire
 		(pts
@@ -9535,6 +9583,28 @@
 			)
 		)
 	)
+	(global_label "BLDC_U"
+		(shape input)
+		(at 200.66 97.79 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "49ac8b79-660b-4be4-9c1f-700d049aa8ed")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 200.66 107.9114 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "OP1_VINM"
 		(shape input)
 		(at 63.5 54.61 180)
@@ -10151,6 +10221,28 @@
 			)
 		)
 	)
+	(global_label "BLDC_W"
+		(shape input)
+		(at 205.74 97.79 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b54b6262-2a6f-4397-b1d2-8d6ebd6ead2e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 205.74 108.0323 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "USW"
 		(shape output)
 		(at 57.15 163.83 0)
@@ -10389,6 +10481,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "BLDC_V"
+		(shape input)
+		(at 203.2 97.79 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "cec7e778-ced7-479a-beb5-f1436fdc147b")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 203.2 107.6695 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -10753,7 +10867,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_SMB"
+		(property "Footprint" "BLDCUint_LIB_FTP:MA10EB045"
 			(at 114.3 86.36 0)
 			(effects
 				(font
@@ -10771,13 +10885,12 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Diode"
+		(property "Description" "MA10EB045"
 			(at 114.3 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(property "Sim.Device" "D"
@@ -11917,7 +12030,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "3b6f5c06-f904-40d8-b70c-690ab7296430")
 		(property "Reference" "L1"
 			(at 120.65 74.93 90)
@@ -11954,12 +12066,11 @@
 			)
 		)
 		(property "Description" "SDE0604A-180M"
-			(at 120.65 80.01 0)
+			(at 120.65 80.01 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(pin "2"
@@ -12817,7 +12928,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x03_Socket")
-		(at 213.36 97.79 0)
+		(at 213.36 92.71 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -12825,7 +12936,7 @@
 		(dnp no)
 		(uuid "601b9cfa-763d-4d50-acb1-4e423db70192")
 		(property "Reference" "J3"
-			(at 214.63 96.5199 0)
+			(at 214.63 91.4399 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12834,7 +12945,7 @@
 			)
 		)
 		(property "Value" "Conn_01x03_Socket"
-			(at 197.104 102.108 0)
+			(at 197.104 97.028 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12843,7 +12954,7 @@
 			)
 		)
 		(property "Footprint" "Connector_Molex:Molex_SPOX_5268-03A_1x03_P2.50mm_Horizontal"
-			(at 213.36 97.79 0)
+			(at 213.36 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12852,7 +12963,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 213.36 97.79 0)
+			(at 213.36 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12861,7 +12972,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x03, script generated"
-			(at 213.36 97.79 0)
+			(at 213.36 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14735,7 +14846,6 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(pin "4"
@@ -16160,13 +16270,12 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Diode"
+		(property "Description" "SMBJ90CA"
 			(at 198.12 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(property "Sim.Device" "D"
