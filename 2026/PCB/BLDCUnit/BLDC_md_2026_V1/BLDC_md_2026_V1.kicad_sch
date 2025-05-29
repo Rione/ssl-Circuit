@@ -5566,18 +5566,6 @@
 		(uuid "52ee617c-b8cd-4c4a-b85c-2d816d71f456")
 	)
 	(junction
-		(at 194.31 95.25)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "540e3dba-4635-479d-aa5d-6069e1729dda")
-	)
-	(junction
-		(at 194.31 87.63)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "56a0478a-2c4b-46e6-b2b4-59b1152216e6")
-	)
-	(junction
 		(at 48.26 29.21)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -6059,16 +6047,6 @@
 	)
 	(wire
 		(pts
-			(xy 189.23 95.25) (xy 194.31 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "102f5cc8-d44e-4cc3-8674-28da6daff50d")
-	)
-	(wire
-		(pts
 			(xy 229.87 144.78) (xy 229.87 147.32)
 		)
 		(stroke
@@ -6099,7 +6077,7 @@
 	)
 	(wire
 		(pts
-			(xy 194.31 95.25) (xy 198.12 95.25)
+			(xy 189.23 95.25) (xy 198.12 95.25)
 		)
 		(stroke
 			(width 0)
@@ -7849,7 +7827,7 @@
 	)
 	(wire
 		(pts
-			(xy 194.31 87.63) (xy 198.12 87.63)
+			(xy 189.23 87.63) (xy 198.12 87.63)
 		)
 		(stroke
 			(width 0)
@@ -8866,16 +8844,6 @@
 			(type default)
 		)
 		(uuid "ea9410d5-e309-46bd-95ba-f36819162d19")
-	)
-	(wire
-		(pts
-			(xy 189.23 87.63) (xy 194.31 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eb2ba191-b815-43a2-8321-c55d0a228150")
 	)
 	(wire
 		(pts
@@ -14188,7 +14156,6 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(property "Value" "40m"
@@ -14657,75 +14624,6 @@
 			(project ""
 				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53"
 					(reference "R2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 194.31 91.44 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "9c0c6529-8572-4e2c-a6e1-e513b1db88ab")
-		(property "Reference" "C20"
-			(at 194.564 89.154 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10u"
-			(at 194.564 93.726 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric_Pad1.33x2.70mm_HandSolder"
-			(at 195.2752 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 194.31 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "GRM32EC72A106KE05L"
-			(at 194.31 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c8e82cc6-07e1-4783-9368-941b65fb2583")
-		)
-		(pin "2"
-			(uuid "e9a40660-160e-4fc1-9b28-48529769e719")
-		)
-		(instances
-			(project "BLDC_md_2026_V1"
-				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53"
-					(reference "C20")
 					(unit 1)
 				)
 			)
