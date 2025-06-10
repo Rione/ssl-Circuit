@@ -1,4 +1,4 @@
-25612948262349282
+25616447245228540
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -66647,12 +66647,26 @@ solder jumper open
 3
 3
 KickerUnit_LIB_SYM
+FDS2582(SOIC8)
+
+
+0
+8
+3
+KickerUnit_LIB_SYM
 QFN-20-1EP_LT3751UFD
 QFN, 20 Pin (http://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/ltc-legacy-qfn/QFN_20_05-08-1711.pdf), generated with kicad-footprint-generator ipc_noLead_generator.py
 QFN NoLead
 0
 27
 21
+KickerUnit_LIB_SYM
+WE-FB3751
+
+
+0
+10
+10
 LED_SMD
 LED-APA102-2020
 http://www.led-color.com/upload/201604/APA102-2020%20SMD%20LED.pdf
