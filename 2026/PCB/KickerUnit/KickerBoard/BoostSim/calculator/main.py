@@ -86,6 +86,13 @@ def calc_Rfbh(Vfb, Rfbl):
     """
     return Rfbl * (Vfb - 1.16)
 
+def calc_VdsMax(Vout, N, VtransMax):
+    """
+    最大 Vds を計算する。
+    VdsMax = VtransMax + Vout / N
+    """
+    return VtransMax + Vout / N
+
 # ===== メイン処理 =====
 
 def main(config_file):
@@ -113,6 +120,7 @@ def main(config_file):
     # 2. 平均電流計算
     IaveMin = calc_Iave_forNmos(Ipk, Vout, N, VtransMin)
     IaveMax = calc_Iave_forNmos(Ipk, Vout, N, VtransMax)
+    VdsMax = calc_VdsMax(Vout, N, VtransMax)
 
     # 3. ダイオード
     VrrmMin = calc_Vrrm_forDiode(Vout, N, VtransMin)
@@ -125,7 +133,7 @@ def main(config_file):
 
     # 5. 結果表示
     print("=== LT3751 設計結果 ===")
-    
+
     print(f"トランスの最大電圧 Vtrans (最小): {VtransMin:.1f} V")
     print(f"トランスの最大電圧 Vtrans (最大): {VtransMax:.1f} V")
     print(f"巻数比 N: {N:.0f}")
@@ -141,6 +149,7 @@ def main(config_file):
     print(f"ピーク電流 Ipk: {Ipk:.2f} A")
     print(f"平均電流 (最小): {IaveMin:.2f} A")
     print(f"平均電流 (最大): {IaveMax:.2f} A")
+    print(f"最大 Vds: {VdsMax:.2f} V")
     print(f"ダイオードの逆電圧 (最小): {VrrmMin:.2f} V")
     print(f"ダイオードの逆電圧 (最大): {VrrmMax:.2f} V")
     print(f"ダイオードの平均電流: {If:.2f} A")
