@@ -140,7 +140,7 @@ def main(config_file):
     print(f"一次側インダクタンス Lpri: {Lpri*1000000:.0f} uH")
     print(f"ダイオードの順方向電圧 Vdiode: {Vdiode:.1f} V")
     print(f"出力電圧の抵抗 RVout: {RVout/1000:.1f} kΩ")
-    print(f"バイアス抵抗 RBG: {Rbg/1000:.2f} Ω")
+    print(f"バイアス抵抗 RBG: {Rbg/1000:.2f} kΩ")
     print(f"センス抵抗 Rsense: {Rsense*1000:.0f} mΩ")
 
     print("========================")
