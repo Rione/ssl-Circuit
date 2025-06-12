@@ -15,34 +15,10 @@
 
 class BufferedSerial {
   public:
-    BufferedSerial(UART_HandleTypeDef *huart, uint16_t rxBufSize)
-        : _huart(huart),
-          _rxBuf(new uint8_t[rxBufSize]),
-          rxTop(0), rxBtm(0),
-          _rxBufSize(rxBufSize),
-          _useDMA(false) {
-    }
-    void init(bool dma = false) {
-        _useDMA = dma;
-        HAL_UART_Receive_DMA(_huart, _rxBuf, _rxBufSize);
-        printf("- Serial init\n");
-    }
-
-    bool available() {
-        uint16_t rxTop = _rxBufSize - _huart->hdmarx->Instance->NDTR;
-        return rxTop != rxBtm;
-    }
-
-    uint8_t read() {
-        uint16_t rxTop = _rxBufSize - _huart->hdmarx->Instance->NDTR;
-        if (rxTop == rxBtm) {
-            return 0;
-        }
-        uint8_t data = _rxBuf[rxBtm];
-        rxBtm = (rxBtm + 1) % _rxBufSize;
-        // printf("top:%d btm:%d NDTR:%d data:%d\n", rxTop, rxBtm, _huart->hdmarx->Instance->NDTR, data);
-        return data;
-    }
+    BufferedSerial(UART_HandleTypeDef *huart, uint16_t rxBufSize);
+    void init(bool dma = false);
+    bool available();
+    uint8_t read();
 
     void write(uint8_t data) {
         HAL_UART_Transmit(_huart, &data, 1, 100);

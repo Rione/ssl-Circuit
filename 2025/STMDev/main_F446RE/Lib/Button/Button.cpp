@@ -1,6 +1,10 @@
 #include "Button.hpp"
 
-Button::Button(GPIO_TypeDef *port, uint16_t pin) : button(port, pin), pressState(false), isPressed(false), pressedTime(0) {
+Button::Button(GPIO_TypeDef *port, uint16_t pin) 
+    : button(port, pin), 
+      pressState(false), 
+      isPressed(false), 
+      pressedTime(0) {
 }
 
 void Button::update() {

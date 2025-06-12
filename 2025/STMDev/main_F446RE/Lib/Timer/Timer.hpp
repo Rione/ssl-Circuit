@@ -11,16 +11,26 @@ class Timer {
   public:
     // using DWT for timer watching
     Timer();
+    
+    void reset(){
+        startTime = DWT->CYCCNT;
+    }
 
-    void reset();
+    float read(){
+        return (float)(DWT->CYCCNT - startTime) / HAL_RCC_GetSysClockFreq();
+    }
 
-    float read();
+    uint32_t read_ms(){
+        return (uint32_t)((float)(DWT->CYCCNT - startTime) / HAL_RCC_GetSysClockFreq() * 1000);
+    }
 
-    uint32_t read_ms();
+    uint32_t read_us(){
+        return (uint32_t)((float)(DWT->CYCCNT - startTime) / HAL_RCC_GetSysClockFreq() * 1000000);
+    };
 
-    uint32_t read_us();
-
-    uint32_t read_count();
+    uint32_t read_count(){
+        return DWT->CYCCNT - startTime;
+    }
 
     void set_ms(uint32_t ms);
 

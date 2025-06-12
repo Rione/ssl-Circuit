@@ -9,9 +9,10 @@ extern "C" {
 
 class DigitalOut {
   public:
-    DigitalOut(GPIO_TypeDef *port, uint16_t pin) : port(port), pin(pin) {
-        HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET);
+    DigitalOut(GPIO_TypeDef *port, uint16_t pin) 
+        : port(port), pin(pin) {
     }
+
     void write(bool value) {
         HAL_GPIO_WritePin(port, pin, value ? GPIO_PIN_SET : GPIO_PIN_RESET);
     }
@@ -31,8 +32,10 @@ class DigitalOut {
 
 class DigitalIn {
   public:
-    DigitalIn(GPIO_TypeDef *port, uint16_t pin) : port(port), pin(pin) {
+    DigitalIn(GPIO_TypeDef *port, uint16_t pin) 
+        : port(port), pin(pin) {
     }
+    
     bool read() {
         return HAL_GPIO_ReadPin(port, pin) == GPIO_PIN_SET;
     }
