@@ -1,12 +1,12 @@
 #ifndef __BNO055__
 #define __BNO055__
 
-#include "main.h"
-#include "stdio.h"
-#include "Timer.hpp"
-#include "i2c.h"
 #include "DMAStream.h"
 #include "MyMath.hpp"
+#include "Timer.hpp"
+#include "i2c.h"
+#include "main.h"
+#include "stdio.h"
 
 #define BNOAddress (0x28 << 1)
 
@@ -155,53 +155,72 @@
 #define OPERATION_MODE_NDOF 0x0C
 
 typedef struct {
-    float yaw;
-    float pitch;
-    float roll;
+      float yaw;
+      float pitch;
+      float roll;
 } euler_t;
 
 typedef struct {
-    float x;
-    float y;
-    float z;
+      float x;
+      float y;
+      float z;
 } acc_t;
 
 typedef struct {
-    float x;
-    float y;
-    float z;
+      float x;
+      float y;
+      float z;
 } gyro_t;
 
 typedef struct {
-    uint8_t sys;
-    uint8_t gyr;
-    uint8_t acc;
-    uint8_t mag;
+      float x;
+      float y;
+      float z;
+} vel_t;
+
+typedef struct {
+      uint8_t sys;
+      uint8_t gyr;
+      uint8_t acc;
+      uint8_t mag;
 } calib_t;
 
 class BNO055 {
-  public:
-    BNO055(I2C_HandleTypeDef *hi2c);
-    bool check();
-    void init();
-    void setPowerMode();
-    void setOperaitonMode(uint8_t mode);
-    void getCalibration();
-    void setUnit(bool acc, bool gyro, bool euler, bool temp);
-    void accConfig();
+     public:
+      BNO055(I2C_HandleTypeDef *hi2c);
+      bool check();
+      void init();
+      void setPowerMode();
+      void setOperaitonMode(uint8_t mode);
+      void getCalibration();
+      void setUnit(bool acc, bool gyro, bool euler, bool temp);
+      void accConfig();
 
-    euler_t getEuler();
-    acc_t getAcc();
-    gyro_t getGyro();
+      euler_t getEuler();
+      acc_t getAcc();
+      gyro_t getGyro();
 
-    float getAttitude();
-    void setAttitudeZero();
-    void setAngle(float rad);
+      vel_t getVel();
 
-    float frontRadians;
+      void getOffset(acc_t *acc, gyro_t *gyro);
+      void setOffset(acc_t *acc, gyro_t *gyro);
 
-  private:
-    I2C_HandleTypeDef *_hi2c;
-    Timer _timer;
+      float getAttitude();
+      void setAttitudeZero();
+      void setAngle(float rad);
+
+      float frontRadians;
+
+     private:
+      const uint16_t cnt_calib = 5000;
+
+      float dt;  // サンプリング周期
+      vel_t vel;
+      acc_t prevAcc;
+      Timer dt_timer;
+
+      acc_t offsetAcc = {0, 0, 0};
+      gyro_t offsetGyro = {0, 0, 0};
+      I2C_HandleTypeDef *_hi2c;
 };
 #endif
