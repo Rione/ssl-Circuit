@@ -4400,10 +4400,6 @@
 		(uuid "fe78846f-00cf-42b4-81ac-49b0aceb91d6")
 	)
 	(no_connect
-		(at 68.58 81.28)
-		(uuid "090332e8-bf4c-45fa-b633-6118665b3add")
-	)
-	(no_connect
 		(at 106.68 40.64)
 		(uuid "0e4f883c-1c9a-428d-ac0c-c8578cdf6c5c")
 	)
@@ -4434,6 +4430,10 @@
 	(no_connect
 		(at 106.68 104.14)
 		(uuid "72553821-593a-4328-8dce-9ed36451f15e")
+	)
+	(no_connect
+		(at 68.58 86.36)
+		(uuid "7996ab23-9fcd-4053-9125-cacf5d0906f9")
 	)
 	(no_connect
 		(at 106.68 101.6)
@@ -5345,7 +5345,7 @@
 	)
 	(wire
 		(pts
-			(xy 66.04 86.36) (xy 68.58 86.36)
+			(xy 66.04 81.28) (xy 68.58 81.28)
 		)
 		(stroke
 			(width 0)
@@ -7864,7 +7864,7 @@
 		(uuid "c89f3e9d-cfa1-4871-a881-61139f6e2de4")
 	)
 	(label "USW"
-		(at 66.04 86.36 180)
+		(at 66.04 81.28 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8475,7 +8475,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "WheelUnit_LIB_FTP:MA10EB045"
+		(property "Footprint" "Diode_SMD:D_SOD-123F"
 			(at 116.84 90.17 0)
 			(effects
 				(font
@@ -8493,7 +8493,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "MA10EB045"
+		(property "Description" "SM5817PL-TP"
 			(at 116.84 90.17 0)
 			(effects
 				(font
