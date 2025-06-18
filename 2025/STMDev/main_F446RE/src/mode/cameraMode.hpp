@@ -1,6 +1,4 @@
 #include "Mode.hpp"
-#include "Average.h"
-#include "Median.h"
 
 class MainMode : public Mode {
   public:
