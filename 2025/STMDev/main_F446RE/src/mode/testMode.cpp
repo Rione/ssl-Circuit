@@ -1,11 +1,11 @@
 #include "testMode.hpp"
 
-void MainMode::before() {
+void TestMode::before() {
 }
 
-void MainMode::after() {
+void TestMode::after() {
 }
 
-void MainMode::loop(){
+void TestMode::loop(){
 
 }

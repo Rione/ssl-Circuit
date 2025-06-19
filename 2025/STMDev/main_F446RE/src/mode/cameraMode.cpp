@@ -1,11 +1,11 @@
 #include "cameraMode.hpp"
 
-void MainMode::before() {
+void CameraMode::before() {
 }
 
-void MainMode::after() {
+void CameraMode::after() {
 }
 
-void MainMode::loop(){
+void CameraMode::loop(){
     
 }
