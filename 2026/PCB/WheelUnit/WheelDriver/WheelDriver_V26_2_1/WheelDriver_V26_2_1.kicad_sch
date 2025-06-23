@@ -5786,7 +5786,7 @@
 	)
 	(global_label "USART2_TX_3"
 		(shape input)
-		(at 241.3 86.36 180)
+		(at 241.3 83.82 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5796,7 +5796,7 @@
 		)
 		(uuid "280d7973-51dd-4603-b430-8b63166370dc")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 225.9173 86.36 0)
+			(at 225.9173 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5849,9 +5849,9 @@
 			)
 		)
 	)
-	(global_label "USART_RX"
+	(global_label "UART1_RX"
 		(shape bidirectional)
-		(at 100.33 152.4 270)
+		(at 102.87 152.4 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5861,7 +5861,7 @@
 		)
 		(uuid "410c0472-e09f-492f-a7d8-7ed3fd00a07d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.33 165.8098 90)
+			(at 102.87 165.8098 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5916,7 +5916,7 @@
 	)
 	(global_label "USART2_TX_1"
 		(shape input)
-		(at 241.3 81.28 180)
+		(at 241.3 88.9 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5926,7 +5926,7 @@
 		)
 		(uuid "a8b39ead-be9b-4e0d-bf5d-bd7ccc519daf")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 225.9173 81.28 0)
+			(at 225.9173 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5958,9 +5958,9 @@
 			)
 		)
 	)
-	(global_label "USART_TX"
+	(global_label "UART1_TX"
 		(shape bidirectional)
-		(at 102.87 152.4 270)
+		(at 100.33 152.4 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5970,7 +5970,7 @@
 		)
 		(uuid "b7654f19-7561-4675-a84d-61eb90606951")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 102.87 165.5074 90)
+			(at 100.33 165.5074 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6070,7 +6070,7 @@
 	)
 	(global_label "USART2_TX_2"
 		(shape input)
-		(at 241.3 83.82 180)
+		(at 241.3 86.36 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6080,7 +6080,7 @@
 		)
 		(uuid "cf68a408-e454-496f-a3a9-cd517a4eb855")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 225.9173 83.82 0)
+			(at 225.9173 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6158,7 +6158,7 @@
 	)
 	(global_label "USART2_TX_4"
 		(shape input)
-		(at 241.3 88.9 180)
+		(at 241.3 81.28 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6168,7 +6168,7 @@
 		)
 		(uuid "f82e4312-b5fa-4d85-b8a5-892b99e7514b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 225.9173 88.9 0)
+			(at 225.9173 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
