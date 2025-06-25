@@ -2,11 +2,17 @@
 
 #include "RobotSequence.hpp"
 #include "mainMode.hpp"
+#include "testMode.hpp"
+#include "cameraMode.hpp"
+
 
 Robot robot;
 CANBus::CANData canRecvData;
 
 MainMode mainMode('M', "Main Mode", &robot);
+TestMode testMode('T', "Test Mode", &robot);
+CameraMode cameraMode('C', "Camera Mode", &robot);
+
 
 void TimInterrupt1khz() {
       robot.heartBeat();
@@ -70,13 +76,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 
 void setup() {
       robot.hardwareInit();
-      robot.sendDribble(0);
-      HAL_Delay(1000);
+      HAL_Delay(100);
 }
 
 void main_app() {
-      // ballMoving();
-      // dribbleHoldBack();
       while (1) {
             mainMode.loop();
       }
