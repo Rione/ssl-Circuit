@@ -134,7 +134,7 @@ void Robot::getSensors(RobotInfo_t *info) {
 
 void Robot::sendDribble(uint8_t power, bool forceSend) {
       static Timer timer;
-      static uint8_t dribblePowerPrev = power;
+      static uint8_t dribblePowerPrev = 255; // 処理されるために255に初期化
       if (timer.read_ms() > 10000) timer.set_ms(10000);
       if (power == dribblePowerPrev && forceSend == false) {
             if (timer.read_ms() < 100)  // パワーが変わっていない場合は送信しない。 forceSendがtrueの場合は100msごとに送信する
