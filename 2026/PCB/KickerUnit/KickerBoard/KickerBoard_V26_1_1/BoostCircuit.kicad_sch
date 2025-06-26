@@ -2279,10 +2279,12 @@
 	)
 	(text "DISABLE->Tied to GND/VCC\nABLE->set with using resister"
 		(exclude_from_sim no)
-		(at 87.63 92.964 0)
+		(at 83.566 92.964 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(face "Arial")
+				(size 1.778 1.778)
+				(color 72 72 72 1)
 			)
 			(justify left)
 		)
@@ -2293,29 +2295,35 @@
 		(at 154.686 50.546 0)
 		(effects
 			(font
+				(face "Arial")
 				(size 2.54 2.54)
 				(thickness 0.508)
 				(bold yes)
+				(color 72 72 72 1)
 			)
 		)
 		(uuid "6f759314-b24d-44cf-a652-9c445e41867e")
 	)
 	(text "Vrrm:552V\nIave:0.5A"
 		(exclude_from_sim no)
-		(at 200.914 77.216 0)
+		(at 201.422 75.184 0)
 		(effects
 			(font
+				(face "Arial")
 				(size 1.27 1.27)
+				(color 72 72 72 1)
 			)
 		)
 		(uuid "72a6e449-a2b9-4211-bfaa-c775a60e1e9f")
 	)
 	(text "-FB pin-\n\ntied to GND -> Charge Mode\n\nusing resister -> Regulation Mode\n -under 1.16V : Charge Mode\n -1.16V to 1.34V : Regulation Modw\n -over 1.34V : No-Load Operation"
 		(exclude_from_sim no)
-		(at 185.674 132.842 0)
+		(at 186.944 135.128 0)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(face "Arial")
+				(size 1.778 1.778)
+				(color 72 72 72 1)
 			)
 			(justify left)
 		)
@@ -2326,7 +2334,9 @@
 		(at 188.976 108.712 0)
 		(effects
 			(font
+				(face "Arial")
 				(size 1.27 1.27)
+				(color 72 72 72 1)
 			)
 		)
 		(uuid "91fef9c1-3562-4c51-98ea-d66ab4d70315")
@@ -2347,7 +2357,9 @@
 		(at 157.226 60.452 0)
 		(effects
 			(font
+				(face "Arial")
 				(size 1.27 1.27)
+				(color 72 72 72 1)
 			)
 		)
 		(uuid "a00a8403-b1de-4ea0-aac9-2975020df476")
@@ -2357,7 +2369,9 @@
 		(at 193.548 98.806 0)
 		(effects
 			(font
+				(face "Arial")
 				(size 1.27 1.27)
+				(color 72 72 72 1)
 			)
 		)
 		(uuid "e16886a7-4a7b-46e9-9f37-aaa86dbaa19a")
@@ -2367,7 +2381,9 @@
 		(at 223.266 71.882 0)
 		(effects
 			(font
+				(face "Arial")
 				(size 1.27 1.27)
+				(color 72 72 72 1)
 			)
 		)
 		(uuid "fee1208e-b3a4-43a9-b8b5-38bbeee5dbb0")
@@ -2830,16 +2846,6 @@
 	)
 	(wire
 		(pts
-			(xy 59.69 101.6) (xy 55.88 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "485a1746-2728-43ad-89e0-6c5b2626a033")
-	)
-	(wire
-		(pts
 			(xy 100.33 46.99) (xy 104.14 46.99)
 		)
 		(stroke
@@ -3120,7 +3126,7 @@
 	)
 	(wire
 		(pts
-			(xy 59.69 99.06) (xy 55.88 99.06)
+			(xy 88.9 107.95) (xy 85.09 107.95)
 		)
 		(stroke
 			(width 0)
@@ -3187,16 +3193,6 @@
 			(type default)
 		)
 		(uuid "9d65cff4-69b2-4563-96b6-c5d8ca446cfd")
-	)
-	(wire
-		(pts
-			(xy 59.69 104.14) (xy 55.88 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a4052622-4430-4cb4-bab8-794b276a1699")
 	)
 	(wire
 		(pts
@@ -3610,7 +3606,7 @@
 	)
 	(wire
 		(pts
-			(xy 59.69 96.52) (xy 55.88 96.52)
+			(xy 88.9 105.41) (xy 85.09 105.41)
 		)
 		(stroke
 			(width 0)
@@ -7511,7 +7507,7 @@
 		)
 	)
 	(label "~{nFault}"
-		(at 59.69 99.06 0)
+		(at 88.9 107.95 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7519,26 +7515,6 @@
 			(justify left bottom)
 		)
 		(uuid "0fe8bc99-05ae-41fc-ab12-cbaaf205fa1e")
-	)
-	(label "CHARGE"
-		(at 127 113.03 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "1e71de24-f92a-43dc-af6d-80f127e07da5")
-	)
-	(label "Vout"
-		(at 59.69 104.14 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "60583b3e-448d-4ac6-871b-96ae4fa736ce")
 	)
 	(label "~{DONE}"
 		(at 121.92 107.95 0)
@@ -7550,18 +7526,8 @@
 		)
 		(uuid "6c3282d8-5e01-4d0a-b849-16688a0b3550")
 	)
-	(label "Vout"
-		(at 220.98 69.85 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6e959fb1-563d-45bd-9089-21bc1a780470")
-	)
 	(label "~{DONE}"
-		(at 59.69 96.52 0)
+		(at 88.9 105.41 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7580,30 +7546,20 @@
 		)
 		(uuid "cb0f3cc1-4ad8-47b8-8b33-9891d14e03a8")
 	)
-	(label "CHARGE"
-		(at 59.69 101.6 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "e2e82214-d097-40f1-9b77-70b243b0a7bf")
-	)
-	(hierarchical_label "Vout"
-		(shape output)
-		(at 55.88 104.14 180)
+	(hierarchical_label "CHARGE"
+		(shape input)
+		(at 127 113.03 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "1866072b-d569-4307-b0ca-ce16b1d62ab1")
+		(uuid "2105e264-01c6-427e-8b6b-3bc4ce8ddb42")
 	)
 	(hierarchical_label "~{DONE}"
 		(shape input)
-		(at 55.88 96.52 180)
+		(at 85.09 105.41 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7612,20 +7568,9 @@
 		)
 		(uuid "4a82df2d-d60b-41e6-86c8-8f451df0c389")
 	)
-	(hierarchical_label "CHARGE"
-		(shape input)
-		(at 55.88 101.6 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5d5b0a39-eec4-48a1-a4ed-fa8bc7f250d5")
-	)
 	(hierarchical_label "~{nFAULT}"
 		(shape input)
-		(at 55.88 99.06 180)
+		(at 85.09 107.95 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7633,6 +7578,17 @@
 			(justify right)
 		)
 		(uuid "85b39696-42b0-4b2a-bd02-9315f825bc76")
+	)
+	(hierarchical_label "Vout"
+		(shape output)
+		(at 220.98 69.85 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "eceb6103-bc56-4f01-95b9-c09b8e771c3c")
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
@@ -8634,7 +8590,7 @@
 	)
 	(symbol
 		(lib_id "Device:D_Small")
-		(at 201.93 69.85 0)
+		(at 201.93 69.85 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
