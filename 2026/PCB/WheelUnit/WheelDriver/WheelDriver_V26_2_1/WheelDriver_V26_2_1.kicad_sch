@@ -2420,6 +2420,12 @@
 		(uuid "54999281-7994-4299-8af1-982c17b71717")
 	)
 	(junction
+		(at 200.66 52.07)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "58037dc8-1623-4d4f-9b24-a026822d783b")
+	)
+	(junction
 		(at 156.21 80.01)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2544,12 +2550,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "cb97b173-b9b6-4bf7-ad71-c4b9079a2808")
-	)
-	(junction
-		(at 200.66 31.75)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "cc1a01f7-1ace-4bdf-b40c-dbfcc5c04c90")
 	)
 	(junction
 		(at 54.61 77.47)
@@ -2928,6 +2928,16 @@
 			(type default)
 		)
 		(uuid "142a8bc2-c139-4d80-b621-09928879bd3f")
+	)
+	(wire
+		(pts
+			(xy 200.66 52.07) (xy 200.66 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "15b9f47a-e64c-4e25-a59b-3fef90839c7a")
 	)
 	(wire
 		(pts
@@ -4851,16 +4861,6 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 29.21) (xy 200.66 31.75)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d790d9c6-7579-44a0-a1a8-035bb33316b3")
-	)
-	(wire
-		(pts
 			(xy 233.68 35.56) (xy 236.22 35.56)
 		)
 		(stroke
@@ -6398,72 +6398,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3.3V")
-		(at 92.71 29.21 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "2af7dd72-2791-4b14-b9b5-f288fb9dec92")
-		(property "Reference" "#PWR03"
-			(at 92.71 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3.3V"
-			(at 92.71 24.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 92.71 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 92.71 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 92.71 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3ffe8793-bdc2-4eac-8b77-31b58f5cdd90")
-		)
-		(instances
-			(project "WheelDriver_V26_2_1"
-				(path "/b60d34e1-e978-4abb-befd-6af7b603dc53"
-					(reference "#PWR03")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "WheelUnit_LIB_SYM:SN74LV4053APWR")
 		(at 78.74 114.3 0)
 		(unit 1)
@@ -6679,7 +6613,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+		(property "Footprint" "WheelUnit_LIB_FTP:PinHeader_1x03_P2.54mm_Vertical_UD"
 			(at 256.54 60.96 0)
 			(effects
 				(font
@@ -7292,7 +7226,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 200.66 29.21 180)
+		(at 200.66 54.61 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7301,7 +7235,7 @@
 		(fields_autoplaced yes)
 		(uuid "55698948-f5f4-4414-b282-aedbe7a5cce3")
 		(property "Reference" "#PWR018"
-			(at 200.66 22.86 0)
+			(at 200.66 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7310,16 +7244,16 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 203.2 27.9399 0)
+			(at 203.2 55.8799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 200.66 29.21 0)
+			(at 200.66 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7328,7 +7262,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 200.66 29.21 0)
+			(at 200.66 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7337,7 +7271,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 200.66 29.21 0)
+			(at 200.66 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9043,7 +8977,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+		(property "Footprint" "WheelUnit_LIB_FTP:PinHeader_1x04_P2.54mm_Vertical_ud"
 			(at 241.3 45.72 0)
 			(effects
 				(font
@@ -9551,7 +9485,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+		(property "Footprint" "WheelUnit_LIB_FTP:PinHeader_1x04_P2.54mm_Vertical_ud"
 			(at 208.28 46.99 0)
 			(effects
 				(font
@@ -9902,7 +9836,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+		(property "Footprint" "WheelUnit_LIB_FTP:PinHeader_1x03_P2.54mm_Vertical_UD"
 			(at 256.54 68.58 0)
 			(effects
 				(font
@@ -10431,7 +10365,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+		(property "Footprint" "WheelUnit_LIB_FTP:PinHeader_1x04_P2.54mm_Vertical_ud"
 			(at 208.28 34.29 0)
 			(effects
 				(font
@@ -10720,7 +10654,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+		(property "Footprint" "WheelUnit_LIB_FTP:PinHeader_1x04_P2.54mm_Vertical_ud"
 			(at 241.3 33.02 0)
 			(effects
 				(font
