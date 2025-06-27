@@ -3088,7 +3088,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0771426e-9c9b-40f8-90d2-513a762fba67")
-		(property "Reference" "C66"
+		(property "Reference" "C69"
 			(at 92.964 100.584 0)
 			(effects
 				(font
@@ -3106,7 +3106,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 93.6752 106.68 0)
 			(effects
 				(font
@@ -3141,7 +3141,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C66")
+					(reference "C69")
 					(unit 1)
 				)
 			)
@@ -3223,7 +3223,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0de44ffe-0d1e-4702-9198-351e2f0ddec8")
-		(property "Reference" "C69"
+		(property "Reference" "C72"
 			(at 110.744 100.584 0)
 			(effects
 				(font
@@ -3241,7 +3241,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 111.4552 106.68 0)
 			(effects
 				(font
@@ -3276,7 +3276,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C69")
+					(reference "C72")
 					(unit 1)
 				)
 			)
@@ -3291,7 +3291,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "11f37bff-339c-46ce-b34e-75a1fc6df95b")
-		(property "Reference" "C77"
+		(property "Reference" "C80"
 			(at 222.504 95.504 0)
 			(effects
 				(font
@@ -3309,7 +3309,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 223.2152 101.6 0)
 			(effects
 				(font
@@ -3344,7 +3344,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C77")
+					(reference "C80")
 					(unit 1)
 				)
 			)
@@ -3359,7 +3359,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "21e72a4d-63e5-4c58-8471-dd7d5cee4017")
-		(property "Reference" "C71"
+		(property "Reference" "C74"
 			(at 123.444 87.884 0)
 			(effects
 				(font
@@ -3377,7 +3377,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 124.1552 93.98 0)
 			(effects
 				(font
@@ -3412,7 +3412,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C71")
+					(reference "C74")
 					(unit 1)
 				)
 			)
@@ -3427,7 +3427,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "259ea74e-b404-4452-bc9b-1f48b9d748d6")
-		(property "Reference" "R65"
+		(property "Reference" "R67"
 			(at 215.138 86.614 0)
 			(effects
 				(font
@@ -3445,7 +3445,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 			(at 212.852 90.17 90)
 			(effects
 				(font
@@ -3480,7 +3480,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "R65")
+					(reference "R67")
 					(unit 1)
 				)
 			)
@@ -3511,7 +3511,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "WheelVoltageBooster_LIB_FTP:MAX20405AFOFVY"
 			(at 193.04 88.9 0)
 			(effects
 				(font
@@ -3626,7 +3626,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "WheelVoltageBooster_LIB_FTP:74438366010"
 			(at 220.98 78.74 0)
 			(effects
 				(font
@@ -3677,7 +3677,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3508fb1a-f6bb-40b0-ad8d-e415d60dcaa6")
-		(property "Reference" "C63"
+		(property "Reference" "C66"
 			(at 48.26 85.09 90)
 			(effects
 				(font
@@ -3693,7 +3693,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 54.61 85.3948 0)
 			(effects
 				(font
@@ -3728,7 +3728,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C63")
+					(reference "C66")
 					(unit 1)
 				)
 			)
@@ -3760,7 +3760,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "WheelVoltageBooster_LIB_FTP:74438366010"
 			(at 104.14 83.82 0)
 			(effects
 				(font
@@ -3811,7 +3811,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4db5e753-ba61-4280-a855-4c0cdfaa9905")
-		(property "Reference" "R60"
+		(property "Reference" "R62"
 			(at 57.15 130.302 90)
 			(effects
 				(font
@@ -3827,7 +3827,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 			(at 58.42 135.128 90)
 			(effects
 				(font
@@ -3863,7 +3863,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "R60")
+					(reference "R62")
 					(unit 1)
 				)
 			)
@@ -3895,7 +3895,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_SMD:TO-252-2"
 			(at 133.35 80.01 0)
 			(effects
 				(font
@@ -3952,7 +3952,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "51b27473-1bd8-4af6-aef7-544be8859d04")
-		(property "Reference" "C65"
+		(property "Reference" "C68"
 			(at 57.404 95.504 0)
 			(effects
 				(font
@@ -3970,7 +3970,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 58.1152 101.6 0)
 			(effects
 				(font
@@ -4005,7 +4005,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C65")
+					(reference "C68")
 					(unit 1)
 				)
 			)
@@ -4020,7 +4020,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6738d073-e838-45e5-93f6-04ace8eea73c")
-		(property "Reference" "R64"
+		(property "Reference" "R66"
 			(at 99.822 87.63 90)
 			(effects
 				(font
@@ -4036,7 +4036,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 			(at 104.14 90.678 90)
 			(effects
 				(font
@@ -4072,7 +4072,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "R64")
+					(reference "R66")
 					(unit 1)
 				)
 			)
@@ -4087,7 +4087,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "683aaf11-8ac5-451f-a1e4-81967503380c")
-		(property "Reference" "C76"
+		(property "Reference" "C79"
 			(at 214.884 70.104 0)
 			(effects
 				(font
@@ -4105,7 +4105,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 215.5952 76.2 0)
 			(effects
 				(font
@@ -4140,7 +4140,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C76")
+					(reference "C79")
 					(unit 1)
 				)
 			)
@@ -4155,7 +4155,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6924bc68-460f-4d0a-906f-d1894ef19960")
-		(property "Reference" "C70"
+		(property "Reference" "C73"
 			(at 115.824 100.584 0)
 			(effects
 				(font
@@ -4173,7 +4173,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 116.5352 106.68 0)
 			(effects
 				(font
@@ -4208,7 +4208,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C70")
+					(reference "C73")
 					(unit 1)
 				)
 			)
@@ -4223,7 +4223,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6ccc8532-c0e6-4c29-ab7d-2c5dde5cd19e")
-		(property "Reference" "C78"
+		(property "Reference" "C81"
 			(at 227.584 95.504 0)
 			(effects
 				(font
@@ -4241,7 +4241,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 228.2952 101.6 0)
 			(effects
 				(font
@@ -4276,7 +4276,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C78")
+					(reference "C81")
 					(unit 1)
 				)
 			)
@@ -4291,7 +4291,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6eeb95d6-4f92-4f02-829e-ff32ecd240b8")
-		(property "Reference" "C74"
+		(property "Reference" "C77"
 			(at 174.244 90.424 0)
 			(effects
 				(font
@@ -4309,7 +4309,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 174.9552 96.52 0)
 			(effects
 				(font
@@ -4344,7 +4344,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C74")
+					(reference "C77")
 					(unit 1)
 				)
 			)
@@ -4359,7 +4359,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7307b0bc-ca6b-427d-a77d-38c4d59fa1d8")
-		(property "Reference" "C72"
+		(property "Reference" "C75"
 			(at 143.764 87.884 0)
 			(effects
 				(font
@@ -4377,7 +4377,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 144.4752 93.98 0)
 			(effects
 				(font
@@ -4412,7 +4412,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C72")
+					(reference "C75")
 					(unit 1)
 				)
 			)
@@ -4443,7 +4443,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "WheelVoltageBooster_LIB_FTP:MAX20405AFOFVY"
 			(at 76.2 93.98 0)
 			(effects
 				(font
@@ -4608,7 +4608,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "8ba9db79-59bf-485d-a223-6bcd5464aef1")
-		(property "Reference" "R61"
+		(property "Reference" "R63"
 			(at 57.15 136.652 90)
 			(effects
 				(font
@@ -4624,7 +4624,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 			(at 58.42 141.478 90)
 			(effects
 				(font
@@ -4660,7 +4660,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "R61")
+					(reference "R63")
 					(unit 1)
 				)
 			)
@@ -4675,7 +4675,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "98df163d-50e3-4e69-be22-e805a6085fdb")
-		(property "Reference" "R62"
+		(property "Reference" "R64"
 			(at 57.15 143.002 90)
 			(effects
 				(font
@@ -4691,7 +4691,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 			(at 58.42 147.828 90)
 			(effects
 				(font
@@ -4727,7 +4727,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "R62")
+					(reference "R64")
 					(unit 1)
 				)
 			)
@@ -4742,7 +4742,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9a82a648-b80c-4631-ac4d-a5a9e4cca4ed")
-		(property "Reference" "C68"
+		(property "Reference" "C71"
 			(at 105.664 100.584 0)
 			(effects
 				(font
@@ -4760,7 +4760,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 106.3752 106.68 0)
 			(effects
 				(font
@@ -4795,7 +4795,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C68")
+					(reference "C71")
 					(unit 1)
 				)
 			)
@@ -4810,7 +4810,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a445e9e1-877a-4f0f-b3e2-579ec30ab3c3")
-		(property "Reference" "C67"
+		(property "Reference" "C70"
 			(at 98.044 75.184 0)
 			(effects
 				(font
@@ -4828,7 +4828,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 98.7552 81.28 0)
 			(effects
 				(font
@@ -4863,7 +4863,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C67")
+					(reference "C70")
 					(unit 1)
 				)
 			)
@@ -4945,7 +4945,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b74b4993-30e0-44a5-9cbd-5de9a4eca01c")
-		(property "Reference" "R66"
+		(property "Reference" "R68"
 			(at 216.662 82.55 90)
 			(effects
 				(font
@@ -4961,7 +4961,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 			(at 220.98 85.598 90)
 			(effects
 				(font
@@ -4997,7 +4997,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "R66")
+					(reference "R68")
 					(unit 1)
 				)
 			)
@@ -5012,7 +5012,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b8880689-a035-4ed3-a468-b7503b97daf3")
-		(property "Reference" "C75"
+		(property "Reference" "C78"
 			(at 209.804 95.504 0)
 			(effects
 				(font
@@ -5030,7 +5030,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 210.5152 101.6 0)
 			(effects
 				(font
@@ -5065,7 +5065,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C75")
+					(reference "C78")
 					(unit 1)
 				)
 			)
@@ -5080,7 +5080,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c3ab4678-a3d5-40c8-9b05-6c1222de6cca")
-		(property "Reference" "C79"
+		(property "Reference" "C82"
 			(at 232.664 95.504 0)
 			(effects
 				(font
@@ -5098,7 +5098,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 233.3752 101.6 0)
 			(effects
 				(font
@@ -5133,7 +5133,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C79")
+					(reference "C82")
 					(unit 1)
 				)
 			)
@@ -5148,7 +5148,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c7dcd699-81cb-4c04-b577-5431dfe573e7")
-		(property "Reference" "R63"
+		(property "Reference" "R65"
 			(at 98.298 91.694 0)
 			(effects
 				(font
@@ -5166,7 +5166,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 			(at 96.012 95.25 90)
 			(effects
 				(font
@@ -5201,7 +5201,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "R63")
+					(reference "R65")
 					(unit 1)
 				)
 			)
@@ -5216,7 +5216,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ca19cb5d-b810-4b4e-97ed-4f196def94a6")
-		(property "Reference" "C64"
+		(property "Reference" "C67"
 			(at 52.324 95.504 0)
 			(effects
 				(font
@@ -5234,7 +5234,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 53.0352 101.6 0)
 			(effects
 				(font
@@ -5269,7 +5269,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C64")
+					(reference "C67")
 					(unit 1)
 				)
 			)
@@ -5284,7 +5284,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ccf615d7-ca81-49ad-96b0-1e0d33f65c0f")
-		(property "Reference" "R59"
+		(property "Reference" "R61"
 			(at 57.658 76.454 0)
 			(effects
 				(font
@@ -5302,7 +5302,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 			(at 55.372 80.01 90)
 			(effects
 				(font
@@ -5337,7 +5337,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "R59")
+					(reference "R61")
 					(unit 1)
 				)
 			)
@@ -5352,7 +5352,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d25dd574-8906-488b-a01b-562bc270c42b")
-		(property "Reference" "C73"
+		(property "Reference" "C76"
 			(at 169.164 90.424 0)
 			(effects
 				(font
@@ -5370,7 +5370,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 169.8752 96.52 0)
 			(effects
 				(font
@@ -5405,7 +5405,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "C73")
+					(reference "C76")
 					(unit 1)
 				)
 			)
