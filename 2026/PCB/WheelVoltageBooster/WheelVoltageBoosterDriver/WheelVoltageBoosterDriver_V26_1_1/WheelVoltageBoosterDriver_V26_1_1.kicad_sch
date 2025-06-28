@@ -7465,7 +7465,7 @@
 	)
 	(wire
 		(pts
-			(xy 80.01 77.47) (xy 85.09 77.47)
+			(xy 80.01 77.47) (xy 95.25 77.47)
 		)
 		(stroke
 			(width 0)
@@ -9745,7 +9745,7 @@
 	)
 	(wire
 		(pts
-			(xy 77.47 80.01) (xy 85.09 80.01)
+			(xy 77.47 80.01) (xy 95.25 80.01)
 		)
 		(stroke
 			(width 0)
@@ -10082,16 +10082,6 @@
 			(type default)
 		)
 		(uuid "bccf18c3-29c8-479d-8e81-4d590aa2c8c0")
-	)
-	(wire
-		(pts
-			(xy 92.71 77.47) (xy 95.25 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bcf39a3f-af65-44b1-862d-352d8ed4008e")
 	)
 	(wire
 		(pts
@@ -10802,16 +10792,6 @@
 			(type default)
 		)
 		(uuid "e6629821-7655-4f6e-9d57-5aae7faac320")
-	)
-	(wire
-		(pts
-			(xy 92.71 80.01) (xy 95.25 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e671c2d0-80c3-4d1c-9862-fdd090767da2")
 	)
 	(wire
 		(pts
@@ -16130,73 +16110,6 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
 					(reference "#PWR08")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 88.9 80.01 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5bc5f461-a6b4-4b6c-9a3c-a324e7badea2")
-		(property "Reference" "R16"
-			(at 84.582 78.74 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "2"
-			(at 93.472 78.74 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 88.9 81.788 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 88.9 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 88.9 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3ece458d-c762-4958-87ef-45d9591fbb98")
-		)
-		(pin "2"
-			(uuid "c9a02ba0-b7af-40fc-a8cb-5cb8a92b2764")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
-					(reference "R16")
 					(unit 1)
 				)
 			)
@@ -22189,73 +22102,6 @@
 			(project ""
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
 					(reference "R6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 88.9 77.47 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "f8f26239-98ef-454e-a363-01b699eb4bdf")
-		(property "Reference" "R15"
-			(at 84.582 76.2 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "2"
-			(at 93.472 76.2 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 88.9 79.248 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 88.9 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 88.9 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "e34f7be3-34c1-45f3-89e2-edf1d5636982")
-		)
-		(pin "2"
-			(uuid "3a5f6fc1-5c41-4682-8bc7-63461597c859")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
-					(reference "R15")
 					(unit 1)
 				)
 			)

@@ -950,65 +950,6 @@
 					(hide yes)
 				)
 			)
-			(symbol "FDMS86183_1_0"
-				(pin bidirectional line
-					(at -6.35 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "D"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -6.35 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "D"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -6.35 0 0)
-					(length 2.54)
-					(hide yes)
-					(name "D"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
 			(symbol "FDMS86183_1_1"
 				(circle
 					(center -2.54 0)
@@ -1397,12 +1338,6 @@
 		(uuid "1ed68aa5-2241-4fc8-8ec9-a85441945b1c")
 	)
 	(junction
-		(at 254 62.23)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "23b1743b-e9e1-44cc-8c09-3f0090eac54e")
-	)
-	(junction
 		(at 241.3 105.41)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1479,12 +1414,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "3f3b58e1-172d-4fe5-8581-8292d53bd239")
-	)
-	(junction
-		(at 251.46 105.41)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "41161a5c-3c05-49e6-a7f0-f7ba12093ac0")
 	)
 	(junction
 		(at 228.6 62.23)
@@ -1697,18 +1626,6 @@
 		(uuid "8bec02d6-4b54-4797-8f93-60bd15766569")
 	)
 	(junction
-		(at 251.46 113.03)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8bee592e-032a-4ec3-8875-718e476ce5ad")
-	)
-	(junction
-		(at 59.69 54.61)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8d3ede17-fdef-4fb7-b646-9410a6a178bb")
-	)
-	(junction
 		(at 238.76 72.39)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1749,12 +1666,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a3755958-aa70-46bb-8560-682624c7a357")
-	)
-	(junction
-		(at 254 54.61)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a3bd6f53-a104-412f-a9d5-608ec987b8d4")
 	)
 	(junction
 		(at 36.83 54.61)
@@ -1949,12 +1860,6 @@
 		(uuid "e85d156c-8906-4d21-98e4-211f7c89c686")
 	)
 	(junction
-		(at 54.61 62.23)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e8ff0a9f-b865-4406-b4af-c2b28837a3b6")
-	)
-	(junction
 		(at 218.44 54.61)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2036,7 +1941,7 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 57.15) (xy 128.27 54.61)
+			(xy 128.27 54.61) (xy 128.27 72.39)
 		)
 		(stroke
 			(width 0)
@@ -2046,7 +1951,7 @@
 	)
 	(wire
 		(pts
-			(xy 248.92 54.61) (xy 254 54.61)
+			(xy 248.92 54.61) (xy 259.08 54.61)
 		)
 		(stroke
 			(width 0)
@@ -2076,7 +1981,7 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 105.41) (xy 254 105.41)
+			(xy 246.38 105.41) (xy 254 105.41)
 		)
 		(stroke
 			(width 0)
@@ -2093,16 +1998,6 @@
 			(type default)
 		)
 		(uuid "055d8bcf-809a-4fc8-a49c-4da4b99a4939")
-	)
-	(wire
-		(pts
-			(xy 210.82 118.11) (xy 213.36 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "076fe748-b805-4701-ad49-2ebdffb9bc9c")
 	)
 	(wire
 		(pts
@@ -2156,16 +2051,6 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 54.61) (xy 59.69 54.61)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0cb84aef-a148-43b8-9f4c-23f39c66a5d3")
-	)
-	(wire
-		(pts
 			(xy 179.07 123.19) (xy 181.61 123.19)
 		)
 		(stroke
@@ -2173,16 +2058,6 @@
 			(type default)
 		)
 		(uuid "0cc82190-eb3d-429a-bfbd-f196df8de275")
-	)
-	(wire
-		(pts
-			(xy 254 54.61) (xy 259.08 54.61)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0d1745a1-c3cc-434f-814f-3f5c08612cd5")
 	)
 	(wire
 		(pts
@@ -2323,16 +2198,6 @@
 			(type default)
 		)
 		(uuid "1b303837-8007-4b72-b26c-02302cd3e640")
-	)
-	(wire
-		(pts
-			(xy 125.73 115.57) (xy 125.73 123.19)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1b91f7c4-99c4-45b0-bc35-ff009f920ae8")
 	)
 	(wire
 		(pts
@@ -2486,23 +2351,13 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 138.43) (xy 203.2 138.43)
+			(xy 200.66 138.43) (xy 213.36 138.43)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "2e792d3b-c668-4d30-9005-40df8f18d8aa")
-	)
-	(wire
-		(pts
-			(xy 184.15 85.09) (xy 184.15 82.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2f6eec69-342c-488f-b50b-ccca4a9cbb91")
 	)
 	(wire
 		(pts
@@ -2536,16 +2391,6 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 67.31) (xy 215.9 67.31)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "33a7314f-1e83-4e29-8900-23ca76c3c33d")
-	)
-	(wire
-		(pts
 			(xy 228.6 72.39) (xy 233.68 72.39)
 		)
 		(stroke
@@ -2553,16 +2398,6 @@
 			(type default)
 		)
 		(uuid "385e4918-b9f9-4579-8e1d-8c8205f0d262")
-	)
-	(wire
-		(pts
-			(xy 166.37 72.39) (xy 166.37 74.93)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "395f4a63-07dc-4b40-8fa9-4f0882e5ba3c")
 	)
 	(wire
 		(pts
@@ -2596,7 +2431,7 @@
 	)
 	(wire
 		(pts
-			(xy 203.2 87.63) (xy 205.74 87.63)
+			(xy 203.2 87.63) (xy 215.9 87.63)
 		)
 		(stroke
 			(width 0)
@@ -2656,16 +2491,6 @@
 	)
 	(wire
 		(pts
-			(xy 166.37 82.55) (xy 166.37 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "46e1bc7e-61b1-4b0b-a0cf-201f1079d64e")
-	)
-	(wire
-		(pts
 			(xy 223.52 72.39) (xy 228.6 72.39)
 		)
 		(stroke
@@ -2716,7 +2541,7 @@
 	)
 	(wire
 		(pts
-			(xy 254 62.23) (xy 256.54 62.23)
+			(xy 248.92 62.23) (xy 256.54 62.23)
 		)
 		(stroke
 			(width 0)
@@ -2743,16 +2568,6 @@
 			(type default)
 		)
 		(uuid "5768357f-ed84-47cc-821b-18bd7532aec8")
-	)
-	(wire
-		(pts
-			(xy 128.27 64.77) (xy 128.27 72.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "57e74cf0-a7e1-46b6-8ae5-adf90b0253a9")
 	)
 	(wire
 		(pts
@@ -2813,26 +2628,6 @@
 			(type default)
 		)
 		(uuid "612a2f9c-8768-457e-9221-c8c52fcf6467")
-	)
-	(wire
-		(pts
-			(xy 251.46 113.03) (xy 254 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "614ad4ef-5e99-4d1d-ad2f-ba1070a28461")
-	)
-	(wire
-		(pts
-			(xy 54.61 62.23) (xy 59.69 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "61f5d185-a9f6-4cd9-b702-9510d07437b7")
 	)
 	(wire
 		(pts
@@ -2946,16 +2741,6 @@
 	)
 	(wire
 		(pts
-			(xy 246.38 105.41) (xy 251.46 105.41)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6e14cc98-c2a4-4913-9668-f9d4d3bdbe71")
-	)
-	(wire
-		(pts
 			(xy 88.9 66.04) (xy 100.33 66.04)
 		)
 		(stroke
@@ -3046,6 +2831,16 @@
 	)
 	(wire
 		(pts
+			(xy 125.73 105.41) (xy 125.73 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7821e6b7-607c-473d-a3e2-7f77e29de1a1")
+	)
+	(wire
+		(pts
 			(xy 228.6 62.23) (xy 233.68 62.23)
 		)
 		(stroke
@@ -3053,16 +2848,6 @@
 			(type default)
 		)
 		(uuid "7a46dfce-9760-40f8-92e6-4d90c2c51553")
-	)
-	(wire
-		(pts
-			(xy 125.73 107.95) (xy 125.73 105.41)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7aee44ae-498b-4388-98be-62df7d3a1919")
 	)
 	(wire
 		(pts
@@ -3256,16 +3041,6 @@
 	)
 	(wire
 		(pts
-			(xy 210.82 138.43) (xy 213.36 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8d8ded04-35ee-4463-90a0-57f735eb678e")
-	)
-	(wire
-		(pts
 			(xy 118.11 105.41) (xy 120.65 105.41)
 		)
 		(stroke
@@ -3306,7 +3081,7 @@
 	)
 	(wire
 		(pts
-			(xy 59.69 54.61) (xy 74.93 54.61)
+			(xy 54.61 54.61) (xy 74.93 54.61)
 		)
 		(stroke
 			(width 0)
@@ -3406,7 +3181,7 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 72.39) (xy 184.15 74.93)
+			(xy 184.15 72.39) (xy 184.15 85.09)
 		)
 		(stroke
 			(width 0)
@@ -3453,16 +3228,6 @@
 			(type default)
 		)
 		(uuid "9e8e275e-e8f2-4f27-bc0d-0c3ad4e82659")
-	)
-	(wire
-		(pts
-			(xy 248.92 62.23) (xy 254 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9eefd56d-560e-4aa4-9890-2c7946e5745c")
 	)
 	(wire
 		(pts
@@ -3603,16 +3368,6 @@
 			(type default)
 		)
 		(uuid "ae927415-52a5-41ec-8e86-d1aee6f937e1")
-	)
-	(wire
-		(pts
-			(xy 213.36 87.63) (xy 215.9 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "af4181d1-bc4c-4821-8d09-431e5acaaeab")
 	)
 	(wire
 		(pts
@@ -3776,16 +3531,6 @@
 	)
 	(wire
 		(pts
-			(xy 163.83 123.19) (xy 163.83 125.73)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c0ffd00b-05a0-4410-a323-a8232e60ee40")
-	)
-	(wire
-		(pts
 			(xy 140.97 54.61) (xy 143.51 54.61)
 		)
 		(stroke
@@ -3806,7 +3551,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 118.11) (xy 203.2 118.11)
+			(xy 200.66 118.11) (xy 213.36 118.11)
 		)
 		(stroke
 			(width 0)
@@ -3896,7 +3641,7 @@
 	)
 	(wire
 		(pts
-			(xy 203.2 67.31) (xy 205.74 67.31)
+			(xy 203.2 67.31) (xy 215.9 67.31)
 		)
 		(stroke
 			(width 0)
@@ -3936,7 +3681,7 @@
 	)
 	(wire
 		(pts
-			(xy 163.83 133.35) (xy 163.83 135.89)
+			(xy 163.83 123.19) (xy 163.83 135.89)
 		)
 		(stroke
 			(width 0)
@@ -3953,16 +3698,6 @@
 			(type default)
 		)
 		(uuid "d472b72d-bcdd-432b-9935-ba5e9777a981")
-	)
-	(wire
-		(pts
-			(xy 181.61 123.19) (xy 181.61 125.73)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d4d552d7-788f-4363-8583-e6253f7e64e3")
 	)
 	(wire
 		(pts
@@ -3986,6 +3721,16 @@
 	)
 	(wire
 		(pts
+			(xy 166.37 72.39) (xy 166.37 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d8d82125-7e6b-410c-9bc3-a3591f5ad4a7")
+	)
+	(wire
+		(pts
 			(xy 191.77 125.73) (xy 194.31 125.73)
 		)
 		(stroke
@@ -3996,7 +3741,7 @@
 	)
 	(wire
 		(pts
-			(xy 248.92 113.03) (xy 251.46 113.03)
+			(xy 248.92 113.03) (xy 254 113.03)
 		)
 		(stroke
 			(width 0)
@@ -4096,16 +3841,6 @@
 	)
 	(wire
 		(pts
-			(xy 181.61 135.89) (xy 181.61 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e4398ce4-bd89-48d9-8014-1de92bec041a")
-	)
-	(wire
-		(pts
 			(xy 123.19 54.61) (xy 128.27 54.61)
 		)
 		(stroke
@@ -4153,6 +3888,16 @@
 			(type default)
 		)
 		(uuid "e8cdf1b1-bcfc-4b3f-b857-b222210369b1")
+	)
+	(wire
+		(pts
+			(xy 181.61 123.19) (xy 181.61 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb58497f-4c80-49b9-b10c-8d19313a9a33")
 	)
 	(wire
 		(pts
@@ -4785,15 +4530,6 @@
 		(pin "4"
 			(uuid "83628333-5bdb-4443-920c-fe51e52f6b8c")
 		)
-		(pin "6"
-			(uuid "06c77225-94eb-4e66-82be-08d5fa2ad065")
-		)
-		(pin "7"
-			(uuid "a1b25e15-0b0d-468b-8c09-6b1b264b428e")
-		)
-		(pin "8"
-			(uuid "c7648a8a-3a82-4c80-81d7-f1ef8bbb8b41")
-		)
 		(pin "2"
 			(uuid "0cafca3e-8cb7-40ce-ab30-afadbad4502d")
 		)
@@ -4810,75 +4546,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 128.27 60.96 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "033d0a68-5ae0-4f4a-862e-1c8582a85efb")
-		(property "Reference" "R40"
-			(at 129.794 59.436 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1"
-			(at 129.794 62.484 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 126.492 60.96 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 128.27 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 128.27 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c717191e-989a-47ee-a163-6098941174ef")
-		)
-		(pin "2"
-			(uuid "7c980a21-36a9-4acf-8cc0-0b5c9ee7a291")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R40")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C_Polarized")
 		(at 223.52 58.42 0)
 		(unit 1)
@@ -4887,7 +4554,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "098009fb-49a8-417d-98aa-3002e0e942ea")
-		(property "Reference" "C44"
+		(property "Reference" "C43"
 			(at 223.774 56.134 0)
 			(effects
 				(font
@@ -4940,76 +4607,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C44")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 125.73 111.76 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "153f115e-3b6c-4ea1-8146-a60511445a87")
-		(property "Reference" "R39"
-			(at 127.254 110.236 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1"
-			(at 127.254 113.284 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 123.952 111.76 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 125.73 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 125.73 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d2974b3d-60b7-42b4-9491-9150f41b903a")
-		)
-		(pin "2"
-			(uuid "c81d6c44-1bba-4bf5-bc2b-400e084993bc")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R39")
+					(reference "C43")
 					(unit 1)
 				)
 			)
@@ -5024,7 +4622,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "15880780-7365-48e7-a12e-bf6e77b76f15")
-		(property "Reference" "C45"
+		(property "Reference" "C44"
 			(at 222.504 66.294 0)
 			(effects
 				(font
@@ -5077,7 +4675,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C45")
+					(reference "C44")
 					(unit 1)
 				)
 			)
@@ -5145,15 +4743,6 @@
 		(pin "4"
 			(uuid "4eb67c63-a0d7-46d8-b356-3e0104014e7f")
 		)
-		(pin "6"
-			(uuid "b827feac-be1d-4b62-aab2-9a4c4c368e62")
-		)
-		(pin "7"
-			(uuid "229c873f-1024-4661-8426-2836debe6ec6")
-		)
-		(pin "8"
-			(uuid "ed433cb3-dcac-4c5e-9091-9baca95fda12")
-		)
 		(pin "2"
 			(uuid "c8dcc3c1-52ad-40d0-8df7-bd92847a3e13")
 		)
@@ -5178,7 +4767,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "18eea062-e2da-4728-9153-f2db4ddbd67f")
-		(property "Reference" "C62"
+		(property "Reference" "C61"
 			(at 246.634 106.934 0)
 			(effects
 				(font
@@ -5231,7 +4820,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C62")
+					(reference "C61")
 					(unit 1)
 				)
 			)
@@ -5298,15 +4887,6 @@
 		)
 		(pin "4"
 			(uuid "a5d71f87-f359-4cbb-9509-40b84d00faad")
-		)
-		(pin "6"
-			(uuid "7b424f5f-b219-42cd-8e45-ac23c25fb957")
-		)
-		(pin "7"
-			(uuid "32ca7f19-f452-4acd-8c42-46946676534c")
-		)
-		(pin "8"
-			(uuid "3ba8e65b-a728-40bc-9fbb-c15848571ac1")
 		)
 		(pin "2"
 			(uuid "d10c09db-d11b-4217-ba23-815e47385066")
@@ -5521,15 +5101,6 @@
 		(pin "4"
 			(uuid "d9e4124a-4f10-47e3-9a6b-bdb62e115b81")
 		)
-		(pin "6"
-			(uuid "1b53fba6-b54c-4288-a33b-b19e125155f7")
-		)
-		(pin "7"
-			(uuid "9b02f6fe-1574-4c74-89af-87cb5b5b3a3d")
-		)
-		(pin "8"
-			(uuid "1acf107e-55b4-4d81-a3d1-7c01e2e9b20d")
-		)
 		(pin "2"
 			(uuid "3e315302-180f-41cf-b831-d8ac3e868cf3")
 		)
@@ -5609,15 +5180,6 @@
 		(pin "4"
 			(uuid "7cf7adf2-9751-4546-aa10-254bc9ff0a64")
 		)
-		(pin "6"
-			(uuid "0ced40f2-56c4-42ef-9a09-2f0a1f5855a4")
-		)
-		(pin "7"
-			(uuid "a1431686-b8b8-4511-97da-bdf0280b5761")
-		)
-		(pin "8"
-			(uuid "3829720c-622c-4db2-8485-c40208b7195e")
-		)
 		(pin "2"
 			(uuid "789fc06e-a987-4254-b387-e8e2fc2e34ce")
 		)
@@ -5659,7 +5221,7 @@
 				)
 			)
 		)
-		(property "Footprint" "WheelVoltageBooster_LIB_FTP:7443640470_t"
+		(property "Footprint" "WheelVoltageBooster_LIB_FTP:B82559B5472A019"
 			(at 144.78 105.41 0)
 			(effects
 				(font
@@ -5779,7 +5341,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2d5edc44-a030-45cf-9500-b4e3046a2097")
-		(property "Reference" "C49"
+		(property "Reference" "C48"
 			(at 227.584 66.294 0)
 			(effects
 				(font
@@ -5832,7 +5394,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C49")
+					(reference "C48")
 					(unit 1)
 				)
 			)
@@ -5847,7 +5409,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3092cd1c-0fac-4998-af6e-22ba7abdf80c")
-		(property "Reference" "C52"
+		(property "Reference" "C51"
 			(at 233.934 56.134 0)
 			(effects
 				(font
@@ -5900,7 +5462,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C52")
+					(reference "C51")
 					(unit 1)
 				)
 			)
@@ -5915,7 +5477,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "34838be2-6704-4b0a-b57a-a81b53678998")
-		(property "Reference" "C63"
+		(property "Reference" "C62"
 			(at 249.174 56.134 0)
 			(effects
 				(font
@@ -5968,7 +5530,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C63")
+					(reference "C62")
 					(unit 1)
 				)
 			)
@@ -6050,7 +5612,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "35e63511-9ff0-4531-9da2-c19ae133dbb0")
-		(property "Reference" "C37"
+		(property "Reference" "C36"
 			(at 63.754 66.294 0)
 			(effects
 				(font
@@ -6103,7 +5665,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C37")
+					(reference "C36")
 					(unit 1)
 				)
 			)
@@ -6118,7 +5680,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3e2058df-78d1-4981-90df-55fa7ef174ea")
-		(property "Reference" "C41"
+		(property "Reference" "C40"
 			(at 188.214 58.674 0)
 			(effects
 				(font
@@ -6171,7 +5733,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C41")
+					(reference "C40")
 					(unit 1)
 				)
 			)
@@ -6186,7 +5748,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3e65ebac-afe3-432a-b9d4-38177c0eb883")
-		(property "Reference" "C50"
+		(property "Reference" "C49"
 			(at 231.394 106.934 0)
 			(effects
 				(font
@@ -6239,7 +5801,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C50")
+					(reference "C49")
 					(unit 1)
 				)
 			)
@@ -6374,15 +5936,6 @@
 		(pin "4"
 			(uuid "b91f9171-690b-4bda-895c-c37d0d80c26a")
 		)
-		(pin "6"
-			(uuid "68733d22-1cc5-477d-8ab3-10f60c5b89a1")
-		)
-		(pin "7"
-			(uuid "dbaeea89-53bf-4a3e-8c8b-c09cfaef09fc")
-		)
-		(pin "8"
-			(uuid "d5b0a78c-3eb9-4dc3-a48f-b0c42e5aafe2")
-		)
 		(pin "2"
 			(uuid "18079aa8-6353-4d08-88d1-5d2b355fa34d")
 		)
@@ -6393,142 +5946,6 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
 					(reference "FET11")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 207.01 118.11 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "413eaf29-c607-4ae8-bfaf-2b2009b44955")
-		(property "Reference" "R57"
-			(at 209.042 116.078 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1"
-			(at 204.978 116.078 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 207.01 119.888 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 207.01 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 207.01 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "cd18b3e7-cea7-4114-a0e4-b725a80361d1")
-		)
-		(pin "2"
-			(uuid "5bfdc87a-3bb3-41c6-a65b-fb47d0978d1c")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R57")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 163.83 129.54 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "4280b169-294e-40cb-992a-0048c0a070f8")
-		(property "Reference" "R47"
-			(at 165.354 128.016 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1"
-			(at 165.354 131.064 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 162.052 129.54 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 163.83 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 163.83 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "a0c49559-4430-4ccf-970f-f540998e8b92")
-		)
-		(pin "2"
-			(uuid "3309eb16-de1e-45ef-902a-7d477f887659")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R47")
 					(unit 1)
 				)
 			)
@@ -6664,15 +6081,6 @@
 		(pin "4"
 			(uuid "8a34131d-9ae7-4771-aa79-3e99de836cc5")
 		)
-		(pin "6"
-			(uuid "32040479-555a-499a-b73c-17164d900308")
-		)
-		(pin "7"
-			(uuid "8ba67a1a-b155-46f6-9d7d-a27bbf12ddc4")
-		)
-		(pin "8"
-			(uuid "4f0c8ae8-7999-4b75-b7b8-4c16393de9b3")
-		)
 		(pin "2"
 			(uuid "fac14a2d-f470-44b9-bf92-519177ac3c9d")
 		)
@@ -6750,15 +6158,6 @@
 		(pin "4"
 			(uuid "7985f169-92a5-4d25-b789-33b1332e4844")
 		)
-		(pin "6"
-			(uuid "3c9d58e9-9296-4bfd-842a-55c1b4197f2e")
-		)
-		(pin "7"
-			(uuid "e217703b-a5bb-4c5b-b96a-e5da5226bf9a")
-		)
-		(pin "8"
-			(uuid "1d93a1f8-c4fa-456d-b01f-ba16bb68436f")
-		)
 		(pin "2"
 			(uuid "9cf9f1f2-b68d-42a4-8930-36fe65bad29b")
 		)
@@ -6783,7 +6182,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4aa029e4-87e4-4382-978d-42da8fbf0df0")
-		(property "Reference" "C55"
+		(property "Reference" "C54"
 			(at 235.204 117.094 0)
 			(effects
 				(font
@@ -6836,75 +6235,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C55")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Polarized")
-		(at 59.69 58.42 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "4c965025-a9bf-4603-b829-1f44d2c461ea")
-		(property "Reference" "C35"
-			(at 59.944 56.134 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "180u"
-			(at 59.944 60.706 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "WheelVoltageBooster_LIB_FTP:CAP_EEEFN1H181UP"
-			(at 60.6552 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 59.69 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "50V"
-			(at 59.69 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "97a4a9d0-f305-4374-94db-e3f8a28c0f28")
-		)
-		(pin "2"
-			(uuid "0a7aa57e-280a-43a5-a783-f8a1d8bf6733")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C35")
+					(reference "C54")
 					(unit 1)
 				)
 			)
@@ -6919,7 +6250,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "50186e98-d8c0-4997-b626-f40db4a568a0")
-		(property "Reference" "C60"
+		(property "Reference" "C59"
 			(at 244.094 56.134 0)
 			(effects
 				(font
@@ -6972,7 +6303,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C60")
+					(reference "C59")
 					(unit 1)
 				)
 			)
@@ -6987,7 +6318,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "519436d9-a03b-490d-97eb-0f6766e5c409")
-		(property "Reference" "C46"
+		(property "Reference" "C45"
 			(at 226.314 106.934 0)
 			(effects
 				(font
@@ -7040,74 +6371,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C46")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 207.01 138.43 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "52af6454-ae3e-4962-ae2e-c7f50b420922")
-		(property "Reference" "R58"
-			(at 209.042 136.398 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1"
-			(at 204.978 136.398 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 207.01 140.208 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 207.01 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 207.01 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d9bf2b4d-9760-4827-9dde-49505f6aec7e")
-		)
-		(pin "2"
-			(uuid "9dbc412a-6ebe-40f7-862f-d36269e4d143")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R58")
+					(reference "C45")
 					(unit 1)
 				)
 			)
@@ -7122,7 +6386,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "59698fea-d685-402d-bc13-5892b617d5d6")
-		(property "Reference" "C58"
+		(property "Reference" "C57"
 			(at 241.554 106.934 0)
 			(effects
 				(font
@@ -7175,7 +6439,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C58")
+					(reference "C57")
 					(unit 1)
 				)
 			)
@@ -7259,7 +6523,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "5e19be7a-3926-4d47-9146-336053e8ea4d")
-		(property "Reference" "C48"
+		(property "Reference" "C47"
 			(at 228.854 56.134 0)
 			(effects
 				(font
@@ -7312,7 +6576,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C48")
+					(reference "C47")
 					(unit 1)
 				)
 			)
@@ -7386,73 +6650,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 209.55 67.31 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "62c6e2df-32e0-439b-a379-a77026f97489")
-		(property "Reference" "R59"
-			(at 211.582 65.278 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1"
-			(at 207.518 65.278 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 209.55 69.088 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 209.55 67.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 209.55 67.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "b17637ad-0a7d-4890-afb0-533e218739bb")
-		)
-		(pin "2"
-			(uuid "42fa3111-808b-43c0-ac72-e310e3562f7f")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R59")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C_Polarized")
 		(at 49.53 58.42 0)
 		(unit 1)
@@ -7515,75 +6712,6 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
 					(reference "C31")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 181.61 129.54 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "695a7285-4f4d-487c-8c0b-0f5297f685cd")
-		(property "Reference" "R51"
-			(at 183.134 128.016 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1"
-			(at 183.134 131.064 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 179.832 129.54 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 181.61 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 181.61 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "713d6e2b-052f-4e3b-8c43-377fc2a800ad")
-		)
-		(pin "2"
-			(uuid "fd77e097-9484-4c3d-8600-e218b9e6adc9")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R51")
 					(unit 1)
 				)
 			)
@@ -7665,7 +6793,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "73477fc7-b7c2-4896-b0c4-d81fc5cc806b")
-		(property "Reference" "C42"
+		(property "Reference" "C41"
 			(at 221.234 106.934 0)
 			(effects
 				(font
@@ -7718,7 +6846,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C42")
+					(reference "C41")
 					(unit 1)
 				)
 			)
@@ -7733,7 +6861,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7a88d6b4-7e00-4349-a343-925285599042")
-		(property "Reference" "C54"
+		(property "Reference" "C53"
 			(at 236.474 106.934 0)
 			(effects
 				(font
@@ -7786,7 +6914,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C54")
+					(reference "C53")
 					(unit 1)
 				)
 			)
@@ -7862,75 +6990,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 166.37 78.74 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "7dc92bc6-4180-4a3f-a9e0-3a0818f8d635")
-		(property "Reference" "R48"
-			(at 167.894 77.216 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1"
-			(at 167.894 80.264 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 164.592 78.74 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 166.37 78.74 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 166.37 78.74 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1c5cf4db-4c26-46d9-ab44-d3303c703b7f")
-		)
-		(pin "2"
-			(uuid "0d606ea0-3088-470c-8fde-959b8e43168b")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R48")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "WheelVoltageBooster_LIB_SYM:FDMS86183")
 		(at 203.2 74.93 0)
 		(mirror y)
@@ -7991,15 +7050,6 @@
 		)
 		(pin "4"
 			(uuid "e73b6bd5-3abd-4188-b2ab-655eca3c2cfb")
-		)
-		(pin "6"
-			(uuid "404bd947-96f0-49c0-9c8b-c02d70c39215")
-		)
-		(pin "7"
-			(uuid "c55391ca-b81d-4659-bb0c-6d2e2f7edd0f")
-		)
-		(pin "8"
-			(uuid "54912834-2482-43ff-96a0-1c12df4d825b")
 		)
 		(pin "2"
 			(uuid "e71d2a92-14b1-4b29-a3d2-11d726d17234")
@@ -8079,15 +7129,6 @@
 		)
 		(pin "4"
 			(uuid "9f158a46-f2c0-4708-ae35-f95ebb4393b5")
-		)
-		(pin "6"
-			(uuid "4a8fe5e2-6e68-4bbe-ad0a-2b3e39a1c8fd")
-		)
-		(pin "7"
-			(uuid "0400cb05-6bc5-4bb8-baf7-69935a0abe34")
-		)
-		(pin "8"
-			(uuid "76e8029a-be75-4aa7-ae04-f5f8aea68251")
 		)
 		(pin "2"
 			(uuid "29753223-ea26-4031-b99d-da55b2b5d3fe")
@@ -8235,15 +7276,6 @@
 		(pin "4"
 			(uuid "52d6ffe5-8d7e-4562-8ceb-1e429a23a4e2")
 		)
-		(pin "6"
-			(uuid "7727d45d-a483-4e9b-847d-f7a1d2e2f96e")
-		)
-		(pin "7"
-			(uuid "5fc03123-d08d-4005-b4b4-3096627cd001")
-		)
-		(pin "8"
-			(uuid "526fb6b4-db78-463f-beae-4c6b7ed222bf")
-		)
 		(pin "2"
 			(uuid "84409069-0035-49cd-a25f-067cdff92e7d")
 		)
@@ -8390,15 +7422,6 @@
 		(pin "4"
 			(uuid "6b944da9-d55a-4ec2-ba94-f503a97e3f04")
 		)
-		(pin "6"
-			(uuid "54f486d0-2bc4-4c5e-a304-78708abacc2c")
-		)
-		(pin "7"
-			(uuid "6623378b-0196-4016-914e-ee7b217f3664")
-		)
-		(pin "8"
-			(uuid "67843261-b62b-4da9-a181-f2e0240a3dd4")
-		)
 		(pin "2"
 			(uuid "5ea197a3-d6e8-4ba3-b7f1-5bd9c0c04ef0")
 		)
@@ -8484,74 +7507,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C_Polarized")
-		(at 251.46 109.22 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8e2132a0-f737-4d62-8c09-54ccd61b3c08")
-		(property "Reference" "C64"
-			(at 251.714 106.934 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "47u"
-			(at 251.714 111.506 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "WheelVoltageBooster_LIB_FTP:CAP_EEEFN1K470UP"
-			(at 252.4252 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 251.46 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "100V"
-			(at 251.46 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "84c49d13-3580-4f20-afd3-ffb60e1db3bb")
-		)
-		(pin "2"
-			(uuid "25e2f2af-53d4-42a4-bb66-d700258dc4f9")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C64")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 231.14 119.38 0)
 		(unit 1)
@@ -8560,7 +7515,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "92fcd870-d742-45d7-a973-a4d06797ed7f")
-		(property "Reference" "C51"
+		(property "Reference" "C50"
 			(at 230.124 117.094 0)
 			(effects
 				(font
@@ -8613,7 +7568,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C51")
+					(reference "C50")
 					(unit 1)
 				)
 			)
@@ -8645,7 +7600,7 @@
 				)
 			)
 		)
-		(property "Footprint" "WheelVoltageBooster_LIB_FTP:7443640470_t"
+		(property "Footprint" "WheelVoltageBooster_LIB_FTP:B82559B5472A019"
 			(at 147.32 54.61 0)
 			(effects
 				(font
@@ -8696,7 +7651,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "95bd082c-1826-4fc6-9cf3-db7995c55532")
-		(property "Reference" "C56"
+		(property "Reference" "C55"
 			(at 239.014 56.134 0)
 			(effects
 				(font
@@ -8749,7 +7704,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C56")
+					(reference "C55")
 					(unit 1)
 				)
 			)
@@ -8764,7 +7719,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9ba8243b-216e-432d-b484-1b688e80b08e")
-		(property "Reference" "C53"
+		(property "Reference" "C52"
 			(at 232.664 66.294 0)
 			(effects
 				(font
@@ -8817,7 +7772,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C53")
+					(reference "C52")
 					(unit 1)
 				)
 			)
@@ -8832,7 +7787,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9da69731-7d42-4987-ae91-b341f33f7d58")
-		(property "Reference" "C43"
+		(property "Reference" "C42"
 			(at 219.964 117.094 0)
 			(effects
 				(font
@@ -8885,7 +7840,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C43")
+					(reference "C42")
 					(unit 1)
 				)
 			)
@@ -9035,7 +7990,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a7022a08-3601-422b-9db9-401de6a2a3a0")
-		(property "Reference" "C39"
+		(property "Reference" "C38"
 			(at 73.914 66.294 0)
 			(effects
 				(font
@@ -9088,7 +8043,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C39")
+					(reference "C38")
 					(unit 1)
 				)
 			)
@@ -9103,7 +8058,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a740eb9b-f6fd-4df8-91e7-0f1fff4343f5")
-		(property "Reference" "C40"
+		(property "Reference" "C39"
 			(at 185.674 109.474 0)
 			(effects
 				(font
@@ -9156,7 +8111,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C40")
+					(reference "C39")
 					(unit 1)
 				)
 			)
@@ -9230,74 +8185,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C_Polarized")
-		(at 254 58.42 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "aa9efe8a-03d5-4725-bba9-cf8149d30877")
-		(property "Reference" "C65"
-			(at 254.254 56.134 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "47u"
-			(at 254.254 60.706 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "WheelVoltageBooster_LIB_FTP:CAP_EEEFN1K470UP"
-			(at 254.9652 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 254 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "100V"
-			(at 254 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0e0f1e43-b13f-4d1f-bc06-022a2d6cf68e")
-		)
-		(pin "2"
-			(uuid "0e733b2f-af1c-41fa-8d3a-ff3bcf17d0ce")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C65")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 243.84 68.58 0)
 		(unit 1)
@@ -9306,7 +8193,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "aad2ead2-bf76-411b-9ba4-4c2316c4742b")
-		(property "Reference" "C61"
+		(property "Reference" "C60"
 			(at 242.824 66.294 0)
 			(effects
 				(font
@@ -9359,7 +8246,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C61")
+					(reference "C60")
 					(unit 1)
 				)
 			)
@@ -9712,7 +8599,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bbc909bc-c61d-4c2d-a1d8-c3bc25b3e10d")
-		(property "Reference" "C59"
+		(property "Reference" "C58"
 			(at 240.284 117.094 0)
 			(effects
 				(font
@@ -9765,7 +8652,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C59")
+					(reference "C58")
 					(unit 1)
 				)
 			)
@@ -9910,73 +8797,6 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 209.55 87.63 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "c9d2f1fd-1d6c-47e8-8bbf-ca0d8daec096")
-		(property "Reference" "R60"
-			(at 211.582 85.598 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1"
-			(at 207.518 85.598 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 209.55 89.408 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 209.55 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 209.55 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1b1840d9-f93a-46a7-a819-eb8e9488b90a")
-		)
-		(pin "2"
-			(uuid "f5edf08f-0d69-4ff3-81ab-04c2dae583d7")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R60")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
 		(at 132.08 105.41 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -10050,7 +8870,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d0efa370-ec50-4cca-b6d0-9bc5cc6499ef")
-		(property "Reference" "C57"
+		(property "Reference" "C56"
 			(at 237.744 66.294 0)
 			(effects
 				(font
@@ -10103,76 +8923,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C57")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 184.15 78.74 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "d13fb17e-ecbf-4d23-b72f-e6d70e20346b")
-		(property "Reference" "R52"
-			(at 185.674 77.216 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1"
-			(at 185.674 80.264 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 182.372 78.74 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 184.15 78.74 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 184.15 78.74 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "df78171a-0105-41ae-bb20-e04434050d45")
-		)
-		(pin "2"
-			(uuid "2ee7e0cf-bbed-4fa4-bcd3-02dc31db0128")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R52")
+					(reference "C56")
 					(unit 1)
 				)
 			)
@@ -10187,7 +8938,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "daed7eea-2f70-4ee8-9586-635ca5d82980")
-		(property "Reference" "C38"
+		(property "Reference" "C37"
 			(at 68.834 66.294 0)
 			(effects
 				(font
@@ -10240,7 +8991,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C38")
+					(reference "C37")
 					(unit 1)
 				)
 			)
@@ -10324,7 +9075,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e3087b0f-db55-410e-ac90-5d70d33403f2")
-		(property "Reference" "C36"
+		(property "Reference" "C35"
 			(at 58.674 66.294 0)
 			(effects
 				(font
@@ -10377,7 +9128,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C36")
+					(reference "C35")
 					(unit 1)
 				)
 			)
@@ -10459,7 +9210,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "fbc72be8-f172-4e93-8c65-bc70f005aad0")
-		(property "Reference" "C47"
+		(property "Reference" "C46"
 			(at 225.044 117.094 0)
 			(effects
 				(font
@@ -10512,7 +9263,7 @@
 		(instances
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "C47")
+					(reference "C46")
 					(unit 1)
 				)
 			)
