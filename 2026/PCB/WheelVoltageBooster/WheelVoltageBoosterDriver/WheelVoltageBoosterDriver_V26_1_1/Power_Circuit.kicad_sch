@@ -1692,6 +1692,12 @@
 		(uuid "ad54686e-21a4-44b6-8055-810dda877dec")
 	)
 	(junction
+		(at 168.91 123.19)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b02f8f69-2cea-4f4f-9b10-7206e1d23e61")
+	)
+	(junction
 		(at 200.66 118.11)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1870,6 +1876,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ebee0e56-f426-4847-9b2d-217956f40b86")
+	)
+	(junction
+		(at 171.45 72.39)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ee057772-c7d7-4d33-bc63-14a1ff64c385")
 	)
 	(junction
 		(at 228.6 64.77)
@@ -2461,6 +2473,16 @@
 	)
 	(wire
 		(pts
+			(xy 168.91 123.19) (xy 168.91 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "41c5d0ff-129b-4f08-b53d-c6fde163157e")
+	)
+	(wire
+		(pts
 			(xy 194.31 74.93) (xy 191.77 74.93)
 		)
 		(stroke
@@ -2611,7 +2633,7 @@
 	)
 	(wire
 		(pts
-			(xy 140.97 64.77) (xy 140.97 72.39)
+			(xy 140.97 54.61) (xy 140.97 72.39)
 		)
 		(stroke
 			(width 0)
@@ -2651,16 +2673,6 @@
 	)
 	(wire
 		(pts
-			(xy 138.43 105.41) (xy 138.43 107.95)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "661e1337-b027-4138-bb69-145239cdccb4")
-	)
-	(wire
-		(pts
 			(xy 166.37 72.39) (xy 163.83 72.39)
 		)
 		(stroke
@@ -2691,7 +2703,7 @@
 	)
 	(wire
 		(pts
-			(xy 138.43 115.57) (xy 138.43 123.19)
+			(xy 138.43 105.41) (xy 138.43 123.19)
 		)
 		(stroke
 			(width 0)
@@ -3218,6 +3230,16 @@
 			(type default)
 		)
 		(uuid "9c9a495a-dccc-43d9-ba7c-085596d49440")
+	)
+	(wire
+		(pts
+			(xy 171.45 72.39) (xy 171.45 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9d12c563-0ec6-491b-b32e-bf3374554d56")
 	)
 	(wire
 		(pts
@@ -3981,16 +4003,6 @@
 	)
 	(wire
 		(pts
-			(xy 140.97 54.61) (xy 140.97 57.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f4234e92-3541-41b5-b00e-c3cd33936ed9")
-	)
-	(wire
-		(pts
 			(xy 191.77 107.95) (xy 191.77 105.41)
 		)
 		(stroke
@@ -4301,6 +4313,17 @@
 		)
 		(uuid "77f31dc9-e020-46b5-9959-11d604994fca")
 	)
+	(hierarchical_label "GND"
+		(shape bidirectional)
+		(at 168.91 125.73 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "7a14cfcc-89ad-4e40-a9a1-6b887405b2f3")
+	)
 	(hierarchical_label "20V"
 		(shape input)
 		(at 31.75 54.61 180)
@@ -4421,6 +4444,17 @@
 			(justify right)
 		)
 		(uuid "e089838f-adba-4386-9603-377439d7d6fe")
+	)
+	(hierarchical_label "GND"
+		(shape bidirectional)
+		(at 171.45 74.93 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e368e6d4-2220-4cee-b092-bf549398f009")
 	)
 	(hierarchical_label "CS1A"
 		(shape output)
@@ -6921,75 +6955,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 138.43 111.76 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "7c02ac5d-1ca1-4299-b296-e51f95871e15")
-		(property "Reference" "R43"
-			(at 139.954 110.236 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1"
-			(at 139.954 113.284 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 136.652 111.76 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 138.43 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 138.43 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "189d3a03-10a1-439e-9414-80ad54eafe89")
-		)
-		(pin "2"
-			(uuid "3fdc04a8-d864-4e5c-a071-f18cbf0f0f3b")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R43")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "WheelVoltageBooster_LIB_SYM:FDMS86183")
 		(at 203.2 74.93 0)
 		(mirror y)
@@ -8721,75 +8686,6 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
 					(reference "C30")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 140.97 60.96 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "c8c1555f-b08e-4697-9864-2e0faecd35bb")
-		(property "Reference" "R44"
-			(at 142.494 59.436 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1"
-			(at 142.494 62.484 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
-			(at 139.192 60.96 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 140.97 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 140.97 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "987ef748-8b5b-449d-a344-45fec2597879")
-		)
-		(pin "2"
-			(uuid "fdb3dc8e-9a05-4da3-8477-b37d54333a65")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/612d680a-9a3e-491f-9822-2176b8d2caca"
-					(reference "R44")
 					(unit 1)
 				)
 			)
