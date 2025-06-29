@@ -604,143 +604,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "WheelVoltageBooster_LIB_SYM:LD1117DT33CTR"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "LD1117DT33CTR"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "LD1117DT33CTR_0_1"
-				(rectangle
-					(start -5.08 -2.54)
-					(end 5.08 -8.89)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "LD1117DT33CTR_1_1"
-				(pin power_in line
-					(at -7.62 -3.81 0)
-					(length 2.54)
-					(name "Vin"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 0 -11.43 90)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 0 -11.43 90)
-					(length 2.54)
-					(hide yes)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 7.62 -3.81 180)
-					(length 2.54)
-					(name "Vout"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "WheelVoltageBooster_LIB_SYM:MAX20405AFOA_VY+"
 			(pin_names
 				(offset 0.254)
@@ -1142,6 +1005,143 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "WheelVoltageBooster_LIB_SYM:MCP1703AT-3302E/CB"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "MCP1703AT-3302E/CB"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "MCP1703AT-3302E/CB_0_1"
+				(rectangle
+					(start -5.08 -2.54)
+					(end 5.08 -8.89)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "MCP1703AT-3302E/CB_1_1"
+				(pin power_in line
+					(at -7.62 -3.81 0)
+					(length 2.54)
+					(name "Vin"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at 0 -11.43 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at 0 -11.43 90)
+					(length 2.54)
+					(hide yes)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 7.62 -3.81 180)
+					(length 2.54)
+					(name "Vout"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 	)
 	(junction
 		(at 62.23 96.52)
@@ -1304,6 +1304,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b2035cff-a6b4-4bbe-9aaf-63761ddd5a89")
+	)
+	(junction
+		(at 74.93 133.35)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b2efa91a-be3e-402a-a106-855ba6b88c30")
 	)
 	(junction
 		(at 209.55 88.9)
@@ -1911,6 +1917,16 @@
 	)
 	(wire
 		(pts
+			(xy 72.39 127) (xy 74.93 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "55848e76-0656-4beb-a637-80a80e363bbe")
+	)
+	(wire
+		(pts
 			(xy 173.99 99.06) (xy 179.07 99.06)
 		)
 		(stroke
@@ -2141,6 +2157,16 @@
 	)
 	(wire
 		(pts
+			(xy 74.93 127) (xy 74.93 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8c886b27-0e30-47c0-b33e-9a6d55a54082")
+	)
+	(wire
+		(pts
 			(xy 232.41 104.14) (xy 232.41 106.68)
 		)
 		(stroke
@@ -2178,6 +2204,16 @@
 			(type default)
 		)
 		(uuid "93592589-21e4-4c95-a575-f7d8ff47b78a")
+	)
+	(wire
+		(pts
+			(xy 52.07 127) (xy 54.61 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "93a91672-7a6f-419b-85e7-ecac47817706")
 	)
 	(wire
 		(pts
@@ -2531,6 +2567,16 @@
 	)
 	(wire
 		(pts
+			(xy 62.23 127) (xy 64.77 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d56c7d79-dfec-4929-ba9f-85b3e2db57f7")
+	)
+	(wire
+		(pts
 			(xy 224.79 83.82) (xy 227.33 83.82)
 		)
 		(stroke
@@ -2858,6 +2904,17 @@
 			(type default)
 		)
 		(uuid "ff0eb3ab-1f09-49eb-b21f-5ec2142038f0")
+	)
+	(hierarchical_label "+20V"
+		(shape input)
+		(at 52.07 127 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1e734a05-b71c-4ae1-828f-89ac95eb8f73")
 	)
 	(hierarchical_label "+20V"
 		(shape input)
@@ -3735,6 +3792,80 @@
 		)
 	)
 	(symbol
+		(lib_id "WheelVoltageBooster_LIB_SYM:MCP1703AT-3302E/CB")
+		(at 133.35 80.01 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "3eb2c291-97f7-4501-992f-50de934c81a8")
+		(property "Reference" "U6"
+			(at 133.35 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MCP1703AT-3302E/CB"
+			(at 133.35 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:TSOT-23"
+			(at 133.35 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 133.35 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 133.35 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "939d6418-d419-4d24-8b8b-e27240e98aa5")
+		)
+		(pin "1"
+			(uuid "a7b608ab-62bd-46d1-a218-0222fdf0fe40")
+		)
+		(pin "1"
+			(uuid "32a00f8d-5bd9-409a-b3cf-35c0f2ed6e10")
+		)
+		(pin "2"
+			(uuid "31709e3a-e04f-49d9-94ce-68f3fdb55f3a")
+		)
+		(instances
+			(project ""
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
+					(reference "U6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:L")
 		(at 104.14 83.82 90)
 		(unit 1)
@@ -3827,7 +3958,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 58.42 135.128 90)
 			(effects
 				(font
@@ -3864,80 +3995,6 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
 					(reference "R62")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "WheelVoltageBooster_LIB_SYM:LD1117DT33CTR")
-		(at 133.35 80.01 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "4fd98fcc-a581-472d-9729-cd940dcb1ecc")
-		(property "Reference" "U6"
-			(at 133.35 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LD1117DT33CTR"
-			(at 133.35 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:TO-252-2"
-			(at 133.35 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 133.35 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 133.35 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "0c7ddb6d-5548-4e26-a962-16557a18f019")
-		)
-		(pin "3"
-			(uuid "7a31ab51-c1c9-4864-9265-959463254c2c")
-		)
-		(pin "2"
-			(uuid "cd8fd76f-316a-43ce-8509-f9e5b30b9819")
-		)
-		(pin "1"
-			(uuid "887ee9c2-d4e6-4193-af97-4ea56e03807a")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
-					(reference "U6")
 					(unit 1)
 				)
 			)
@@ -4624,7 +4681,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 58.42 141.478 90)
 			(effects
 				(font
@@ -4667,6 +4724,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:LED")
+		(at 68.58 127 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "91b798d4-8061-4c1e-8dad-30606695139e")
+		(property "Reference" "D18"
+			(at 67.818 123.698 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LED"
+			(at 71.882 123.698 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "WheelVoltageBooster_LIB_FTP:LED_1608_user_dif"
+			(at 68.58 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 68.58 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 68.58 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "52867824-b58c-45cf-8be6-fdfdefcb6e29")
+		)
+		(pin "2"
+			(uuid "1bb25f01-78a9-493f-92e1-fd6a48ef245a")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_1_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
+					(reference "D18")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 58.42 146.05 90)
 		(unit 1)
@@ -4691,7 +4815,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 58.42 147.828 90)
 			(effects
 				(font
@@ -4931,6 +5055,73 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
 					(reference "D17")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 58.42 127 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a915b36e-f3dd-40aa-a741-3b4bc189e6ff")
+		(property "Reference" "R15"
+			(at 57.15 123.952 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1k"
+			(at 60.706 123.952 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 58.42 128.778 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 58.42 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 58.42 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6a26e811-2a52-4a62-b43f-e6edea815b0e")
+		)
+		(pin "2"
+			(uuid "492880b6-28b0-49cc-8464-febab46605f0")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_1_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e/6c235b48-13ab-434e-8894-09a09ebdd0ec"
+					(reference "R15")
 					(unit 1)
 				)
 			)

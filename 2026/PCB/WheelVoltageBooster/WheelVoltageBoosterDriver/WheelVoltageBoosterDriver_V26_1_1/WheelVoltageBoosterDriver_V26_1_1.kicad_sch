@@ -5298,6 +5298,24 @@
 						(type none)
 					)
 				)
+				(pin bidirectional line
+					(at 6.35 -34.29 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "49"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
 			)
 			(embedded_fonts no)
 		)
@@ -5787,131 +5805,6 @@
 			(symbol "GND_1_1"
 				(pin power_in line
 					(at 0 0 270)
-					(length 0)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "power:VDD"
-			(power)
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "#PWR"
-				(at 0 -3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Value" "VDD"
-				(at 0 3.556 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Power symbol creates a global label with name \"VDD\""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "global power"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "VDD_0_1"
-				(polyline
-					(pts
-						(xy -0.762 1.27) (xy 0 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 2.54) (xy 0.762 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 0) (xy 0 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "VDD_1_1"
-				(pin power_in line
-					(at 0 0 90)
 					(length 0)
 					(name "~"
 						(effects
@@ -6593,12 +6486,40 @@
 		(uuid "f4d9b7f0-9407-44ac-80bb-eaa09230fff9")
 	)
 	(no_connect
+		(at 143.51 87.63)
+		(uuid "2d1fbbaf-8012-41b5-a019-b0e30bc4f214")
+	)
+	(no_connect
 		(at 176.53 74.93)
 		(uuid "4e4c855f-6a8c-4fe4-894f-ea92a9a061f1")
 	)
 	(no_connect
+		(at 143.51 110.49)
+		(uuid "6d8f1b02-e2ad-4056-8b88-4b350f283979")
+	)
+	(no_connect
 		(at 176.53 77.47)
 		(uuid "713e776b-6244-49f5-bcc4-f2d38faf233a")
+	)
+	(no_connect
+		(at 143.51 80.01)
+		(uuid "98c8c247-d54f-4a9a-8697-0e53d286d159")
+	)
+	(no_connect
+		(at 143.51 74.93)
+		(uuid "9940eed1-399c-4b70-9f50-54faca9b8ae1")
+	)
+	(no_connect
+		(at 143.51 90.17)
+		(uuid "a3fa5343-5000-4eb5-aa35-c3f4395a1c8e")
+	)
+	(no_connect
+		(at 143.51 107.95)
+		(uuid "c4c439b0-2511-4748-9b5d-ccbee4fbbf76")
+	)
+	(no_connect
+		(at 143.51 77.47)
+		(uuid "c805a81a-af3b-4e9b-ad6f-9c124962a5a2")
 	)
 	(no_connect
 		(at 74.93 85.09)
@@ -7187,6 +7108,16 @@
 			(type default)
 		)
 		(uuid "20d9b960-2b13-4b85-ad26-8c444f19be99")
+	)
+	(wire
+		(pts
+			(xy 166.37 115.57) (xy 166.37 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "211abcb1-34b4-4266-b4b1-f9a1678bea91")
 	)
 	(wire
 		(pts
@@ -9120,6 +9051,16 @@
 	)
 	(wire
 		(pts
+			(xy 96.52 173.99) (xy 96.52 176.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "91079327-4209-4052-992c-d41f99bfbddc")
+	)
+	(wire
+		(pts
 			(xy 245.11 25.4) (xy 247.65 25.4)
 		)
 		(stroke
@@ -9457,16 +9398,6 @@
 			(type default)
 		)
 		(uuid "a286d21b-084a-4bbc-859f-f5ae5a414e0d")
-	)
-	(wire
-		(pts
-			(xy 140.97 77.47) (xy 143.51 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a33d13d0-6633-411e-83fb-99ad29bfb0ab")
 	)
 	(wire
 		(pts
@@ -10000,7 +9931,7 @@
 	)
 	(wire
 		(pts
-			(xy 250.19 96.52) (xy 250.19 97.79)
+			(xy 250.19 96.52) (xy 250.19 99.06)
 		)
 		(stroke
 			(width 0)
@@ -10187,6 +10118,16 @@
 			(type default)
 		)
 		(uuid "cbba0160-e810-438b-bbd0-757c968e0c30")
+	)
+	(wire
+		(pts
+			(xy 166.37 118.11) (xy 163.83 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cc0fa4d1-0c0c-415f-aa5a-c03786a581b7")
 	)
 	(wire
 		(pts
@@ -10910,7 +10851,7 @@
 	)
 	(wire
 		(pts
-			(xy 209.55 97.79) (xy 209.55 99.06)
+			(xy 209.55 97.79) (xy 209.55 100.33)
 		)
 		(stroke
 			(width 0)
@@ -11030,6 +10971,16 @@
 	)
 	(wire
 		(pts
+			(xy 140.97 92.71) (xy 143.51 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fc39df2b-91e7-426a-bb54-7419d91ebf3b")
+	)
+	(wire
+		(pts
 			(xy 74.93 57.15) (xy 82.55 57.15)
 		)
 		(stroke
@@ -11128,26 +11079,6 @@
 		)
 		(uuid "ffc4ab50-6a90-4b5e-8085-88ffdf3e178e")
 	)
-	(label "CAN_TX"
-		(at 20.32 168.91 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "01048505-4928-43f7-b04b-a018564373b7")
-	)
-	(label "CAN_RX"
-		(at 20.32 171.45 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "50c4545a-1950-4b1e-a9c0-a7b3aa35a988")
-	)
 	(global_label "CAN1_TX"
 		(shape input)
 		(at 179.07 82.55 0)
@@ -11192,6 +11123,28 @@
 			)
 		)
 	)
+	(global_label "CANL"
+		(shape bidirectional)
+		(at 73.66 181.61 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "143e4d45-526a-4ca4-9641-71fdc2975925")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 82.4737 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "IOUT2"
 		(shape output)
 		(at 100.33 102.87 0)
@@ -11232,6 +11185,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "CAN1_TX"
+		(shape input)
+		(at 20.32 168.91 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "23c29a57-109a-480b-9b76-5c690b8aaccc")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 9.2915 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -11434,6 +11409,28 @@
 			)
 		)
 	)
+	(global_label "CAN1_RX"
+		(shape output)
+		(at 20.32 171.45 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5954023d-ac08-49fd-afbe-358e5c81123e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 8.9891 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "CANH"
 		(shape bidirectional)
 		(at 242.57 35.56 180)
@@ -11480,7 +11477,7 @@
 	)
 	(global_label "LED_CAN"
 		(shape output)
-		(at 140.97 77.47 180)
+		(at 140.97 92.71 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -11490,7 +11487,7 @@
 		)
 		(uuid "60ac2c2b-4df6-4024-89e5-82092718aba4")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 129.881 77.47 0)
+			(at 129.881 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12072,6 +12069,28 @@
 			)
 		)
 	)
+	(global_label "CANH"
+		(shape bidirectional)
+		(at 73.66 166.37 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d87ca2d6-b482-41f9-97c5-1cf2a011b310")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 82.7761 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "FET_FAN"
 		(shape output)
 		(at 140.97 72.39 180)
@@ -12270,61 +12289,6 @@
 			)
 		)
 	)
-	(hierarchical_label "CANH"
-		(shape bidirectional)
-		(at 73.66 166.37 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "5338e67a-9e36-4449-8ce9-496ed278e43e")
-	)
-	(hierarchical_label "+3V3"
-		(shape input)
-		(at 43.18 158.75 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "554538e9-5cc7-4242-b5c8-51ecda96f84a")
-	)
-	(hierarchical_label "CANL"
-		(shape input)
-		(at 73.66 181.61 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "6fee3dd0-c85a-4ec3-bd59-0b839d195a2b")
-	)
-	(hierarchical_label "GND"
-		(shape bidirectional)
-		(at 43.18 189.23 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "9659e704-f5ea-44db-9d7a-afa14ceae586")
-	)
-	(hierarchical_label "GND"
-		(shape bidirectional)
-		(at 96.52 173.99 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "e5c1dd00-e443-4bd2-93f6-808becb459ea")
-	)
 	(symbol
 		(lib_id "Device:R")
 		(at 38.1 87.63 90)
@@ -12350,7 +12314,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 38.1 89.408 90)
 			(effects
 				(font
@@ -12745,72 +12709,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:VDD")
-		(at 273.05 76.2 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "0eb6bbee-5f0f-4e7b-9283-d16ea871b465")
-		(property "Reference" "#PWR047"
-			(at 273.05 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "3.3V_sub"
-			(at 268.732 71.882 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 273.05 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 273.05 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VDD\""
-			(at 273.05 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "6eec18e7-7e04-4881-9045-c90b02c72167")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
-					(reference "#PWR047")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 261.62 96.52 270)
 		(unit 1)
@@ -12872,72 +12770,6 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
 					(reference "C26")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VDD")
-		(at 232.41 77.47 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "0f408b89-e923-4822-9d1d-e0e0b4a404d3")
-		(property "Reference" "#PWR040"
-			(at 232.41 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "3.3V_sub"
-			(at 228.092 73.152 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 232.41 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 232.41 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VDD\""
-			(at 232.41 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "bab7fda6-da12-45cd-8fcc-dd8510a763c5")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
-					(reference "#PWR040")
 					(unit 1)
 				)
 			)
@@ -14188,7 +14020,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 38.1 46.228 90)
 			(effects
 				(font
@@ -14257,7 +14089,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 206.502 124.46 90)
 			(effects
 				(font
@@ -14460,7 +14292,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 206.502 137.16 90)
 			(effects
 				(font
@@ -14570,6 +14402,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 209.55 100.33 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2a592c83-5383-4708-b019-d68fe0b15482")
+		(property "Reference" "#PWR033"
+			(at 209.55 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 209.55 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 209.55 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 209.55 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 209.55 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "85365275-55ad-4baa-9cf7-14cc92dc3c59")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_1_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "#PWR033")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 40.64 67.31 90)
 		(unit 1)
@@ -14594,7 +14492,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 40.64 69.088 90)
 			(effects
 				(font
@@ -15130,7 +15028,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 25.4 112.268 90)
 			(effects
 				(font
@@ -15196,7 +15094,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 40.64 81.788 90)
 			(effects
 				(font
@@ -15445,6 +15343,137 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+10V")
+		(at 43.18 158.75 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "48ddc0bc-1159-4b06-ac08-e4fc7e29f913")
+		(property "Reference" "#PWR049"
+			(at 43.18 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 42.926 153.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 43.18 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 43.18 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+10V\""
+			(at 43.18 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "afbc3c35-dbf2-4b88-9478-599fa33c947b")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_1_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "#PWR049")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 250.19 99.06 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "4943162a-0ad8-43b0-9b7d-7c34a384cb3f")
+		(property "Reference" "#PWR044"
+			(at 250.19 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 250.19 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 250.19 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 250.19 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 250.19 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d3a20e57-62fd-419f-ab62-97df57766b70")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_1_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "#PWR044")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 163.83 173.99 90)
 		(unit 1)
@@ -15507,6 +15536,72 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
 					(reference "R21")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 43.18 189.23 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "4dd97eb4-fee4-443f-911d-f57cd93bbc9c")
+		(property "Reference" "#PWR050"
+			(at 43.18 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 43.18 193.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 43.18 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 43.18 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 43.18 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e27808a6-f053-4dbb-a129-3e2a2a14513a")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_1_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "#PWR050")
 					(unit 1)
 				)
 			)
@@ -15799,7 +15894,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 40.64 79.248 90)
 			(effects
 				(font
@@ -16415,7 +16510,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 262.89 156.718 90)
 			(effects
 				(font
@@ -16944,7 +17039,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 40.64 61.468 90)
 			(effects
 				(font
@@ -17011,7 +17106,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 262.89 144.018 90)
 			(effects
 				(font
@@ -17277,7 +17372,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 29.21 89.2048 0)
 			(effects
 				(font
@@ -17486,7 +17581,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 29.21 96.8248 0)
 			(effects
 				(font
@@ -17522,6 +17617,71 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
 					(reference "C4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+10V")
+		(at 232.41 77.47 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "964a1979-fbbf-493d-9634-99059cbefa42")
+		(property "Reference" "#PWR040"
+			(at 232.41 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 232.156 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 232.41 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 232.41 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+10V\""
+			(at 232.41 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "94d72ede-8c00-49df-b894-9fc8fb8fc239")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_1_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "#PWR040")
 					(unit 1)
 				)
 			)
@@ -17629,7 +17789,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_DFN_QFN:QFN-48-1EP_7x7mm_P0.5mm_EP5.6x5.6mm"
+		(property "Footprint" "WheelVoltageBooster_LIB_FTP:ST32H523CEU6"
 			(at 159.512 89.662 0)
 			(effects
 				(font
@@ -17801,6 +17961,9 @@
 		)
 		(pin "29"
 			(uuid "6e6e50a5-37e3-4078-9722-25d6a5057030")
+		)
+		(pin "49"
+			(uuid "495f0dfe-6a92-4f28-8f7a-dcf74a9dad42")
 		)
 		(instances
 			(project ""
@@ -18283,72 +18446,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 209.55 99.06 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "9ff04a1d-5998-475e-be11-35ddb53c0aca")
-		(property "Reference" "#PWR033"
-			(at 209.55 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_log"
-			(at 209.55 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 209.55 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 209.55 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 209.55 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "aa990e92-b6e7-4398-801d-396517353baf")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
-					(reference "#PWR033")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 165.1 35.56 0)
 		(unit 1)
@@ -18609,6 +18706,71 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
 					(reference "#PWR02")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+10V")
+		(at 273.05 76.2 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "aa2f35c9-a7ae-4243-a350-3bf7ee0f239c")
+		(property "Reference" "#PWR047"
+			(at 273.05 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 272.796 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 273.05 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 273.05 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+10V\""
+			(at 273.05 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c1868bd9-c4e8-4032-a0da-7756d316e218")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_1_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "#PWR047")
 					(unit 1)
 				)
 			)
@@ -18911,7 +19073,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 80.772 109.22 90)
 			(effects
 				(font
@@ -19045,7 +19207,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 40.64 84.328 90)
 			(effects
 				(font
@@ -19177,7 +19339,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 25.4 104.648 90)
 			(effects
 				(font
@@ -19213,6 +19375,72 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
 					(reference "R1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 96.52 176.53 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "bb79fc1b-75fa-480d-9000-c851306635c3")
+		(property "Reference" "#PWR051"
+			(at 96.52 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 96.52 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 96.52 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 96.52 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 96.52 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e8ed1ce4-4101-482d-bbbd-d61376c73837")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_1_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "#PWR051")
 					(unit 1)
 				)
 			)
@@ -19750,7 +19978,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_QFP:Texas_PHP0048E_HTQFP-48-1EP_7x7mm_P0.5mm_EP6.5x6.5mm_Mask3.62x3.62mm"
+		(property "Footprint" "WheelVoltageBooster_LIB_FTP:LM5170QPHPTQ1"
 			(at 60.96 42.926 0)
 			(effects
 				(font
@@ -20027,7 +20255,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 224.282 124.46 90)
 			(effects
 				(font
@@ -20131,72 +20359,6 @@
 			(project ""
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
 					(reference "D1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 250.19 97.79 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "cac92dad-04f7-4773-8c9c-00f68c3fa240")
-		(property "Reference" "#PWR044"
-			(at 250.19 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_log"
-			(at 250.19 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 250.19 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 250.19 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 250.19 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "8e904a3d-e3dd-4f60-8d7a-0ea1c5f04949")
-		)
-		(instances
-			(project "WheelVoltageBoosterDriver_V26_1_1"
-				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
-					(reference "#PWR044")
 					(unit 1)
 				)
 			)
@@ -20367,7 +20529,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 262.89 137.668 90)
 			(effects
 				(font
@@ -20502,7 +20664,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 38.1 97.028 90)
 			(effects
 				(font
@@ -20702,7 +20864,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 90.932 109.22 90)
 			(effects
 				(font
@@ -21033,7 +21195,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 224.282 137.16 90)
 			(effects
 				(font
@@ -21316,7 +21478,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 262.89 150.368 90)
 			(effects
 				(font
@@ -21788,7 +21950,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 			(at 40.64 53.848 90)
 			(effects
 				(font
