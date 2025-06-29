@@ -1,7 +1,7 @@
 (footprint "CSTNE16M0V530000R0"
-	(version 20240108)
+	(version 20241229)
 	(generator "pcbnew")
-	(generator_version "8.0")
+	(generator_version "9.0")
 	(layer "F.Cu")
 	(property "Reference" "REF**"
 		(at 0 -5.5 0)
@@ -20,19 +20,6 @@
 		(unlocked yes)
 		(layer "F.Fab")
 		(uuid "1570eb68-c691-41b4-b486-9b14d15d4e54")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
-	(property "Footprint" "CSTNE16M0V530000R0"
-		(at 0 -5 0)
-		(unlocked yes)
-		(layer "F.Fab")
-		(hide yes)
-		(uuid "3ca84639-0013-4755-865e-364abbe2b00a")
 		(effects
 			(font
 				(size 1 1)
@@ -94,7 +81,7 @@
 			(width 0.1)
 			(type default)
 		)
-		(fill none)
+		(fill no)
 		(layer "Dwgs.User")
 		(uuid "99d0c1af-0df9-4d05-b2f4-ea81421b1161")
 	)
@@ -105,7 +92,7 @@
 			(width 0.05)
 			(type default)
 		)
-		(fill none)
+		(fill no)
 		(layer "F.CrtYd")
 		(uuid "761c05b1-e304-4201-93c9-ea802414287c")
 	)
@@ -124,22 +111,34 @@
 	(pad "1" smd rect
 		(at -1.2 0)
 		(size 0.6 2.5)
-		(layers "F.Cu" "F.Paste" "F.Mask")
+		(layers "F.Cu" "F.Mask" "F.Paste")
 		(thermal_bridge_angle 45)
 		(uuid "95285fae-d00e-4d87-bacc-8bd17ecb1681")
 	)
 	(pad "2" smd rect
 		(at 0 0)
 		(size 0.6 2.5)
-		(layers "F.Cu" "F.Paste" "F.Mask")
+		(layers "F.Cu" "F.Mask" "F.Paste")
 		(thermal_bridge_angle 45)
 		(uuid "a4ec9060-bd46-44e4-a988-4097f8e3c887")
 	)
 	(pad "3" smd rect
 		(at 1.2 0)
 		(size 0.6 2.5)
-		(layers "F.Cu" "F.Paste" "F.Mask")
+		(layers "F.Cu" "F.Mask" "F.Paste")
 		(thermal_bridge_angle 45)
 		(uuid "f74d0d50-78e7-4af5-a770-3616e1302a1c")
+	)
+	(embedded_fonts no)
+	(model "${WHEELVOLTAGEBOOSTER_LIB}/WheelVoltageBooster_LIB_3D/CSTNE16M0V530000R0.STEP"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 -0 -0)
+		)
 	)
 )
