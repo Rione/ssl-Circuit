@@ -5946,6 +5946,12 @@
 		(uuid "31b61a09-be20-4008-b62a-09e717aec3bb")
 	)
 	(junction
+		(at 34.29 54.61)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3340fc84-5d95-4f43-8b12-dd70350b0fe1")
+	)
+	(junction
 		(at 186.69 113.03)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5974,12 +5980,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "4a4460ac-0a96-48e6-beaf-5b82e55aa482")
-	)
-	(junction
-		(at 34.29 54.61)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4b59c2d2-1736-4947-8bf8-c87e38af91ae")
 	)
 	(junction
 		(at 110.49 36.83)
@@ -6796,6 +6796,16 @@
 			(type default)
 		)
 		(uuid "11bb28a8-a393-4d62-a9f3-bea975988396")
+	)
+	(wire
+		(pts
+			(xy 34.29 54.61) (xy 36.83 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "12c8e489-0a79-4794-8484-32b726b97b06")
 	)
 	(wire
 		(pts
@@ -8379,7 +8389,7 @@
 	)
 	(wire
 		(pts
-			(xy 34.29 54.61) (xy 34.29 57.15)
+			(xy 34.29 52.07) (xy 34.29 54.61)
 		)
 		(stroke
 			(width 0)
@@ -8746,16 +8756,6 @@
 			(type default)
 		)
 		(uuid "800bcf91-8bcf-4f91-8e83-9d818dc541f9")
-	)
-	(wire
-		(pts
-			(xy 34.29 52.07) (xy 34.29 54.61)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "80719f18-0be4-4f46-a0c9-d2f7d428cddc")
 	)
 	(wire
 		(pts
@@ -9879,16 +9879,6 @@
 	)
 	(wire
 		(pts
-			(xy 34.29 54.61) (xy 46.99 54.61)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c48510a6-62d8-4ae9-817b-356bb5888ef4")
-	)
-	(wire
-		(pts
 			(xy 245.11 21.59) (xy 245.11 31.75)
 		)
 		(stroke
@@ -10739,6 +10729,16 @@
 	)
 	(wire
 		(pts
+			(xy 44.45 54.61) (xy 46.99 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f31b2759-d329-47ca-9a66-a62efa580048")
+	)
+	(wire
+		(pts
 			(xy 154.94 39.37) (xy 154.94 41.91)
 		)
 		(stroke
@@ -10986,6 +10986,16 @@
 			(type default)
 		)
 		(uuid "fe6d96f8-3275-4ce7-acec-5a487773c60f")
+	)
+	(wire
+		(pts
+			(xy 34.29 54.61) (xy 34.29 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fe771240-491b-4556-94f2-5e1598d893c9")
 	)
 	(wire
 		(pts
@@ -12741,7 +12751,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1"
+		(property "Value" "0.1u"
 			(at 155.194 37.846 0)
 			(effects
 				(font
@@ -13215,7 +13225,7 @@
 				)
 			)
 		)
-		(property "Value" "2.2n"
+		(property "Value" "47n"
 			(at 41.402 109.22 90)
 			(effects
 				(font
@@ -14637,7 +14647,7 @@
 				)
 			)
 		)
-		(property "Value" "220p"
+		(property "Value" "500p"
 			(at 35.306 105.41 90)
 			(effects
 				(font
@@ -14836,7 +14846,7 @@
 				)
 			)
 		)
-		(property "Value" "1.8k"
+		(property "Value" "2.4k"
 			(at 29.972 109.22 90)
 			(effects
 				(font
@@ -15702,7 +15712,7 @@
 				)
 			)
 		)
-		(property "Value" "60k"
+		(property "Value" "65k"
 			(at 45.212 76.2 90)
 			(effects
 				(font
@@ -16163,6 +16173,72 @@
 			(project "WheelVoltageBoosterDriver_V26_1_1"
 				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
 					(reference "#PWR031")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 40.64 54.61 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "64e9755d-16c0-4a21-a0ca-a4a3d5b1a0d1")
+		(property "Reference" "C16"
+			(at 38.1 53.34 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10n"
+			(at 42.926 53.34 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
+			(at 44.45 53.6448 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 40.64 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "50V"
+			(at 40.64 54.61 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "750156a6-0bce-4069-867f-7ec161e02d2f")
+		)
+		(pin "2"
+			(uuid "1ab60915-34f0-4af3-b5a4-9a14dbf73070")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_1_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "C16")
 					(unit 1)
 				)
 			)
@@ -17939,7 +18015,7 @@
 				)
 			)
 		)
-		(property "Value" "220p"
+		(property "Value" "500p"
 			(at 35.306 113.03 90)
 			(effects
 				(font
@@ -18074,7 +18150,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "8.2n"
+		(property "Value" "9n"
 			(at 87.884 111.506 0)
 			(effects
 				(font
@@ -18946,7 +19022,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "12k"
+		(property "Value" "11k"
 			(at 83.312 113.03 0)
 			(effects
 				(font
@@ -19014,7 +19090,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "8.2n"
+		(property "Value" "9n"
 			(at 98.044 111.506 0)
 			(effects
 				(font
@@ -19081,7 +19157,7 @@
 				)
 			)
 		)
-		(property "Value" "26k"
+		(property "Value" "21k"
 			(at 45.212 81.28 90)
 			(effects
 				(font
@@ -19213,7 +19289,7 @@
 				)
 			)
 		)
-		(property "Value" "1.8k"
+		(property "Value" "2.4k"
 			(at 29.972 101.6 90)
 			(effects
 				(font
@@ -20737,7 +20813,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "12k"
+		(property "Value" "11k"
 			(at 93.472 113.03 0)
 			(effects
 				(font
@@ -21561,7 +21637,7 @@
 				)
 			)
 		)
-		(property "Value" "2.2n"
+		(property "Value" "47n"
 			(at 41.402 101.6 90)
 			(effects
 				(font
