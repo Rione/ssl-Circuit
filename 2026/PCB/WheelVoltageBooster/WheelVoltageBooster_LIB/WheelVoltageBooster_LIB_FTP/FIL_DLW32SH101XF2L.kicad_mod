@@ -1,0 +1,233 @@
+(footprint "FIL_DLW32SH101XF2L"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 1.175 -3.635 0)
+		(layer "F.SilkS")
+		(uuid "6247d751-945e-4cdf-8d1e-2ee04c8aa607")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "FIL_DLW32SH101XF2L"
+		(at 9.43 3.635 0)
+		(layer "F.Fab")
+		(uuid "9706ebb8-3552-42b0-a305-99e73b0a41de")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "67cbbabd-2280-4cea-9f99-c975c87091ee")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "2f5cf31e-a1a5-402f-83a7-0837717cb649")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -1.6 -1.25)
+		(end 1.6 -1.25)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "fbf069e5-61f4-4fbd-be47-d8f19fac17f4")
+	)
+	(fp_line
+		(start -1.6 -1.12)
+		(end -1.6 -1.25)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "0c4763f8-9c6d-449e-873a-10dc43ba5bc0")
+	)
+	(fp_line
+		(start -1.6 1.25)
+		(end -1.6 1.12)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "b716827c-3ce9-4908-91dc-1be9c4d7fbd4")
+	)
+	(fp_line
+		(start 1.6 -1.25)
+		(end 1.6 -1.12)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "35cdef62-190c-481e-9607-bea86340d558")
+	)
+	(fp_line
+		(start 1.6 1.12)
+		(end 1.6 1.25)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "97c7ee36-616b-4438-a3c2-f3ecf53b4d5b")
+	)
+	(fp_line
+		(start 1.6 1.25)
+		(end -1.6 1.25)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "6bfdc32f-7b3d-4677-ad78-2fd4e2a52709")
+	)
+	(fp_line
+		(start -2.3 -1.6)
+		(end 2.3 -1.6)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "330c3c5c-5c60-4b37-bbc7-e6a49a440453")
+	)
+	(fp_line
+		(start -2.3 1.6)
+		(end -2.3 -1.6)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "14222a46-fbef-4e52-b942-1b63eb5ed692")
+	)
+	(fp_line
+		(start 2.3 -1.6)
+		(end 2.3 1.6)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "d0deff10-b375-4019-afa7-521c9d938674")
+	)
+	(fp_line
+		(start 2.3 1.6)
+		(end -2.3 1.6)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "39c9d907-0492-4cf4-b66b-2939738ada3c")
+	)
+	(fp_line
+		(start -1.6 -1.25)
+		(end 1.6 -1.25)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "1a633c39-be8e-48f1-916a-00a73840bd3c")
+	)
+	(fp_line
+		(start -1.6 1.25)
+		(end -1.6 -1.25)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "133d3c6c-fd48-4f96-aa53-ed0f76133785")
+	)
+	(fp_line
+		(start 1.6 -1.25)
+		(end 1.6 1.25)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "cea74f42-48e1-4ebf-958c-3c32617833e7")
+	)
+	(fp_line
+		(start 1.6 1.25)
+		(end -1.6 1.25)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "a915d5a0-2907-4144-9b7a-72232edae481")
+	)
+	(pad "1" smd rect
+		(at 1.525 -0.5)
+		(size 1.05 0.6)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(solder_mask_margin 0.102)
+		(uuid "42d94944-a7c6-47b2-ad67-9fc0c583a4fe")
+	)
+	(pad "2" smd rect
+		(at -1.525 -0.5)
+		(size 1.05 0.6)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(solder_mask_margin 0.102)
+		(uuid "db2f670f-5d16-4889-a01a-17c9fd58ebc6")
+	)
+	(pad "3" smd rect
+		(at -1.525 0.5)
+		(size 1.05 0.6)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(solder_mask_margin 0.102)
+		(uuid "9a713332-cd86-412c-a32b-cde16e2436b7")
+	)
+	(pad "4" smd rect
+		(at 1.525 0.5)
+		(size 1.05 0.6)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(solder_mask_margin 0.102)
+		(uuid "3664b6a1-811c-4e1a-b2f5-ac3eacef1324")
+	)
+	(embedded_fonts no)
+	(model "${WHEELVOLTAGEBOOSTER_LIB}/WheelVoltageBooster_LIB_3D/DLW32SH101XF2L.STEP"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 -0 -0)
+		)
+	)
+)
