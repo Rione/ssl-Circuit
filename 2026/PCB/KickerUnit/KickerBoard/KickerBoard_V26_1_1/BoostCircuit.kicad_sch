@@ -2994,12 +2994,6 @@
 		(uuid "97f383fb-72d5-4595-9193-6024644c595e")
 	)
 	(junction
-		(at 160.02 71.12)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "9867b3d7-b5f3-4ab2-b585-a6ffb3513854")
-	)
-	(junction
 		(at 213.36 87.63)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3381,16 +3375,6 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 71.12) (xy 157.48 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "37dfabcb-2f4b-41e1-a991-9dbc391e1754")
-	)
-	(wire
-		(pts
 			(xy 46.99 40.64) (xy 46.99 38.1)
 		)
 		(stroke
@@ -3411,7 +3395,7 @@
 	)
 	(wire
 		(pts
-			(xy 69.85 48.26) (xy 73.66 48.26)
+			(xy 69.85 48.26) (xy 74.93 48.26)
 		)
 		(stroke
 			(width 0)
@@ -3451,7 +3435,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 40.64) (xy 73.66 38.1)
+			(xy 74.93 40.64) (xy 74.93 38.1)
 		)
 		(stroke
 			(width 0)
@@ -3481,7 +3465,7 @@
 	)
 	(wire
 		(pts
-			(xy 69.85 38.1) (xy 73.66 38.1)
+			(xy 69.85 38.1) (xy 74.93 38.1)
 		)
 		(stroke
 			(width 0)
@@ -4111,7 +4095,7 @@
 	)
 	(wire
 		(pts
-			(xy 165.1 71.12) (xy 160.02 71.12)
+			(xy 157.48 71.12) (xy 165.1 71.12)
 		)
 		(stroke
 			(width 0)
@@ -4351,7 +4335,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 48.26) (xy 73.66 45.72)
+			(xy 74.93 48.26) (xy 74.93 45.72)
 		)
 		(stroke
 			(width 0)
@@ -8507,72 +8491,6 @@
 		(uuid "eceb6103-bc56-4f01-95b9-c09b8e771c3c")
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 160.02 71.12 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "0296b70d-4a92-4f38-9bfe-88d4f09d379b")
-		(property "Reference" "TP2"
-			(at 158.496 62.484 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Vsec"
-			(at 158.496 65.024 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_2.0x2.0mm"
-			(at 165.1 71.12 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 165.1 71.12 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 160.02 71.12 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "0f310add-ab7d-400c-a201-ad805bd531d5")
-		)
-		(instances
-			(project "KickerBoard_V26_1_1"
-				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "TP2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "KickerUnit_LIB_SYM:LT3751UFD")
 		(at 111.76 100.33 0)
 		(unit 1)
@@ -8710,7 +8628,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "067334c3-2ef4-4cff-bd51-37051ce455df")
-		(property "Reference" "#PWR036"
+		(property "Reference" "#PWR037"
 			(at 69.85 92.71 0)
 			(effects
 				(font
@@ -8760,7 +8678,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR036")
+					(reference "#PWR037")
 					(unit 1)
 				)
 			)
@@ -8994,7 +8912,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1ae1f071-8c77-4398-a0fb-aefb7e392c38")
-		(property "Reference" "TP5"
+		(property "Reference" "TP4"
 			(at 110.998 128.27 90)
 			(effects
 				(font
@@ -9043,7 +8961,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "TP5")
+					(reference "TP4")
 					(unit 1)
 				)
 			)
@@ -9195,7 +9113,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "290791ed-ab9a-4538-8a0b-7cd5b380cc79")
-		(property "Reference" "#PWR031"
+		(property "Reference" "#PWR032"
 			(at 124.46 85.09 0)
 			(effects
 				(font
@@ -9245,7 +9163,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR031")
+					(reference "#PWR032")
 					(unit 1)
 				)
 			)
@@ -9471,7 +9389,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "3017364a-9c1c-44bc-9104-7059c5b012f1")
-		(property "Reference" "#PWR042"
+		(property "Reference" "#PWR043"
 			(at 114.3 140.97 0)
 			(effects
 				(font
@@ -9521,7 +9439,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR042")
+					(reference "#PWR043")
 					(unit 1)
 				)
 			)
@@ -9604,7 +9522,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "31624a98-24f8-4e26-9cd8-f0b29ff5d49f")
-		(property "Reference" "#PWR035"
+		(property "Reference" "#PWR036"
 			(at 90.17 90.17 0)
 			(effects
 				(font
@@ -9654,7 +9572,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR035")
+					(reference "#PWR036")
 					(unit 1)
 				)
 			)
@@ -9738,7 +9656,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "36456147-67bc-440a-bc8a-619cb2f90a21")
-		(property "Reference" "#PWR034"
+		(property "Reference" "#PWR035"
 			(at 181.61 90.17 0)
 			(effects
 				(font
@@ -9788,7 +9706,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR034")
+					(reference "#PWR035")
 					(unit 1)
 				)
 			)
@@ -9890,7 +9808,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "39b58835-7856-4505-884f-737b6b5e9c52")
-		(property "Reference" "#PWR028"
+		(property "Reference" "#PWR029"
 			(at 49.53 62.23 0)
 			(effects
 				(font
@@ -9940,7 +9858,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR028")
+					(reference "#PWR029")
 					(unit 1)
 				)
 			)
@@ -10165,7 +10083,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "4d605f30-0d81-45b5-acdb-dcca92b1102b")
-		(property "Reference" "#PWR032"
+		(property "Reference" "#PWR033"
 			(at 107.95 85.09 0)
 			(effects
 				(font
@@ -10215,7 +10133,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR032")
+					(reference "#PWR033")
 					(unit 1)
 				)
 			)
@@ -10230,7 +10148,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "50e9db84-910b-45e1-85c5-d13fe1eac7b3")
-		(property "Reference" "#PWR033"
+		(property "Reference" "#PWR034"
 			(at 160.02 90.17 0)
 			(effects
 				(font
@@ -10280,7 +10198,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR033")
+					(reference "#PWR034")
 					(unit 1)
 				)
 			)
@@ -10437,7 +10355,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "61bfbd3e-1c32-4863-9581-032c9ef686b3")
-		(property "Reference" "#PWR038"
+		(property "Reference" "#PWR039"
 			(at 85.09 105.41 0)
 			(effects
 				(font
@@ -10487,7 +10405,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR038")
+					(reference "#PWR039")
 					(unit 1)
 				)
 			)
@@ -10503,7 +10421,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "622aedfb-27e1-49cc-bced-984d2744a908")
-		(property "Reference" "#PWR027"
+		(property "Reference" "#PWR028"
 			(at 66.04 57.15 0)
 			(effects
 				(font
@@ -10553,7 +10471,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR027")
+					(reference "#PWR028")
 					(unit 1)
 				)
 			)
@@ -10637,7 +10555,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "63fca5a9-0255-450b-887d-ef07d5253edf")
-		(property "Reference" "#PWR040"
+		(property "Reference" "#PWR041"
 			(at 140.97 120.65 0)
 			(effects
 				(font
@@ -10687,7 +10605,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR040")
+					(reference "#PWR041")
 					(unit 1)
 				)
 			)
@@ -10847,7 +10765,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7077cb42-f83b-4c5f-8305-3c4369ced2ce")
-		(property "Reference" "TP3"
+		(property "Reference" "TP2"
 			(at 180.086 62.484 0)
 			(effects
 				(font
@@ -10898,7 +10816,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "TP3")
+					(reference "TP2")
 					(unit 1)
 				)
 			)
@@ -11121,7 +11039,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9ab12051-c387-4465-81b6-d10293d54439")
-		(property "Reference" "#PWR030"
+		(property "Reference" "#PWR031"
 			(at 115.57 73.66 0)
 			(effects
 				(font
@@ -11171,7 +11089,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR030")
+					(reference "#PWR031")
 					(unit 1)
 				)
 			)
@@ -11187,7 +11105,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9b12f138-078c-4ec3-a71f-69d1296361bf")
-		(property "Reference" "#PWR029"
+		(property "Reference" "#PWR030"
 			(at 49.53 74.93 0)
 			(effects
 				(font
@@ -11237,7 +11155,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR029")
+					(reference "#PWR030")
 					(unit 1)
 				)
 			)
@@ -11389,7 +11307,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b1d5167b-45df-4b28-8f1d-fe2e0c9caf0b")
-		(property "Reference" "#PWR039"
+		(property "Reference" "#PWR040"
 			(at 213.36 110.49 0)
 			(effects
 				(font
@@ -11439,7 +11357,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR039")
+					(reference "#PWR040")
 					(unit 1)
 				)
 			)
@@ -11534,7 +11452,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b9c41f3f-33b1-4175-adf7-12532985a68f")
-		(property "Reference" "#PWR037"
+		(property "Reference" "#PWR038"
 			(at 242.57 96.52 0)
 			(effects
 				(font
@@ -11584,7 +11502,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR037")
+					(reference "#PWR038")
 					(unit 1)
 				)
 			)
@@ -11879,7 +11797,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e71e3c66-d995-4a4b-90ee-a5193b89b5e7")
-		(property "Reference" "#PWR026"
+		(property "Reference" "#PWR027"
 			(at 66.04 39.37 0)
 			(effects
 				(font
@@ -11929,7 +11847,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR026")
+					(reference "#PWR027")
 					(unit 1)
 				)
 			)
@@ -11945,7 +11863,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e9f1a100-5a9d-4bc0-82c2-7044022f6d4c")
-		(property "Reference" "#PWR041"
+		(property "Reference" "#PWR042"
 			(at 91.44 124.46 0)
 			(effects
 				(font
@@ -11995,7 +11913,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "#PWR041")
+					(reference "#PWR042")
 					(unit 1)
 				)
 			)
@@ -12011,7 +11929,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "eccd87dd-9528-4137-a97c-eb713e7cfdae")
-		(property "Reference" "TP4"
+		(property "Reference" "TP3"
 			(at 146.05 87.6299 90)
 			(effects
 				(font
@@ -12062,7 +11980,7 @@
 		(instances
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca/a55bac2c-0983-42ce-9d17-5e08fcd2bf34"
-					(reference "TP4")
+					(reference "TP3")
 					(unit 1)
 				)
 			)
@@ -12070,7 +11988,7 @@
 	)
 	(symbol
 		(lib_id "Device:C_Polarized_Small")
-		(at 73.66 43.18 0)
+		(at 74.93 43.18 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -12078,7 +11996,7 @@
 		(dnp no)
 		(uuid "ed5adb63-6b52-4e0d-80bc-f4069b056aee")
 		(property "Reference" "C21"
-			(at 74.168 45.466 0)
+			(at 75.438 45.466 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12087,7 +12005,7 @@
 			)
 		)
 		(property "Value" "100uF/35V"
-			(at 76.2 43.18 0)
+			(at 77.47 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12096,7 +12014,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
-			(at 73.66 43.18 0)
+			(at 74.93 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12105,7 +12023,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.digikey.jp/ja/products/detail/rubycon/35ZLH100MEFC6-3X11/3134256"
-			(at 73.66 43.18 0)
+			(at 74.93 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12114,7 +12032,7 @@
 			)
 		)
 		(property "Description" "35ZLH100MEFC6.3X11"
-			(at 73.66 43.18 0)
+			(at 74.93 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
