@@ -671,6 +671,113 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Connector:TestPoint"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.762)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "TP"
+				(at 0 6.858 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TestPoint"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "test point"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "test point tp"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Pin* Test*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "TestPoint_0_1"
+				(circle
+					(center 0 3.302)
+					(radius 0.762)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TestPoint_1_1"
+				(pin passive line
+					(at 0 0 90)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:C_Small"
 			(pin_numbers
 				(hide yes)
@@ -3402,6 +3509,12 @@
 		(uuid "7dcbf08c-228d-4663-804e-d62478dcc63f")
 	)
 	(junction
+		(at 287.02 105.41)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "83b5bb87-3d27-4bbb-ae4d-4ce431347eab")
+	)
+	(junction
 		(at 270.51 110.49)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3573,6 +3686,16 @@
 	)
 	(wire
 		(pts
+			(xy 166.37 186.69) (xy 166.37 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "00b0e7b8-4f34-4e80-ac08-c3323541995f")
+	)
+	(wire
+		(pts
 			(xy 96.52 179.07) (xy 96.52 175.26)
 		)
 		(stroke
@@ -3610,6 +3733,16 @@
 			(type default)
 		)
 		(uuid "064e6e34-0092-498d-bbc3-2738dc02c91b")
+	)
+	(wire
+		(pts
+			(xy 181.61 175.26) (xy 181.61 179.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b09d3f2-b730-4c94-bf8c-49bca6393648")
 	)
 	(wire
 		(pts
@@ -3703,6 +3836,16 @@
 	)
 	(wire
 		(pts
+			(xy 196.85 175.26) (xy 196.85 179.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1abb3f7c-f61f-459e-9783-5bbe622f04ac")
+	)
+	(wire
+		(pts
 			(xy 165.1 87.63) (xy 165.1 90.17)
 		)
 		(stroke
@@ -3760,6 +3903,16 @@
 			(type default)
 		)
 		(uuid "1f096a80-1830-4639-8b7b-e050c839b017")
+	)
+	(wire
+		(pts
+			(xy 181.61 194.31) (xy 181.61 191.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1f890e19-0df9-4d30-937f-beef795b1bb5")
 	)
 	(wire
 		(pts
@@ -3880,6 +4033,16 @@
 			(type default)
 		)
 		(uuid "350713bf-ad62-48a3-b29b-1ace2ecd5e29")
+	)
+	(wire
+		(pts
+			(xy 287.02 105.41) (xy 287.02 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "35458678-fe1f-4aa4-b59e-532fc1deeb23")
 	)
 	(wire
 		(pts
@@ -4193,6 +4356,16 @@
 	)
 	(wire
 		(pts
+			(xy 181.61 186.69) (xy 181.61 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "69eeb138-97ef-4fd6-868c-79eaa103179f")
+	)
+	(wire
+		(pts
 			(xy 133.35 101.6) (xy 128.27 101.6)
 		)
 		(stroke
@@ -4353,6 +4526,16 @@
 	)
 	(wire
 		(pts
+			(xy 196.85 186.69) (xy 196.85 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "901d36da-222a-4e13-a566-82610b877d2f")
+	)
+	(wire
+		(pts
 			(xy 172.72 87.63) (xy 172.72 90.17)
 		)
 		(stroke
@@ -4473,7 +4656,7 @@
 	)
 	(wire
 		(pts
-			(xy 287.02 100.33) (xy 287.02 110.49)
+			(xy 287.02 100.33) (xy 287.02 105.41)
 		)
 		(stroke
 			(width 0)
@@ -4690,6 +4873,16 @@
 			(type default)
 		)
 		(uuid "b97bcfca-cc41-40e4-a678-94ddc439c096")
+	)
+	(wire
+		(pts
+			(xy 166.37 194.31) (xy 166.37 191.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bc3d3d33-4375-498b-9cf4-31a0afc1637f")
 	)
 	(wire
 		(pts
@@ -5033,6 +5226,16 @@
 	)
 	(wire
 		(pts
+			(xy 166.37 175.26) (xy 166.37 179.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f459cb68-3123-4f7a-90bf-76bd81554c4e")
+	)
+	(wire
+		(pts
 			(xy 92.71 63.5) (xy 97.79 63.5)
 		)
 		(stroke
@@ -5040,6 +5243,16 @@
 			(type default)
 		)
 		(uuid "f4628a62-8e94-494e-9b45-61ba72927ec6")
+	)
+	(wire
+		(pts
+			(xy 196.85 194.31) (xy 196.85 191.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f773e5ed-e8bd-4b20-9ee7-7fcd08033eac")
 	)
 	(wire
 		(pts
@@ -5421,6 +5634,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 287.02 105.41 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "077b1788-b3fc-4e11-acc5-5ab5357b8436")
+		(property "Reference" "TP5"
+			(at 292.1 104.1399 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "6V"
+			(at 292.1 106.6799 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_2.0x2.0mm"
+			(at 287.02 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 287.02 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 287.02 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e4659c9a-00f8-4eee-bacb-4f618a162851")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "TP5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Connector:Conn_01x07_Socket")
 		(at 66.04 140.97 0)
 		(mirror y)
@@ -5506,6 +5786,85 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:LED_Small")
+		(at 196.85 189.23 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0de9eee2-ae0f-4337-b3cf-0968c20737af")
+		(property "Reference" "D9"
+			(at 199.39 187.8964 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 199.39 190.4364 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "KickerUnit_LIB_FTP:LED"
+			(at 196.85 189.23 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 196.85 189.23 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 196.85 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pin" "1=K 2=A"
+			(at 196.85 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0990f3b1-36c0-4104-ae37-7dde749b27c2")
+		)
+		(pin "2"
+			(uuid "f9e4fa97-6263-4308-967a-18040710818a")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "D9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R_Small")
 		(at 81.28 181.61 0)
 		(unit 1)
@@ -5570,6 +5929,146 @@
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
 					(reference "R4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 181.61 181.61 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "14a12a8a-4535-4fe8-b81a-a52b45336d8c")
+		(property "Reference" "R21"
+			(at 184.15 180.3399 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 184.15 182.8799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 181.61 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 181.61 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 181.61 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "14a4793d-fd9f-4bbf-9904-648f337f635a")
+		)
+		(pin "2"
+			(uuid "dd7a8ae1-f7bc-4b01-a5c2-40a0267ae2aa")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "R21")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 196.85 181.61 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "189d329b-1c39-430b-9ee7-2bb97dcac549")
+		(property "Reference" "R22"
+			(at 199.39 180.3399 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 199.39 182.8799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 196.85 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 196.85 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 196.85 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0ad7b4e6-0b49-4ede-bd45-cca9b029e610")
+		)
+		(pin "2"
+			(uuid "20c42612-4249-416e-b3ca-f69af1aa0a64")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "R22")
 					(unit 1)
 				)
 			)
@@ -5645,6 +6144,141 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Small")
+		(at 166.37 181.61 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1be21968-0889-4130-9e1d-c5392eda9b3b")
+		(property "Reference" "R20"
+			(at 168.91 180.3399 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 168.91 182.8799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 166.37 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 166.37 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 166.37 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "abf13688-2b5a-4087-a272-3b3e5fbf3c48")
+		)
+		(pin "2"
+			(uuid "27363338-5b33-4355-8733-2f3c9427331b")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "R20")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 196.85 194.31 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "25d0fa3e-ff3b-4500-a14b-b07bc1e08cbf")
+		(property "Reference" "#PWR046"
+			(at 196.85 200.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 196.85 198.374 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 196.85 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 196.85 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 196.85 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8cee4e19-3786-413b-8e37-74446f2cb98f")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "#PWR046")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 320.04 114.3 0)
 		(unit 1)
@@ -5705,6 +6339,136 @@
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
 					(reference "#PWR015")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 166.37 194.31 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2d2000bc-1f86-44c4-ac7e-4fcf7cfb6766")
+		(property "Reference" "#PWR044"
+			(at 166.37 200.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 166.37 198.374 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 166.37 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 166.37 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 166.37 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "70df0543-3fa2-46ca-ad9b-393e3e5b894a")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "#PWR044")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 181.61 194.31 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "31032b4a-383f-4b99-90c0-435fa9cfa919")
+		(property "Reference" "#PWR045"
+			(at 181.61 200.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 181.61 198.374 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 181.61 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 181.61 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 181.61 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e7f2f0b7-1b27-4062-878c-59550353e9a4")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "#PWR045")
 					(unit 1)
 				)
 			)
@@ -6196,6 +6960,85 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:LED_Small")
+		(at 166.37 189.23 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "42e5c93f-7bcb-482f-a079-ed4377821d88")
+		(property "Reference" "D7"
+			(at 168.91 187.8964 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 168.91 190.4364 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "KickerUnit_LIB_FTP:LED"
+			(at 166.37 189.23 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 166.37 189.23 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 166.37 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pin" "1=K 2=A"
+			(at 166.37 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b5d5c787-cdf2-4bc1-8ab9-7e233e380744")
+		)
+		(pin "2"
+			(uuid "c9b59592-167d-4791-b08f-811cad856d00")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "D7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+6V")
 		(at 309.88 97.79 0)
 		(unit 1)
@@ -6658,6 +7501,72 @@
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
 					(reference "C2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:VDD")
+		(at 166.37 175.26 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "63f2d550-16aa-46c5-9d43-019432997f70")
+		(property "Reference" "#PWR048"
+			(at 166.37 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VDD"
+			(at 166.37 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 166.37 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 166.37 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
+			(at 166.37 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e3656281-d905-4b90-a4a2-3954e86ae1c6")
+		)
+		(instances
+			(project ""
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "#PWR048")
 					(unit 1)
 				)
 			)
@@ -7302,6 +8211,85 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:LED_Small")
+		(at 181.61 189.23 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "99baedf1-5d48-4577-b8b8-fa1d9b0357f6")
+		(property "Reference" "D8"
+			(at 184.15 187.8964 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 184.15 190.4364 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "KickerUnit_LIB_FTP:LED"
+			(at 181.61 189.23 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 181.61 189.23 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 181.61 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pin" "1=K 2=A"
+			(at 181.61 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f2100511-06f0-4c46-995b-91ec01beae94")
+		)
+		(pin "2"
+			(uuid "da752a40-2e2a-4116-9945-26e4c0a163df")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "D8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:VDD")
 		(at 231.14 100.33 0)
 		(unit 1)
@@ -7770,6 +8758,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+6V")
+		(at 181.61 175.26 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "af643b65-b96d-43da-9d57-574f6d329285")
+		(property "Reference" "#PWR047"
+			(at 181.61 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+6V"
+			(at 181.61 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 181.61 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 181.61 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+6V\""
+			(at 181.61 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a39edafd-3222-4090-bf20-2ef81c0e05ba")
+		)
+		(instances
+			(project "KickerBoard_V26_1_1"
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "#PWR047")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:VDD")
 		(at 215.9 106.68 0)
 		(unit 1)
@@ -8188,7 +9242,7 @@
 				)
 			)
 		)
-		(property "Value" "4.7uF"
+		(property "Value" "4.7u"
 			(at 278.13 107.95 90)
 			(effects
 				(font
@@ -9413,6 +10467,72 @@
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
 					(reference "#PWR026")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 196.85 175.26 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f26fd021-c69b-40a8-8f67-155a8fea0d50")
+		(property "Reference" "#PWR049"
+			(at 196.85 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 196.85 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 196.85 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 196.85 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 196.85 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "cdea469b-cc34-424d-a0e2-4f801c420083")
+		)
+		(instances
+			(project ""
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "#PWR049")
 					(unit 1)
 				)
 			)
