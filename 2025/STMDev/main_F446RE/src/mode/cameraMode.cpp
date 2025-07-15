@@ -20,15 +20,12 @@ void CameraMode::loop() {
 
       robot->motorDriver.getVelocity(&robot->info.mdStatus.velX, &robot->info.mdStatus.velY, robot->info.mdStatus.motorAngularVelocity);  // モータードライバからロボットの速度を取得
 
-      if (!robot->info.status.emergencyStop && robot->info.status.isSignalReceived) {
-            // Robot is Running
-            // ここにボールを追いかけるプログラムを書く
+      printf("Camera X: %d, Y: %d\n", robot->info.camera.x, robot->info.camera.y);
 
-            robot->sendMotor(robot->info, 5);  // 5msごとに送信
-      } else {
-            // Robot is Stop or Emergency Stop
+      if (robot->info.camera.x == 0 && robot->info.camera.y == 0) {
             stopRobot(500);
-            // printfDMA("Robot is Stop\n");
+      } else {
+            robot->motorDriver.setVelocityFF((robot->info.camera.y - 75) * 2.5, (65 - robot->info.camera.x) * 3, 0);
       }
 
       robot->led1 = robot->info.dribbleStatus.isDetectedBall;

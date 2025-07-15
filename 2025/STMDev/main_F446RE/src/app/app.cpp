@@ -1,10 +1,9 @@
 #include "app.h"
 
 #include "RobotSequence.hpp"
+#include "cameraMode.hpp"
 #include "mainMode.hpp"
 #include "testMode.hpp"
-#include "cameraMode.hpp"
-
 
 Robot robot;
 CANBus::CANData canRecvData;
@@ -12,7 +11,6 @@ CANBus::CANData canRecvData;
 MainMode mainMode('M', "Main Mode", &robot);
 TestMode testMode('T', "Test Mode", &robot);
 CameraMode cameraMode('C', "Camera Mode", &robot);
-
 
 void TimInterrupt1khz() {
       robot.heartBeat();
@@ -81,6 +79,7 @@ void setup() {
 
 void main_app() {
       while (1) {
-            mainMode.loop();
+            // mainMode.loop();
+            cameraMode.loop();
       }
 }
