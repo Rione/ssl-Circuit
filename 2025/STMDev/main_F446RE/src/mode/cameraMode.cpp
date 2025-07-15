@@ -20,12 +20,25 @@ void CameraMode::loop() {
 
       robot->motorDriver.getVelocity(&robot->info.mdStatus.velX, &robot->info.mdStatus.velY, robot->info.mdStatus.motorAngularVelocity);  // モータードライバからロボットの速度を取得
 
-      printf("Camera X: %d, Y: %d\n", robot->info.camera.x, robot->info.camera.y);
-
+      robot->kickerBoard.chargeControl(1);
+      // printf("Camera X: %d, Y: %d\n", robot->info.camera.x, robot->info.camera.y);
+      printf("aa%d\n", robot->info.dribbleStatus.isDetectedBall);
+      int16_t vel_x, vel_y;
+      const uint16_t max_speed = 500;
       if (robot->info.camera.x == 0 && robot->info.camera.y == 0) {
-            stopRobot(500);
+            robot->motorDriver.setVelocityFF(0, 0, 2000);
+      } else if (robot->info.dribbleStatus.isHoldBall == true) {
+            robot->kickerBoard.kick(0, 50, 0);
+
       } else {
-            robot->motorDriver.setVelocityFF((robot->info.camera.y - 75) * 2.5, (65 - robot->info.camera.x) * 3, 0);
+            vel_x = Constrain(robot->info.camera.y * 30, -max_speed, max_speed);
+            vel_y = 0;
+            robot->motorDriver.setVelocityFF(vel_x, vel_y, (127 - robot->info.camera.x) * 20);
+      }
+      if (robot->info.dribbleStatus.isDetectedBall == true || (robot->info.camera.y < 5 && robot->info.camera.y != 0)) {
+            robot->sendDribble(50);
+      } else {
+            robot->sendDribble(0);
       }
 
       robot->led1 = robot->info.dribbleStatus.isDetectedBall;
