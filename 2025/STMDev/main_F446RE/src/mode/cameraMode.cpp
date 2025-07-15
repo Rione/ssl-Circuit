@@ -6,6 +6,8 @@ void CameraMode::before() {
 void CameraMode::after() {
 }
 
+Timer camera_correction_timer;
+
 void CameraMode::loop() {
       timer.reset();
       robot->getSensors(&robot->info);
@@ -23,12 +25,24 @@ void CameraMode::loop() {
       int16_t vel_x, vel_y;
       const uint16_t max_speed = 300;
 
+      static uint16_t camera_x, camera_y;
       if (robot->info.camera.x == 0 && robot->info.camera.y == 0) {
-            robot->motorDriver.setVelocityFF(0, 0, 1000);
+            if (camera_correction_timer.read() > 2) {
+                  camera_x = 0;
+                  camera_y = 0;
+            }
+      } else {
+            camera_x = robot->info.camera.x;
+            camera_y = robot->info.camera.y;
+            camera_correction_timer.reset();
+      }
+
+      if (camera_x == 0 && camera_y == 0) {
+            robot->motorDriver.setVelocityFF(0, 0, 1500);
       } else {
             vel_x = Constrain(robot->info.camera.y * 30, -max_speed, max_speed);
             vel_y = 0;
-            robot->motorDriver.setVelocityFF(vel_x, vel_y, (127 - robot->info.camera.x) * 20);
+            robot->motorDriver.setVelocityFF(vel_x, vel_y, (127 - robot->info.camera.x) * 30);
       }
       // if (robot->info.dribbleStatus.isDetectedBall == true || (robot->info.camera.y < 5 && robot->info.camera.y != 0)) {
       //       robot->sendDribble(50);
