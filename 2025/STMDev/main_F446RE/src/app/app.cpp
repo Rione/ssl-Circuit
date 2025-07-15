@@ -75,11 +75,19 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 void setup() {
       robot.hardwareInit();
       HAL_Delay(100);
+      if (robot.swImu.read() == 1) {
+            robot.info.runMode = 0;
+      } else {
+            robot.info.runMode = 1;
+      }
 }
 
 void main_app() {
       while (1) {
-            // mainMode.loop();
-            cameraMode.loop();
+            if (robot.info.runMode == 0) {
+                  mainMode.loop();
+            } else {
+                  cameraMode.loop();
+            }
       }
 }
