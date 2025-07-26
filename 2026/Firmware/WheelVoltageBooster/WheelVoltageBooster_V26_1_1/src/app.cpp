@@ -15,5 +15,7 @@ void MainLoop(){
   //HAL_GPIO_WritePin(LED_3_GPIO_Port,LED_3_Pin,GPIO_PIN_RESET);
   HAL_GPIO_WritePin(LED_CAN_GPIO_Port,LED_CAN_Pin,GPIO_PIN_RESET);
   HAL_Delay(1000);
+
+  printf("Hello World!\n");
 }
 
