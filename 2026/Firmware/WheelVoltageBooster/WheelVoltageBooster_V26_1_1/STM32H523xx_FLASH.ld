@@ -85,6 +85,14 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
+  /* Exception Index section for unwinding (required by libgcc) */
+  .ARM.exidx :
+  {
+    PROVIDE(__exidx_start = .);
+    *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    PROVIDE(__exidx_end = .);
+  } >FLASH
+
   /* Used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
