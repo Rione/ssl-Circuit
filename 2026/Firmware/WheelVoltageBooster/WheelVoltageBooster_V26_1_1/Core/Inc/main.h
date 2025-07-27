@@ -49,6 +49,8 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -57,8 +59,30 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define EN_10V_Pin GPIO_PIN_10
-#define EN_10V_GPIO_Port GPIOB
+#define MVC_VSCAN1_Pin GPIO_PIN_0
+#define MVC_VSCAN1_GPIO_Port GPIOA
+#define MVC_VSCAN2_Pin GPIO_PIN_1
+#define MVC_VSCAN2_GPIO_Port GPIOA
+#define MVC_IOUT2_Pin GPIO_PIN_2
+#define MVC_IOUT2_GPIO_Port GPIOA
+#define MVC_IOUT1_Pin GPIO_PIN_3
+#define MVC_IOUT1_GPIO_Port GPIOA
+#define MVC_TMP_Pin GPIO_PIN_4
+#define MVC_TMP_GPIO_Port GPIOA
+#define MVC_DIR_Pin GPIO_PIN_5
+#define MVC_DIR_GPIO_Port GPIOA
+#define MVC_EN2_Pin GPIO_PIN_6
+#define MVC_EN2_GPIO_Port GPIOA
+#define MVC_ISETD_Pin GPIO_PIN_7
+#define MVC_ISETD_GPIO_Port GPIOA
+#define MVC_UVLO_Pin GPIO_PIN_0
+#define MVC_UVLO_GPIO_Port GPIOB
+#define MVC_EN1_Pin GPIO_PIN_1
+#define MVC_EN1_GPIO_Port GPIOB
+#define SVC_EN_Pin GPIO_PIN_10
+#define SVC_EN_GPIO_Port GPIOB
+#define FAN_EN_Pin GPIO_PIN_8
+#define FAN_EN_GPIO_Port GPIOA
 #define LED_CAN_Pin GPIO_PIN_4
 #define LED_CAN_GPIO_Port GPIOB
 #define LED_3_Pin GPIO_PIN_5
