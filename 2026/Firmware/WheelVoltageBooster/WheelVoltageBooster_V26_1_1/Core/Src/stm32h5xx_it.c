@@ -55,9 +55,9 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_NodeTypeDef Node_GPDMA1_Channel7;
-extern DMA_QListTypeDef List_GPDMA1_Channel7;
-extern DMA_HandleTypeDef handle_GPDMA1_Channel7;
+extern DMA_NodeTypeDef Node_GPDMA1_Channel6;
+extern DMA_QListTypeDef List_GPDMA1_Channel6;
+extern DMA_HandleTypeDef handle_GPDMA1_Channel6;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -201,17 +201,17 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles GPDMA1 Channel 7 global interrupt.
+  * @brief This function handles GPDMA1 Channel 6 global interrupt.
   */
-void GPDMA1_Channel7_IRQHandler(void)
+void GPDMA1_Channel6_IRQHandler(void)
 {
-  /* USER CODE BEGIN GPDMA1_Channel7_IRQn 0 */
+  /* USER CODE BEGIN GPDMA1_Channel6_IRQn 0 */
 
-  /* USER CODE END GPDMA1_Channel7_IRQn 0 */
-  HAL_DMA_IRQHandler(&handle_GPDMA1_Channel7);
-  /* USER CODE BEGIN GPDMA1_Channel7_IRQn 1 */
+  /* USER CODE END GPDMA1_Channel6_IRQn 0 */
+  HAL_DMA_IRQHandler(&handle_GPDMA1_Channel6);
+  /* USER CODE BEGIN GPDMA1_Channel6_IRQn 1 */
 
-  /* USER CODE END GPDMA1_Channel7_IRQn 1 */
+  /* USER CODE END GPDMA1_Channel6_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
