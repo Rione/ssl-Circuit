@@ -23,11 +23,11 @@
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
-extern DMA_NodeTypeDef Node_GPDMA1_Channel6;
+extern DMA_NodeTypeDef Node_GPDMA1_Channel5;
 
-extern DMA_QListTypeDef List_GPDMA1_Channel6;
+extern DMA_QListTypeDef List_GPDMA1_Channel5;
 
-extern DMA_HandleTypeDef handle_GPDMA1_Channel6;
+extern DMA_HandleTypeDef handle_GPDMA1_Channel5;
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
@@ -126,61 +126,56 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 
     /* ADC1 DMA Init */
     /* GPDMA1_REQUEST_ADC1 Init */
-    NodeConfig.NodeType = DMA_GPDMA_2D_NODE;
+    NodeConfig.NodeType = DMA_GPDMA_LINEAR_NODE;
     NodeConfig.Init.Request = GPDMA1_REQUEST_ADC1;
     NodeConfig.Init.BlkHWRequest = DMA_BREQ_SINGLE_BURST;
     NodeConfig.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    NodeConfig.Init.SrcInc = DMA_SINC_INCREMENTED;
-    NodeConfig.Init.DestInc = DMA_DINC_FIXED;
+    NodeConfig.Init.SrcInc = DMA_SINC_FIXED;
+    NodeConfig.Init.DestInc = DMA_DINC_INCREMENTED;
     NodeConfig.Init.SrcDataWidth = DMA_SRC_DATAWIDTH_HALFWORD;
     NodeConfig.Init.DestDataWidth = DMA_DEST_DATAWIDTH_HALFWORD;
-    NodeConfig.Init.SrcBurstLength = 5;
-    NodeConfig.Init.DestBurstLength = 5;
-    NodeConfig.Init.TransferAllocatedPort = DMA_SRC_ALLOCATED_PORT0|DMA_DEST_ALLOCATED_PORT0;
+    NodeConfig.Init.SrcBurstLength = 1;
+    NodeConfig.Init.DestBurstLength = 1;
+    NodeConfig.Init.TransferAllocatedPort = DMA_SRC_ALLOCATED_PORT0|DMA_DEST_ALLOCATED_PORT1;
     NodeConfig.Init.TransferEventMode = DMA_TCEM_BLOCK_TRANSFER;
     NodeConfig.Init.Mode = DMA_NORMAL;
-    NodeConfig.RepeatBlockConfig.RepeatCount = 1;
-    NodeConfig.RepeatBlockConfig.SrcAddrOffset = 0;
-    NodeConfig.RepeatBlockConfig.DestAddrOffset = 0;
-    NodeConfig.RepeatBlockConfig.BlkSrcAddrOffset = 0;
-    NodeConfig.RepeatBlockConfig.BlkDestAddrOffset = 0;
     NodeConfig.TriggerConfig.TriggerPolarity = DMA_TRIG_POLARITY_MASKED;
     NodeConfig.DataHandlingConfig.DataExchange = DMA_EXCHANGE_NONE;
     NodeConfig.DataHandlingConfig.DataAlignment = DMA_DATA_RIGHTALIGN_ZEROPADDED;
-    if (HAL_DMAEx_List_BuildNode(&NodeConfig, &Node_GPDMA1_Channel6) != HAL_OK)
+    if (HAL_DMAEx_List_BuildNode(&NodeConfig, &Node_GPDMA1_Channel5) != HAL_OK)
     {
       Error_Handler();
     }
 
-    if (HAL_DMAEx_List_InsertNode(&List_GPDMA1_Channel6, NULL, &Node_GPDMA1_Channel6) != HAL_OK)
+    if (HAL_DMAEx_List_InsertNode(&List_GPDMA1_Channel5, NULL, &Node_GPDMA1_Channel5) != HAL_OK)
     {
       Error_Handler();
     }
 
-    if (HAL_DMAEx_List_SetCircularMode(&List_GPDMA1_Channel6) != HAL_OK)
+    if (HAL_DMAEx_List_SetCircularMode(&List_GPDMA1_Channel5) != HAL_OK)
     {
       Error_Handler();
     }
 
-    handle_GPDMA1_Channel6.Instance = GPDMA1_Channel6;
-    handle_GPDMA1_Channel6.InitLinkedList.Priority = DMA_LOW_PRIORITY_LOW_WEIGHT;
-    handle_GPDMA1_Channel6.InitLinkedList.LinkStepMode = DMA_LSM_FULL_EXECUTION;
-    handle_GPDMA1_Channel6.InitLinkedList.LinkAllocatedPort = DMA_LINK_ALLOCATED_PORT0;
-    handle_GPDMA1_Channel6.InitLinkedList.TransferEventMode = DMA_TCEM_BLOCK_TRANSFER;
-    handle_GPDMA1_Channel6.InitLinkedList.LinkedListMode = DMA_LINKEDLIST_CIRCULAR;
-    if (HAL_DMAEx_List_Init(&handle_GPDMA1_Channel6) != HAL_OK)
+    handle_GPDMA1_Channel5.Instance = GPDMA1_Channel5;
+    handle_GPDMA1_Channel5.InitLinkedList.Priority = DMA_LOW_PRIORITY_LOW_WEIGHT;
+    handle_GPDMA1_Channel5.InitLinkedList.LinkStepMode = DMA_LSM_FULL_EXECUTION;
+    handle_GPDMA1_Channel5.InitLinkedList.LinkAllocatedPort = DMA_LINK_ALLOCATED_PORT0;
+    handle_GPDMA1_Channel5.InitLinkedList.TransferEventMode = DMA_TCEM_BLOCK_TRANSFER;
+    handle_GPDMA1_Channel5.InitLinkedList.LinkedListMode = DMA_LINKEDLIST_CIRCULAR;
+    if (HAL_DMAEx_List_Init(&handle_GPDMA1_Channel5) != HAL_OK)
     {
       Error_Handler();
     }
 
-    if (HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel6, &List_GPDMA1_Channel6) != HAL_OK)
+    if (HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel5, &List_GPDMA1_Channel5) != HAL_OK)
     {
       Error_Handler();
     }
 
-    __HAL_LINKDMA(hadc, DMA_Handle, handle_GPDMA1_Channel6);
+    __HAL_LINKDMA(hadc, DMA_Handle, handle_GPDMA1_Channel5);
 
-    if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel6, DMA_CHANNEL_NPRIV) != HAL_OK)
+    if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel5, DMA_CHANNEL_NPRIV) != HAL_OK)
     {
       Error_Handler();
     }

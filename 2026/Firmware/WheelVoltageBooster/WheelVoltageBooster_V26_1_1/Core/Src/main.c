@@ -42,9 +42,9 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-DMA_NodeTypeDef Node_GPDMA1_Channel6;
-DMA_QListTypeDef List_GPDMA1_Channel6;
-DMA_HandleTypeDef handle_GPDMA1_Channel6;
+DMA_NodeTypeDef Node_GPDMA1_Channel5;
+DMA_QListTypeDef List_GPDMA1_Channel5;
+DMA_HandleTypeDef handle_GPDMA1_Channel5;
 
 FDCAN_HandleTypeDef hfdcan1;
 
@@ -231,7 +231,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_24CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
@@ -340,8 +340,8 @@ static void MX_GPDMA1_Init(void)
   __HAL_RCC_GPDMA1_CLK_ENABLE();
 
   /* GPDMA1 interrupt Init */
-    HAL_NVIC_SetPriority(GPDMA1_Channel6_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(GPDMA1_Channel6_IRQn);
+    HAL_NVIC_SetPriority(GPDMA1_Channel5_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(GPDMA1_Channel5_IRQn);
 
   /* USER CODE BEGIN GPDMA1_Init 1 */
 

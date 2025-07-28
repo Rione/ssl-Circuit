@@ -2,7 +2,7 @@
 
 extern ADC_HandleTypeDef hadc1;
 
-uint32_t adc_val_ch1[5] = {0, 0, 0, 0, 0}; // Array to hold ADC values
+uint16_t adc_val_ch1[5] = {0, 0, 0, 0, 0}; // Array to hold ADC values
 
 void Setup(void){
   //ADC initialization
@@ -79,7 +79,7 @@ void MainLoop(){
   // HAL_Delay(1000);
 
   // printf("Hello World!\n");
-  printf("%ld,%ld,%ld,%ld,%ld\n", adc_val_ch1[0], adc_val_ch1[1], adc_val_ch1[2], adc_val_ch1[3], adc_val_ch1[4]);
+  printf("%u,%u,%u,%u,%u\n", adc_val_ch1[0], adc_val_ch1[1], adc_val_ch1[2], adc_val_ch1[3], adc_val_ch1[4]);
   HAL_Delay(100);
 }
 
