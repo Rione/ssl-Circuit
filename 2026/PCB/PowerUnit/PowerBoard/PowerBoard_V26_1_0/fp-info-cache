@@ -1,4 +1,4 @@
-25785704708133717
+25799764729080755
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -66646,55 +66646,6 @@ solder jumper open
 0
 3
 3
-KickerUnit_LIB_FTP
-CSTNE16M0V530000R0
-
-
-0
-3
-3
-KickerUnit_LIB_FTP
-FDS2582(SOIC8)
-
-
-0
-8
-3
-KickerUnit_LIB_FTP
-LED
-
-
-0
-2
-2
-KickerUnit_LIB_FTP
-MX20405
-
-
-0
-20
-17
-KickerUnit_LIB_FTP
-QFN-20-1EP_LT3751UFD
-QFN, 20 Pin (http://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/ltc-legacy-qfn/QFN_20_05-08-1711.pdf), generated with kicad-footprint-generator ipc_noLead_generator.py
-QFN NoLead
-0
-27
-21
-KickerUnit_LIB_FTP
-SW_SKRPACE010
-
-
-0
-4
-2
-KickerUnit_LIB_FTP
-WE-FB3751
-
-
-0
-10
-10
 LED_SMD
 LED-APA102-2020
 http://www.led-color.com/upload/201604/APA102-2020%20SMD%20LED.pdf
@@ -90236,6 +90187,55 @@ Potentiometer vertical vishay
 0
 3
 3
+PowerUnit_LIB_FTP
+CSTNE16M0V530000R0
+
+
+0
+3
+3
+PowerUnit_LIB_FTP
+FDS2582(SOIC8)
+
+
+0
+8
+3
+PowerUnit_LIB_FTP
+LED
+
+
+0
+2
+2
+PowerUnit_LIB_FTP
+MX20405
+
+
+0
+20
+17
+PowerUnit_LIB_FTP
+QFN-20-1EP_LT3751UFD
+QFN, 20 Pin (http://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/ltc-legacy-qfn/QFN_20_05-08-1711.pdf), generated with kicad-footprint-generator ipc_noLead_generator.py
+QFN NoLead
+0
+27
+21
+PowerUnit_LIB_FTP
+SW_SKRPACE010
+
+
+0
+4
+2
+PowerUnit_LIB_FTP
+WE-FB3751
+
+
+0
+10
+10
 RF
 Skyworks_SKY13575_639LF
 http://www.skyworksinc.com/uploads/documents/SKY13575_639LF_203270D.pdf
@@ -102725,6 +102725,20 @@ newinov-kicad
 9
 9
 newinov-kicad
+7810-8P8C
+http://www.mantech.co.za/datasheets/products/7810--XPXC.pdf
+RJ45 8P8C Ethernet Connector
+0
+10
+9
+newinov-kicad
+43860-0001_MOL
+
+438600001 
+0
+8
+8
+newinov-kicad
 0039532235
 
 
@@ -102752,6 +102766,13 @@ AMASS_XT60PW-M
 0
 4
 4
+newinov-kicad
+B03B-PASK
+
+B03B-PASKLFSN 
+0
+3
+3
 newinov-kicad
 CHS1202415
 CHS1202415-3,Isolated DC/DC Converters,18~36V->15V,8A,120W
@@ -102859,6 +102880,13 @@ DF51_6P
 6
 newinov-kicad
 DF51_8P
+
+
+0
+8
+8
+newinov-kicad
+DF51_8P_SIDE
 
 
 0
@@ -103075,6 +103103,13 @@ LBR127-HLD
 4
 4
 newinov-kicad
+LQH5BPNxxxx38
+
+inductor smd
+0
+2
+2
+newinov-kicad
 M78A
 
 
@@ -103138,6 +103173,13 @@ NUCLEO_F303K8_BOARD
 30
 30
 newinov-kicad
+PA_2P_SIDE
+
+S02B-PASK-2LFSN 
+0
+2
+2
+newinov-kicad
 PA_4P_SIDE
 
 
@@ -103194,12 +103236,12 @@ Connector
 10
 10
 newinov-kicad
-S02BPASK2LFSN
+RPR-220
 
-S02B-PASK-2LFSN 
+
 0
-2
-2
+4
+4
 newinov-kicad
 S03B-PASK
 
@@ -103277,6 +103319,20 @@ TPH11006NL
 0
 3
 3
+newinov-kicad
+VQFN-40_RGF_5x7mm_0.5mm_pitch_thermalpad
+
+
+0
+70
+41
+newinov-kicad
+VQFN-40_RGF_5x7mm_0.5mm_pitch_thermalpad_HandSoldering
+
+
+0
+70
+41
 newinov-kicad
 XG4C-1031
 

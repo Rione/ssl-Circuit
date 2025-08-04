@@ -1392,304 +1392,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "KickerUnit_LIB_SYM:LMR51450"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "LMR51450SDRRR"
-				(at 4.064 -15.494 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "Package_SON:WSON-12-1EP_3x3mm_P0.5mm_EP1.5x2.5mm"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "LMR51450_0_1"
-				(rectangle
-					(start -7.62 15.24)
-					(end 7.62 -13.97)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "LMR51450_1_1"
-				(pin power_in line
-					(at -10.16 11.43 0)
-					(length 2.54)
-					(name "VIN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "12"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at -10.16 8.89 0)
-					(length 2.54)
-					(name "VIN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at -10.16 6.35 0)
-					(length 2.54)
-					(name "VIN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -10.16 3.81 0)
-					(length 2.54)
-					(name "EN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at -10.16 0 0)
-					(length 2.54)
-					(name "AGND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at -10.16 -2.54 0)
-					(length 2.54)
-					(name "PGND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "13"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at -10.16 -7.62 0)
-					(length 2.54)
-					(name "PG"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -10.16 -10.16 0)
-					(length 2.54)
-					(name "RT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 10.16 11.43 180)
-					(length 2.54)
-					(name "BOOT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 10.16 5.08 180)
-					(length 2.54)
-					(name "SW"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 10.16 2.54 180)
-					(length 2.54)
-					(name "SW"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 10.16 0 180)
-					(length 2.54)
-					(name "SW"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 10.16 -3.81 180)
-					(length 2.54)
-					(name "FB"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "MCU_ST_STM32F3:STM32F303K8Tx"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -2595,6 +2297,304 @@
 						)
 					)
 					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "PowerUnit_LIB_SYM:LMR51450"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "LMR51450SDRRR"
+				(at 4.064 -15.494 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "Package_SON:WSON-12-1EP_3x3mm_P0.5mm_EP1.5x2.5mm"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "LMR51450_0_1"
+				(rectangle
+					(start -7.62 15.24)
+					(end 7.62 -13.97)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "LMR51450_1_1"
+				(pin power_in line
+					(at -10.16 11.43 0)
+					(length 2.54)
+					(name "VIN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -10.16 8.89 0)
+					(length 2.54)
+					(name "VIN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -10.16 6.35 0)
+					(length 2.54)
+					(name "VIN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -10.16 3.81 0)
+					(length 2.54)
+					(name "EN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -10.16 0 0)
+					(length 2.54)
+					(name "AGND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -10.16 -2.54 0)
+					(length 2.54)
+					(name "PGND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "13"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at -10.16 -7.62 0)
+					(length 2.54)
+					(name "PG"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -10.16 -10.16 0)
+					(length 2.54)
+					(name "RT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 11.43 180)
+					(length 2.54)
+					(name "BOOT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 5.08 180)
+					(length 2.54)
+					(name "SW"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 2.54 180)
+					(length 2.54)
+					(name "SW"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 0 180)
+					(length 2.54)
+					(name "SW"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 10.16 -3.81 180)
+					(length 2.54)
+					(name "FB"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5582,7 +5582,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "KickerUnit_LIB_FTP:LED"
+		(property "Footprint" "PowerUnit_LIB_FTP:LED"
 			(at 111.76 189.23 90)
 			(effects
 				(font
@@ -5813,7 +5813,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "KickerUnit_LIB_FTP:LED"
+		(property "Footprint" "PowerUnit_LIB_FTP:LED"
 			(at 196.85 189.23 90)
 			(effects
 				(font
@@ -6987,7 +6987,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "KickerUnit_LIB_FTP:LED"
+		(property "Footprint" "PowerUnit_LIB_FTP:LED"
 			(at 166.37 189.23 90)
 			(effects
 				(font
@@ -7599,7 +7599,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "KickerUnit_LIB_FTP:SW_SKRPACE010"
+		(property "Footprint" "PowerUnit_LIB_FTP:SW_SKRPACE010"
 			(at 143.51 142.24 0)
 			(effects
 				(font
@@ -7871,7 +7871,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "KickerUnit_LIB_FTP:SW_SKRPACE010"
+		(property "Footprint" "PowerUnit_LIB_FTP:SW_SKRPACE010"
 			(at 111.76 142.24 0)
 			(effects
 				(font
@@ -8010,7 +8010,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "KickerUnit_LIB_FTP:LED"
+		(property "Footprint" "PowerUnit_LIB_FTP:LED"
 			(at 81.28 189.23 90)
 			(effects
 				(font
@@ -8159,7 +8159,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "KickerUnit_LIB_FTP:LED"
+		(property "Footprint" "PowerUnit_LIB_FTP:LED"
 			(at 96.52 189.23 90)
 			(effects
 				(font
@@ -8238,7 +8238,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "KickerUnit_LIB_FTP:LED"
+		(property "Footprint" "PowerUnit_LIB_FTP:LED"
 			(at 181.61 189.23 90)
 			(effects
 				(font
@@ -9972,6 +9972,107 @@
 		)
 	)
 	(symbol
+		(lib_id "PowerUnit_LIB_SYM:LMR51450")
+		(at 247.65 115.57 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "db20fc74-f217-4089-b435-ed173811170b")
+		(property "Reference" "U3"
+			(at 247.65 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LMR51450SDRRR"
+			(at 247.65 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:WSON-12-1EP_3x3mm_P0.5mm_EP1.5x2.5mm"
+			(at 247.65 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 247.65 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 247.65 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "12"
+			(uuid "3490737a-cc08-47f7-b5dd-8d2f704b18b4")
+		)
+		(pin "11"
+			(uuid "c6334197-003b-4a04-9ad7-e3afb227e7b6")
+		)
+		(pin "10"
+			(uuid "19a36273-cc38-4f0c-aa55-2e4de583e840")
+		)
+		(pin "9"
+			(uuid "d149eb63-a731-4602-94a9-841fdec4d26d")
+		)
+		(pin "8"
+			(uuid "2fa5cf9d-c671-4295-8e90-d9bb33ba0b9c")
+		)
+		(pin "13"
+			(uuid "e37b34fe-9242-4046-93e8-8bbec5c84786")
+		)
+		(pin "5"
+			(uuid "e52ca7a7-7204-4fd3-8223-1d4c1c3588c8")
+		)
+		(pin "6"
+			(uuid "b42844f0-6d6f-46fb-aff0-3d7628a2fb4a")
+		)
+		(pin "4"
+			(uuid "2b92cf23-b57c-4679-8dea-bee22398f196")
+		)
+		(pin "1"
+			(uuid "bea25c5a-9d0a-4fff-a52d-19362c53fb35")
+		)
+		(pin "2"
+			(uuid "d0a20e95-98bf-4974-87ff-17c0749a2231")
+		)
+		(pin "3"
+			(uuid "d6fc22e4-4916-414e-a8a7-0dd5bfc3bea3")
+		)
+		(pin "7"
+			(uuid "bcbc5b19-4175-45dd-85f9-07062e90adb2")
+		)
+		(instances
+			(project ""
+				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
+					(reference "U3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 85.09 153.67 0)
 		(unit 1)
@@ -10031,106 +10132,6 @@
 			(project "KickerBoard_V26_1_1"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
 					(reference "#PWR023")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "KickerUnit_LIB_SYM:LMR51450")
-		(at 247.65 115.57 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "e031ec5d-9d41-43af-bfbb-7b8ed1edcbe9")
-		(property "Reference" "U3"
-			(at 247.65 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LMR51450SDRRR"
-			(at 249.936 131.572 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_SON:WSON-12-1EP_3x3mm_P0.5mm_EP1.5x2.5mm"
-			(at 247.65 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 247.65 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 247.65 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "4"
-			(uuid "eeefad7f-9479-407a-9533-4e27ed4428ab")
-		)
-		(pin "13"
-			(uuid "ca68d8be-b1a4-4465-9314-a3bb0183b462")
-		)
-		(pin "6"
-			(uuid "c1faf793-32fd-42a3-aa11-0ea2883d8e3b")
-		)
-		(pin "1"
-			(uuid "321214d8-72bd-47e6-b7ab-300c95a9386f")
-		)
-		(pin "2"
-			(uuid "2328f230-261e-44b1-96d8-882cbf0d25e7")
-		)
-		(pin "3"
-			(uuid "59d16448-ff1d-43ff-8df4-31b940194cd3")
-		)
-		(pin "7"
-			(uuid "95be8abd-8529-4d0c-94f7-fd317f48328d")
-		)
-		(pin "10"
-			(uuid "d9068c46-532c-467c-b24f-802d67865576")
-		)
-		(pin "9"
-			(uuid "0aea3d14-dbe9-438b-9155-45af5d4c2f57")
-		)
-		(pin "8"
-			(uuid "b6b73ae0-4320-40bb-960f-382e1c4ab284")
-		)
-		(pin "12"
-			(uuid "7704787f-2e9b-49ad-a195-2e574274105e")
-		)
-		(pin "11"
-			(uuid "1ab316a8-48b1-4e0a-bbe1-27383b427cd2")
-		)
-		(pin "5"
-			(uuid "9a35fefe-65f8-4474-afee-504b6d8a96ff")
-		)
-		(instances
-			(project ""
-				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
-					(reference "U3")
 					(unit 1)
 				)
 			)
@@ -10919,7 +10920,7 @@
 			)
 		)
 		(instances
-			(project "KickerBoard_V26_1_1"
+			(project "PowerBoard_V26_1_0"
 				(path "/8c63cf69-5ffc-4db2-9a00-dda132db51ca"
 					(page "2")
 				)

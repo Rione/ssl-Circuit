@@ -483,12 +483,15 @@
   "libraries": {
     "pinned_footprint_libs": [
       "KickerUnit_LIB_SYM",
-      "KickerUnit_LIB_FTP"
+      "KickerUnit_LIB_FTP",
+      "PowerUnit_LIB_FTP"
     ],
-    "pinned_symbol_libs": []
+    "pinned_symbol_libs": [
+      "PowerUnit_LIB_SYM"
+    ]
   },
   "meta": {
-    "filename": "KickerBoard_V26_1_1.kicad_pro",
+    "filename": "PowerBoard_V26_1_0.kicad_pro",
     "version": 3
   },
   "net_settings": {
