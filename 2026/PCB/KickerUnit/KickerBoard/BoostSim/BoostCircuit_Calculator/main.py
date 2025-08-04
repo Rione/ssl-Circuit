@@ -1,6 +1,12 @@
 # LT3751 フライバックコンバータ設計計算ツール
 # 設定ファイル (YAML) から入力値を読み込み、各種パラメータを計算して出力する。
+
+# --実行方法--
+# source .venv/bin/activate　で仮想環境を有効化
+# pip install pyyaml で必要なライブラリをインストール
 # python main.py config.yaml で実行
+# deactivate　で仮想環境を無効化
+
 
 import yaml
 import sys
