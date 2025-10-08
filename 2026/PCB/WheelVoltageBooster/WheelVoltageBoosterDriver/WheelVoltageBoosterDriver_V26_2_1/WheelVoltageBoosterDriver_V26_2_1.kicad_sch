@@ -6009,6 +6009,12 @@
 		(uuid "af52ad41-5fcd-487f-a76f-43de9c41b08e")
 	)
 	(junction
+		(at 128.27 45.72)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b03f634c-e4f1-4a4c-a73d-66d055fabb87")
+	)
+	(junction
 		(at 245.11 43.18)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -8813,6 +8819,16 @@
 			(type default)
 		)
 		(uuid "cedb0ff9-5845-4ef0-a356-40e4630e56e4")
+	)
+	(wire
+		(pts
+			(xy 128.27 45.72) (xy 128.27 48.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d168bf94-c1f1-4de0-a2e7-89d26b2a7730")
 	)
 	(wire
 		(pts
@@ -11702,7 +11718,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical"
 			(at 148.59 48.26 0)
 			(effects
 				(font
@@ -14470,7 +14486,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical"
 			(at 162.56 38.1 0)
 			(effects
 				(font
@@ -15443,7 +15459,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical"
 			(at 148.59 38.1 0)
 			(effects
 				(font
@@ -16364,7 +16380,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical"
 			(at 162.56 48.26 0)
 			(effects
 				(font
