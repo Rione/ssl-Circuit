@@ -2580,8 +2580,8 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at -10.16 8.89 0)
+			(property "Reference" "U1"
+				(at 2.1433 12.7 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2590,7 +2590,7 @@
 				)
 			)
 			(property "Value" "MAX3051"
-				(at 2.54 8.89 0)
+				(at 2.1433 10.16 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2598,7 +2598,7 @@
 					(justify left)
 				)
 			)
-			(property "Footprint" ""
+			(property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
 				(at 0 0 0)
 				(effects
 					(font
@@ -2649,11 +2649,11 @@
 					(start -10.16 7.62)
 					(end 10.16 -7.62)
 					(stroke
-						(width 0.254)
+						(width 0)
 						(type default)
 					)
 					(fill
-						(type background)
+						(type none)
 					)
 				)
 			)
@@ -4597,14 +4597,14 @@
 				(pin bidirectional line
 					(at 16.51 24.13 180)
 					(length 2.54)
-					(name "PB14/USART1_TX"
+					(name "PB15/USART1_RX"
 						(effects
 							(font
 								(size 1.27 1.27)
 							)
 						)
 					)
-					(number "27"
+					(number "28"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4615,14 +4615,14 @@
 				(pin bidirectional line
 					(at 16.51 21.59 180)
 					(length 2.54)
-					(name "PB15/USART1_RX"
+					(name "PB14/USART1_TX"
 						(effects
 							(font
 								(size 1.27 1.27)
 							)
 						)
 					)
-					(number "28"
+					(number "27"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -7262,6 +7262,16 @@
 	)
 	(wire
 		(pts
+			(xy 132.08 63.5) (xy 134.62 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "533c40bf-5e8a-450b-8dfe-e54a5a6b9f8d")
+	)
+	(wire
+		(pts
 			(xy 97.79 68.58) (xy 100.33 68.58)
 		)
 		(stroke
@@ -8689,6 +8699,16 @@
 			(type default)
 		)
 		(uuid "c6948d45-3b36-4b35-95ab-da4981730d36")
+	)
+	(wire
+		(pts
+			(xy 132.08 66.04) (xy 134.62 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c6a65c9f-d0e2-44cd-9725-728dd6a8a2af")
 	)
 	(wire
 		(pts
@@ -14823,6 +14843,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 134.62 63.5 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "668add33-5be7-459a-9eba-67e3c4df1060")
+		(property "Reference" "#PWR0123"
+			(at 140.97 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 138.43 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 134.62 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 134.62 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 134.62 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "54c0b6c4-72b5-494c-baa5-45c9feabd4b8")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_2_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "#PWR0123")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 238.76 43.18 90)
 		(unit 1)
@@ -15841,6 +15926,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+10V")
+		(at 134.62 66.04 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "7caf7f3d-96f1-4e78-b88f-3990e76b0345")
+		(property "Reference" "#PWR035"
+			(at 130.81 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "25V"
+			(at 139.7 65.786 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 134.62 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 134.62 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+10V\""
+			(at 134.62 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4e25b154-e1cc-43ac-b2be-99db24a55d54")
+		)
+		(instances
+			(project "WheelVoltageBoosterDriver_V26_2_1"
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "#PWR035")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 245.11 60.96 0)
 		(unit 1)
@@ -16508,6 +16658,74 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:Conn_01x02_Pin")
+		(at 127 63.5 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "88364029-f325-41bd-b3d5-0643b97c51f4")
+		(property "Reference" "J6"
+			(at 127.635 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x02_Pin"
+			(at 127.635 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "WheelVoltageBooster_LIB_FTP:AMASS_XT30PW-M_1x02_P2.50mm_Horizontal_ud"
+			(at 127 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 127 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated"
+			(at 127 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "a4c47735-b266-4a74-8da4-a1a907710a05")
+		)
+		(pin "1"
+			(uuid "4fefc6c5-819a-4349-8824-8496c9dfeebf")
+		)
+		(instances
+			(project ""
+				(path "/80c9ed4f-d051-48b1-8382-19040773b73e"
+					(reference "J6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 138.43 172.72 90)
 		(unit 1)
@@ -16867,7 +17085,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "WheelVoltageBooster_LIB_FTP:ST32H523CEU6"
+		(property "Footprint" "UFQFPN-48_STM"
 			(at 60.452 85.852 0)
 			(effects
 				(font
