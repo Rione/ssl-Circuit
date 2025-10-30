@@ -1,4 +1,4 @@
-25799764729080755
+25833204599338045
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -90223,6 +90223,13 @@ QFN NoLead
 27
 21
 PowerUnit_LIB_FTP
+S&slash_DPBW06_MWU
+
+SPBW06F-12 
+0
+7
+7
+PowerUnit_LIB_FTP
 SW_SKRPACE010
 
 
@@ -92499,6 +92506,13 @@ resistor
 2
 Resistor_SMD
 R_0603_1608Metric_Pad0.98x0.95mm_HandSolder
+Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator
+resistor handsolder
+0
+2
+2
+Resistor_SMD
+R_0603_1608Metric_Pad0.98x0.95mm_HandSolder_1
 Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator
 resistor handsolder
 0
@@ -102690,6 +102704,13 @@ Varistor VF
 2
 2
 newinov-kicad
+614008235023
+
+
+0
+12
+9
+newinov-kicad
 2-7J2B
 
 
@@ -102710,6 +102731,13 @@ newinov-kicad
 0
 5
 5
+newinov-kicad
+8PCV-04-006
+
+
+0
+4
+4
 newinov-kicad
 09FDZ-BT(S)
 
@@ -102746,6 +102774,13 @@ newinov-kicad
 23
 23
 newinov-kicad
+696103201002
+
+
+0
+2
+2
+newinov-kicad
 ACT1210D
 
 
@@ -102767,12 +102802,26 @@ AMASS_XT60PW-M
 4
 4
 newinov-kicad
+B02B-PASK
+
+B02B-PASKLFSN 
+0
+2
+2
+newinov-kicad
 B03B-PASK
 
 B03B-PASKLFSN 
 0
 3
 3
+newinov-kicad
+B05B-PASK
+
+B05B-PASK 
+0
+5
+5
 newinov-kicad
 CHS1202415
 CHS1202415-3,Isolated DC/DC Converters,18~36V->15V,8A,120W
@@ -102781,12 +102830,33 @@ Power Supply,DCDC BAT
 8
 8
 newinov-kicad
+CL-SB-12B-01
+
+CL-SB-12B-01T 
+0
+3
+3
+newinov-kicad
 CLIK-MATE(4P)-RightAngle[5031750406]
 5031750406-1
 Connector
 0
 4
 4
+newinov-kicad
+CLIK-MATE(8P)-RightAngle[503175]
+
+5031750800 
+0
+8
+8
+newinov-kicad
+CLIK-MATE(8P)-Vertical[503159]
+
+5031590800 
+0
+8
+8
 newinov-kicad
 CMC_SRF4532220Y
 SRF4532-220Y-2
@@ -102991,6 +103061,13 @@ DRV8701ERGET
 25
 25
 newinov-kicad
+D_SOD-123F_Handsoldering
+D_SOD-123F
+D_SOD-123F
+0
+2
+2
+newinov-kicad
 D_SOD-923_handsoldering
 https://www.onsemi.com/pub/Collateral/ESD9B-D.PDF#page=4
 Diode SOD923
@@ -103018,6 +103095,13 @@ F0505S-2WR3
 0
 4
 4
+newinov-kicad
+FUSC6125X279N
+
+
+0
+2
+2
 newinov-kicad
 HIF6-26PA-1.27DSA
 
@@ -103138,6 +103222,13 @@ PMCT8316Z0TRGFR
 41
 41
 newinov-kicad
+MINI-LOCK(5P)-RightAngle[534260510]
+
+534260510 
+0
+5
+5
+newinov-kicad
 Micro-Fit3.0(2P)[43045-0200]
 43045-02YY
 Connector
@@ -103150,6 +103241,13 @@ Micro-Fit3.0(2P)[43650-0200]
 Connector
 0
 2
+2
+newinov-kicad
+MiniFuse-3557-15
+
+
+0
+4
 2
 newinov-kicad
 NI_LOGO1
@@ -103215,11 +103313,25 @@ PKB24SPCH3601-B0
 2
 2
 newinov-kicad
+PKM22EPPH4001-B0
+
+
+0
+2
+1
+newinov-kicad
 PowerDin_4pin
 
 
 0
 5
+5
+newinov-kicad
+PowerPAK_SO-8L_Single_Handsoldering
+PowerPAK SO-8L Single (https://www.vishay.com/docs/64721/an913.pdf)
+PowerPAK SO-8L_Single
+0
+13
 5
 newinov-kicad
 QFN-28-1EP_6x6mm_P0.65mm_EP4.25x4.25mm_remodering
@@ -103229,12 +103341,26 @@ QFN NoLead
 29
 29
 newinov-kicad
+QFN-48-1EP-4CPAD_7x7mm_P0.5mm_EP5.6x5.6mm
+QFN, 48 Pin (http://www.st.com/resource/en/datasheet/stm32f042k6.pdf#page=94), generated with kicad-footprint-generator ipc_noLead_generator.py
+QFN NoLead ST_UFQFPN48 Analog_CP-48-13 JEDEC_MO-220-WKKD-4
+0
+78
+53
+newinov-kicad
 RJ45_A00108262450
 A00-108-262-450-7
 Connector
 0
 10
 10
+newinov-kicad
+RJ45_Molex_855115001_Vertical
+
+
+0
+8
+8
 newinov-kicad
 RPR-220
 
@@ -103305,6 +103431,13 @@ MOSFET (N-Channel)
 0
 10
 6
+newinov-kicad
+SSOP-18_4.4x6.5mm_P0.65mm_Handsoldering
+SSOP18: plastic shrink small outline package; 18 leads; body width 4.4 mm (http://toshiba.semicon-storage.com/info/docget.jsp?did=30523&prodName=TBD62783APG)
+SSOP 0.65
+0
+18
+18
 newinov-kicad
 THR_Cap_D12.5mm_L20mm
 
