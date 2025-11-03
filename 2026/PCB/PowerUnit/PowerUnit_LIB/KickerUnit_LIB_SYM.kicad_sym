@@ -9,22 +9,20 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(property "Reference" "T"
-			(at 0 6.35 0)
+		(property "Reference" "T1"
+			(at 0 10.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify bottom)
 			)
 		)
 		(property "Value" "750032052"
-			(at 0.508 -8.128 0)
+			(at 0 7.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify bottom)
 			)
 		)
 		(property "Footprint" "PowerUnit_LIB_FTP:WE-FB3751"
@@ -250,44 +248,6 @@
 					)
 				)
 			)
-		)
-		(symbol "750032052_1_0"
-			(pin passive line
-				(at -7.62 5.08 0)
-				(length 2.54)
-				(name "~"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "4"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at -7.62 -5.08 0)
-				(length 2.54)
-				(name "~"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
 			(pin passive line
 				(at 7.62 5.08 180)
 				(length 2.54)
@@ -298,7 +258,7 @@
 						)
 					)
 				)
-				(number "5"
+				(number "1"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -316,10 +276,162 @@
 						)
 					)
 				)
+				(number "10"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+		)
+		(symbol "750032052_1_0"
+			(pin passive line
+				(at -8.89 5.08 0)
+				(length 1.27)
+				(name "~"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -8.89 5.08 0)
+				(length 3.81)
+				(name "~"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -8.89 -5.08 0)
+				(length 1.27)
+				(name "~"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -8.89 -5.08 0)
+				(length 3.81)
+				(name "~"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
 				(number "7"
 					(effects
 						(font
 							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+		)
+		(symbol "750032052_1_1"
+			(pin no_connect line
+				(at -8.89 15.24 0)
+				(length 2.54)
+				(hide yes)
+				(name "N.C"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin no_connect line
+				(at -8.89 12.7 0)
+				(length 2.54)
+				(hide yes)
+				(name "N.C"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin no_connect line
+				(at -8.89 10.16 0)
+				(length 2.54)
+				(hide yes)
+				(name "N.C"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin no_connect line
+				(at -8.89 7.62 0)
+				(length 2.54)
+				(hide yes)
+				(name "N.C"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -327,43 +439,57 @@
 		)
 		(embedded_fonts no)
 	)
-	(symbol "750313443"
-		(pin_names
-			(offset 1.016)
-		)
+	(symbol "FAN3229TMX"
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(property "Reference" "T"
-			(at 0 6.35 0)
+		(property "Reference" "U"
+			(at -2.54 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify bottom)
+				(justify right)
+			)
+		)
+		(property "Value" "FAN3229TMX"
+			(at -2.54 11.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+			(at 1.27 -11.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
-		(property "Value" "750313443"
-			(at 0.508 -8.128 0)
+		(property "Datasheet" "https://www.onsemi.com/pdf/datasheet/fan3229t_f085-d.pdf"
+			(at 0 2.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify bottom)
+				(hide yes)
 			)
 		)
-		(property "Footprint" "PowerUnit_LIB_FTP:WE-FB3751"
+		(property "Description" "Low-Voltage 18V PMOS-NMOS Bridge Driver, SOIC-8"
 			(at 0 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify bottom)
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
+		(property "ki_keywords" "Driver MOSFET"
 			(at 0 0 0)
 			(effects
 				(font
@@ -372,7 +498,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "ki_fp_filters" "*SOIC*3.9x4.9mm*P1.27mm*"
 			(at 0 0 0)
 			(effects
 				(font
@@ -381,271 +507,160 @@
 				(hide yes)
 			)
 		)
-		(symbol "750313443_0_0"
-			(arc
-				(start -2.54 5.08)
-				(mid -1.2755 3.81)
-				(end -2.54 2.54)
+		(symbol "FAN3229TMX_0_1"
+			(rectangle
+				(start -7.62 10.16)
+				(end 7.62 -10.16)
 				(stroke
 					(width 0.254)
 					(type default)
 				)
 				(fill
-					(type none)
-				)
-			)
-			(arc
-				(start -2.54 2.54)
-				(mid -1.2755 1.27)
-				(end -2.54 0)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(arc
-				(start -2.54 0)
-				(mid -1.2755 -1.27)
-				(end -2.54 -2.54)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(arc
-				(start -2.54 -2.54)
-				(mid -1.2755 -3.81)
-				(end -2.54 -5.08)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy -2.54 5.08) (xy -5.08 5.08)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy -2.54 -5.08) (xy -5.08 -5.08)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(circle
-				(center -2.286 -3.81)
-				(radius 0.2032)
-				(stroke
-					(width 0.381)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 0 5.08) (xy 0 -5.08)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(circle
-				(center 2.286 3.81)
-				(radius 0.2032)
-				(stroke
-					(width 0.381)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 2.54 5.08) (xy 5.08 5.08)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 2.54 -5.08) (xy 5.08 -5.08)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(arc
-				(start 2.54 2.54)
-				(mid 1.2755 3.81)
-				(end 2.54 5.08)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(arc
-				(start 2.54 0)
-				(mid 1.2755 1.27)
-				(end 2.54 2.54)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(arc
-				(start 2.54 -2.54)
-				(mid 1.2755 -1.27)
-				(end 2.54 0)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(arc
-				(start 2.54 -5.08)
-				(mid 1.2755 -3.81)
-				(end 2.54 -2.54)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(text "N1"
-				(at -7.62 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "N2"
-				(at 7.62 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
+					(type background)
 				)
 			)
 		)
-		(symbol "750313443_1_0"
-			(pin passive line
-				(at -7.62 5.08 0)
+		(symbol "FAN3229TMX_1_1"
+			(pin input line
+				(at -10.16 5.08 0)
 				(length 2.54)
-				(name "~"
+				(name "INA+"
 					(effects
 						(font
-							(size 1.016 1.016)
+							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "4"
+				(number "1"
 					(effects
 						(font
-							(size 1.016 1.016)
+							(size 1.27 1.27)
 						)
 					)
 				)
 			)
-			(pin passive line
-				(at -7.62 -5.08 0)
+			(pin input line
+				(at -10.16 2.54 0)
 				(length 2.54)
-				(name "~"
+				(name "INA-"
 					(effects
 						(font
-							(size 1.016 1.016)
+							(size 1.27 1.27)
 						)
 					)
 				)
 				(number "2"
 					(effects
 						(font
-							(size 1.016 1.016)
+							(size 1.27 1.27)
 						)
 					)
 				)
 			)
-			(pin passive line
-				(at 7.62 5.08 180)
+			(pin input line
+				(at -10.16 -1.27 0)
 				(length 2.54)
-				(name "~"
+				(name "INB+"
 					(effects
 						(font
-							(size 1.016 1.016)
+							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "5"
+				(number "3"
 					(effects
 						(font
-							(size 1.016 1.016)
+							(size 1.27 1.27)
 						)
 					)
 				)
 			)
-			(pin passive line
-				(at 7.62 -5.08 180)
+			(pin input line
+				(at -10.16 -3.81 0)
 				(length 2.54)
-				(name "~"
+				(name "INB-"
 					(effects
 						(font
-							(size 1.016 1.016)
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 12.7 270)
+				(length 2.54)
+				(name "VDD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 -12.7 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 10.16 5.08 180)
+				(length 2.54)
+				(name "OUTA"
+					(effects
+						(font
+							(size 1.27 1.27)
 						)
 					)
 				)
 				(number "7"
 					(effects
 						(font
-							(size 1.016 1.016)
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 10.16 2.54 180)
+				(length 2.54)
+				(name "OUTB"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -1850,6 +1865,194 @@
 					)
 				)
 				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "STTH30L06G-TR"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0.254)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "D"
+			(at -1.27 2.032 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "STTH30L06G-TR"
+			(at -3.81 -2.032 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 0 0 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Diode, small symbol"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "diode"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "STTH30L06G-TR_0_1"
+			(polyline
+				(pts
+					(xy -0.762 0) (xy 0.762 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -0.762 -1.016) (xy -0.762 1.016)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.762 -1.016) (xy -0.762 0) (xy 0.762 1.016) (xy 0.762 -1.016)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "STTH30L06G-TR_1_1"
+			(pin passive line
+				(at -2.54 0 0)
+				(length 1.778)
+				(name "K"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 2.54 0 180)
+				(length 1.778)
+				(name "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 2.54 0 180)
+				(length 1.778)
+				(name "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
 					(effects
 						(font
 							(size 1.27 1.27)
