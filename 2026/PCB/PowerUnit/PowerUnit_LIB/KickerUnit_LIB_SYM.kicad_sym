@@ -439,7 +439,7 @@
 		)
 		(embedded_fonts no)
 	)
-	(symbol "FAN3229TMX"
+	(symbol "FAN3227TMX"
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -452,7 +452,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "FAN3229TMX"
+		(property "Value" "FAN3227TMX"
 			(at -2.54 11.43 0)
 			(effects
 				(font
@@ -507,7 +507,7 @@
 				(hide yes)
 			)
 		)
-		(symbol "FAN3229TMX_0_1"
+		(symbol "FAN3227TMX_0_1"
 			(rectangle
 				(start -7.62 10.16)
 				(end 7.62 -10.16)
@@ -520,29 +520,11 @@
 				)
 			)
 		)
-		(symbol "FAN3229TMX_1_1"
+		(symbol "FAN3227TMX_1_1"
 			(pin input line
 				(at -10.16 5.08 0)
 				(length 2.54)
-				(name "INA+"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 2.54 0)
-				(length 2.54)
-				(name "INA-"
+				(name "INA"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -558,16 +540,34 @@
 				)
 			)
 			(pin input line
-				(at -10.16 -1.27 0)
+				(at -10.16 2.54 0)
 				(length 2.54)
-				(name "INB+"
+				(name "ENA"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "3"
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 -1.27 0)
+				(length 2.54)
+				(name "INB"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -578,14 +578,14 @@
 			(pin input line
 				(at -10.16 -3.81 0)
 				(length 2.54)
-				(name "INB-"
+				(name "ENB"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "4"
+				(number "8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -621,7 +621,7 @@
 						)
 					)
 				)
-				(number "8"
+				(number "3"
 					(effects
 						(font
 							(size 1.27 1.27)
