@@ -1128,10 +1128,28 @@
 		(uuid "074f51ba-4b1f-42cb-af3a-bded23171257")
 	)
 	(junction
+		(at 25.4 34.29)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0bff9b12-33e6-4cc2-b22d-1c07726ca953")
+	)
+	(junction
 		(at 67.31 67.31)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "5755c52d-d7ba-4005-908c-8adedb783294")
+	)
+	(junction
+		(at 35.56 34.29)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7294b8a5-e4f6-49e1-a32f-dcd6a1273ebb")
+	)
+	(junction
+		(at 21.59 34.29)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "79b47fe3-438e-47ad-95ac-a4d787c295f0")
 	)
 	(junction
 		(at 49.53 62.23)
@@ -1177,7 +1195,17 @@
 	)
 	(wire
 		(pts
-			(xy 27.94 31.75) (xy 27.94 34.29)
+			(xy 21.59 34.29) (xy 25.4 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3e67f5ed-c0be-45dc-8ab1-578b8d8a6cef")
+	)
+	(wire
+		(pts
+			(xy 25.4 31.75) (xy 25.4 34.29)
 		)
 		(stroke
 			(width 0)
@@ -1194,6 +1222,16 @@
 			(type default)
 		)
 		(uuid "5465a906-336a-4c80-9876-9377375ec806")
+	)
+	(wire
+		(pts
+			(xy 35.56 34.29) (xy 35.56 36.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6287330a-0828-443e-a480-7c832e4ace5c")
 	)
 	(wire
 		(pts
@@ -1224,6 +1262,46 @@
 			(type default)
 		)
 		(uuid "75fe6148-3506-4ad5-9514-2e59b838fd7a")
+	)
+	(wire
+		(pts
+			(xy 25.4 34.29) (xy 27.94 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "94271dcd-4832-4561-991c-7f76f2b3583d")
+	)
+	(wire
+		(pts
+			(xy 21.59 34.29) (xy 21.59 36.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0e38dbd-5cfc-4213-8096-65b3ec9f284a")
+	)
+	(wire
+		(pts
+			(xy 21.59 31.75) (xy 21.59 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b508e1d6-275c-40f7-88e4-97e819f2d540")
+	)
+	(wire
+		(pts
+			(xy 25.4 34.29) (xy 25.4 36.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dde42271-bebf-47e0-bfd5-c7e25e09eb67")
 	)
 	(global_label "OUT"
 		(shape input)
@@ -1278,7 +1356,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0a8d9d38-9670-432c-89f0-392e98eb7bbf")
-		(property "Reference" "#PWR07"
+		(property "Reference" "#PWR03"
 			(at 87.63 67.31 0)
 			(effects
 				(font
@@ -1328,7 +1406,74 @@
 		(instances
 			(project ""
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
-					(reference "#PWR07")
+					(reference "#PWR03")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 21.59 36.83 0)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "138b1248-ead2-45e2-b459-4fecd970a500")
+		(property "Reference" "TP4"
+			(at 21.59 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 24.13 38.8621 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Keystone_5015_Micro_Mini"
+			(at 26.67 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 26.67 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 21.59 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "74efa05d-4e9e-4303-83ab-c256cda876b3")
+		)
+		(instances
+			(project "OtherBoards_V26_1_1"
+				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
+					(reference "TP4")
 					(unit 1)
 				)
 			)
@@ -1343,7 +1488,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1b5d5706-4f8f-4688-a56d-d3654323a09f")
-		(property "Reference" "#PWR04"
+		(property "Reference" "#PWR06"
 			(at 49.53 76.2 0)
 			(effects
 				(font
@@ -1393,7 +1538,7 @@
 		(instances
 			(project ""
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
-					(reference "#PWR04")
+					(reference "#PWR06")
 					(unit 1)
 				)
 			)
@@ -1465,6 +1610,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 35.56 36.83 0)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3e072133-1fd8-49cc-9c3d-7fc70aaec3da")
+		(property "Reference" "TP6"
+			(at 35.56 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 38.1 38.8621 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Keystone_5015_Micro_Mini"
+			(at 40.64 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 40.64 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 35.56 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4e87da0f-bd1e-451e-9f3b-9296c849bdbb")
+		)
+		(instances
+			(project "OtherBoards_V26_1_1"
+				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
+					(reference "TP6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3V3")
 		(at 29.21 62.23 0)
 		(unit 1)
@@ -1473,7 +1685,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "430186a9-0379-487a-a695-6e90cf93e962")
-		(property "Reference" "#PWR01"
+		(property "Reference" "#PWR02"
 			(at 29.21 66.04 0)
 			(effects
 				(font
@@ -1523,7 +1735,7 @@
 		(instances
 			(project "OtherBoards_V26_1_1"
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
-					(reference "#PWR01")
+					(reference "#PWR02")
 					(unit 1)
 				)
 			)
@@ -1589,6 +1801,72 @@
 			(project "OtherBoards_V26_1_1"
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
 					(reference "H4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 21.59 31.75 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6e22f2e3-139f-48eb-b5a4-4abe5a978a01")
+		(property "Reference" "TP1"
+			(at 21.59 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 24.13 29.7179 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Keystone_5015_Micro_Mini"
+			(at 26.67 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 26.67 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 21.59 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1a133f11-764d-44a5-ae3b-2a1c8cdb43f2")
+		)
+		(instances
+			(project "OtherBoards_V26_1_1"
+				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
+					(reference "TP1")
 					(unit 1)
 				)
 			)
@@ -1668,7 +1946,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "839c3b82-8ebd-42c8-8b20-6ae70bf1e2dc")
-		(property "Reference" "#PWR05"
+		(property "Reference" "#PWR07"
 			(at 67.31 76.2 0)
 			(effects
 				(font
@@ -1718,7 +1996,7 @@
 		(instances
 			(project "OtherBoards_V26_1_1"
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
-					(reference "#PWR05")
+					(reference "#PWR07")
 					(unit 1)
 				)
 			)
@@ -1726,15 +2004,15 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 27.94 31.75 0)
+		(at 25.4 31.75 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "9dce333f-9f48-4907-ac3d-60773ab844ff")
-		(property "Reference" "TP1"
-			(at 27.94 26.67 0)
+		(property "Reference" "TP2"
+			(at 25.4 26.67 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1742,7 +2020,7 @@
 			)
 		)
 		(property "Value" "TestPoint"
-			(at 30.48 29.7179 0)
+			(at 27.94 29.7179 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1751,8 +2029,8 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_1.5x1.5mm"
-			(at 33.02 31.75 0)
+		(property "Footprint" "TestPoint:TestPoint_Keystone_5015_Micro_Mini"
+			(at 30.48 31.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1761,7 +2039,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 33.02 31.75 0)
+			(at 30.48 31.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1770,7 +2048,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 27.94 31.75 0)
+			(at 25.4 31.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1784,7 +2062,7 @@
 		(instances
 			(project "OtherBoards_V26_1_1"
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
-					(reference "TP1")
+					(reference "TP2")
 					(unit 1)
 				)
 			)
@@ -1815,7 +2093,7 @@
 				)
 			)
 		)
-		(property "Footprint" "LED_THT:LED_D3.0mm"
+		(property "Footprint" "0-MyLibrary:LED_3mm_TopBottom"
 			(at 31.75 34.29 0)
 			(effects
 				(font
@@ -2031,7 +2309,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "cd305cea-2d69-4154-aa94-6f9fc0fa992d")
-		(property "Reference" "#PWR06"
+		(property "Reference" "#PWR04"
 			(at 77.47 72.39 0)
 			(effects
 				(font
@@ -2081,7 +2359,74 @@
 		(instances
 			(project "OtherBoards_V26_1_1"
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
-					(reference "#PWR06")
+					(reference "#PWR04")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 25.4 36.83 0)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d47034af-47a0-4437-8c32-b0054a0fb5da")
+		(property "Reference" "TP5"
+			(at 25.4 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 27.94 38.8621 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Keystone_5015_Micro_Mini"
+			(at 30.48 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 30.48 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 25.4 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0f15bc89-b234-4631-b9a2-29f3e860777c")
+		)
+		(instances
+			(project "OtherBoards_V26_1_1"
+				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
+					(reference "TP5")
 					(unit 1)
 				)
 			)
@@ -2161,7 +2506,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d8f2d32c-42a0-478e-972b-724b353dc6fb")
-		(property "Reference" "TP2"
+		(property "Reference" "TP3"
 			(at 35.56 26.67 0)
 			(effects
 				(font
@@ -2179,7 +2524,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_1.5x1.5mm"
+		(property "Footprint" "TestPoint:TestPoint_Keystone_5015_Micro_Mini"
 			(at 40.64 31.75 0)
 			(effects
 				(font
@@ -2212,7 +2557,7 @@
 		(instances
 			(project "OtherBoards_V26_1_1"
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
-					(reference "TP2")
+					(reference "TP3")
 					(unit 1)
 				)
 			)
@@ -2297,7 +2642,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f6ff71e2-1af8-49e6-afc2-1817c3e5ad3a")
-		(property "Reference" "#PWR03"
+		(property "Reference" "#PWR01"
 			(at 49.53 63.5 0)
 			(effects
 				(font
@@ -2347,7 +2692,7 @@
 		(instances
 			(project "OtherBoards_V26_1_1"
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
-					(reference "#PWR03")
+					(reference "#PWR01")
 					(unit 1)
 				)
 			)
@@ -2362,7 +2707,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f929e56b-48fc-43c4-b695-1f841ee01333")
-		(property "Reference" "#PWR02"
+		(property "Reference" "#PWR05"
 			(at 29.21 76.2 0)
 			(effects
 				(font
@@ -2412,7 +2757,7 @@
 		(instances
 			(project "OtherBoards_V26_1_1"
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
-					(reference "#PWR02")
+					(reference "#PWR05")
 					(unit 1)
 				)
 			)
