@@ -9987,6 +9987,10 @@
 		(uuid "feea284d-0c54-40ed-9990-b7923344793b")
 	)
 	(no_connect
+		(at 135.89 128.27)
+		(uuid "06eb8849-9077-41d9-bf24-a36d0afba153")
+	)
+	(no_connect
 		(at 135.89 102.87)
 		(uuid "1b16c695-9bee-4209-ba75-cdf56e5da7c3")
 	)
@@ -10019,16 +10023,16 @@
 		(uuid "5577f7e7-1440-4181-b16a-64e3c8363ac1")
 	)
 	(no_connect
-		(at 135.89 120.65)
-		(uuid "62e39461-63af-485d-914e-7334aa227458")
-	)
-	(no_connect
 		(at 322.58 162.56)
 		(uuid "74495b83-66cb-44c8-8320-7527b000f183")
 	)
 	(no_connect
 		(at 88.9 234.95)
 		(uuid "7fdc2e70-337d-41ff-bf43-ab2919b003e8")
+	)
+	(no_connect
+		(at 100.33 87.63)
+		(uuid "9012670d-a2a8-44fb-bd45-5759833cba95")
 	)
 	(no_connect
 		(at 88.9 245.11)
@@ -10043,16 +10047,8 @@
 		(uuid "a4f1865a-1d6c-438c-9455-30369fd23d62")
 	)
 	(no_connect
-		(at 135.89 107.95)
-		(uuid "adb74dc0-5a3a-4eec-a915-7a22df8067f2")
-	)
-	(no_connect
 		(at 229.87 227.33)
 		(uuid "b26e69f4-ff90-4fcc-9bd0-33dd9802343b")
-	)
-	(no_connect
-		(at 135.89 115.57)
-		(uuid "ba02bfa4-1f5f-4014-bbab-0e2e3096eea3")
 	)
 	(no_connect
 		(at 100.33 110.49)
@@ -10067,6 +10063,10 @@
 		(uuid "bd325d50-b6be-4bdb-bb76-834b780cb06c")
 	)
 	(no_connect
+		(at 135.89 74.93)
+		(uuid "c01fc242-bd88-4481-8096-9d39e2498498")
+	)
+	(no_connect
 		(at 100.33 125.73)
 		(uuid "c7fc9a39-0fb0-4234-9caf-7b2f7189f4d5")
 	)
@@ -10079,6 +10079,10 @@
 		(uuid "d2a4dded-02cd-4946-9c51-d87910e2dad8")
 	)
 	(no_connect
+		(at 135.89 107.95)
+		(uuid "d919093f-b765-4a57-89aa-9bd22c96cfce")
+	)
+	(no_connect
 		(at 88.9 262.89)
 		(uuid "e66c1052-3fe5-433f-b6bf-4f3fc9172f85")
 	)
@@ -10087,8 +10091,12 @@
 		(uuid "e7176ae3-c5c0-4cc5-ad40-c8aaceba02ea")
 	)
 	(no_connect
-		(at 129.54 265.43)
-		(uuid "e91740d7-0281-4ea9-8aa9-28d13d257093")
+		(at 100.33 115.57)
+		(uuid "ea3685f5-e37b-4b53-9c88-185025a74ef5")
+	)
+	(no_connect
+		(at 100.33 95.25)
+		(uuid "ecaf4954-5dee-440c-92f2-68f947797062")
 	)
 	(no_connect
 		(at 114.3 214.63)
@@ -14338,28 +14346,6 @@
 			)
 		)
 	)
-	(global_label "LED2"
-		(shape output)
-		(at 200.66 86.36 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "098a9689-2f70-4f3f-9187-6b5f7c8a4c44")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 193.505 86.36 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "SWDIO"
 		(shape input)
 		(at 59.69 151.13 0)
@@ -14469,6 +14455,28 @@
 			)
 		)
 	)
+	(global_label "LED4"
+		(shape output)
+		(at 135.89 143.51 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1196f00b-41f4-47a7-9f53-77d3c2b98744")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 143.5318 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "I2C_SCL"
 		(shape bidirectional)
 		(at 135.89 123.19 0)
@@ -14504,6 +14512,28 @@
 		(uuid "168f6172-d220-4312-9b2d-b3a88f20008b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 277.0632 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "discharge"
+		(shape bidirectional)
+		(at 135.89 120.65 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "18074733-1402-4310-85de-4d042b0fd224")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 149.1788 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15195,28 +15225,6 @@
 			)
 		)
 	)
-	(global_label "LED1"
-		(shape output)
-		(at 200.66 83.82 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "548ef9eb-ef0a-4ed9-8af6-c6ff80f40561")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 193.505 83.82 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "UART4_TX"
 		(shape output)
 		(at 135.89 64.77 0)
@@ -15252,50 +15260,6 @@
 		(uuid "569ef54d-ec40-4a8d-a7ce-a333ecfd7191")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 84.4634 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "LED3"
-		(shape output)
-		(at 200.66 88.9 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5a26fcd9-2016-4572-a2a9-ad3619e9f5d7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 193.505 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "discharge"
-		(shape bidirectional)
-		(at 181.61 72.39 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5a6fb859-ad72-49c9-9472-3c4ff036c2e6")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 168.3212 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15503,6 +15467,28 @@
 			)
 		)
 	)
+	(global_label "BATTERY_MEASURE"
+		(shape input)
+		(at 135.89 115.57 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6c7a468e-7e62-4c41-8641-8df1127699cd")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 155.1238 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "UART5_RX"
 		(shape input)
 		(at 257.81 44.45 180)
@@ -15613,6 +15599,28 @@
 			)
 		)
 	)
+	(global_label "LED0"
+		(shape output)
+		(at 135.89 130.81 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "813bae1c-5795-4e02-b5c7-426324f8e3e8")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 143.045 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "R4"
 		(shape input)
 		(at 88.9 260.35 180)
@@ -15653,6 +15661,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "LED3"
+		(shape output)
+		(at 135.89 140.97 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "842e187b-71d5-4f2b-b775-5e5d442fc02f")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 143.5318 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -16558,9 +16588,9 @@
 			)
 		)
 	)
-	(global_label "LED0"
+	(global_label "LED1"
 		(shape output)
-		(at 156.21 77.47 0)
+		(at 135.89 135.89 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16568,9 +16598,9 @@
 			)
 			(justify left)
 		)
-		(uuid "d0e173c4-86a0-4bd4-9ad4-a34ad2c914a7")
+		(uuid "cef51f6a-710c-4dc0-a908-1b39aa351122")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 163.365 77.47 0)
+			(at 143.5318 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16800,28 +16830,6 @@
 			)
 		)
 	)
-	(global_label "LED4"
-		(shape output)
-		(at 200.66 91.44 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "e0af46f9-2cab-4b66-bb09-fcba6ae24d17")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 193.505 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "SWCLK"
 		(shape bidirectional)
 		(at 135.89 100.33 0)
@@ -16862,6 +16870,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "LED2"
+		(shape output)
+		(at 135.89 138.43 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "eb32cbca-0d50-4914-8323-5841a77bfb4f")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 143.5318 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -16928,28 +16958,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "BATTERY_MEASURE"
-		(shape input)
-		(at 177.8 55.88 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "f1daa1b2-f756-4695-a2b3-bcb872988b4a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 197.0338 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -17764,7 +17772,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "MainBoard:SPKR_PKLCS1212E4001-R1"
+		(property "Footprint" "0_Library:SPKR_PKLCS1212E4001-R1"
 			(at 412.75 53.34 0)
 			(effects
 				(font
@@ -18142,7 +18150,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MainBoard:SW_SKRPACE010"
+		(property "Footprint" "0_Library:SW_SKRPACE010"
 			(at 63.5 43.18 0)
 			(effects
 				(font
@@ -18618,7 +18626,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 216.8652 303.53 0)
 			(effects
 				(font
@@ -20729,7 +20737,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "MainBoard:OSC_CSTNE16M0V530000R0"
+		(property "Footprint" "0_Library:OSC_CSTNE16M0V530000R0"
 			(at 64.77 111.76 0)
 			(effects
 				(font
@@ -20924,7 +20932,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 225.7552 313.69 0)
 			(effects
 				(font
@@ -21130,7 +21138,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MainBoard:raspberreyPi_2_3"
+		(property "Footprint" "0_Library:raspberreyPi_2_3"
 			(at 109.22 247.65 0)
 			(effects
 				(font
@@ -21733,7 +21741,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "MainBoard:slideSW"
+		(property "Footprint" "0_Library:slideSW"
 			(at 63.5 66.04 0)
 			(effects
 				(font
@@ -21803,7 +21811,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MainBoard:MOUDLE14P-SMD-2.54-21X17.8MM"
+		(property "Footprint" "0_Library:MOUDLE14P-SMD-2.54-21X17.8MM"
 			(at 274.32 234.95 0)
 			(effects
 				(font
@@ -22569,7 +22577,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 296.8752 279.4 0)
 			(effects
 				(font
@@ -24815,7 +24823,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MainBoard:SW_SKRPACE010"
+		(property "Footprint" "0_Library:SW_SKRPACE010"
 			(at 233.68 129.54 0)
 			(effects
 				(font
@@ -26621,7 +26629,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MainBoard:SW_SKRPACE010"
+		(property "Footprint" "0_Library:SW_SKRPACE010"
 			(at 182.88 129.54 0)
 			(effects
 				(font
