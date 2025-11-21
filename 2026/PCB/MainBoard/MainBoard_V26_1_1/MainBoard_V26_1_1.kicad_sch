@@ -10023,24 +10023,12 @@
 		(uuid "62e39461-63af-485d-914e-7334aa227458")
 	)
 	(no_connect
-		(at 135.89 95.25)
-		(uuid "69a7efb9-853a-4903-b8da-086b53d38eb9")
-	)
-	(no_connect
 		(at 322.58 162.56)
 		(uuid "74495b83-66cb-44c8-8320-7527b000f183")
 	)
 	(no_connect
-		(at 129.54 260.35)
-		(uuid "7d0acd6f-8284-4a75-bd22-4958987e1222")
-	)
-	(no_connect
 		(at 88.9 234.95)
 		(uuid "7fdc2e70-337d-41ff-bf43-ab2919b003e8")
-	)
-	(no_connect
-		(at 129.54 255.27)
-		(uuid "8e15dbd7-0017-4299-94d6-287210d5d423")
 	)
 	(no_connect
 		(at 88.9 245.11)
@@ -10087,16 +10075,8 @@
 		(uuid "cc9dc237-ab2d-4a16-aab5-f2ae9ea34d5f")
 	)
 	(no_connect
-		(at 135.89 92.71)
-		(uuid "cfe32292-3db0-4546-816d-b946dc3490a8")
-	)
-	(no_connect
 		(at 129.54 252.73)
 		(uuid "d2a4dded-02cd-4946-9c51-d87910e2dad8")
-	)
-	(no_connect
-		(at 135.89 113.03)
-		(uuid "da446803-5407-443e-ab43-e5804598d80a")
 	)
 	(no_connect
 		(at 88.9 262.89)
@@ -10113,10 +10093,6 @@
 	(no_connect
 		(at 114.3 214.63)
 		(uuid "f5363e21-b973-47e7-8e53-d4883b468b07")
-	)
-	(no_connect
-		(at 129.54 257.81)
-		(uuid "f993144b-eac4-485a-9d4f-258311b9b266")
 	)
 	(wire
 		(pts
@@ -14362,31 +14338,9 @@
 			)
 		)
 	)
-	(global_label "SPI2.CS"
-		(shape bidirectional)
-		(at 135.89 135.89 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "07653264-0a84-483e-8861-257e25f9a30d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 147.3646 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "LED2"
 		(shape output)
-		(at 96.52 90.17 180)
+		(at 200.66 86.36 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -14396,7 +14350,7 @@
 		)
 		(uuid "098a9689-2f70-4f3f-9187-6b5f7c8a4c44")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 89.365 90.17 0)
+			(at 193.505 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14467,6 +14421,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SPI2.MOSI"
+		(shape bidirectional)
+		(at 100.33 90.17 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "0e7a2f62-55d7-4d6d-90d6-4140e3db903d")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 86.7387 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -14867,6 +14843,28 @@
 			)
 		)
 	)
+	(global_label "SPI1.MOSI"
+		(shape bidirectional)
+		(at 135.89 82.55 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3466261f-c7f0-4ce4-9337-43cf13e33393")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 149.4813 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "imu.reset"
 		(shape bidirectional)
 		(at 198.12 134.62 0)
@@ -14977,6 +14975,28 @@
 			)
 		)
 	)
+	(global_label "SPI2.CLK"
+		(shape bidirectional)
+		(at 135.89 133.35 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3eb8d8e8-7005-4752-8be7-05c892c16e38")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 148.4532 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "DRIB_OUT"
 		(shape output)
 		(at 549.91 78.74 180)
@@ -14995,28 +15015,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SPI2.CLK"
-		(shape bidirectional)
-		(at 135.89 138.43 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "3fc4aca8-24e0-4f10-a2a4-078e0939f12e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 148.4532 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -15109,28 +15107,6 @@
 			)
 		)
 	)
-	(global_label "SPI2.INT"
-		(shape bidirectional)
-		(at 322.58 170.18 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "4cc601cb-af8c-4f7b-9481-0c6dafbd1a85")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 310.682 170.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "I2C_SCL"
 		(shape bidirectional)
 		(at 307.34 128.27 180)
@@ -15175,6 +15151,28 @@
 			)
 		)
 	)
+	(global_label "SPI2.MOSI"
+		(shape bidirectional)
+		(at 129.54 257.81 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "501105ee-b2f6-4a99-a11d-bb6c3650a539")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 143.1313 257.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "UART3_RX"
 		(shape input)
 		(at 257.81 38.1 180)
@@ -15199,7 +15197,7 @@
 	)
 	(global_label "LED1"
 		(shape output)
-		(at 96.52 87.63 180)
+		(at 200.66 83.82 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -15209,7 +15207,7 @@
 		)
 		(uuid "548ef9eb-ef0a-4ed9-8af6-c6ff80f40561")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 89.365 87.63 0)
+			(at 193.505 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15265,7 +15263,7 @@
 	)
 	(global_label "LED3"
 		(shape output)
-		(at 96.52 92.71 180)
+		(at 200.66 88.9 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -15275,7 +15273,7 @@
 		)
 		(uuid "5a26fcd9-2016-4572-a2a9-ad3619e9f5d7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 89.365 92.71 0)
+			(at 193.505 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15307,7 +15305,7 @@
 			)
 		)
 	)
-	(global_label "SPI2.MISO"
+	(global_label "SPI1.MISO"
 		(shape bidirectional)
 		(at 322.58 167.64 180)
 		(fields_autoplaced yes)
@@ -15329,7 +15327,7 @@
 			)
 		)
 	)
-	(global_label "SPI2.MOSI"
+	(global_label "SPI1.MOSI"
 		(shape bidirectional)
 		(at 322.58 160.02 180)
 		(fields_autoplaced yes)
@@ -15395,28 +15393,6 @@
 			)
 		)
 	)
-	(global_label "SPI2.MOSI"
-		(shape bidirectional)
-		(at 135.89 143.51 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "5f5da9df-1d61-41ac-b2b8-48d51b55d236")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 149.4813 143.51 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "LED_RAS2"
 		(shape output)
 		(at 88.9 265.43 180)
@@ -15435,6 +15411,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SPI2.CLK"
+		(shape bidirectional)
+		(at 129.54 260.35 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "62b5dd4f-5cff-4014-a56b-3b25171cd4e9")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 142.1032 260.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -15523,6 +15521,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SPI2.MISO"
+		(shape bidirectional)
+		(at 129.54 255.27 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "7476cac8-fad0-4a26-9b52-d376efb21cab")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 143.1313 255.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -15633,6 +15653,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SPI2.CS"
+		(shape bidirectional)
+		(at 129.54 265.43 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "857c345d-f425-4ddd-a4ad-36a52b24082a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 141.0146 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -15813,28 +15855,6 @@
 			)
 		)
 	)
-	(global_label "SPI2.INT"
-		(shape bidirectional)
-		(at 135.89 133.35 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "9157cfd9-d4b2-4721-b60d-d929b81fac90")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 147.788 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "BATTERY_MEASURE"
 		(shape input)
 		(at 320.04 59.69 0)
@@ -15914,6 +15934,50 @@
 		(uuid "9682d78d-38df-4063-9010-50a253a1e4fd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 147.4373 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "CAN1_RX"
+		(shape input)
+		(at 135.89 92.71 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "96cc19b0-d5f4-451c-9be7-419536a4bd05")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 146.3392 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SPI1.CLK"
+		(shape bidirectional)
+		(at 135.89 77.47 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "96eb90be-d423-4dfd-8c96-b8c22b11f834")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 148.4532 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16054,50 +16118,6 @@
 			)
 		)
 	)
-	(global_label "CAN1_RX"
-		(shape input)
-		(at 135.89 128.27 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a2747b52-c4b9-455c-85fb-b347344dfa09")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 146.3392 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SPI2.MISO"
-		(shape bidirectional)
-		(at 135.89 140.97 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a6883fe6-d96c-431c-ad56-ee4741e3673e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 149.4813 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "UART4_RX"
 		(shape input)
 		(at 224.79 31.75 180)
@@ -16138,28 +16158,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "CAN1_TX"
-		(shape output)
-		(at 135.89 130.81 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "ae83e18e-b6d4-41c3-a38d-02ee1e82ad30")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 146.3392 130.81 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -16274,7 +16272,29 @@
 			)
 		)
 	)
-	(global_label "SPI2.CLK"
+	(global_label "CAN1_TX"
+		(shape output)
+		(at 135.89 95.25 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "bc2b7c2e-5d9e-4965-8130-b0283827555b")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 146.3392 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SPI1.CLK"
 		(shape bidirectional)
 		(at 322.58 157.48 180)
 		(fields_autoplaced yes)
@@ -16331,6 +16351,28 @@
 		(uuid "c286b8fa-fd2d-4afe-a8ba-9b14566894f5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 242.0476 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SPI1.MISO"
+		(shape bidirectional)
+		(at 135.89 80.01 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "c3e7f7f0-c153-4611-a507-6024e04f591f")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 149.4813 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16518,7 +16560,7 @@
 	)
 	(global_label "LED0"
 		(shape output)
-		(at 139.7 77.47 0)
+		(at 156.21 77.47 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16528,7 +16570,7 @@
 		)
 		(uuid "d0e173c4-86a0-4bd4-9ad4-a34ad2c914a7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 146.855 77.47 0)
+			(at 163.365 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16622,6 +16664,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SPI2.CS"
+		(shape bidirectional)
+		(at 135.89 113.03 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d73f8d33-5ce3-443a-9c34-8368e8c2f65b")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 147.3646 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -16738,7 +16802,7 @@
 	)
 	(global_label "LED4"
 		(shape output)
-		(at 96.52 95.25 180)
+		(at 200.66 91.44 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16748,7 +16812,7 @@
 		)
 		(uuid "e0af46f9-2cab-4b66-bb09-fcba6ae24d17")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 89.365 95.25 0)
+			(at 193.505 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16846,7 +16910,7 @@
 			)
 		)
 	)
-	(global_label "SPI2.CS"
+	(global_label "SPI1.CS"
 		(shape bidirectional)
 		(at 322.58 172.72 180)
 		(fields_autoplaced yes)
@@ -16934,6 +16998,28 @@
 			)
 		)
 	)
+	(global_label "SPI2.MISO"
+		(shape bidirectional)
+		(at 100.33 92.71 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "f4f57aa8-c733-4052-8e7e-bb7600f7bfb7")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 86.7387 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "Reset"
 		(shape bidirectional)
 		(at 271.78 229.87 180)
@@ -16996,6 +17082,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SPI1.CS"
+		(shape bidirectional)
+		(at 100.33 97.79 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "f9b2043c-bf23-47bb-981a-97239edacf22")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 88.8554 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
