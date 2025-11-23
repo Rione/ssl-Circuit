@@ -1694,7 +1694,7 @@
 				)
 			)
 		)
-		(property "Value" "LTC2955"
+		(property "Value" "LTC2955-1"
 			(at -5.08 -16.51 0)
 			(effects
 				(font
@@ -1702,16 +1702,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:TSOT-23-8"
-			(at -5.08 -16.51 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.digikey.jp/ja/products/detail/analog-devices-inc/LTC2955CTS8-1-TRMPBF/3065178"
+		(property "Footprint" "Package_DFN_QFN:DFN-10-1EP_2x3mm_P0.5mm_EP0.64x2.4mm"
 			(at -5.08 -16.51 0)
 			(effects
 				(font
@@ -1720,7 +1711,16 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "LTC2955CTS8-1"
+		(property "Datasheet" "https://www.digikey.jp/ja/products/detail/analog-devices-inc/LTC2955CDDB-1-TRMPBF/3065174"
+			(at -5.08 -16.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "LTC2955CDDB-1"
 			(at -5.08 -16.51 0)
 			(effects
 				(font
@@ -1753,7 +1753,25 @@
 						)
 					)
 				)
-				(number "6"
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 3.81 0)
+				(length 2.54)
+				(name "SEL"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1771,7 +1789,7 @@
 						)
 					)
 				)
-				(number "1"
+				(number "10"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1798,6 +1816,24 @@
 				)
 			)
 			(pin input line
+				(at -2.54 -13.97 90)
+				(length 2.54)
+				(name "PAD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
 				(at 0 -13.97 90)
 				(length 2.54)
 				(name "GND"
@@ -1807,7 +1843,7 @@
 						)
 					)
 				)
-				(number "4"
+				(number "6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1825,7 +1861,7 @@
 						)
 					)
 				)
-				(number "7"
+				(number "3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1843,7 +1879,7 @@
 						)
 					)
 				)
-				(number "8"
+				(number "1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1861,7 +1897,7 @@
 						)
 					)
 				)
-				(number "2"
+				(number "9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1879,7 +1915,25 @@
 						)
 					)
 				)
-				(number "3"
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at 8.89 -8.89 180)
+				(length 2.54)
+				(name "PGD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
 					(effects
 						(font
 							(size 1.27 1.27)
