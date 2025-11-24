@@ -1,0 +1,103 @@
+(footprint "CSTCE12M0G52A-R0"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0.5 3.9 0)
+		(layer "F.SilkS")
+		(uuid "28f073b1-2873-4e51-a244-b0c29cca96b2")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "CSTCE12M0G52A-R0"
+		(at 0.1 2 0)
+		(layer "F.Fab")
+		(uuid "5a91a71d-5c46-433b-bafe-caf492032115")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "ded71fef-305d-4715-adc0-4a828e08e040")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "2f16827e-8802-4760-b5e7-cbd53bc188d8")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start -0.5 -0.8)
+		(end -0.5 0.8)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "bcabd3eb-37e2-4b17-ae1b-fac32e7d7478")
+	)
+	(fp_line
+		(start 2.9 -0.8)
+		(end 2.9 0.8)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "b3c0f885-fc01-40ef-9153-48946f034590")
+	)
+	(pad "1" smd rect
+		(at 0 0)
+		(size 0.6 1.8)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "6ba92825-49c2-49a6-9e8b-b33a0229365a")
+	)
+	(pad "2" smd rect
+		(at 1.2 0)
+		(size 0.6 1.8)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "f6647810-3f75-40ab-bb91-93f05f7e637f")
+	)
+	(pad "3" smd rect
+		(at 2.4 0)
+		(size 0.6 1.8)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "77563f53-abef-4ed7-bc24-0909ab726854")
+	)
+	(embedded_fonts no)
+	(model "${NEWINOV_KICAD}/3d.pretty/CSTNE16M0V530000R0.STEP"
+		(offset
+			(xyz 1.2 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 -0 -0)
+		)
+	)
+)
