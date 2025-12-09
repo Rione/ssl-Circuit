@@ -8,7 +8,8 @@
                 "${workspaceFolder}/Drivers/STM32G4xx_HAL_Driver/Inc",
                 "${workspaceFolder}/Drivers/STM32G4xx_HAL_Driver/Inc/Legacy",
                 "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32G4xx/Include",
-                "${workspaceFolder}/Drivers/CMSIS/Include"
+                "${workspaceFolder}/Drivers/CMSIS/Include",
+                "${workspaceFolder}/include"
             ],
             "defines": [
                 "USE_HAL_DRIVER",

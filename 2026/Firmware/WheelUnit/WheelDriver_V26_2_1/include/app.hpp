@@ -7,6 +7,7 @@
 #ifdef __cplusplus
 
 extern "C" {
+  extern TIM_HandleTypeDef htim1;
   void Setup(void);
   void MainLoop(void);
 }
