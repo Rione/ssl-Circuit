@@ -66,6 +66,7 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
 Core/Src/adc.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c \
+src/app.c \
 
 # ASM sources
 ASM_SOURCES =  \
@@ -130,7 +131,17 @@ C_INCLUDES =  \
 -IDrivers/STM32F4xx_HAL_Driver/Inc \
 -IDrivers/STM32F4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
--IDrivers/CMSIS/Include
+-IDrivers/CMSIS/Include \
+-Isrc/ \
+-I../../CommonLib-C/digitalinout \
+-I../../CommonLib-C/can \
+-I../../CommonLib-C/filter \
+-I../../CommonLib-C/flash \
+-I../../CommonLib-C/mymath \
+-I../../CommonLib-C/pid \
+-I../../CommonLib-C/pwm_out \
+-I../../CommonLib-C/serial \
+-I../../CommonLib-C/timer
 
 
 # compile gcc flags
@@ -156,7 +167,7 @@ LDSCRIPT = STM32F446XX_FLASH.ld
 # libraries
 LIBS = -lc -lm -lnosys 
 LIBDIR = 
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections -u _printf_float
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
@@ -200,7 +211,10 @@ $(BUILD_DIR):
 #######################################
 clean:
 	-rm -fR $(BUILD_DIR)
-  
+
+run:
+	make -j12
+	sh SWDFlash.sh
 #######################################
 # dependencies
 #######################################
