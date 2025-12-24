@@ -69,10 +69,10 @@ void Error_Handler(void);
 #define MD_SO_GPIO_Port GPIOA
 #define MD_nSLEEP_Pin GPIO_PIN_7
 #define MD_nSLEEP_GPIO_Port GPIOA
-#define MD_IN2_Pin GPIO_PIN_0
-#define MD_IN2_GPIO_Port GPIOB
-#define MD_IN1_Pin GPIO_PIN_1
-#define MD_IN1_GPIO_Port GPIOB
+#define MD_INB_Pin GPIO_PIN_0
+#define MD_INB_GPIO_Port GPIOB
+#define MD_INA_Pin GPIO_PIN_1
+#define MD_INA_GPIO_Port GPIOB
 #define CAN_LED_Pin GPIO_PIN_15
 #define CAN_LED_GPIO_Port GPIOB
 #define LED4_Pin GPIO_PIN_6
