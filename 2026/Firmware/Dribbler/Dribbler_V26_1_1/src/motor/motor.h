@@ -11,5 +11,7 @@
 #include "pwm_out.h"
 
 void Motor_Init();
+void Motor_Drive(float duty);
+void Motor_Brake();
 
 #endif  // MOTOR_H_

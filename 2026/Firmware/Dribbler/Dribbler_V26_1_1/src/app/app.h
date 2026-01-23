@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "../../../../CommonLib-C/can/can.h"
 #include "adc.h"
 #include "can.h"
 #include "digitalinout.h"
