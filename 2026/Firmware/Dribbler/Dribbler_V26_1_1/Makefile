@@ -137,7 +137,7 @@ C_INCLUDES =  \
 -Isrc/app \
 -Isrc/motor \
 -I../../CommonLib-C/digitalinout \
--I../../CommonLib-C/can \
+-I../../CommonLib-C/can_bus \
 -I../../CommonLib-C/filter \
 -I../../CommonLib-C/flash \
 -I../../CommonLib-C/mymath \

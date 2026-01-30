@@ -4,15 +4,15 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "../../../../CommonLib-C/can/can.h"
 #include "adc.h"
 #include "can.h"
+#include "can_bus.h"
 #include "digitalinout.h"
 #include "lpf.h"
 #include "main.h"
-#include "pwm_out.h"
-// #include "serial.h"
 #include "motor.h"
+#include "pwm_out.h"
+#include "serial.h"
 #include "timer.h"
 
 void Setup();

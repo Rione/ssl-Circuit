@@ -11,8 +11,10 @@ DigitalOut MD_SLEEP;
 
 DigitalIn SW;
 
-Can can;
+CanBus can;
 CanData canRecvData;
+
+Serial serial;
 
 uint16_t adc_val[2];  // 0: Current, 1: BallSensor
 
