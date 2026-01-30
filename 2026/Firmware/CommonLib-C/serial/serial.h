@@ -8,17 +8,17 @@
 #include "usart.h"
 
 typedef struct {
-      UART_HandleTypeDef *huart;
-      uint8_t *rxBuf;
+      UART_HandleTypeDef* huart;
+      uint8_t* rxBuf;
       uint16_t rxTop;
       uint16_t rxBtm;
       uint16_t rxBufSize;
 } Serial;
 
 // インスタンス生成
-static inline void Serial_Init(Serial *self, UART_HandleTypeDef *huart, uint16_t rxBufSize) {
+static inline void Serial_Init(Serial* self, UART_HandleTypeDef* huart, uint16_t rxBufSize) {
       self->huart = huart;
-      self->rxBuf = (uint8_t *)malloc(rxBufSize);
+      self->rxBuf = (uint8_t*)malloc(rxBufSize);
       memset(self->rxBuf, 0, rxBufSize);
       self->rxTop = 0;
       self->rxBtm = 0;
@@ -27,14 +27,14 @@ static inline void Serial_Init(Serial *self, UART_HandleTypeDef *huart, uint16_t
 }
 
 // データ受信可否
-static inline bool Serial_Available(Serial *self) {
-      uint16_t rxTop = self->rxBufSize - self->huart->hdmarx->Instance->CNDTR;
+static inline bool Serial_Available(Serial* self) {
+      uint16_t rxTop = self->rxBufSize - self->huart->hdmarx->Instance->NDTR;
       return rxTop != self->rxBtm;
 }
 
 // 1バイト受信
-static inline uint8_t Serial_Read(Serial *self) {
-      uint16_t rxTop = self->rxBufSize - self->huart->hdmarx->Instance->CNDTR;
+static inline uint8_t Serial_Read(Serial* self) {
+      uint16_t rxTop = self->rxBufSize - self->huart->hdmarx->Instance->NDTR;
       if (rxTop == self->rxBtm) {
             return 0;
       }
@@ -51,16 +51,16 @@ static inline uint8_t Serial_Read(Serial *self) {
 }
 
 // 1バイト送信
-static inline void Serial_WriteByte(Serial *self, uint8_t data) {
+static inline void Serial_WriteByte(Serial* self, uint8_t data) {
       HAL_UART_Transmit_DMA(self->huart, &data, 1);
 }
 
 // 複数バイト送信
-static inline void Serial_Write(Serial *self, const uint8_t *data, uint16_t len) {
-      HAL_UART_Transmit_DMA(self->huart, (uint8_t *)data, len);
+static inline void Serial_Write(Serial* self, const uint8_t* data, uint16_t len) {
+      HAL_UART_Transmit_DMA(self->huart, (uint8_t*)data, len);
 }
 
-static inline void Serial_Reset(Serial *self) {
+static inline void Serial_Reset(Serial* self) {
       HAL_UART_AbortReceive(self->huart);
       HAL_UART_DMAStop(self->huart);
       memset(self->rxBuf, 0, self->rxBufSize);
