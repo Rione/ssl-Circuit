@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "STM32",
+            "includePath": [
+                "${workspaceFolder}/MainBoard/MainBoard_V26_1_1/Core/Inc",
+                "${workspaceFolder}/MainBoard/MainBoard_V26_1_1/Drivers/STM32F4xx_HAL_Driver/Inc",
+                "${workspaceFolder}/MainBoard/MainBoard_V26_1_1/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
+                "${workspaceFolder}/MainBoard/MainBoard_V26_1_1/Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+                "${workspaceFolder}/MainBoard/MainBoard_V26_1_1/Drivers/CMSIS/Include",
+                "${workspaceFolder}/MainBoard/MainBoard_V26_1_1/src/app",
+                "${workspaceFolder}/CommonLib/**"
+            ],
+            "defines": [
+                "USE_HAL_DRIVER",
+                "STM32F446xx"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4
+}
