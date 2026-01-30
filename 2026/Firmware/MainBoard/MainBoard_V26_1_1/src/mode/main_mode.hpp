@@ -7,6 +7,9 @@ class MainMode : public Mode {
      public:
       MainMode(Robot* robot);
       void loop() override;
+
+     private:
+      Timer timer;
 };
 
 #endif  // __MAIN_MODE_HPP_

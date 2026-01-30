@@ -5,8 +5,12 @@
 
 class Mode {
      public:
-      virtual ~Mode() = default;
+      Mode(Robot* robot) : robot(robot) {}
+
       virtual void loop() = 0;
+
+     protected:
+      Robot* robot;
 };
 
 #endif  // __MODE_HPP_
