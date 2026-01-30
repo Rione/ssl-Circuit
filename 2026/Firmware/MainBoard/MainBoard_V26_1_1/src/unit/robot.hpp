@@ -8,6 +8,7 @@
 #include "DigitalInOut.hpp"
 #include "Timer.hpp"
 #include "main.h"
+#include "motor_drive.hpp"
 
 typedef struct {
       // Infomation Rock5A→STM32 --------------------------
@@ -166,6 +167,8 @@ class Robot {
       BufferedSerial serial3{&huart3, 128};  // MD2
       BufferedSerial serial5{&huart5, 128};  // MD3
       BufferedSerial serial6{&huart6, 128};  // MD4
+
+      MotorDrive motorDrive{&serial2, &serial3, &serial5, &serial6};
 
       void Initialize();
 
