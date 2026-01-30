@@ -1,10 +1,10 @@
-#include "app.h"
+#include "app.hpp"
 
-void setup() {
+void Setup() {
       HAL_Delay(1000);
 }
 
-void main_app() {
+void MainApp() {
       while (1) {
       }
 }

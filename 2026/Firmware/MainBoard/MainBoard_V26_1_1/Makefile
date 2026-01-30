@@ -66,6 +66,8 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c_ex.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
 Core/Src/dma.c
+$(shell find src -name '*.c') \
+$(shell find ../../CommonLib -name '*.c')
 
 # CPP sources
 CXX_SOURCES = \
@@ -139,13 +141,14 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
 -Isrc/app \
+-Isrc/unit \
+-Isrc/mode \
 $(shell find ../../CommonLib -maxdepth 1 -type d | sed 's/^/-I/')
 
 # C_INCLUDES += $(shell find Lib -type d | sed 's/^/-I/') 
 
 # C++ includes
 CXX_INCLUDES = \
-$(C_INCLUDES) \
 $(shell find ../../CommonLib -maxdepth 1 -type d | sed 's/^/-I/')
 # CXX_INCLUDES += $(shell find Lib -type d | sed 's/^/-I/') 
 
