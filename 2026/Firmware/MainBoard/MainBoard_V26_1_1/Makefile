@@ -143,6 +143,7 @@ C_INCLUDES =  \
 -Isrc/app \
 -Isrc/unit \
 -Isrc/mode \
+-Isrc/config \
 $(shell find ../../CommonLib -maxdepth 1 -type d | sed 's/^/-I/')
 
 # C_INCLUDES += $(shell find Lib -type d | sed 's/^/-I/') 

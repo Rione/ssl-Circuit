@@ -9,5 +9,5 @@ void MainMode::loop() {
       robot->UiRecvSerial(robot->info);
       robot->UiSendSerial(robot->info);
 
-      while (timer.read_us() < 1000);
+      while (timer.read_us() < params::CONTROL_LOOP_DT * 1000);
 }

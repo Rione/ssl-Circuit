@@ -2,7 +2,6 @@
 #define __MODE_HPP_
 
 #include "../unit/robot.hpp"
-
 class Mode {
      public:
       Mode(Robot* robot) : robot(robot) {}
