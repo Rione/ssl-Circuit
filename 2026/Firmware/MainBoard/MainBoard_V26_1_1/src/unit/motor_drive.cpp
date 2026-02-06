@@ -1,11 +1,7 @@
 #include "motor_drive.hpp"
 
-MotorDrive::MotorDrive(BufferedSerial* serial2, BufferedSerial* serial3,
-                       BufferedSerial* serial5, BufferedSerial* serial6)
-    : serial2(serial2),
-      serial3(serial3),
-      serial5(serial5),
-      serial6(serial6) {
+MotorDrive::MotorDrive(BufferedSerial* serials[4]) {
+      for (int i = 0; i < 4; i++) _serials[i] = serials[i];
 }
 
 void MotorDrive::SetVel(int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
@@ -30,10 +26,17 @@ void MotorDrive::SetVel(int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
             m[i] = (int16_t)v_wheel_angular;
       }
 
-      SetMotors(m[0], m[1], m[2], m[3]);
+      SendMotors(m[0], m[1], m[2], m[3]);
 }
 
-void MotorDrive::SetMotors(int16_t m1, int16_t m2, int16_t m3, int16_t m4) {
+void MotorDrive::SendMotors(int16_t m1, int16_t m2, int16_t m3, int16_t m4) {
+      const uint8_t HEADER = 0xFF;
+      const uint8_t FOOTER = 0xAA;
+      uint8_t send_data[10];
+
+      send_data[0] = HEADER;
+
+      send_data[9] = FOOTER;
 }
 
 void MotorDrive::SendEmg() {

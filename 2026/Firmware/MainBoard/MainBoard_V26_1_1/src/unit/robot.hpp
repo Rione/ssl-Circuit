@@ -163,20 +163,23 @@ class Robot {
 
       BufferedSerial serial1{&huart1, 128};  // pc
       BufferedSerial serial4{&huart4, 128};  // ui
-      BufferedSerial serial2{&huart2, 128};  // MD1
-      BufferedSerial serial3{&huart3, 128};  // MD2
-      BufferedSerial serial5{&huart5, 128};  // MD3
-      BufferedSerial serial6{&huart6, 128};  // MD4
+      BufferedSerial mdSerials[4]{
+          {&huart2, 128},  // MD1
+          {&huart3, 128},  // MD2
+          {&huart5, 128},  // MD3
+          {&huart6, 128}   // MD4
+      };
 
-      MotorDrive motorDrive{&serial2, &serial3, &serial5, &serial6};
+      MotorDrive motorDrive{&mdSerials[0], &mdSerials[1], &mdSerials[2], &mdSerials[3]};
 
       void Initialize();
 
-      // シリアル
       void RockRecvSerial(RobotInfo_t& info);
       void RockSendSerial(RobotInfo_t& info);
       void UiRecvSerial(RobotInfo_t& info);
       void UiSendSerial(RobotInfo_t& info);
+      void MDSendSerial(RobotInfo_t& info);
+      void MDRecvSerial(RobotInfo_t& info);
 };
 
 #endif
