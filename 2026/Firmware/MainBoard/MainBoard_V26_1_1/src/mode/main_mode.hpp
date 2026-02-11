@@ -1,13 +1,14 @@
 #ifndef __MAIN_MODE_HPP_
 #define __MAIN_MODE_HPP_
 
-#include "../config/parammeter.hpp"
 #include "mode.hpp"
+#include "parammeter.hpp"
 
 class MainMode : public Mode {
      public:
       MainMode(Robot* robot);
-      void loop() override;
+
+      void Loop() override;
 
      private:
       Timer timer;

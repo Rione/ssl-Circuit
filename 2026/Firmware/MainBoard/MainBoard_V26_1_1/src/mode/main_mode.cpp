@@ -1,6 +1,6 @@
 #include "main_mode.hpp"
 
-void MainMode::loop() {
+void MainMode::Loop() {
       timer.reset();
 
       // シリアル通信

@@ -1,12 +1,12 @@
 #ifndef __MODE_HPP_
 #define __MODE_HPP_
 
-#include "../unit/robot.hpp"
+#include "robot.hpp"
 class Mode {
      public:
       Mode(Robot* robot) : robot(robot) {}
 
-      virtual void loop() = 0;
+      virtual void Loop() = 0;
 
      protected:
       Robot* robot;

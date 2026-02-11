@@ -1,7 +1,7 @@
 #include "motor_drive.hpp"
 
-MotorDrive::MotorDrive(BufferedSerial* serials[4]) {
-      for (int i = 0; i < 4; i++) _serials[i] = serials[i];
+MotorDrive::MotorDrive(BufferedSerial* serials) {
+      for (int i = 0; i < 4; i++) _serials[i] = &serials[i];
 }
 
 void MotorDrive::SetVel(int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
@@ -22,25 +22,91 @@ void MotorDrive::SetVel(int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
             // omega = v / r
             float v_wheel_angular = v_wheel_linear / params::WHEEL_RADIUS;
 
-            // 結果を格納 (int16_tの範囲に収まるか注意が必要ですが、ここではそのままキャスト)
+            // 結果を格納
             m[i] = (int16_t)v_wheel_angular;
       }
 
-      SendMotors(m[0], m[1], m[2], m[3]);
+      Send(m);
 }
 
-void MotorDrive::SendMotors(int16_t m1, int16_t m2, int16_t m3, int16_t m4) {
+void MotorDrive::Send(int16_t* m) {
       const uint8_t HEADER = 0xFF;
       const uint8_t FOOTER = 0xAA;
       uint8_t send_data[10];
 
       send_data[0] = HEADER;
-
+      send_data[1] = (m[0] >> 8) & 0xFF;
+      send_data[2] = m[0] & 0xFF;
+      send_data[3] = (m[1] >> 8) & 0xFF;
+      send_data[4] = m[1] & 0xFF;
+      send_data[5] = (m[2] >> 8) & 0xFF;
+      send_data[6] = m[2] & 0xFF;
+      send_data[7] = (m[3] >> 8) & 0xFF;
+      send_data[8] = m[3] & 0xFF;
       send_data[9] = FOOTER;
+
+      _serials[0]->write(send_data, 10);
 }
 
-void MotorDrive::SendEmg() {
+void MotorDrive::Recv() {
+      const uint8_t HEADER = 0xFF;
+      const uint8_t FOOTER = 0xAA;
+      const uint8_t data_size = 3;  // 受信データサイズ(バイト数)
+      static uint8_t recv_data[4][2];
+      static uint8_t index[4] = {0};
+      uint8_t recv_byte[4];
+
+      for (int i = 0; i < 4; i++) {
+            if (_serials[i]->available()) {
+                  recv_byte[i] = _serials[i]->getc();
+
+                  if (index[i] == 0) {
+                        if (recv_byte[i] == HEADER) {  // ヘッダー確認
+                              index[i]++;
+                        } else {
+                              index[i] = 0;
+                        }
+                  } else if (index[i] == (data_size + 1)) {
+                        if (recv_byte[i] == FOOTER) {  // フッター確認
+                              // データ受信完了
+                              _emg = recv_data[i][0] & 0b00000001;                                          // 非常停止信号
+                              _ready = (recv_data[i][0] >> 1) & 0b00000001;                                 // ドライバ準備完了信号
+                              _vel_wheel_angular[i] = (int16_t)((recv_data[i][0] << 8) | recv_data[i][1]);  // 角速度[rad/s]
+                        }
+                        index[i] = 0;
+                  } else {
+                        recv_data[i][index[i] - 1] = recv_byte[i];
+                        index[i]++;
+                  }
+            }
+      }
 }
 
 void MotorDrive::GetVel(int16_t* vel_x, int16_t* vel_y, int16_t* vel_angle) {
+      // 各ホイールの角速度[rad/s]から線速度[m/s]に変換
+      float v_wheel_linear[4];
+      for (int i = 0; i < 4; i++) {
+            v_wheel_linear[i] = _vel_wheel_angular[i] * params::WHEEL_RADIUS;
+      }
+
+      // 順運動学：各成分の和を計算
+      float vx_sum = 0.0f;
+      float vy_sum = 0.0f;
+      float v_sum = 0.0f;
+
+      for (int i = 0; i < 4; i++) {
+            vx_sum += v_wheel_linear[i] * (-MyMath::sinDeg(params::MOTOR_DEGREE[i]));
+            vy_sum += v_wheel_linear[i] * MyMath::cosDeg(params::MOTOR_DEGREE[i]);
+            v_sum += v_wheel_linear[i];
+      }
+
+      // ロボットの速度を計算
+      float vx_m = vx_sum / 2.0f;
+      float vy_m = vy_sum / 2.0f;
+      float omega = v_sum / (4.0f * params::WHEEL_BASE_RADIUS);
+
+      // [m/s] -> [mm/s] に変換
+      *vel_x = (int16_t)(vx_m * 1000.0f);
+      *vel_y = (int16_t)(vy_m * 1000.0f);
+      *vel_angle = (int16_t)omega;
 }

@@ -170,7 +170,7 @@ class Robot {
           {&huart6, 128}   // MD4
       };
 
-      MotorDrive motorDrive{&mdSerials[0], &mdSerials[1], &mdSerials[2], &mdSerials[3]};
+      MotorDrive motorDrive{mdSerials};
 
       void Initialize();
 
@@ -178,8 +178,6 @@ class Robot {
       void RockSendSerial(RobotInfo_t& info);
       void UiRecvSerial(RobotInfo_t& info);
       void UiSendSerial(RobotInfo_t& info);
-      void MDSendSerial(RobotInfo_t& info);
-      void MDRecvSerial(RobotInfo_t& info);
 };
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef __PARAMMETER_HPP_
 #define __PARAMMETER_HPP_
 
+#include <stdint.h>
+
 namespace params {
 // 機体パラメータ
 constexpr float WHEEL_RADIUS = 0.03f;                      // 車輪半径[m]
