@@ -6,15 +6,20 @@
 namespace can_id {
 
 // 送信用 CAN ID
-constexpr uint32_t kTxCharge = 0x10;        // 充電指令
-constexpr uint32_t kTxDischarge = 0x11;     // 放電指令
-constexpr uint32_t kTxStraightKick = 0x12;  // ストレートキック指令
-constexpr uint32_t kTxChipKick = 0x13;      // チップキック指令
-constexpr uint32_t kTxDribble = 0x14;       // ドリブル指令
+constexpr uint16_t kTxOff = 0x10;           // ロボットの電源オフ
+constexpr uint16_t kTxCharge = 0x11;        // 充電
+constexpr uint16_t kTxDischarge = 0x12;     // 放電
+constexpr uint16_t kTxStraightKick = 0x13;  // ストレートキック
+constexpr uint16_t kTxChipKick = 0x14;      // チップキック
+
+constexpr uint16_t kTxDribble = 0x20;  // ドリブル
 
 // 受信用 CAN ID
-constexpr uint32_t kRxVoltage = 0x20;  // 電源情報
-constexpr uint32_t kRxDribble = 0x21;  // ドリブラ情報
+constexpr uint16_t kRxSupplyBoard = 0x50;     // 電源・キッカー情報
+constexpr uint16_t kRxChargeStart = 0x51;     // 充電開始通知
+constexpr uint16_t kRxDischargeStart = 0x52;  // 放電開始通知
+
+constexpr uint16_t kRxDribble = 0x70;  // ドリブル情報
 
 }  // namespace can_id
 

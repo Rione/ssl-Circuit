@@ -6,14 +6,14 @@
 #include "BufferedSerial.hpp"
 
 class UI {
-     public:
-      UI(BufferedSerial* serial);
+ public:
+  UI(BufferedSerial* serial);
 
-      void Recv();
-      void Send();
+  void Recv();
+  void Send();
 
-     private:
-      BufferedSerial* serial_;
+ private:
+  BufferedSerial* serial_;
 };
 
-#endif  // __UI_HPP_
+#endif  // __UI_HPP_x
