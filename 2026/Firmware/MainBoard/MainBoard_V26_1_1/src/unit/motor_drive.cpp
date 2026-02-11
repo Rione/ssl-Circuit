@@ -52,7 +52,7 @@ void MotorDrive::Recv() {
       const uint8_t HEADER = 0xFF;
       const uint8_t FOOTER = 0xAA;
       const uint8_t data_size = 3;  // 受信データサイズ(バイト数)
-      static uint8_t recv_data[4][2];
+      static uint8_t recv_data[4][3];
       static uint8_t index[4] = {0};
       uint8_t recv_byte[4];
 
@@ -71,7 +71,7 @@ void MotorDrive::Recv() {
                               // データ受信完了
                               _emg = recv_data[i][0] & 0b00000001;                                          // 非常停止信号
                               _ready = (recv_data[i][0] >> 1) & 0b00000001;                                 // ドライバ準備完了信号
-                              _vel_wheel_angular[i] = (int16_t)((recv_data[i][0] << 8) | recv_data[i][1]);  // 角速度[rad/s]
+                              _vel_wheel_angular[i] = (int16_t)((recv_data[i][1] << 8) | recv_data[i][2]);  // 角速度[rad/s]
                         }
                         index[i] = 0;
                   } else {

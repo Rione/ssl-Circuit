@@ -14,6 +14,8 @@ constexpr int16_t MOTOR_DEGREE[4] = {55, 135, -135, -55};  // モーターの取
 constexpr float CONTROL_LOOP_DT = 0.001f;  // 制御ループ周期[s]
 constexpr float MAX_VEL = 3.0f;            // 最大並進速度[m/s]
 constexpr float MAX_ANG_VEL = 10.0f;       // 最大角速度[rad/s]
+
+constexpr uint16_t KICK_INTERVAL_MS = 500;  // キック間隔[ms]
 }  // namespace params
 
 #endif  // __PARAMMETER_HPP_

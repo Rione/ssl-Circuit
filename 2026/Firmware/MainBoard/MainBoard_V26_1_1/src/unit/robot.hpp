@@ -1,6 +1,5 @@
 #ifndef __ROBOT_H_
 #define __ROBOT_H_
-#ifdef __cplusplus
 
 #include "BufferedSerial.hpp"
 #include "Button.hpp"
@@ -180,5 +179,4 @@ class Robot {
       void UiSendSerial(RobotInfo_t& info);
 };
 
-#endif
 #endif
