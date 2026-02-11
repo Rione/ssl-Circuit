@@ -4,12 +4,12 @@
 #include "robot.hpp"
 class Mode {
      public:
-      Mode(Robot* robot) : robot(robot) {}
+      Mode(Robot* robot) : robot_(robot) {}
 
       virtual void Loop() = 0;
 
      protected:
-      Robot* robot;
+      Robot* robot_;
 };
 
 #endif  // __MODE_HPP_

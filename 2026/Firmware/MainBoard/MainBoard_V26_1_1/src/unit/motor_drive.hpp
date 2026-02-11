@@ -15,13 +15,13 @@ class MotorDrive {
       void Recv();
       void GetVel(int16_t* vel_x, int16_t* vel_y, int16_t* vel_angle);
 
-      bool _emg;
-      bool _ready;
+      bool emg_;
+      bool ready_;
 
      private:
-      BufferedSerial* _serials[4];
+      BufferedSerial* serials_[4];
 
-      int16_t _vel_wheel_angular[4];
+      int16_t vel_wheel_angular_[4];
 };
 
 #endif  // __MOTOR_DRIVE_HPP_

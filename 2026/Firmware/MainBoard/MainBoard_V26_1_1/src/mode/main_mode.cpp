@@ -1,16 +1,16 @@
 #include "main_mode.hpp"
 
+MainMode::MainMode(Robot* robot) : Mode(robot) {}
+
 void MainMode::Loop() {
-      timer.reset();
+      timer_.reset();
 
       // シリアル通信
-      robot->RockRecvSerial(robot->info);
-      robot->RockSendSerial(robot->info);
-      robot->UiRecvSerial(robot->info);
-      robot->UiSendSerial(robot->info);
+      robot_->RockRecvSerial(robot_->info);
+      robot_->RockSendSerial(robot_->info);
 
-      robot->motorDrive.SetVel(robot->info.velX.vel, robot->info.velY.vel, robot->info.velAngler.vel);
-      robot->motorDrive.Recv();
+      robot_->motorDrive.SetVel(robot_->info.vel_x.vel, robot_->info.vel_y.vel, robot_->info.vel_angular.vel);
+      robot_->motorDrive.Recv();
 
-      while (timer.read_us() < params::CONTROL_LOOP_DT * 1000);
+      while (timer_.read_us() < robot_params::kControlLoopDt * 1000);
 }

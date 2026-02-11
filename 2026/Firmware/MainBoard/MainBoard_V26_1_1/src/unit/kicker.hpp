@@ -20,9 +20,9 @@ class Kicker {
 #define CHIP 0
 
      private:
-      CANBus* _can;
+      CANBus* can_;
 
-      Timer _kick_interval_timer;
+      Timer kick_interval_timer_;
 };
 
 #endif  // __KICKER_HPP_

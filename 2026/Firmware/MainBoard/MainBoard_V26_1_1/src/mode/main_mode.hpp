@@ -11,7 +11,7 @@ class MainMode : public Mode {
       void Loop() override;
 
      private:
-      Timer timer;
+      Timer timer_;
 };
 
 #endif  // __MAIN_MODE_HPP_

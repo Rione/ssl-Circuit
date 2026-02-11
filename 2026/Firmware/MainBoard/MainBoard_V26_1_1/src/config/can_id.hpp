@@ -6,15 +6,15 @@
 namespace can_id {
 
 // 送信用 CAN ID
-constexpr uint32_t TX_CHARGE = 0x10;         // 充電指令
-constexpr uint32_t TX_DISCHARGE = 0x11;      // 放電指令
-constexpr uint32_t TX_STRAIGHT_KICK = 0x12;  // ストレートキック指令
-constexpr uint32_t TX_CHIP_KICK = 0x13;      // チップキック指令
-constexpr uint32_t TX_DRIBBLE = 0x14;        // ドリブル指令
+constexpr uint32_t kTxCharge = 0x10;        // 充電指令
+constexpr uint32_t kTxDischarge = 0x11;     // 放電指令
+constexpr uint32_t kTxStraightKick = 0x12;  // ストレートキック指令
+constexpr uint32_t kTxChipKick = 0x13;      // チップキック指令
+constexpr uint32_t kTxDribble = 0x14;       // ドリブル指令
 
 // 受信用 CAN ID
-constexpr uint32_t RX_VOLTAGE = 0x20;  // 電源情報
-constexpr uint32_t RX_DRIBBLE = 0x21;  // ドリブラ情報
+constexpr uint32_t kRxVoltage = 0x20;  // 電源情報
+constexpr uint32_t kRxDribble = 0x21;  // ドリブラ情報
 
 }  // namespace can_id
 

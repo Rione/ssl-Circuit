@@ -6,34 +6,36 @@
 #include "CAN.hpp"
 #include "DigitalInOut.hpp"
 #include "Timer.hpp"
+#include "kicker.hpp"
 #include "main.h"
 #include "motor_drive.hpp"
+#include "ui.hpp"
 
 typedef struct {
-      // Infomation Rock5A→STM32 --------------------------
+      // Information Rock5A→STM32 --------------------------
       union {
             struct {
-                  char L : 8;
-                  char H : 8;
+                  char l : 8;
+                  char h : 8;
             };
             int16_t vel;
-      } velX;
+      } vel_x;
       union {
             struct {
-                  char L : 8;
-                  char H : 8;
+                  char l : 8;
+                  char h : 8;
             };
             int16_t vel;
-      } velY;
+      } vel_y;
       union {
             struct {
-                  char L : 8;
-                  char H : 8;
+                  char l : 8;
+                  char h : 8;
             };
             int16_t vel;
-      } velAngler;
+      } vel_angular;
 
-      uint8_t dribblePower;
+      uint8_t dribble_power;
       struct {
             uint8_t straight;
             uint8_t chip;
@@ -41,27 +43,27 @@ typedef struct {
 
       union {
             struct {
-                  char L : 8;
-                  char H : 8;
+                  char l : 8;
+                  char h : 8;
             };
             int16_t pos;
-      } relativePositionX;
+      } relative_position_x;
 
       union {
             struct {
-                  char L : 8;
-                  char H : 8;
+                  char l : 8;
+                  char h : 8;
             };
             int16_t pos;
-      } relativePositionY;
+      } relative_position_y;
 
       union {
             struct {
-                  char L : 8;
-                  char H : 8;
+                  char l : 8;
+                  char h : 8;
             };
             int16_t theta;
-      } relativeTheta;
+      } relative_theta;
 
       struct {
             uint8_t x;
@@ -70,84 +72,84 @@ typedef struct {
 
       union {
             struct {
-                  bool emergencyStop : 1;
-                  bool doDirectKick : 1;      // ボールセンサが反応した瞬間にストレートキックする
-                  bool doDirectChipKick : 1;  // ボールセンサが反応した瞬間にチップキックする
+                  bool emergency_stop : 1;
+                  bool do_direct_kick : 1;       // ボールセンサが反応した瞬間にストレートキックする
+                  bool do_direct_chip_kick : 1;  // ボールセンサが反応した瞬間にチップキックする
                   bool reserved0 : 1;
-                  bool doCharge : 1;          // 0: discharge, 1: doCharge
-                  bool isSignalReceived : 1;  // コントローラから信号か出ているときにtrue
-                  bool isCtrlByRobot : 1;     // (0: RACOON-Ctrl, 1: Robot-local-Ctrl) 位置制御をローカルで行うか否か
-                  bool parity : 1;            // パリティビット 今の所使ってない。
+                  bool do_charge : 1;           // 0: discharge, 1: do_charge
+                  bool is_signal_received : 1;  // コントローラから信号が出ているときにtrue
+                  bool is_ctrl_by_robot : 1;    // (0: RACOON-Ctrl, 1: Robot-local-Ctrl) 位置制御をローカルで行うか否か
+                  bool parity : 1;              // パリティビット 今の所使ってない。
             };
             uint8_t data;
       } status;
 
-      // Infomation STM32→Rock5A -------------------------
+      // Information STM32→Rock5A -------------------------
       union {
             struct {
-                  bool isDetectedBall : 1;  // ボール検知（フォトセンサーの検知）2024版のisHolDBall
-                  bool isHoldBall : 1;      // ボール保持（ドリブラーの検知とフォトセンサーの検知の論理積）
-                  bool isNewDrib : 1;       // 新機体:1
+                  bool is_detected_ball : 1;  // ボール検知（フォトセンサーの検知）2024版のis_hold_ball
+                  bool is_hold_ball : 1;      // ボール保持（ドリブラーの検知とフォトセンサーの検知の論理積）
+                  bool is_new_drib : 1;       // 新機体:1
                   uint8_t reserved : 5;
             };
             uint8_t data;
-      } dribbleStatus;  // ボール保持とボール検知の統合
+      } dribble_status;  // ボール保持とボール検知の統合
 
-      uint8_t batteryVoltage;
-      uint8_t capValEstimate;  // 0~100
+      uint8_t battery_voltage;
+      uint8_t cap_val_estimate;  // 0~100
 
       // Information STM32→Xiao(UI) -----------------------------
       union {
             struct {
-                  bool chargeState : 1;   // stmから送られてくる充電状態
-                  uint8_t chargeVal : 7;  // capValEstimate
+                  bool charge_state : 1;   // stmから送られてくる充電状態
+                  uint8_t charge_val : 7;  // cap_val_estimate
             };
             uint8_t data;
-      } capaData;
+      } capa_data;
 
       // Information Xiao(UI)→STM32 ---------------------------
       union {
             struct {
                   uint8_t mode : 5;
-                  bool emergencyStop : 1;
-                  bool chargeStateChange : 1;  // 1.切替、0.切替なし
-                  bool kick : 1;               // キック
+                  bool emergency_stop : 1;
+                  bool charge_state_change : 1;  // 1.切替、0.切替なし
+                  bool kick : 1;                 // キック
             };
             uint8_t data;
-      } uiStatus;
+      } ui_status;
 
       // Information MD→STM32 ---------------------------
       struct {
-            int16_t velX;
-            int16_t velY;
+            int16_t vel_x;
+            int16_t vel_y;
 
-            int16_t motorAngularVelocity[4];
-      } mdStatus;
+            int16_t motor_angular_velocity[4];
+      } md_status;
 
       // local
-      volatile uint16_t photoSensorValue;
-      bool isUnderVoltage;
-      bool isRobotStopFF;  // ロボットのFF速度ベクトルも元にロボットが止まっているかを判断する
-      bool isKickerChargeMode;
-      union {  // kickerBoardの自認
+      volatile uint16_t photo_sensor_value;
+      bool is_under_voltage;
+      bool is_robot_stop_ff;  // ロボットのFF速度ベクトルも元にロボットが止まっているかを判断する
+      bool is_kicker_charge_mode;
+      union {  // kicker_boardの自認
             struct {
                   bool straight : 1;
                   bool chip : 1;
             };
             uint8_t status;
-      } kickerBoardDoDirectStatus;
+      } kicker_board_do_direct_status;
 
-      float meanVelXBuf[15];
-      float meanVelYBuf[15];
-      float meanVelAngBuf[15];
+      float mean_vel_x_buf[15];
+      float mean_vel_y_buf[15];
+      float mean_vel_ang_buf[15];
 
-} RobotInfo_t;
+} RobotInfo;
 
 class Robot {
      public:
       Robot();
 
-      RobotInfo_t info;
+      RobotInfo info;
 
       DigitalOut led0 = DigitalOut(LED0_GPIO_Port, LED0_Pin);
       DigitalOut led1 = DigitalOut(LED1_GPIO_Port, LED1_Pin);
@@ -162,21 +164,21 @@ class Robot {
 
       BufferedSerial serial1{&huart1, 128};  // pc
       BufferedSerial serial4{&huart4, 128};  // ui
-      BufferedSerial mdSerials[4]{
+      BufferedSerial md_serials[4]{
           {&huart2, 128},  // MD1
           {&huart3, 128},  // MD2
           {&huart5, 128},  // MD3
           {&huart6, 128}   // MD4
       };
 
-      MotorDrive motorDrive{mdSerials};
+      MotorDrive motorDrive{md_serials};
+      Kicker kicker{&can};
+      UI ui{&serial4};
 
       void Initialize();
 
-      void RockRecvSerial(RobotInfo_t& info);
-      void RockSendSerial(RobotInfo_t& info);
-      void UiRecvSerial(RobotInfo_t& info);
-      void UiSendSerial(RobotInfo_t& info);
+      void RockRecvSerial(RobotInfo& info);
+      void RockSendSerial(RobotInfo& info);
 };
 
 #endif

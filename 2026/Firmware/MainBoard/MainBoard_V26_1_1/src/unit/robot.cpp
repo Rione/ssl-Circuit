@@ -10,7 +10,7 @@ void Robot::Initialize() {
 
       serial1.init();
       serial4.init();
-      for (auto& serial : mdSerials) serial.init();
+      for (auto& serial : md_serials) serial.init();
 
       can.init();
 
@@ -22,10 +22,4 @@ void Robot::RockRecvSerial(RobotInfo_t& info) {
 }
 
 void Robot::RockSendSerial(RobotInfo_t& info) {
-}
-
-void Robot::UiRecvSerial(RobotInfo_t& info) {
-}
-
-void Robot::UiSendSerial(RobotInfo_t& info) {
 }
