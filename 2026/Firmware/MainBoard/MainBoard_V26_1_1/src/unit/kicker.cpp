@@ -3,8 +3,8 @@
 Kicker::Kicker(CANBus* can) { can_ = can; }
 
 void Kicker::Kick(bool type, uint8_t power, bool do_direct) {
-  if (kick_interval_timer_.read_ms() < robot_params::kKickIntervalMs)
-    return;
+  static Timer timer;
+  if (timer.read_ms() < robot_params::kKickIntervalMs) return;
 
   CANBus::CANData canData = {
       .stdId = type ? can_id::kTxStraightKick : can_id::kTxChipKick,
@@ -12,7 +12,14 @@ void Kicker::Kick(bool type, uint8_t power, bool do_direct) {
   };
   can_->send(canData);
 
-  kick_interval_timer_.reset();
+  // キックしたときの推定値を更新
+  if (cap_val_estimate_ >= power) {
+    cap_val_estimate_ -= power;
+  } else {
+    cap_val_estimate_ = 0;
+  }
+
+  timer.reset();
 }
 
 void Kicker::ChargeControl(bool type) {
@@ -21,6 +28,11 @@ void Kicker::ChargeControl(bool type) {
       .data = {0},
   };
   can_->send(canData);
+
+  // 放電開始時に推定値をリセット
+  if (type == can_id::kRxDischargeStart) {
+    cap_val_estimate_ = 0;
+  }
 }
 
 void Kicker::StopDirect(bool type) {

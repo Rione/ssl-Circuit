@@ -19,10 +19,18 @@ class Kicker {
 #define STRAIGHT 1
 #define CHIP 0
 
+  inline __attribute__((always_inline)) uint8_t GetCapValEstimate() {
+    return cap_val_estimate_;
+  }
+
+  inline __attribute__((always_inline)) void SetCapValEstimate(uint8_t val) {
+    cap_val_estimate_ = val;
+  }
+
  private:
   CANBus* can_;
 
-  Timer kick_interval_timer_;
+  uint8_t cap_val_estimate_;  // 充電の推定値
 };
 
 #endif  // __KICKER_HPP_

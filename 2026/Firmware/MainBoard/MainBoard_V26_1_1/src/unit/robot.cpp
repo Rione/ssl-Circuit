@@ -74,4 +74,17 @@ void Robot::RockRecvSerial(RobotInfo& info) {
 void Robot::RockSendSerial(RobotInfo& info) {
   const uint8_t kDataSize = 3;  // 送信データサイズ(バイト数)
   const uint8_t kFooter[4] = {0xFF, 0, 0xFF, 0};
+  static Timer timer;
+
+  if (timer.read_ms() < 100) return;
+
+  uint8_t send_data[kDataSize];
+  send_data[0] = info.dribble_status.data;
+  send_data[1] = info.battery_voltage;
+  send_data[2] = info.cap_val_estimate;
+
+  serial1.write(kFooter, 4);
+  serial1.write(send_data, kDataSize);
+
+  timer.reset();
 }
