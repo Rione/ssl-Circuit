@@ -88,3 +88,38 @@ void Robot::RockSendSerial(RobotInfo& info) {
 
   timer.reset();
 }
+
+void Robot::SendDribble(uint8_t power, bool force_send) {
+  dribbler.Send(power, force_send);
+}
+
+void Robot::SendKicker(RobotInfo& info) {
+  // キックの処理
+  // ストレートを優先してキック
+  if (info.kicker.straight > 0) {
+    kicker.Kick(Kicker::kStraight, info.kicker.straight,
+                info.status.do_direct_kick);
+  } else if (info.kicker.chip > 0) {
+    kicker.Kick(Kicker::kChip, info.kicker.chip,
+                info.status.do_direct_chip_kick);
+  } else {
+    // どっちも0の場合はキックしない
+    if (info.status.do_direct_kick !=
+            info.kicker_board_do_direct_status.straight &&
+        info.kicker_board_do_direct_status.straight) {
+      kicker.CancelDirect(Kicker::kStraight);
+    }
+    if (info.status.do_direct_chip_kick !=
+            info.kicker_board_do_direct_status.chip &&
+        info.kicker_board_do_direct_status.chip) {
+      kicker.CancelDirect(Kicker::kChip);
+    }
+  }
+}
+void Robot::SendOmniDrive(RobotInfo& info, uint8_t interval) {
+  static uint8_t send_count = 0;
+  send_count++;
+  if (send_count % interval == 0) {  // 5msごとに送信
+    omni_drive.SetVel(info.vel_x.vel, info.vel_y.vel, info.vel_angular.vel);
+  }
+}

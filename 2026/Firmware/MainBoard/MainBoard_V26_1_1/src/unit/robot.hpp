@@ -5,6 +5,7 @@
 #include "Button.hpp"
 #include "CAN.hpp"
 #include "DigitalInOut.hpp"
+#include "dribbler.hpp"
 #include "kicker.hpp"
 #include "main.h"
 #include "omni_drive.hpp"
@@ -173,12 +174,17 @@ class Robot {
 
   OmniDrive omni_drive{md_serials};
   Kicker kicker{&can};
+  Dribbler dribbler{&can};
   UI ui{&serial4};
 
   void Initialize();
 
   void RockRecvSerial(RobotInfo& info);
   void RockSendSerial(RobotInfo& info);
+
+  void SendDribble(uint8_t power, bool force_send = false);
+  void SendKicker(RobotInfo& info);
+  void SendOmniDrive(RobotInfo& info, uint8_t interval);
 };
 
 #endif

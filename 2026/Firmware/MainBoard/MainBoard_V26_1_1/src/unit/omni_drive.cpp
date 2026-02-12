@@ -14,8 +14,7 @@ void OmniDrive::SetVel(int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
 
   for (int i = 0; i < 4; i++) {
     // 各ホイールの接線方向の速度 [m/s] を計算
-    // オムニホイールの逆運動学: v_w = -vx * sin(theta) + vy * cos(theta) + R *
-    // omega
+    // オムニホイールの逆運動学: v_w = -vx * sin(theta) + vy * cos(theta) + R * omega
     float v_wheel_linear =
         -vx_m * MyMath::sinDeg(robot_params::kMotorDegree[i]) +
         vy_m * MyMath::cosDeg(robot_params::kMotorDegree[i]) +

@@ -5,13 +5,12 @@
 #include "parammeter.hpp"
 
 class MainMode : public Mode {
-     public:
-      MainMode(Robot* robot);
+ public:
+  MainMode(Robot* robot);
 
-      void Loop() override;
+  void Loop() override;
 
-     private:
-      Timer timer_;
+ private:
 };
 
 #endif  // __MAIN_MODE_HPP_

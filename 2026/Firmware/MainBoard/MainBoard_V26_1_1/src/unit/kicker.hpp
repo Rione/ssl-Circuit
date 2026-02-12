@@ -12,12 +12,15 @@ class Kicker {
  public:
   Kicker(CANBus* can);
 
-  void Kick(bool type, uint8_t power, bool do_direct = false);
-  void ChargeControl(bool type);
-  void StopDirect(bool type);
+  void Kick(bool is_straight, uint8_t power, bool do_direct = false);
 
-#define STRAIGHT 1
-#define CHIP 0
+  void Charge();
+  void Discharge();
+
+  void CancelDirect(bool is_straight);
+
+  static constexpr bool kStraight = 1;
+  static constexpr bool kChip = 0;
 
   inline __attribute__((always_inline)) uint8_t GetCapValEstimate() {
     return cap_val_estimate_;
