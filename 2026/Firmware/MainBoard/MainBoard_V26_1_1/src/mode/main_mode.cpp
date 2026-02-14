@@ -28,6 +28,7 @@ void MainMode::Loop() {
     robot_->SendOmniDrive(robot_->info, 5);  // 5msごとに送信
   } else {
     // Robot is Stop or Emergency Stop
+    local_controller.Stop(*robot_);
   }
 
   while (timer.read_ms() < robot_params::kControlLoopDt);

@@ -28,25 +28,31 @@ void OmniDrive::SetVel(int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
     m[i] = (int16_t)v_wheel_angular;
   }
 
-  Send(m);
+  Send(m, 0);  // command: 0 (Drive)
 }
 
-void OmniDrive::Send(int16_t* m) {
+void OmniDrive::SetFree() {
+  int16_t m[4] = {0, 0, 0, 0};
+  Send(m, 1);  // command: 1 (Free)
+}
+
+void OmniDrive::Send(int16_t* m, uint8_t command) {
   const uint8_t kHeader = 0xFF;
   const uint8_t kFooter = 0xAA;
-  const uint8_t kDataSize = 10;  // 送信データサイズ(バイト数)
+  const uint8_t kDataSize = 11;  // 送信データサイズ(バイト数)
   uint8_t send_data[kDataSize];
 
   send_data[0] = kHeader;
-  send_data[1] = (m[0] >> 8) & 0xFF;
-  send_data[2] = m[0] & 0xFF;
-  send_data[3] = (m[1] >> 8) & 0xFF;
-  send_data[4] = m[1] & 0xFF;
-  send_data[5] = (m[2] >> 8) & 0xFF;
-  send_data[6] = m[2] & 0xFF;
-  send_data[7] = (m[3] >> 8) & 0xFF;
-  send_data[8] = m[3] & 0xFF;
-  send_data[9] = kFooter;
+  send_data[1] = command;  // 2バイト目: コマンド
+  send_data[2] = (m[0] >> 8) & 0xFF;
+  send_data[3] = m[0] & 0xFF;
+  send_data[4] = (m[1] >> 8) & 0xFF;
+  send_data[5] = m[1] & 0xFF;
+  send_data[6] = (m[2] >> 8) & 0xFF;
+  send_data[7] = m[2] & 0xFF;
+  send_data[8] = (m[3] >> 8) & 0xFF;
+  send_data[9] = m[3] & 0xFF;
+  send_data[10] = kFooter;
 
   serials_[0]->write(send_data, kDataSize);
 }

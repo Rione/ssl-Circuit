@@ -7,6 +7,8 @@ class LocalController {
  public:
   LocalController();
 
+  void Stop(Robot& robot);  // ロボットを完全に停止させる
+
  private:
 };
 

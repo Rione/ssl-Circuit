@@ -11,7 +11,8 @@ class OmniDrive {
  public:
   OmniDrive(BufferedSerial* serials);
   void SetVel(int16_t vel_x, int16_t vel_y, int16_t vel_angle);
-  void Send(int16_t* m);
+  void SetFree();
+  void Send(int16_t* m, uint8_t command = 0);
   void Recv();
   void GetVel(int16_t* vel_x, int16_t* vel_y, int16_t* vel_angle);
 
