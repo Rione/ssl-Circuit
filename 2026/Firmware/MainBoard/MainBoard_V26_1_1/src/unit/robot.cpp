@@ -89,6 +89,38 @@ void Robot::RockSendSerial(RobotInfo& info) {
   timer.reset();
 }
 
+void Robot::UpdateFromUi() {
+  ui.Recv(info.ui_status);
+
+  // UIからの操作を反映（ロックされていない場合のみ）
+  if (info.ui_status.is_locked == false) {
+    // ドリブル操作
+    if (info.ui_status.dribble) {
+      // 0-15の値をPWM等のレンジ(例えば0-100や0-255)に変換して設定
+      // UIからは4bit(0-15)で来るため、255/15=17倍して全域を使う
+      // あるいはわかりやすく10倍などでも可
+      info.dribble_power = info.ui_status.dribbler_power * 10;
+    }
+
+    // キック操作
+    if (info.ui_status.straight_kick) {
+      info.kicker.straight = info.ui_status.kicker_power;
+    } else if (info.ui_status.chip_kick) {
+      info.kicker.chip = info.ui_status.kicker_power;
+    }
+
+    // 充電・放電操作
+    if (info.ui_status.charge) {
+      info.status.do_charge = true;
+    } else if (info.ui_status.discharge) {
+      info.status.do_charge = false;
+    }
+  }
+
+  // 現在の電圧情報をUIに送信
+  ui.Send(info.battery_voltage, info.capa_data.data);
+}
+
 void Robot::SendDribble(uint8_t power, bool force_send) {
   dribbler.Send(power, force_send);
 }

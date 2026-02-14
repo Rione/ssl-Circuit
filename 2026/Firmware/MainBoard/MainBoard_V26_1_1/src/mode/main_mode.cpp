@@ -8,9 +8,11 @@ void MainMode::Loop() {
 
   // シリアル通信
   robot_->RockRecvSerial(robot_->info);
-  robot_->RockSendSerial(robot_->info);
 
-  robot_->omni_drive.SetVel(robot_->info.vel_x.vel, robot_->info.vel_y.vel, robot_->info.vel_angular.vel);
+  // UIからの操作を更新
+  robot_->UpdateFromUi();
+
+  robot_->RockSendSerial(robot_->info);
   robot_->omni_drive.Recv();
 
   if (!robot_->info.status.emergency_stop && robot_->info.status.is_signal_received) {

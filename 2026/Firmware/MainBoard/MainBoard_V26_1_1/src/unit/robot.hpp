@@ -113,15 +113,7 @@ typedef struct {
   } capa_data;
 
   // Information Xiao(UI)→STM32 ---------------------------
-  union {
-    struct {
-      uint8_t mode : 5;
-      bool emergency_stop : 1;
-      bool charge_state_change : 1;  // 1.切替、0.切替なし
-      bool kick : 1;                 // キック
-    };
-    uint8_t data;
-  } ui_status;
+  UiStatus ui_status;
 
   // Information MD→STM32 ---------------------------
   struct {
@@ -181,6 +173,9 @@ class Robot {
 
   void RockRecvSerial(RobotInfo& info);
   void RockSendSerial(RobotInfo& info);
+
+  // UIからの指示を受け取り、RobotInfoに反映する
+  void UpdateFromUi();
 
   void SendDribble(uint8_t power, bool force_send = false);
   void SendKicker(RobotInfo& info);
