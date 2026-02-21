@@ -7,6 +7,13 @@
 #include "MyMath.hpp"
 #include "parammeter.hpp"
 
+typedef struct {
+  int16_t vel_x;
+  int16_t vel_y;
+
+  int16_t motor_angular_velocity[4];
+} OmniDriveStatus;
+
 class OmniDrive {
  public:
   OmniDrive(BufferedSerial* serials);

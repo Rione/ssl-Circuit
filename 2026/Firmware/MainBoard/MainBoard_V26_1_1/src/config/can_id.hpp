@@ -12,14 +12,16 @@ constexpr uint16_t kTxDischarge = 0x12;     // 放電
 constexpr uint16_t kTxStraightKick = 0x13;  // ストレートキック
 constexpr uint16_t kTxChipKick = 0x14;      // チップキック
 
-constexpr uint16_t kTxDribble = 0x20;  // ドリブル
+constexpr uint16_t kTxDribbler = 0x20;  // ドリブル
 
 // 受信用 CAN ID
 constexpr uint16_t kRxSupplyBoard = 0x50;     // 電源・キッカー情報
 constexpr uint16_t kRxChargeStart = 0x51;     // 充電開始通知
 constexpr uint16_t kRxDischargeStart = 0x52;  // 放電開始通知
+constexpr uint16_t kRxStraightKick = 0x53;    // ストレートキック通知
+constexpr uint16_t kRxChipKick = 0x54;        // チップキック通知
 
-constexpr uint16_t kRxDribble = 0x70;  // ドリブル情報
+constexpr uint16_t kRxDribbler = 0x70;  // ドリブル情報
 
 }  // namespace can_id
 

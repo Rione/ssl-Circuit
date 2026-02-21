@@ -8,6 +8,17 @@
 #include "can_id.hpp"
 #include "parammeter.hpp"
 
+typedef struct {
+  union {
+    struct {
+      bool do_direct_straight : 1;
+      bool do_direct_chip : 1;
+    };
+    uint8_t do_direct_status;
+  };
+  uint8_t cap_val_estimate;
+} KickerStatus;
+
 class Kicker {
  public:
   Kicker(CANBus* can);
@@ -22,18 +33,19 @@ class Kicker {
   static constexpr bool kStraight = 1;
   static constexpr bool kChip = 0;
 
+  void UpdateCapValEstimate(uint8_t power);
+
   inline __attribute__((always_inline)) uint8_t GetCapValEstimate() {
-    return cap_val_estimate_;
+    return status_.cap_val_estimate;
   }
 
   inline __attribute__((always_inline)) void SetCapValEstimate(uint8_t val) {
-    cap_val_estimate_ = val;
+    status_.cap_val_estimate = val;
   }
 
  private:
   CANBus* can_;
-
-  uint8_t cap_val_estimate_;  // 充電の推定値
+  KickerStatus status_;
 };
 
 #endif  // __KICKER_HPP_

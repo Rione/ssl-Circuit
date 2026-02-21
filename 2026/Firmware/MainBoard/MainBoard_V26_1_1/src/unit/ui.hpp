@@ -28,12 +28,14 @@ typedef struct {
   };
 } UiStatus;
 
+class Robot;
+
 class UI {
  public:
   UI(BufferedSerial* serial);
 
   void Recv(UiStatus& status);
-  void Send(uint8_t battery_voltage, uint8_t charge_status);
+  void Send(const Robot& robot);
 
  private:
   BufferedSerial* serial_;

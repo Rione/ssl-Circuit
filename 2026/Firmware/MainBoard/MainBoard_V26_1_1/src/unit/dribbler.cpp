@@ -18,7 +18,7 @@ void Dribbler::Send(uint8_t power, bool force_send) {
   uint8_t send_power = (power != 0) ? 100 : 0;
 
   CANBus::CANData canData = {
-      .stdId = can_id::kTxDribble,
+      .stdId = can_id::kTxDribbler,
       .data = {send_power, 0, 0, 0, 0, 0, 0, 0},
   };
   can_->send(canData);

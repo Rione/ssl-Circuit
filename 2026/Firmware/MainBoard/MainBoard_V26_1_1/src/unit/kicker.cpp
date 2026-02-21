@@ -13,10 +13,10 @@ void Kicker::Kick(bool is_straight, uint8_t power, bool do_direct) {
   can_->send(canData);
 
   // キックしたときの推定値を更新
-  if (cap_val_estimate_ >= power) {
-    cap_val_estimate_ -= power;
+  if (status_.cap_val_estimate >= power) {
+    status_.cap_val_estimate -= power;
   } else {
-    cap_val_estimate_ = 0;
+    status_.cap_val_estimate = 0;
   }
 
   timer.reset();
@@ -38,7 +38,7 @@ void Kicker::Discharge() {
   can_->send(canData);
 
   // 放電時はキャパシタ電圧推定値をリセット
-  cap_val_estimate_ = 0;
+  status_.cap_val_estimate = 0;
 }
 
 void Kicker::CancelDirect(bool is_straight) {
@@ -47,4 +47,12 @@ void Kicker::CancelDirect(bool is_straight) {
       .data = {0},
   };
   can_->send(canData);
+}
+
+void Kicker::UpdateCapValEstimate(uint8_t power) {
+  if (status_.cap_val_estimate >= power) {
+    status_.cap_val_estimate -= power;
+  } else {
+    status_.cap_val_estimate = 0;
+  }
 }

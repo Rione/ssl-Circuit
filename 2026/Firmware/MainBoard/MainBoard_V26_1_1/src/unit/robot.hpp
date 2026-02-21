@@ -73,11 +73,9 @@ typedef struct {
   union {
     struct {
       bool emergency_stop : 1;
-      bool
-          do_direct_kick : 1;  // ボールセンサが反応した瞬間にストレートキックする
-      bool
-          do_direct_chip_kick : 1;  // ボールセンサが反応した瞬間にチップキックする
-      bool reserved0 : 1;
+      bool do_direct_kick : 1;       // ボールセンサが反応した瞬間にストレートキックする
+      bool do_direct_chip_kick : 1;  // ボールセンサが反応した瞬間にチップキックする
+      bool reserved : 1;
       bool do_charge : 1;           // 0: discharge, 1: do_charge
       bool is_signal_received : 1;  // コントローラから信号が出ているときにtrue
       bool is_ctrl_by_robot : 1;    // (0: RACOON-Ctrl, 1: Robot-local-Ctrl)
@@ -87,55 +85,17 @@ typedef struct {
     uint8_t data;
   } status;
 
-  // Information STM32→Rock5A -------------------------
-  union {
-    struct {
-      bool
-          is_detected_ball : 1;  // ボール検知（フォトセンサーの検知）2024版のis_hold_ball
-      bool
-          is_hold_ball : 1;  // ボール保持（ドリブラーの検知とフォトセンサーの検知の論理積）
-      bool is_new_drib : 1;  // 新機体:1
-      uint8_t reserved : 5;
-    };
-    uint8_t data;
-  } dribble_status;  // ボール保持とボール検知の統合
-
-  uint8_t battery_voltage;
-  uint8_t cap_val_estimate;  // 0~100
-
-  // Information STM32→Xiao(UI) -----------------------------
-  union {
-    struct {
-      bool charge_state : 1;   // stmから送られてくる充電状態
-      uint8_t charge_val : 7;  // cap_val_estimate
-    };
-    uint8_t data;
-  } capa_data;
-
-  // Information Xiao(UI)→STM32 ---------------------------
+  DribbleStatus dribble_status;  // ボール保持とボール検知の統合
   UiStatus ui_status;
-
-  // Information MD→STM32 ---------------------------
-  struct {
-    int16_t vel_x;
-    int16_t vel_y;
-
-    int16_t motor_angular_velocity[4];
-  } md_status;
+  OmniDriveStatus omni_drive_status;
+  KickerStatus kicker_status;
 
   // local
+  uint8_t battery_voltage;
   volatile uint16_t photo_sensor_value;
   bool is_under_voltage;
-  bool
-      is_robot_stop_ff;  // ロボットのFF速度ベクトルも元にロボットが止まっているかを判断する
+  bool is_robot_stop_ff;  // ロボットのFF速度ベクトルも元にロボットが止まっているかを判断する
   bool is_kicker_charge_mode;
-  union {  // kicker_boardの自認
-    struct {
-      bool straight : 1;
-      bool chip : 1;
-    };
-    uint8_t status;
-  } kicker_board_do_direct_status;
 } RobotInfo;
 
 class Robot {

@@ -81,7 +81,7 @@ void Robot::RockSendSerial(RobotInfo& info) {
   uint8_t send_data[kDataSize];
   send_data[0] = info.dribble_status.data;
   send_data[1] = info.battery_voltage;
-  send_data[2] = info.cap_val_estimate;
+  send_data[2] = info.kicker_status.cap_val_estimate;
 
   serial1.write(kFooter, 4);
   serial1.write(send_data, kDataSize);
@@ -92,13 +92,9 @@ void Robot::RockSendSerial(RobotInfo& info) {
 void Robot::UpdateFromUi() {
   ui.Recv(info.ui_status);
 
-  // UIからの操作を反映（ロックされていない場合のみ）
   if (info.ui_status.is_locked == false) {
     // ドリブル操作
     if (info.ui_status.dribble) {
-      // 0-15の値をPWM等のレンジ(例えば0-100や0-255)に変換して設定
-      // UIからは4bit(0-15)で来るため、255/15=17倍して全域を使う
-      // あるいはわかりやすく10倍などでも可
       info.dribble_power = info.ui_status.dribbler_power * 10;
     }
 
@@ -118,7 +114,7 @@ void Robot::UpdateFromUi() {
   }
 
   // 現在の電圧情報をUIに送信
-  ui.Send(info.battery_voltage, info.capa_data.data);
+  ui.Send(*this);
 }
 
 void Robot::SendDribble(uint8_t power, bool force_send) {
@@ -129,21 +125,14 @@ void Robot::SendKicker(RobotInfo& info) {
   // キックの処理
   // ストレートを優先してキック
   if (info.kicker.straight > 0) {
-    kicker.Kick(Kicker::kStraight, info.kicker.straight,
-                info.status.do_direct_kick);
+    kicker.Kick(Kicker::kStraight, info.kicker.straight, info.status.do_direct_kick);
   } else if (info.kicker.chip > 0) {
-    kicker.Kick(Kicker::kChip, info.kicker.chip,
-                info.status.do_direct_chip_kick);
+    kicker.Kick(Kicker::kChip, info.kicker.chip, info.status.do_direct_chip_kick);
   } else {
-    // どっちも0の場合はキックしない
-    if (info.status.do_direct_kick !=
-            info.kicker_board_do_direct_status.straight &&
-        info.kicker_board_do_direct_status.straight) {
+    if (info.status.do_direct_kick != info.kicker_status.do_direct_straight && info.kicker_status.do_direct_straight) {
       kicker.CancelDirect(Kicker::kStraight);
     }
-    if (info.status.do_direct_chip_kick !=
-            info.kicker_board_do_direct_status.chip &&
-        info.kicker_board_do_direct_status.chip) {
+    if (info.status.do_direct_chip_kick != info.kicker_status.do_direct_chip && info.kicker_status.do_direct_chip) {
       kicker.CancelDirect(Kicker::kChip);
     }
   }
