@@ -132,7 +132,7 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32F3xx/Include \
 -IDrivers/CMSIS/Include \
 -Isrc/app \
--I$(shell find ../../CommonLib-C -maxdepth 1 -type d | sed 's/^//')
+$(addprefix -I,$(shell find ../../CommonLib-C -maxdepth 1 -type d))
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
