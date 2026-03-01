@@ -57,6 +57,18 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define KICK1_Pin GPIO_PIN_1
+#define KICK1_GPIO_Port GPIOA
+#define KICK2_Pin GPIO_PIN_2
+#define KICK2_GPIO_Port GPIOA
+#define LED_Pin GPIO_PIN_3
+#define LED_GPIO_Port GPIOA
+#define BUTTON_Pin GPIO_PIN_8
+#define BUTTON_GPIO_Port GPIOA
+#define LT_CHARGE_Pin GPIO_PIN_6
+#define LT_CHARGE_GPIO_Port GPIOB
+#define LT_DONE_Pin GPIO_PIN_7
+#define LT_DONE_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
