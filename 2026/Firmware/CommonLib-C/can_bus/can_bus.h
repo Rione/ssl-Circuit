@@ -1,6 +1,7 @@
-#ifndef CAN_H_
-#define CAN_H_
+#ifndef CAN_BUS_H_
+#define CAN_BUS_H_
 
+#include "can.h"
 #include "main.h"
 
 typedef struct {
@@ -14,9 +15,9 @@ typedef struct {
 
       CAN_TxHeaderTypeDef txHeader;
       CAN_RxHeaderTypeDef rxHeader;
-} Can;
+} CanBus;
 
-static inline void Can_Init(Can* self, CAN_HandleTypeDef* hcan, uint32_t myId) {
+static inline void Can_Init(CanBus* self, CAN_HandleTypeDef* hcan, uint32_t myId) {
       self->hcan = hcan;
       self->myId = myId;
 
@@ -39,7 +40,7 @@ static inline void Can_Init(Can* self, CAN_HandleTypeDef* hcan, uint32_t myId) {
       if (HAL_CAN_ActivateNotification(self->hcan, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK) Error_Handler();  // 受信割り込み設定
 }
 
-static inline void Can_Send(Can* self, const CanData* canData) {
+static inline void Can_Send(CanBus* self, const CanData* canData) {
       if (HAL_CAN_GetTxMailboxesFreeLevel(self->hcan) > 0) {
             uint32_t TxMailbox;
             self->txHeader.StdId = canData->stdId;
@@ -51,13 +52,13 @@ static inline void Can_Send(Can* self, const CanData* canData) {
       }
 }
 
-static inline void Can_Recv(Can* self, CanData* canData) {
+static inline void Can_Recv(CanBus* self, CanData* canData) {
       if (HAL_CAN_GetRxMessage(self->hcan, CAN_RX_FIFO0, &self->rxHeader, canData->data) == HAL_OK) {
             canData->stdId = (self->rxHeader.IDE == CAN_ID_STD) ? self->rxHeader.StdId : self->rxHeader.ExtId;
       }
 }
 
-static inline CAN_HandleTypeDef* Can_GetHandle(Can* self) {
+static inline CAN_HandleTypeDef* Can_GetHandle(CanBus* self) {
       return self->hcan;
 }
 
