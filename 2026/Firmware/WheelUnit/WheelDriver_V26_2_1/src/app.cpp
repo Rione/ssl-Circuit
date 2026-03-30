@@ -4,7 +4,10 @@ void Setup(void){
   HAL_GPIO_WritePin(LED_B3_GPIO_Port, LED_B3_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(LED_B2_GPIO_Port, LED_B2_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(LED_B1_GPIO_Port, LED_B1_Pin, GPIO_PIN_SET);
-  //HAL_GPIO_WritePin(WAKE_GPIO_Port, WAKE_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED_XB_GPIO_Port, LED_XB_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED_XG_GPIO_Port, LED_XG_Pin, GPIO_PIN_SET);
+  //HAL_GPIO_WritePin(LED_XR_GPIO_Port, LED_XR_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(WAKE_GPIO_Port, WAKE_Pin, GPIO_PIN_SET);
   HAL_Delay(200);
 }
 
