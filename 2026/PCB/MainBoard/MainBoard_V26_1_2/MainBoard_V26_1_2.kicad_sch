@@ -9014,128 +9014,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "power:+6V"
-			(power)
-			(pin_names
-				(offset 0)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "#PWR"
-				(at 0 -3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Value" "+6V"
-				(at 0 3.556 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Power symbol creates a global label with name \"+6V\""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "global power"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "+6V_0_1"
-				(polyline
-					(pts
-						(xy -0.762 1.27) (xy 0 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 2.54) (xy 0.762 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 0) (xy 0 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "+6V_1_1"
-				(pin power_in line
-					(at 0 0 90)
-					(length 0)
-					(hide yes)
-					(name "+6V"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "power:GND"
 			(power)
 			(pin_names
@@ -9793,12 +9671,6 @@
 		(uuid "d7a961ca-fe19-4262-aa01-29f1d18e31d8")
 	)
 	(junction
-		(at 473.71 210.82)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "db2a3aa1-7c2f-4ac7-87f8-ec9960e4ab72")
-	)
-	(junction
 		(at 194.31 134.62)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -10200,16 +10072,6 @@
 	)
 	(wire
 		(pts
-			(xy 466.09 207.01) (xy 466.09 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "11a3394f-a4df-44ee-8843-c2eeb9dcf08b")
-	)
-	(wire
-		(pts
 			(xy 330.2 123.19) (xy 325.12 123.19)
 		)
 		(stroke
@@ -10427,16 +10289,6 @@
 			(type default)
 		)
 		(uuid "20f33ee1-acf9-4efa-a004-a315783ee04c")
-	)
-	(wire
-		(pts
-			(xy 466.09 198.12) (xy 466.09 199.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "21308ada-9de7-4507-90a4-2622f1b4e0da")
 	)
 	(wire
 		(pts
@@ -12960,16 +12812,6 @@
 	)
 	(wire
 		(pts
-			(xy 466.09 210.82) (xy 473.71 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c2344b36-149b-46f2-8bdb-186966b4786d")
-	)
-	(wire
-		(pts
 			(xy 548.64 210.82) (xy 541.02 210.82)
 		)
 		(stroke
@@ -13557,16 +13399,6 @@
 			(type default)
 		)
 		(uuid "e21136cd-afb9-4c29-8086-f466074527b6")
-	)
-	(wire
-		(pts
-			(xy 466.09 185.42) (xy 466.09 190.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e24e0536-92c0-4ea7-8bbf-9679f1d36823")
 	)
 	(wire
 		(pts
@@ -18680,74 +18512,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 466.09 203.2 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "34083cd4-0289-43bd-8025-d23720405347")
-		(property "Reference" "R17"
-			(at 467.36 204.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1k"
-			(at 467.36 207.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
-			(at 464.312 203.2 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 466.09 203.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 466.09 203.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "cf5b833d-0d77-45e0-8530-20800773c959")
-		)
-		(pin "1"
-			(uuid "d901b4dc-b527-4eb9-83fa-1e7014b2a15c")
-		)
-		(instances
-			(project "MainBoard_V26_1_1"
-				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
-					(reference "R17")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 477.52 48.26 0)
 		(unit 1)
@@ -19547,74 +19311,6 @@
 			(project "MainBoard_V26_1_1"
 				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
 					(reference "R8")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 466.09 194.31 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "4e4edb12-2bc7-4e3b-baec-9c840894057c")
-		(property "Reference" "D15"
-			(at 468.63 194.31 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "LED"
-			(at 468.63 196.85 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder"
-			(at 466.09 194.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 466.09 194.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 466.09 194.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "55f48d85-50cf-418f-953d-8de91463db48")
-		)
-		(pin "2"
-			(uuid "ccd50aad-405e-4aca-93d3-f0d36bcf3e1e")
-		)
-		(instances
-			(project "MainBoard_V26_1_1"
-				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
-					(reference "D15")
 					(unit 1)
 				)
 			)
@@ -21838,71 +21534,6 @@
 			(project "MainBoard_V26_1_1"
 				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
 					(reference "#PWR014")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+6V")
-		(at 466.09 185.42 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "72fae847-3137-41dc-adc1-bb48a595059d")
-		(property "Reference" "#PWR072"
-			(at 466.09 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+6V"
-			(at 466.09 180.34 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 466.09 185.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 466.09 185.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 466.09 185.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "849a4d10-4a55-4934-b352-0319dab29195")
-		)
-		(instances
-			(project "MainBoard_V26_1_1"
-				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
-					(reference "#PWR072")
 					(unit 1)
 				)
 			)
