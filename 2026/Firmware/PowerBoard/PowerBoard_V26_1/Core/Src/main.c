@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+#include "app.h"
 #include "can.h"
 #include "gpio.h"
 #include "tim.h"
