@@ -31,4 +31,9 @@ void Setup() {
 }
 
 void MainApp() {
+  // Lちか
+  HAL_Delay(1000);
+  HAL_GPIO_WritePin(lt_charge.port, lt_charge.pin, GPIO_PIN_SET);
+  HAL_Delay(1000);
+  HAL_GPIO_WritePin(lt_charge.port, lt_charge.pin, GPIO_PIN_RESET);
 }

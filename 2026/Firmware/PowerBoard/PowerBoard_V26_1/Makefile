@@ -205,6 +205,9 @@ clean:
 run:
 	make -j12
 	sh SWDFlash.sh
+
+dap: $(BUILD_DIR)/$(TARGET).elf
+	openocd -f openocd_daplink.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 #######################################
 # dependencies
 #######################################
