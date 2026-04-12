@@ -132,7 +132,15 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32F3xx/Include \
 -IDrivers/CMSIS/Include \
 -Isrc/app \
-$(addprefix -I,$(shell find ../../CommonLib-C -maxdepth 1 -type d))
+-I../../CommonLib-C/can_bus \
+-I../../CommonLib-C/digitalinout \
+-I../../CommonLib-C/filter \
+-I../../CommonLib-C/flash \
+-I../../CommonLib-C/mymath \
+-I../../CommonLib-C/pid \
+-I../../CommonLib-C/pwm_out \
+-I../../CommonLib-C/serial \
+-I../../CommonLib-C/timer \
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
