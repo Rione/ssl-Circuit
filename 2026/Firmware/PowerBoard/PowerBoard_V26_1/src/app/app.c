@@ -15,7 +15,9 @@ DigitalIn lt_done;
 Serial serial;
 
 CanBus can_bus;
-CanData can_data;
+CanData can_recv_data;
+
+Timer can_trasmit_interval_timer;
 
 void Setup() {
   printf("PowerBoard Setup Start\n");
@@ -26,7 +28,7 @@ void Setup() {
   PwmOut_Init(&led, &htim2, TIM_CHANNEL_4);
 
   // CANの初期化
-  CAN_Init(&can_bus, 0x100);
+  Can_Init(&can_bus, &hcan, 0x100);
 
   // DigitalInOutの初期化
   DigitalIn_Init(&button, BUTTON_GPIO_Port, BUTTON_Pin);
@@ -38,12 +40,19 @@ void Setup() {
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
   if (Can_GetHandle(&can_bus) == hcan) {
-    Can_Recv(&can_bus, &can_data);
-    switch (can_data.stdId) {
-      case 0x101:
+    Can_Recv(&can_bus, &can_recv_data);
+    printf("CAN Received: ID=0x%X\n", can_recv_data.stdId);
+    switch (can_recv_data.stdId) {
+      case 0x11:  // 充電
 
         break;
-      case 0x100:
+      case 0x12:  // 放電
+
+        break;
+      case 0x13:  // ストレートキック
+
+        break;
+      case 0x14:  // チップキック
 
         break;
       default:
@@ -54,5 +63,13 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
 
 void MainApp() {
   while (1) {
+    if (Timer_Read(&can_trasmit_interval_timer) > 10) {
+      CanData can_send_data = {
+          .stdId = 0x50,
+          .data = {0},
+      };
+      Can_Send(&can_bus, &can_send_data);
+      Timer_Reset(&can_trasmit_interval_timer);
+    }
   }
 }
