@@ -1,6 +1,6 @@
 #include "BLDC.hpp"
 
-BLDCMotor::BLDCMotor(PwmOut *_pwm, AS5048A *_encoder, uint8_t _polerQty, float _dt)
+BLDCMotor::BLDCMotor(PwmOut *_pwm, AS5600 *_encoder, uint8_t _polerQty, float _dt)
     : pwm(_pwm),
       encoder(_encoder),
       polePairQty(_polerQty),
@@ -303,4 +303,5 @@ void BLDCMotor::drive() {
     float Ud = 0;
     setPhaseVoltage(Uq, Ud, elAngle);
     // printf("V:%5.3f Uq:%5.3f \n", velocity, Uq);
+
 }

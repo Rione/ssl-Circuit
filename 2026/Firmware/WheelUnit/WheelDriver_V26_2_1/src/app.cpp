@@ -4,6 +4,7 @@
 #include "FLASH_EEPROM/FLASH_EEPROM.hpp"
 #include "PWM/PWM.hpp"
 #include "Timer/Timer.hpp"
+#include "BLDC/BLDC.hpp"
 #include <cstdio>
 
 // LEDのグローバル変数
@@ -18,12 +19,14 @@ DigitalOut LED_XR(LED_XR_GPIO_Port, LED_XR_Pin);
 DigitalIn USW(USW_GPIO_Port, USW_Pin);
 
 // AS5600 角度センサー (PA4でのアナログ読取)
-AS5600 encoder(&hadc2, ADC_CHANNEL_18);
+AS5600 encoder(&hadc2, ADC_CHANNEL_17);
 
 Flash_EEPROM flash;
 PwmOut pwm(&htim1, TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3);
 
 Timer canLastRecv;
+
+BLDCMotor motor(&pwm, &encoder, 7, 0.001); // 7極ペア, 制御周期1ms
 
 float targetVelocity = 0; // radian per sec
 bool isEmergency = false;
@@ -110,6 +113,7 @@ void Setup(void){
   
   // ADC開始
   HAL_ADC_Start(&hadc1);
+  HAL_ADC_Start(&hadc2);//
   
   // Flash確認
   if (checkFlashIsEmpty()) {
@@ -157,7 +161,7 @@ void MainLoop(){
       }
       gainChanged = false;
     } else {
-      // 通常動作
+      motor.drive();
       LED_B2 = 1; // GREEN
     }
   }
