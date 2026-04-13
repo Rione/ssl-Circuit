@@ -8,6 +8,8 @@
 
 extern "C" {
   extern TIM_HandleTypeDef htim1;
+  extern ADC_HandleTypeDef hadc1;
+  extern ADC_HandleTypeDef hadc2;
   void Setup(void);
   void MainLoop(void);
 }
