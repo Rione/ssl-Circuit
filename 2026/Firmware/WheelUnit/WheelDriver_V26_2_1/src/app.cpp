@@ -5,7 +5,13 @@
 #include "PWM/PWM.hpp"
 #include "Timer/Timer.hpp"
 #include "BLDC/BLDC.hpp"
+#include "Serial/Serial.hpp"
+#include "motor_drive/motor_drive.hpp"
 #include <cstdio>
+
+extern UART_HandleTypeDef huart2;
+Serial uart2(&huart2, 256);
+MotorDrive motorDrive(&uart2);
 
 // LEDのグローバル変数
 DigitalOut LED_B3(LED_B3_GPIO_Port, LED_B3_Pin);
@@ -114,6 +120,9 @@ void Setup(void){
   // ADC開始
   HAL_ADC_Start(&hadc1);
   HAL_ADC_Start(&hadc2);//
+
+  // UARTシリアル初期化
+  uart2.init();
   
   // Flash確認
   if (checkFlashIsEmpty()) {
@@ -161,6 +170,10 @@ void MainLoop(){
       }
       gainChanged = false;
     } else {
+      // Motor drive UART communication
+      motorDrive.Recv();
+      motorDrive.SetVel(0, 0, 0);
+
       motor.drive();
       LED_B2 = 1; // GREEN
     }

@@ -9,7 +9,7 @@
 
 class MotorDrive {
      public:
-      MotorDrive(BufferedSerial* serials);
+      MotorDrive(BufferedSerial* serial);
       void SetVel(int16_t vel_x, int16_t vel_y, int16_t vel_angle);
       void Send(int16_t* m);
       void Recv();
@@ -19,7 +19,7 @@ class MotorDrive {
       bool _ready;
 
      private:
-      BufferedSerial* _serials[4];
+      BufferedSerial* _serial;
 
       int16_t _vel_wheel_angular[4];
 };

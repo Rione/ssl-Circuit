@@ -197,7 +197,8 @@ lib/Timer/Timer.cpp \
 lib/AS5600/AS5600.cpp \
 lib/BLDC/BLDC.cpp \
 lib/PID/PID.cpp \
-lib/LPF/LPF.cpp 
+lib/LPF/LPF.cpp \
+lib/motor_drive/motor_drive.cpp
 
 # 🍣 C++ includes
 CXX_INCLUDES = \

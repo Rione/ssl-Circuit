@@ -2,10 +2,12 @@
 #ifndef __SERIAL__
 #define __SERIAL__
 
-#include "usart.h"
-#ifdef __cplusplus
+#include "stm32g4xx_hal.h"
+#include <cstdio>
 
-extern "C" {
+extern "C" void *malloc(size_t size);
+
+#ifdef __cplusplus
 
 /*
  Initの順番をDMAが先になるようにする
@@ -17,7 +19,7 @@ class Serial {
   public:
     Serial(UART_HandleTypeDef *huart, uint16_t rxBufSize)
         : _huart(huart),
-          _rxBuf(new uint8_t[rxBufSize]),
+          _rxBuf(reinterpret_cast<uint8_t *>(malloc(rxBufSize))),
           rxTop(0), rxBtm(0),
           _rxBufSize(rxBufSize) {
     }
@@ -59,7 +61,6 @@ class Serial {
     uint16_t rxTop, rxBtm;
     uint16_t _rxBufSize;
 };
-}
 
 #endif
 #endif

@@ -1,7 +1,7 @@
 #include "motor_drive.hpp"
 
-MotorDrive::MotorDrive(BufferedSerial* serials) {
-      for (int i = 0; i < 4; i++) _serials[i] = &serials[i];
+MotorDrive::MotorDrive(BufferedSerial* serial)
+    : _emg(false), _ready(false), _serial(serial) {
 }
 
 void MotorDrive::SetVel(int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
@@ -45,39 +45,37 @@ void MotorDrive::Send(int16_t* m) {
       send_data[8] = m[3] & 0xFF;
       send_data[9] = FOOTER;
 
-      _serials[0]->write(send_data, 10);
+      _serial->write(send_data, 10);
 }
 
 void MotorDrive::Recv() {
       const uint8_t HEADER = 0xFF;
       const uint8_t FOOTER = 0xAA;
       const uint8_t data_size = 3;  // 受信データサイズ(バイト数)
-      static uint8_t recv_data[4][3];
-      static uint8_t index[4] = {0};
-      uint8_t recv_byte[4];
+      static uint8_t recv_data[3];
+      static uint8_t index = 0;
+      uint8_t recv_byte;
 
-      for (int i = 0; i < 4; i++) {
-            if (_serials[i]->available()) {
-                  recv_byte[i] = _serials[i]->getc();
+      if (_serial->available()) {
+            recv_byte = _serial->getc();
 
-                  if (index[i] == 0) {
-                        if (recv_byte[i] == HEADER) {  // ヘッダー確認
-                              index[i]++;
-                        } else {
-                              index[i] = 0;
-                        }
-                  } else if (index[i] == (data_size + 1)) {
-                        if (recv_byte[i] == FOOTER) {  // フッター確認
-                              // データ受信完了
-                              _emg = recv_data[i][0] & 0b00000001;                                          // 非常停止信号
-                              _ready = (recv_data[i][0] >> 1) & 0b00000001;                                 // ドライバ準備完了信号
-                              _vel_wheel_angular[i] = (int16_t)((recv_data[i][1] << 8) | recv_data[i][2]);  // 角速度[rad/s]
-                        }
-                        index[i] = 0;
+            if (index == 0) {
+                  if (recv_byte == HEADER) {  // ヘッダー確認
+                        index++;
                   } else {
-                        recv_data[i][index[i] - 1] = recv_byte[i];
-                        index[i]++;
+                        index = 0;
                   }
+            } else if (index == (data_size + 1)) {
+                  if (recv_byte == FOOTER) {  // フッター確認
+                        // データ受信完了
+                        _emg = recv_data[0] & 0b00000001;                                          // 非常停止信号
+                        _ready = (recv_data[0] >> 1) & 0b00000001;                                 // ドライバ準備完了信号
+                        _vel_wheel_angular[0] = (int16_t)((recv_data[1] << 8) | recv_data[2]);       // 角速度[rad/s]
+                  }
+                  index = 0;
+            } else {
+                  recv_data[index - 1] = recv_byte;
+                  index++;
             }
       }
 }
