@@ -131,6 +131,7 @@ C_INCLUDES =  \
 -IDrivers/STM32F3xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F3xx/Include \
 -IDrivers/CMSIS/Include \
+-Isrc \
 -Isrc/app \
 -I../../CommonLib-C/can_bus \
 -I../../CommonLib-C/digitalinout \
