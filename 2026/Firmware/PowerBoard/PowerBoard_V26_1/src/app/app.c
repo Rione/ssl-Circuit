@@ -38,15 +38,19 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
     switch (can_recv_data.stdId) {
       case 0x11:  // 充電
         Kicker_Charge();
+        PwmOut_Write(&led, 1);
         break;
       case 0x12:  // 放電
         Kicker_Discharge();
+        PwmOut_Write(&led, 0);
         break;
       case 0x13:  // ストレートキック
         Kicker_Kick(1, 0.2);
+        PwmOut_Write(&led, 0);
         break;
       case 0x14:  // チップキック
         Kicker_Kick(2, 0.2);
+        PwmOut_Write(&led, 0);
         break;
       default:
         break;

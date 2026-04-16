@@ -47,9 +47,9 @@ void Kicker_Discharge() {
 
 bool Kicker_DoneCheck() {
   bool done = DigitalIn_Read(&lt_done);
-  if (done) {
-    DigitalOut_Write(&lt_charge, 0);
-    DigitalOut_Write(&lt_discharge, 0);
-  }
+  // if (done) {
+  //   DigitalOut_Write(&lt_charge, 0);
+  //   DigitalOut_Write(&lt_discharge, 0);
+  // }
   return done;
 }
