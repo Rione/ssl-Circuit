@@ -12,7 +12,7 @@
 #define NOTSET -9999
 #define ENCODER_DIR -1
 
-// #define USE_TRAPEZOID_120
+#define USE_TRAPEZOID_120
 class BLDCMotor {
   private:
     PwmOut *pwm;
