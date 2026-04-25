@@ -9727,6 +9727,10 @@
 		(uuid "1b16c695-9bee-4209-ba75-cdf56e5da7c3")
 	)
 	(no_connect
+		(at 135.89 115.57)
+		(uuid "200c5f4e-ab91-4887-8fe4-1d23b04ff952")
+	)
+	(no_connect
 		(at 129.54 227.33)
 		(uuid "27a21594-3779-47d0-af52-fc19a9066b3d")
 	)
@@ -9793,10 +9797,6 @@
 	(no_connect
 		(at 129.54 232.41)
 		(uuid "bd325d50-b6be-4bdb-bb76-834b780cb06c")
-	)
-	(no_connect
-		(at 135.89 74.93)
-		(uuid "c01fc242-bd88-4481-8096-9d39e2498498")
 	)
 	(no_connect
 		(at 100.33 125.73)
@@ -14757,6 +14757,28 @@
 			)
 		)
 	)
+	(global_label "BATTERY_MEASURE"
+		(shape output)
+		(at 135.89 74.93 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4a441dc3-6707-40fe-ab21-a651dce01952")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 156.2922 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "I2C_SCL"
 		(shape bidirectional)
 		(at 307.34 128.27 180)
@@ -15083,28 +15105,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "BATTERY_MEASURE"
-		(shape output)
-		(at 135.89 115.57 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "6c7a468e-7e62-4c41-8641-8df1127699cd")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 156.2922 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
