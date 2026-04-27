@@ -98,7 +98,7 @@ void moveMotorToZeroPosition() {
     motor.setVelocity(0);
     motor.openLoopControl(1.5f, HALF_PI);
     wait_ms(1500);
-    pwm.write(20, 20, 20);
+    pwm.write(30, 30, 30);
     printf("move motor to zero position\n");
 }
 
@@ -131,7 +131,7 @@ void readADC() {
 void Setup(void){
 
   // PWM初期化
-  pwm.init();
+  //pwm.init();
   
   // LED初期化
   for (size_t i = 0; i < 2; i++) {
@@ -153,31 +153,34 @@ void Setup(void){
   // BLDC初期化
   motor.init(false);
 
-
-  moveMotorToZeroPosition();
   
-  // Flash確認
-  if (checkFlashIsEmpty()) {
-    calibrateMotorZeroPosition();
-  } else {
-    flashData_t data = loadFlashData();
-    pGain = data.pidGain.f32[0];
-    iGain = data.pidGain.f32[1];
-    motor.setAbsoluteZero(data.zeroAngle.f32[0]);
-    moveMotorToZeroPosition();
-    printf("use saved zeroPos: %.4f\n", data.zeroAngle.f32[0]);
-  }
-  motor.setPIDGain(pGain, iGain, 0.0f);
-
-  // 初期化完了表示
-  for (size_t i = 0; i < 3; i++) {
-    LED_B2 = 1; // GREEN
-    HAL_Delay(50);
-    LED_B2 = 0;
-    HAL_Delay(50);
-  }
   
-  canLastRecv.reset();
+
+  // moveMotorToZeroPosition();
+  
+  // // Flash確認
+  // if (checkFlashIsEmpty()) {
+  //   calibrateMotorZeroPosition();
+  // } else {
+  //   flashData_t data = loadFlashData();
+  //   pGain = data.pidGain.f32[0];
+  //   iGain = data.pidGain.f32[1];
+  //   motor.setAbsoluteZero(data.zeroAngle.f32[0]);
+  //   moveMotorToZeroPosition();
+  //   printf("use saved zeroPos: %.4f\n", data.zeroAngle.f32[0]);
+  // }
+  // motor.setPIDGain(pGain, iGain, 0.0f);
+
+  // // 初期化完了表示
+  // for (size_t i = 0; i < 3; i++) {
+  //   LED_B2 = 1; // GREEN
+  //   HAL_Delay(50);
+  //   LED_B2 = 0;
+  //   HAL_Delay(50);
+  // }
+  
+  // canLastRecv.reset();
+
 }
 
 void MainLoop(){

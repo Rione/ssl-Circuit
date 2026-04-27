@@ -286,7 +286,7 @@ inline void BLDCMotor::setPhaseVoltage(float Uq, float Ud, float _elAngle) {
 #endif
 }
 
-inline void BLDCMotor::openLoopControl(float _Uq, float _elAngle) {
+void BLDCMotor::openLoopControl(float _Uq, float _elAngle) {
     // float a = _Uq * sin(_elAngle) + 0.5;
     // float b = _Uq * sin(_elAngle + PI_3) + 0.5;
     // float c = _Uq * sin(_elAngle - PI_3) + 0.5;
