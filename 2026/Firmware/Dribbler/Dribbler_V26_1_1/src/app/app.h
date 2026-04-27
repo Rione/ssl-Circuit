@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 #include "adc.h"
-#include "can.h"
 #include "can_bus.h"
 #include "digitalinout.h"
 #include "lpf.h"

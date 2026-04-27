@@ -13,5 +13,7 @@
 void Motor_Init();
 void Motor_Drive(float duty);
 void Motor_Brake();
+void Motor_Free();
+bool
 
 #endif  // MOTOR_H_
