@@ -130,18 +130,18 @@ DigitalOut LED_XR(LED_XR_GPIO_Port, LED_XR_Pin);
 
 void Setup(void){
 
-  //HAL_GPIO_WritePin(LED_B3_GPIO_Port, LED_B3_Pin, GPIO_PIN_SET);
-  // HAL_GPIO_WritePin(LED_B2_GPIO_Port, LED_B2_Pin, GPIO_PIN_SET);
-  // HAL_GPIO_WritePin(LED_B1_GPIO_Port, LED_B1_Pin, GPIO_PIN_SET);
-  // HAL_GPIO_WritePin(LED_XB_GPIO_Port, LED_XB_Pin, GPIO_PIN_SET);
-  // HAL_GPIO_WritePin(LED_XG_GPIO_Port, LED_XG_Pin, GPIO_PIN_SET);
-  // HAL_GPIO_WritePin(LED_XR_GPIO_Port, LED_XR_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED_B3_GPIO_Port, LED_B3_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED_B2_GPIO_Port, LED_B2_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED_B1_GPIO_Port, LED_B1_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED_XB_GPIO_Port, LED_XB_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED_XG_GPIO_Port, LED_XG_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED_XR_GPIO_Port, LED_XR_Pin, GPIO_PIN_SET);
   // PWM初期化
   //pwm.init();
   
   // LED初期化
   // for (size_t i = 0; i < 2; i++) {
-     LED_B3 = 0;
+     LED_B3 = 1;
   //   HAL_Delay(50);
   //   LED_B3 = 0;
   //   HAL_Delay(50);
