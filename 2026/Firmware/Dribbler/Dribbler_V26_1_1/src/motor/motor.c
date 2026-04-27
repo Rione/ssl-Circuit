@@ -1,4 +1,5 @@
 #include "motor.h"
+
 #include <stdint.h>
 
 PwmOut MD_INA;
@@ -13,7 +14,6 @@ static uint8_t current_drive_level = 0;
 void Motor_Init() {
   PwmOut_Init(&MD_INA, &htim3, TIM_CHANNEL_4);
   PwmOut_Init(&MD_INB, &htim3, TIM_CHANNEL_3);
-
   MAF_Init(&maf, 50);
 }
 
@@ -22,8 +22,8 @@ bool Motor_SetBaseCurrent(uint16_t current_val) {
   static uint8_t measure_level = 1;
 
   if (measure_level > MAX_SPEED_LEVEL) {
-    Motor_Free(); // すべての計測が終わったらモータを止める
-    return true;  // キャリブレーション完了
+    Motor_Free();  // すべての計測が終わったらモータを止める
+    return true;   // キャリブレーション完了
   }
 
   // 最初にモータをそのレベルで回す
@@ -59,11 +59,11 @@ void Motor_Drive(uint8_t level) {
   float duty = (float)level / MAX_SPEED_LEVEL;
 
   if (duty >= 0) {
-    PwmOut_Write(&MD_INA, duty);
-    PwmOut_Write(&MD_INB, 0);
-  } else {
     PwmOut_Write(&MD_INA, 0);
-    PwmOut_Write(&MD_INB, -duty);
+    PwmOut_Write(&MD_INB, duty);
+  } else {
+    PwmOut_Write(&MD_INA, -duty);
+    PwmOut_Write(&MD_INB, 0);
   }
 }
 

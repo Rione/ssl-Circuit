@@ -18,13 +18,13 @@ Serial serial;
 Timer can_send_interval_timer;
 Timer control_cycle_timer;
 
-uint16_t adc_val[2]; // 0: Current, 1: BallSensor
+uint16_t adc_val[4];  // 0: Current, 1: BallSensor
 #define MOTOR_CURRENT_IDX 0
 #define BALL_SENSOR_IDX 1
 
-#define CONTROL_FREQ_HZ 1000                            // 1000Hz
-#define CONTROL_INTERVAL_US (1000000 / CONTROL_FREQ_HZ) // 1000us
-#define CAN_SEND_INTERVAL_MS 10                         // 10ms
+#define CONTROL_FREQ_HZ 1000                             // 1000Hz
+#define CONTROL_INTERVAL_US (1000000 / CONTROL_FREQ_HZ)  // 1000us
+#define CAN_SEND_INTERVAL_MS 10                          // 10ms
 
 void Setup() {
   printf("Dribbler Setup Start\n");
@@ -41,28 +41,31 @@ void Setup() {
 
   DigitalOut_Write(&MD_SLEEP, 1);
 
-  PwmOut_Write(&LED1, 1); // デジタル入出力の初期化確認
+  PwmOut_Write(&LED1, 1);  // デジタル入出力の初期化確認
 
   // CANの初期化
   Can_Init(&can, &hcan1, 0);
 
-  PwmOut_Write(&LED2, 1); // CANの初期化確認
+  PwmOut_Write(&LED2, 1);  // CANの初期化確認
 
   // ADCの初期化
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&adc_val, 2);
-  HAL_Delay(100);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_val, 4);
+  HAL_Delay(1000);
   printf("ADC_DMA start\n");
 
-  PwmOut_Write(&LED3, 1); // ADCの初期化確認
+  PwmOut_Write(&LED3, 1);  // ADCの初期化確認
 
   // モーターの初期化
-  Motor_Init();
+  Dribbler_Init();
   while (!Motor_SetBaseCurrent(adc_val[MOTOR_CURRENT_IDX])) {
+    HAL_Delay(1);
+  }
+  while (!Dribbler_SetPhotoThreshold(adc_val[BALL_SENSOR_IDX])) {
     HAL_Delay(1);
   }
   printf("Motor Base Current Set Complete\n");
 
-  PwmOut_Write(&LED4, 1); // モーターの初期化確認
+  PwmOut_Write(&LED4, 1);  // モーターの初期化確認
 
   // タイマーの初期化
   Timer_Init(&can_send_interval_timer);
@@ -101,13 +104,12 @@ void MainApp() {
     PwmOut_Write(&LED2, Dribbler_IsBallCapturedByCurrent());
     PwmOut_Write(&LED3, Dribbler_IsBallCaptured());
 
-    while (Timer_ReadUs(&control_cycle_timer) <= CONTROL_INTERVAL_US)
-      ;
+    while (Timer_ReadUs(&control_cycle_timer) <= CONTROL_INTERVAL_US);
     Timer_Reset(&control_cycle_timer);
   }
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
   if (can.hcan == hcan) {
     Can_Recv(&can, &canRecvData);
     if (canRecvData.stdId == 0x20) {

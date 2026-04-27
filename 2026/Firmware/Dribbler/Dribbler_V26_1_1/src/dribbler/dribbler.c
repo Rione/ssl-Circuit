@@ -1,17 +1,22 @@
 #include "dribbler.h"
 
 DigitalOut BS_LED;
+DigitalOut BS_OUT;
 
 MAF maf_photo;
 
-#define PHOTO_THRESHOLD_MARGIN 200
-#define BASE_PHOTO_MEASURE_NUM 500
+#define PHOTO_THRESHOLD_MARGIN 500
+#define BASE_PHOTO_MEASURE_NUM 100
 
 static uint32_t photo_th;
 static uint16_t filtered_photo = 0;
 
 void Dribbler_Init() {
+  Motor_Init();
   DigitalOut_Init(&BS_LED, BS_LED_GPIO_Port, BS_LED_Pin);
+  DigitalOut_Init(&BS_OUT, BS_OUT_GPIO_Port, BS_OUT_Pin);
+  DigitalOut_Write(&BS_LED, 1);
+  DigitalOut_Write(&BS_OUT, 1);
   MAF_Init(&maf_photo, 50);
 }
 
@@ -31,6 +36,8 @@ bool Dribbler_SetPhotoThreshold(uint16_t photo_val) {
 
     return true;
   }
+
+  printf("Photo threshold calibration: %lu / %d\r\n", photo_th, BASE_PHOTO_MEASURE_NUM);
 
   count++;
   return false;
