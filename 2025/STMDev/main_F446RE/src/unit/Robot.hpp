@@ -2,6 +2,7 @@
 #define __Robot__
 
 #include "Average.h"
+#include "BNO055.hpp"
 #include "BufferedSerial.hpp"
 #include "Button.hpp"
 #include "CAN.hpp"
@@ -10,7 +11,6 @@
 #include "FLASH_EEPROM.hpp"
 #include "KickerBoard.hpp"
 #include "MPU6500.hpp"
-#include "BNO055.hpp"
 #include "MadgwickAHRS.h"
 #include "Median.h"
 #include "MotorDriver.hpp"
@@ -180,6 +180,10 @@ typedef struct {
       } mdStatus;
 
       // local
+      uint8_t runMode;
+      // 0: Normal
+      // 1: Camera
+
       volatile uint16_t photoSensorValue;
       bool isUnderVoltage;
       bool isRobotStopFF;  // ロボットのFF速度ベクトルも元にロボットが止まっているかを判断する
@@ -217,8 +221,6 @@ typedef struct {
                   gyro_t gyro;  // BNO055のジャイロセンサのオフセット
             };
       } imuOffsets;
-      
-      
 
 } RobotInfo_t;
 

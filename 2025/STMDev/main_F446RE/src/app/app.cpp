@@ -1,10 +1,9 @@
 #include "app.h"
 
 #include "RobotSequence.hpp"
+#include "cameraMode.hpp"
 #include "mainMode.hpp"
 #include "testMode.hpp"
-#include "cameraMode.hpp"
-
 
 Robot robot;
 CANBus::CANData canRecvData;
@@ -12,7 +11,6 @@ CANBus::CANData canRecvData;
 MainMode mainMode('M', "Main Mode", &robot);
 TestMode testMode('T', "Test Mode", &robot);
 CameraMode cameraMode('C', "Camera Mode", &robot);
-
 
 void TimInterrupt1khz() {
       robot.heartBeat();
@@ -77,10 +75,19 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 void setup() {
       robot.hardwareInit();
       HAL_Delay(100);
+      if (robot.swImu.read() == 1) {
+            robot.info.runMode = 0;
+      } else {
+            robot.info.runMode = 1;
+      }
 }
 
 void main_app() {
       while (1) {
-            mainMode.loop();
+            if (robot.info.runMode == 0) {
+                  mainMode.loop();
+            } else {
+                  cameraMode.loop();
+            }
       }
 }

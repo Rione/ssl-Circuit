@@ -4,14 +4,14 @@ Robot::Robot() {
 }
 
 void Robot::hardwareInit() {
-    //   led1 = bno.check();
-    //   bno.setUnit(1, 1, 1, 0);
-    //   bno.setPowerMode();
-    //   // bno.setOperaitonMode(OPERATION_MODE_AMG);
-    //   bno.setOperaitonMode(OPERATION_MODE_NDOF);
-    //   // bno.accConfig();
-    //   bno.init();
-    //   // bno.getCalibration();
+      //   led1 = bno.check();
+      //   bno.setUnit(1, 1, 1, 0);
+      //   bno.setPowerMode();
+      //   // bno.setOperaitonMode(OPERATION_MODE_AMG);
+      //   bno.setOperaitonMode(OPERATION_MODE_NDOF);
+      //   // bno.accConfig();
+      //   bno.init();
+      //   // bno.getCalibration();
 
       can.init();
 
@@ -32,7 +32,7 @@ void Robot::hardwareInit() {
       // bno.setAttitudeZero();
       HAL_Delay(1000);
 
-    //   bnoCalibrate();
+      //   bnoCalibrate();
 }
 
 void Robot::rasRecvSerial(RobotInfo_t &info) {
@@ -134,7 +134,7 @@ void Robot::getSensors(RobotInfo_t *info) {
 
 void Robot::sendDribble(uint8_t power, bool forceSend) {
       static Timer timer;
-      static uint8_t dribblePowerPrev = 255; // 処理されるために255に初期化
+      static uint8_t dribblePowerPrev = 255;  // 処理されるために255に初期化
       if (timer.read_ms() > 10000) timer.set_ms(10000);
       if (power == dribblePowerPrev && forceSend == false) {
             if (timer.read_ms() < 100)  // パワーが変わっていない場合は送信しない。 forceSendがtrueの場合は100msごとに送信する
