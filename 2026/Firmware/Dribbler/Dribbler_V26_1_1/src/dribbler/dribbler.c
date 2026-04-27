@@ -52,8 +52,18 @@ bool Dribbler_IsBallCapturedByCurrent() {
 }
 
 bool Dribbler_IsBallCaptured() {
+  static bool captured_latched = false;
   bool by_photo = Dribbler_IsBallCapturedByPhoto();
   bool by_current = Dribbler_IsBallCapturedByCurrent();
 
-  return by_photo && by_current;
+  if (!by_photo) {
+    captured_latched = false;
+    return false;
+  }
+
+  if (by_current) {
+    captured_latched = true;
+  }
+
+  return captured_latched;
 }
