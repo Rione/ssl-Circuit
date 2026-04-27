@@ -98,7 +98,7 @@ void moveMotorToZeroPosition() {
     motor.setVelocity(0);
     motor.openLoopControl(1.5f, HALF_PI);
     wait_ms(1500);
-    pwm.write(0, 0, 0);
+    pwm.write(20, 20, 20);
     printf("move motor to zero position\n");
 }
 
@@ -152,6 +152,9 @@ void Setup(void){
 
   // BLDC初期化
   motor.init(false);
+
+
+  moveMotorToZeroPosition();
   
   // Flash確認
   if (checkFlashIsEmpty()) {

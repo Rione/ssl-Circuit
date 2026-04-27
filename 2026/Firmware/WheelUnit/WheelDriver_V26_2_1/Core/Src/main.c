@@ -85,7 +85,7 @@ static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN 0 */
 
 int _write(int file,char* ptr,int len){
-  HAL_UART_Transmit(&huart2,(uint8_t*)ptr,len,100);
+  HAL_UART_Transmit(&huart1,(uint8_t*)ptr,len,100);
   return len;
 }
 
