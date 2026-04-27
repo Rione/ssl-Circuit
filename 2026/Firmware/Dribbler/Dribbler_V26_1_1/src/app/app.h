@@ -9,6 +9,7 @@
 #include "digitalinout.h"
 #include "lpf.h"
 #include "main.h"
+#include "dribbler.h"
 #include "motor.h"
 #include "pwm_out.h"
 #include "serial.h"

@@ -136,6 +136,7 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include \
 -Isrc/app \
 -Isrc/motor \
+-Isrc/dribbler \
 -I../../CommonLib-C/digitalinout \
 -I../../CommonLib-C/can_bus \
 -I../../CommonLib-C/filter \
