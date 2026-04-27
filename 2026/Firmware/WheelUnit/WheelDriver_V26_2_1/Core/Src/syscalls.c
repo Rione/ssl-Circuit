@@ -29,11 +29,20 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/times.h>
+#include "stm32g4xx_hal.h"
 
+extern UART_HandleTypeDef huart2;
 
 /* Variables */
 extern int __io_putchar(int ch) __attribute__((weak));
 extern int __io_getchar(void) __attribute__((weak));
+
+/* printf → UART2 retarget */
+int __io_putchar(int ch)
+{
+  HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, 100);
+  return ch;
+}
 
 
 char *__env[1] = { 0 };
