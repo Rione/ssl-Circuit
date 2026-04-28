@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "bldc.h"
 #include "digitalinout.h"
 #include "pwm_out.h"
 #include "tim.h"

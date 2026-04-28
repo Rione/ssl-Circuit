@@ -23,10 +23,18 @@ void Setup() {
   PwmOut_Init(&ledg, &htim4, TIM_CHANNEL_1);
   PwmOut_Init(&ledb, &htim3, TIM_CHANNEL_1);
 
+  BLDC_Init();
+
   printf("BLDC setup completed.\n");
 }
 
 void MainApp() {
   while (1) {
+    double phase = 0;
+    for (uint16_t i = 0; i < (TWO_PI * 10); i++) {
+      phase += 0.1;
+      BLDC_OpenLoopDrive(0.1, phase);
+      HAL_Delay(1);
+    }
   }
 }
