@@ -24,8 +24,8 @@ DigitalOut LED_XR(LED_XR_GPIO_Port, LED_XR_Pin);
 // USWスイッチ
 DigitalIn USW(USW_GPIO_Port, USW_Pin);
 
-// AS5600 角度センサー (PA4でのアナログ読取)
-AS5600 encoder(&hadc2, ADC_CHANNEL_17);
+// AS5600 角度センサー (PC0でのアナログ読取)
+AS5600 encoder(&hadc2, ADC_CHANNEL_6);
 
 Flash_EEPROM flash;
 PwmOut pwm(&htim1, TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3);
@@ -42,6 +42,15 @@ uint8_t boardId = 0;
 bool gainChanged = false;
 float pGain = 0.005;
 float iGain = 0.05;
+
+#define OPEN_LOOP_TEST_NO_ENCODER 1
+constexpr float OPEN_LOOP_ALIGN_UQ = 1.8f;
+constexpr float OPEN_LOOP_ALIGN_TIME_MS = 600.0f;
+constexpr float OPEN_LOOP_UQ_START = 1.2f;
+constexpr float OPEN_LOOP_UQ_TARGET = 2.4f;
+constexpr float OPEN_LOOP_OMEGA_START = 6.0f;   // electrical rad/s
+constexpr float OPEN_LOOP_OMEGA_TARGET = 20.0f; // electrical rad/s
+constexpr float OPEN_LOOP_RAMP_TIME_S = 1.8f;
 
 typedef union {
     int16_t data;
@@ -131,7 +140,7 @@ void readADC() {
 void Setup(void){
 
   // PWM初期化
-  //pwm.init();
+  pwm.init();
   
   // LED初期化
   for (size_t i = 0; i < 2; i++) {
@@ -145,7 +154,9 @@ void Setup(void){
   
   // ADC開始
   HAL_ADC_Start(&hadc1);
-  HAL_ADC_Start(&hadc2);
+#if !OPEN_LOOP_TEST_NO_ENCODER
+  encoder.init();
+#endif
 
   // UARTシリアル初期化
   uart2.init();
@@ -153,48 +164,39 @@ void Setup(void){
   // BLDC初期化
   motor.init(false);
 
+#if OPEN_LOOP_TEST_NO_ENCODER
+  printf("OPEN LOOP TEST MODE (NO ENCODER)\r\n");
+  canLastRecv.reset();
+  return;
+#endif
   
-  
+  // Flash確認
+  if (checkFlashIsEmpty()) {
+    calibrateMotorZeroPosition();
+  } else {
+    flashData_t data = loadFlashData();
+    pGain = data.pidGain.f32[0];
+    iGain = data.pidGain.f32[1];
+    motor.setAbsoluteZero(data.zeroAngle.f32[0]);
+    moveMotorToZeroPosition();
+    printf("use saved zeroPos: %.4f\n", data.zeroAngle.f32[0]);
+  }
+  motor.setPIDGain(pGain, iGain, 0.0f);
 
-  // moveMotorToZeroPosition();
+  // 初期化完了表示
+  for (size_t i = 0; i < 3; i++) {
+    LED_B2 = 1; // GREEN
+    HAL_Delay(50);
+    LED_B2 = 0;
+    HAL_Delay(50);
+  }
   
-  // // Flash確認
-  // if (checkFlashIsEmpty()) {
-  //   calibrateMotorZeroPosition();
-  // } else {
-  //   flashData_t data = loadFlashData();
-  //   pGain = data.pidGain.f32[0];
-  //   iGain = data.pidGain.f32[1];
-  //   motor.setAbsoluteZero(data.zeroAngle.f32[0]);
-  //   moveMotorToZeroPosition();
-  //   printf("use saved zeroPos: %.4f\n", data.zeroAngle.f32[0]);
-  // }
-  // motor.setPIDGain(pGain, iGain, 0.0f);
-
-  // // 初期化完了表示
-  // for (size_t i = 0; i < 3; i++) {
-  //   LED_B2 = 1; // GREEN
-  //   HAL_Delay(50);
-  //   LED_B2 = 0;
-  //   HAL_Delay(50);
-  // }
-  
-  // canLastRecv.reset();
+  canLastRecv.reset();
 
 }
 
 void MainLoop(){
-  static uint32_t lastPrintMs = 0;
-  uint32_t now = HAL_GetTick();
-  if (now - lastPrintMs >= 500) {
-    uint16_t raw = encoder.getRawValue();
-    float deg  = encoder.getAngleDeg();
-    float rad  = encoder.getAngleRad();
-    printf("encoder raw:%4d  deg:%7.2f  rad:%6.4f\r\n", raw, deg, rad);
-    lastPrintMs = now;
-  }
-  return; // テスト中: エンコーダーprintのみ
-
+  
 // 通信タイムアウト処理
   if (isEmergency || canLastRecv.read_ms() > 1000) {
     pwm.write(0.5, 0.5, 0.5); // 安全に停止
@@ -243,4 +245,5 @@ void MainLoop(){
     }
   }
   isStopPrev = isStop;
+#endif
 }
