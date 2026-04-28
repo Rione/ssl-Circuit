@@ -25,5 +25,10 @@ if [ ! -f "$binary_path" ]; then
 fi
 
 # STM32_Programmer_CLIを使用して書き込みを行う
-# STLink Flashing
-STM32_Programmer_CLI -c port=SWD mode=UR reset=HWrst -w "$binary_path" 0x08000000 -s -y
+# まずは接続時リセット付きで試し、失敗したら通常接続にフォールバックする。
+if STM32_Programmer_CLI -c port=SWD mode=UR reset=HWrst -w "$binary_path" 0x08000000 -s -y; then
+	exit 0
+fi
+
+echo "Retrying without under-reset connection..."
+STM32_Programmer_CLI -c port=SWD -w "$binary_path" 0x08000000 -s -y

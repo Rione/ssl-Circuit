@@ -44,11 +44,10 @@ void MainApp() {
     } else {
       DigitalOut_Write(&led1, 0);
     }
-    printf("ADC Value: %u\n", adc_val);
-    // for (uint16_t i = 0; i < (TWO_PI * 10); i++) {
-    //   phase += 0.01;
-    //   BLDC_OpenLoopDrive(0.05, phase);
-    //   HAL_Delay(1);
-    // }
+    for (uint16_t i = 0; i < (TWO_PI * 10); i++) {
+      phase += 0.2;
+      BLDC_OpenLoopDrive(0.03, phase);
+      HAL_Delay(1);
+    }
   }
 }
