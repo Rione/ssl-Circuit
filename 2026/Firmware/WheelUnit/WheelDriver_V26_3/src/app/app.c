@@ -23,6 +23,8 @@ void Setup() {
   PwmOut_Init(&ledg, &htim4, TIM_CHANNEL_1);
   PwmOut_Init(&ledb, &htim3, TIM_CHANNEL_1);
 
+  STSPIN32G4_Init(&hi2c3);
+
   BLDC_Init();
 
   printf("BLDC setup completed.\n");

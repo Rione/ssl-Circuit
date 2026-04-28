@@ -7,6 +7,7 @@
 #include "bldc.h"
 #include "digitalinout.h"
 #include "pwm_out.h"
+#include "stspin32g4.h"
 #include "tim.h"
 
 void Setup();
