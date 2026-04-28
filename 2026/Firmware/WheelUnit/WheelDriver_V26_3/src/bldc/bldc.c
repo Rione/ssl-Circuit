@@ -14,6 +14,12 @@ static inline void BLDC_WritePwm(double u, double v, double w) {
   PwmOut_Write(&w_pwm, w);
 }
 
+static inline double BLDC_GetMaxEncoderVal(uint16_t encoder_val) {
+  static uint16_t max_val = 4000;
+  if (encoder_val > max_val) max_val = encoder_val;
+  return max_val;
+}
+
 void BLDC_Init() {
   printf("BLDC_Init\n");
   PwmOut_Init(&u_pwm, &htim1, TIM_CHANNEL_1);

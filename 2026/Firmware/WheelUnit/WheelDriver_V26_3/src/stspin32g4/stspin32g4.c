@@ -11,6 +11,14 @@ void STSPIN32G4_Init(I2C_HandleTypeDef* hi2c) {
   DigitalIn_Init(&ready, READY_GPIO_Port, READY_Pin);
   DigitalIn_Init(&nFault, nFAULT_GPIO_Port, nFAULT_Pin);
   DigitalOut_Write(&wake, 1);
+
+  /* Match original C++ init() sequence. */
+  STSPIN32G4_Reset();
+  HAL_Delay(10);
+  STSPIN32G4_SetBuckConverterVoltage(8);
+  STSPIN32G4_SetNfaultStatus();
+  HAL_Delay(10);
+  STSPIN32G4_ClearRegister();
 }
 
 bool STSPIN32G4_I2C_Write(uint8_t deviceAddr, uint8_t regAddr, uint8_t data) {
