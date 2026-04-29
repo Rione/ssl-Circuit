@@ -10,7 +10,7 @@ PwmOut ledr;
 PwmOut ledg;
 PwmOut ledb;
 
-uint16_t adc_val;
+uint16_t adc_val[2];
 
 void Setup() {
   printf("BLDC setup started.\n");
@@ -26,7 +26,7 @@ void Setup() {
   PwmOut_Init(&ledb, &htim3, TIM_CHANNEL_1);
   DigitalOut_Write(&led3, 1);
 
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_val, 1);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_val, 2);
   DigitalOut_Write(&led2, 1);
 
   STSPIN32G4_Init(&hi2c3);
@@ -39,7 +39,7 @@ void Setup() {
 void MainApp() {
   while (1) {
     double phase = 0;
-    if (adc_val > 1000) {
+    if (adc_val[0] > 1000) {
       DigitalOut_Write(&led1, 1);
     } else {
       DigitalOut_Write(&led1, 0);
