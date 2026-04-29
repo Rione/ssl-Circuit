@@ -12,6 +12,8 @@ PwmOut ledb;
 
 uint16_t adc_val[2];
 
+SensoredVectorControl svc;
+
 void Setup() {
   printf("BLDC setup started.\n");
 
@@ -26,12 +28,13 @@ void Setup() {
   PwmOut_Init(&ledb, &htim3, TIM_CHANNEL_1);
   DigitalOut_Write(&led3, 1);
 
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_val, 2);
+  HAL_ADC_Start_DMA(&hadc2, (uint32_t*)&adc_val, 2);
   DigitalOut_Write(&led2, 1);
 
-  STSPIN32G4_Init(&hi2c3);
+  // STSPIN32G4_Init(&hi2c3);
 
-  BLDC_Init();
+  BLDC_Init(&svc, true, &adc_val[0]);
+  DigitalOut_Write(&led1, 1);
 
   printf("BLDC setup completed.\n");
 }
@@ -44,10 +47,10 @@ void MainApp() {
     } else {
       DigitalOut_Write(&led1, 0);
     }
-    for (uint16_t i = 0; i < (TWO_PI * 10); i++) {
-      phase += 0.2;
-      BLDC_OpenLoopDrive(0.03, phase);
-      HAL_Delay(1);
-    }
+    // for (uint16_t i = 0; i < (TWO_PI * 10); i++) {
+    //   phase += 0.2;
+    //   BLDC_OpenLoopDrive(0.05, phase);
+    //   HAL_Delay(1);
+    // }
   }
 }

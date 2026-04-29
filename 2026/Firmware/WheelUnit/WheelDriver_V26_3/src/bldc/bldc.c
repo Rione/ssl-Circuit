@@ -42,9 +42,6 @@ static inline double BLDC_GetSpeed(double theta, double dt) {
   pre_delta_theta = delta_theta;
 
   double speed = delta_theta / dt;
-  speed = speed * (1 - SPEED_LPF) + pre_speed * SPEED_LPF;
-  pre_speed = speed;
-  pre_theta = theta;
 
   return speed;
 }
@@ -106,8 +103,8 @@ static inline void BLDC_SetEncoder(SensoredVectorControl* svc, uint16_t* encoder
 
   printf("(Measure)max_encoder_val: %d, encoder_offset_theta: %.6f\n", svc->max_encoder_val, svc->encoder_offset_theta);
 
-  BLDCFlashData write_data = {svc->max_encoder_val, (float)svc->encoder_offset_theta};
-  Flash_WriteData(FLASH_USER_START_ADDR, &write_data, sizeof(write_data));
+  // BLDCFlashData write_data = {svc->max_encoder_val, (float)svc->encoder_offset_theta};
+  // Flash_WriteData(FLASH_USER_START_ADDR, &write_data, sizeof(write_data));
 }
 
 static inline void BLDC_WritePwm(double u, double v, double w) {
@@ -135,12 +132,12 @@ void BLDC_Init(SensoredVectorControl* svc, bool do_set_encoder, uint16_t* encode
     BLDC_SetEncoder(svc, encoder_val);
   }
   // フラッシュから読み込み
-  BLDCFlashData read_data;
-  Flash_ReadData(FLASH_USER_START_ADDR, &read_data, sizeof(read_data));
-  printf("(From Flash)max_encoder_val: %ld, encoder_offset_theta: %.6f\n", read_data.max_encoder_val, read_data.encoder_offset_theta);
-  svc->max_encoder_val = read_data.max_encoder_val;            // エンコーダーの最大値
-  svc->encoder_offset_theta = read_data.encoder_offset_theta;  // エンコーダーのオフセット値
-  svc->adc_correction_factor = (double)MAX_ADC_VAL / svc->max_encoder_val;
+  // BLDCFlashData read_data;
+  // Flash_ReadData(FLASH_USER_START_ADDR, &read_data, sizeof(read_data));
+  // printf("(From Flash)max_encoder_val: %ld, encoder_offset_theta: %.6f\n", read_data.max_encoder_val, read_data.encoder_offset_theta);
+  // svc->max_encoder_val = read_data.max_encoder_val;            // エンコーダーの最大値
+  // svc->encoder_offset_theta = read_data.encoder_offset_theta;  // エンコーダーのオフセット値
+  // svc->adc_correction_factor = (double)MAX_ADC_VAL / svc->max_encoder_val;
 
   // PIDコントローラ
   // 速度制御
