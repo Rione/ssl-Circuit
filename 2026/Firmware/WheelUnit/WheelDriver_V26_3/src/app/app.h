@@ -10,6 +10,7 @@
 #include "pwm_out.h"
 #include "stspin32g4.h"
 #include "tim.h"
+#include "timer.h"
 
 void Setup();
 void MainApp();

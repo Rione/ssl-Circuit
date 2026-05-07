@@ -14,6 +14,11 @@ uint16_t adc_val[2];
 
 SensoredVectorControl svc;
 
+Timer control_timer;
+
+float debug1;
+float debug2;
+
 void Setup() {
   printf("BLDC setup started.\n");
 
@@ -29,28 +34,62 @@ void Setup() {
   DigitalOut_Write(&led3, 1);
 
   HAL_ADC_Start_DMA(&hadc2, (uint32_t*)&adc_val, 2);
+  HAL_Delay(100);
   DigitalOut_Write(&led2, 1);
 
-  // STSPIN32G4_Init(&hi2c3);
+  STSPIN32G4_Init(&hi2c3);
+  HAL_Delay(100);
 
   BLDC_Init(&svc, true, &adc_val[0]);
-  DigitalOut_Write(&led1, 1);
+
+  Timer_Init(&control_timer);
 
   printf("BLDC setup completed.\n");
 }
 
 void MainApp() {
   while (1) {
-    double phase = 0;
-    if (adc_val[0] > 1000) {
+    uint16_t encoder_value = adc_val[0];
+    BLDC_TorqueControl(&svc, 1);                               // 目標速度を100rad/sに設定
+    BLDC_SensoredVectorControlDrive(&svc, encoder_value, 10);  // エンコーダ値と電圧を渡して駆動
+    // if (adc_val[0] > 3000) {
+    //   DigitalOut_Write(&led1, 1);
+    //   DigitalOut_Write(&led2, 0);
+    //   DigitalOut_Write(&led3, 0);
+    // } else if (adc_val[0] > 2000) {
+    //   DigitalOut_Write(&led1, 0);
+    //   DigitalOut_Write(&led2, 1);
+    //   DigitalOut_Write(&led3, 0);
+    // } else if (adc_val[0] > 1000) {
+    //   DigitalOut_Write(&led1, 0);
+    //   DigitalOut_Write(&led2, 0);
+    //   DigitalOut_Write(&led3, 1);
+    // } else {
+    //   DigitalOut_Write(&led1, 0);
+    //   DigitalOut_Write(&led2, 0);
+    //   DigitalOut_Write(&led3, 0);
+    // }
+    debug1 = svc.mech_theta;
+    debug2 = svc.speed;
+    if (svc.mech_theta > HALF_PI * 3) {
       DigitalOut_Write(&led1, 1);
+      DigitalOut_Write(&led2, 0);
+      DigitalOut_Write(&led3, 0);
+    } else if (svc.mech_theta > HALF_PI * 2) {
+      DigitalOut_Write(&led1, 0);
+      DigitalOut_Write(&led2, 1);
+      DigitalOut_Write(&led3, 0);
+    } else if (svc.mech_theta > HALF_PI) {
+      DigitalOut_Write(&led1, 0);
+      DigitalOut_Write(&led2, 0);
+      DigitalOut_Write(&led3, 1);
     } else {
       DigitalOut_Write(&led1, 0);
+      DigitalOut_Write(&led2, 0);
+      DigitalOut_Write(&led3, 0);
     }
-    // for (uint16_t i = 0; i < (TWO_PI * 10); i++) {
-    //   phase += 0.2;
-    //   BLDC_OpenLoopDrive(0.05, phase);
-    //   HAL_Delay(1);
-    // }
+    while (Timer_ReadUs(&control_timer) < 100) {
+    }
+    Timer_Reset(&control_timer);
   }
 }
