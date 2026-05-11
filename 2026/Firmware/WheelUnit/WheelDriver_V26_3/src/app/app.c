@@ -48,10 +48,24 @@ void Setup() {
 }
 
 void MainApp() {
+  uint32_t last_toggle_ms = HAL_GetTick();
+  bool reverse = false;
+
   while (1) {
     uint16_t encoder_value = adc_val[0];
-    BLDC_TorqueControl(&svc, 1);                               // 目標速度を100rad/sに設定
-    BLDC_SensoredVectorControlDrive(&svc, encoder_value, 10);  // エンコーダ値と電圧を渡して駆動
+    uint32_t now_ms = HAL_GetTick();
+    if (now_ms - last_toggle_ms >= 1000U) {
+      last_toggle_ms = now_ms;
+      reverse = !reverse;
+    }
+
+    double target_torque = reverse ? -20.0 : 20.0;
+
+    // 1秒ごとに正転と逆転を切り替える
+    BLDC_TorqueControl(&svc, 20);
+    // BLDC_SpeedControl(&svc, 100);
+    // BLDC_PositionControl(&svc, PI);
+    BLDC_SensoredVectorControlDrive(&svc, encoder_value, 30);  // エンコーダ値と電圧を渡して駆動
     // if (adc_val[0] > 3000) {
     //   DigitalOut_Write(&led1, 1);
     //   DigitalOut_Write(&led2, 0);
@@ -88,8 +102,8 @@ void MainApp() {
       DigitalOut_Write(&led2, 0);
       DigitalOut_Write(&led3, 0);
     }
-    while (Timer_ReadUs(&control_timer) < 100) {
-    }
+    // while (Timer_ReadUs(&control_timer) < 10) {
+    // }
     Timer_Reset(&control_timer);
   }
 }

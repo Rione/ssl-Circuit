@@ -14,19 +14,19 @@ static inline double BLDC_GetEncoder(SensoredVectorControl* svc, uint16_t encode
   theta = NormalizeRadians(theta - encoder_offset_theta);  // オフセット値を引いて正規化
 
   // // ローパスフィルタ
-  // static float x_filt = 1.0f, y_filt = 0.0f;
-  // float enc_lpf = Constrain((50 - Abs(svc->speed)) * K_ENC_LPF, 0, 0.75);  // フィルタ強度
+  static float x_filt = 1.0f, y_filt = 0.0f;
+  float enc_lpf = Constrain((50 - Abs(svc->speed)) * K_ENC_LPF, 0, 0.75);  // フィルタ強度
 
-  // if (Abs(svc->speed) <= 50) {
-  //   float x = Cos(theta);
-  //   float y = Sin(theta);
+  if (Abs(svc->speed) <= 50) {
+    float x = Cos(theta);
+    float y = Sin(theta);
 
-  //   x_filt = x * (1 - enc_lpf) + x_filt * enc_lpf;
-  //   y_filt = y * (1 - enc_lpf) + y_filt * enc_lpf;
-  //   return NormalizeRadians(Atan2(y_filt, x_filt));
-  // } else {
-  return theta;
-  // }
+    x_filt = x * (1 - enc_lpf) + x_filt * enc_lpf;
+    y_filt = y * (1 - enc_lpf) + y_filt * enc_lpf;
+    return NormalizeRadians(Atan2(y_filt, x_filt));
+  } else {
+    return theta;
+  }
 }
 
 static inline double BLDC_GetMaxEncoderVal(uint16_t encoder_val) {
@@ -161,16 +161,16 @@ void BLDC_Init(SensoredVectorControl* svc, bool do_set_encoder, uint16_t* encode
 
   // PIDコントローラ
   // 速度制御
-  svc->speed_pid.kp = 0.1;
-  svc->speed_pid.ki = 0.2;
+  svc->speed_pid.kp = 0.2;
+  svc->speed_pid.ki = 0.3;
   svc->speed_pid.kd = 0;
-  svc->speed_pid.output_limit = 4;
+  svc->speed_pid.output_limit = 25;
 
   // 位置制御
   svc->position_pid.kp = 10;
   svc->position_pid.ki = 10;
-  svc->position_pid.kd = 0.05;
-  svc->position_pid.output_limit = 4;
+  svc->position_pid.kd = 0;
+  svc->position_pid.output_limit = 20;
 }
 
 void BLDC_Stop(bool brake) {
@@ -206,7 +206,7 @@ void BLDC_SensoredVectorControlDrive(SensoredVectorControl* svc, uint16_t encode
 
   // 電気角度を計算
   svc->elec_theta = svc->mech_theta * svc->pole_pairs;
-  svc->elec_theta += Constrain(svc->speed * K_ADV, -1.5, 1.5);  // 進角を加算(これがあると高速回転時に安定する)
+  svc->elec_theta += Constrain(svc->speed * K_ADV, -2, 2);  // 進角を加算(これがあると高速回転時に安定する)
   svc->elec_theta = NormalizeRadians(svc->elec_theta);
 
   svc->amp = svc->amp * 0.4 + (svc->amp_volt / supply_volt) * 0.6;  // ローパスフィルタ
