@@ -12,8 +12,6 @@ PwmOut ledb;
 
 uint16_t adc_val[2];
 
-SensoredVectorControl svc;
-
 Timer control_timer;
 
 float debug1;
@@ -40,7 +38,7 @@ void Setup() {
   STSPIN32G4_Init(&hi2c3);
   HAL_Delay(100);
 
-  BLDC_Init(&svc, true, &adc_val[0]);
+  BLDC_Init(true, &adc_val[0]);
 
   Timer_Init(&control_timer);
 
@@ -62,48 +60,15 @@ void MainApp() {
     double target_torque = reverse ? -20.0 : 20.0;
 
     // 1秒ごとに正転と逆転を切り替える
-    BLDC_TorqueControl(&svc, 20);
-    // BLDC_SpeedControl(&svc, 100);
-    // BLDC_PositionControl(&svc, PI);
-    BLDC_SensoredVectorControlDrive(&svc, encoder_value, 30);  // エンコーダ値と電圧を渡して駆動
-    // if (adc_val[0] > 3000) {
-    //   DigitalOut_Write(&led1, 1);
-    //   DigitalOut_Write(&led2, 0);
-    //   DigitalOut_Write(&led3, 0);
-    // } else if (adc_val[0] > 2000) {
-    //   DigitalOut_Write(&led1, 0);
-    //   DigitalOut_Write(&led2, 1);
-    //   DigitalOut_Write(&led3, 0);
-    // } else if (adc_val[0] > 1000) {
-    //   DigitalOut_Write(&led1, 0);
-    //   DigitalOut_Write(&led2, 0);
-    //   DigitalOut_Write(&led3, 1);
-    // } else {
-    //   DigitalOut_Write(&led1, 0);
-    //   DigitalOut_Write(&led2, 0);
-    //   DigitalOut_Write(&led3, 0);
-    // }
-    debug1 = svc.mech_theta;
-    debug2 = svc.speed;
-    if (svc.mech_theta > HALF_PI * 3) {
-      DigitalOut_Write(&led1, 1);
-      DigitalOut_Write(&led2, 0);
-      DigitalOut_Write(&led3, 0);
-    } else if (svc.mech_theta > HALF_PI * 2) {
-      DigitalOut_Write(&led1, 0);
-      DigitalOut_Write(&led2, 1);
-      DigitalOut_Write(&led3, 0);
-    } else if (svc.mech_theta > HALF_PI) {
-      DigitalOut_Write(&led1, 0);
-      DigitalOut_Write(&led2, 0);
-      DigitalOut_Write(&led3, 1);
-    } else {
-      DigitalOut_Write(&led1, 0);
-      DigitalOut_Write(&led2, 0);
-      DigitalOut_Write(&led3, 0);
+    // BLDC_VoltageControl(0.2);
+    BLDC_AngularSpeedControl(50);
+    // BLDC_PositionControl(PI);
+    BLDC_SensoredVectorControlDrive(encoder_value, 20);  // エンコーダ値と電圧を渡して駆動
+
+    debug1 = BLDC_GetMechTheta();
+    debug2 = BLDC_GetAngularSpeed();
+    while (Timer_ReadUs(&control_timer) < 100) {
     }
-    // while (Timer_ReadUs(&control_timer) < 10) {
-    // }
     Timer_Reset(&control_timer);
   }
 }
