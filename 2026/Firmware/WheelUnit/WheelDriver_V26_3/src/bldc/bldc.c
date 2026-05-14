@@ -159,8 +159,10 @@ static inline void BLDC_SetEncoder(uint16_t* encoder_val) {
          (unsigned long)svc.min_encoder_val,
          svc.encoder_offset_theta);
 
-  // BLDCFlashData write_data = {svc.max_encoder_val, svc.min_encoder_val, (float)svc.encoder_offset_theta};
-  // Flash_WriteData(FLASH_USER_START_ADDR, &write_data, sizeof(write_data));
+  BLDCFlashData write_data = {svc.max_encoder_val, svc.min_encoder_val, (float)svc.encoder_offset_theta};
+  if (Flash_WriteData(FLASH_USER_START_ADDR, &write_data, sizeof(write_data)) != HAL_OK) {
+    printf("Flash write error\n");
+  }
 }
 
 static inline void BLDC_WritePwm(float u, float v, float w) {
@@ -189,16 +191,16 @@ void BLDC_Init(bool do_set_encoder, uint16_t* encoder_val) {
     BLDC_SetEncoder(encoder_val);
   }
   // フラッシュから読み込み
-  // BLDCFlashData read_data;
-  // Flash_ReadData(FLASH_USER_START_ADDR, &read_data, sizeof(read_data));
-  // printf("(From Flash)max_encoder_val: %lu, min_encoder_val: %lu, encoder_offset_theta: %.6f\n",
-  //        (unsigned long)read_data.max_encoder_val,
-  //        (unsigned long)read_data.min_encoder_val,
-  //        read_data.encoder_offset_theta);
+  BLDCFlashData read_data;
+  Flash_ReadData(FLASH_USER_START_ADDR, &read_data, sizeof(read_data));
+  printf("(From Flash)max_encoder_val: %lu, min_encoder_val: %lu, encoder_offset_theta: %.6f\n",
+         (unsigned long)read_data.max_encoder_val,
+         (unsigned long)read_data.min_encoder_val,
+         read_data.encoder_offset_theta);
 
-  // svc.max_encoder_val = read_data.max_encoder_val;
-  // svc.min_encoder_val = read_data.min_encoder_val;
-  // svc.encoder_offset_theta = read_data.encoder_offset_theta;
+  svc.max_encoder_val = (uint16_t)read_data.max_encoder_val;
+  svc.min_encoder_val = (uint16_t)read_data.min_encoder_val;
+  svc.encoder_offset_theta = read_data.encoder_offset_theta;
 
   // PIDコントローラ
   // 角速度制御

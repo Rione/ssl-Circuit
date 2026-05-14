@@ -1,5 +1,7 @@
 #include "app.h"
 
+#define ADC2VOLT 0.0008058608059f
+
 DigitalOut led1;
 DigitalOut led2;
 DigitalOut led3;
@@ -10,12 +12,116 @@ PwmOut ledr;
 PwmOut ledg;
 PwmOut ledb;
 
+Serial uart2;
+
+LPF supply_volt_lpf;
+
 uint16_t adc_val[2];
 
+uint16_t encoder_val;
+uint16_t supply_volt_val;
+float supply_volt;
+
+bool is_voltage_out_of_range;
+
+float target_angular_speed, target_voltage, target_position, brake_volt;
+
+uint8_t mode = 0;
+
+Timer serial_send_timer;
+Timer serial_recv_timer;
 Timer control_timer;
 
-float debug1;
-float debug2;
+static void GetSensors() {
+  encoder_val = adc_val[0];
+  supply_volt_val = adc_val[1];
+
+  supply_volt = supply_volt_val * ADC2VOLT * 10.0f;
+  supply_volt = LPF_Update(&supply_volt_lpf, supply_volt);
+}
+
+static void RecvSerial() {
+  const static uint8_t HEADER = 0xFF;
+  const static uint8_t ANGULAR_SPEED_HEADER = 0xFE;
+  const static uint8_t POSITION_HEADER = 0xFD;
+  const static uint8_t TORQUE_HEADER = 0xFC;
+  const static uint8_t BRAKE_HEADER = 0xFB;
+  const static uint8_t FOOTER = 0xAA;
+  const static uint8_t DATA_SIZE = 2;
+  static uint8_t recv_data[2];
+  static uint8_t index = 0;
+
+  if (Serial_Available(&uart2)) {
+    uint8_t recv_byte = Serial_Read(&uart2);
+    if (index == 0) {
+      if (recv_byte == HEADER) {
+        index++;
+      } else {
+        index = 0;
+      }
+    } else if (index == 1) {
+      if (recv_byte == ANGULAR_SPEED_HEADER) {
+        mode = 1;
+        index++;
+      } else if (recv_byte == POSITION_HEADER) {
+        mode = 2;
+        index++;
+      } else if (recv_byte == TORQUE_HEADER) {
+        mode = 3;
+        index++;
+      } else if (recv_byte == BRAKE_HEADER) {
+        mode = 4;
+        index++;
+      } else {
+        index = 0;
+      }
+    } else if (index == (DATA_SIZE + 2)) {
+      if (recv_byte == FOOTER) {
+        DigitalOut_Write(&led2, 1);
+        if (mode == 1) {
+          target_angular_speed = (int16_t)((recv_data[0] << 8) | recv_data[1]) * 0.01f;
+        } else if (mode == 2) {
+          target_position = (int16_t)((recv_data[0] << 8) | recv_data[1]) * 0.001f;
+        } else if (mode == 3) {
+          target_voltage = (int16_t)((recv_data[0] << 8) | recv_data[1]) * 0.0001f;
+        } else if (mode == 4) {
+          brake_volt = (int16_t)((recv_data[0] << 8) | recv_data[1]) * 0.0001f;
+        }
+        Timer_Reset(&serial_recv_timer);
+      }
+      index = 0;
+    } else {
+      recv_data[index - 2] = recv_byte;
+      index++;
+    }
+  } else if (Timer_Read(&serial_recv_timer) > 0.5f) {
+    mode = 0;
+    DigitalOut_Write(&led2, 0);
+    Serial_Reset(&uart2);
+    Timer_Reset(&serial_recv_timer);
+  }
+}
+
+static void SendSerial() {
+  if (Timer_ReadUs(&serial_send_timer) > SERIAL_SEND_INTERVAL_US) {
+    const static uint8_t HEADER = 0xFF;
+    const static uint8_t FOOTER = 0xAA;
+    static uint8_t data[9];
+
+    data[0] = HEADER;
+    data[1] = (is_voltage_out_of_range << 1) | (mode != 0);
+    data[2] = ((uint16_t)(BLDC_GetMechTheta() * 10000) >> 8) & 0xFF;
+    data[3] = (uint16_t)(BLDC_GetMechTheta() * 10000) & 0xFF;
+    data[4] = ((int16_t)(BLDC_GetAngularSpeed() * 100) >> 8) & 0xFF;
+    data[5] = (int16_t)(BLDC_GetAngularSpeed() * 100) & 0xFF;
+    data[6] = ((int16_t)(BLDC_GetAngularAccel() * 10) >> 8) & 0xFF;
+    data[7] = (int16_t)(BLDC_GetAngularAccel() * 10) & 0xFF;
+    data[8] = FOOTER;
+
+    Serial_Write(&uart2, data, sizeof(data));
+    Timer_Reset(&serial_send_timer);
+  }
+}
 
 void Setup() {
   printf("BLDC setup started.\n");
@@ -40,35 +146,61 @@ void Setup() {
 
   BLDC_Init(true, &adc_val[0]);
 
+  Serial_Init(&uart2, &huart2, 256);
+
+  LPF_Init(&supply_volt_lpf, 0.9, 12);
+
+  Timer_Init(&serial_send_timer);
+  Timer_Reset(&serial_send_timer);
+  Timer_Init(&serial_recv_timer);
+  Timer_Reset(&serial_recv_timer);
   Timer_Init(&control_timer);
 
   printf("BLDC setup completed.\n");
 }
 
 void MainApp() {
-  uint32_t last_toggle_ms = HAL_GetTick();
-  bool reverse = false;
-
   while (1) {
-    uint16_t encoder_value = adc_val[0];
-    uint32_t now_ms = HAL_GetTick();
-    if (now_ms - last_toggle_ms >= 1000U) {
-      last_toggle_ms = now_ms;
-      reverse = !reverse;
+    GetSensors();
+    SendSerial();
+
+    if (supply_volt > SUPPLY_VOLTAGE_MAX_LIMIT || supply_volt < SUPPLY_VOLTAGE_MIN_LIMIT || is_voltage_out_of_range) {
+      printf("Supply voltage out of range: %.2fV\n", supply_volt);
+      is_voltage_out_of_range = true;
+      BLDC_Stop(false);
+
+      if (supply_volt > (SUPPLY_VOLTAGE_MIN_LIMIT + 0.5f) && supply_volt < (SUPPLY_VOLTAGE_MAX_LIMIT - 0.5f)) {
+        is_voltage_out_of_range = false;
+        PwmOut_Write(&ledr, 0);
+      } else {
+        PwmOut_Write(&ledr, 1);
+        HAL_Delay(100);
+        PwmOut_Write(&ledr, 0);
+        HAL_Delay(100);
+      }
+    } else {
+      RecvSerial();
+      if (mode == 0) {
+        BLDC_Stop(false);
+        DigitalOut_Write(&led1, 0);
+        PwmOut_Write(&ledg, 0);
+        PwmOut_Write(&ledb, 0);
+      } else {
+        BLDC_SensoredVectorControlDrive(encoder_val, supply_volt);
+        if (mode == 1) {
+          BLDC_AngularSpeedControl(target_angular_speed);
+        } else if (mode == 2) {
+          BLDC_PositionControl(target_position);
+        } else if (mode == 3) {
+          BLDC_VoltageControl(target_voltage);
+        } else if (mode == 4) {
+          BLDC_VoltageControl(brake_volt * Constrain(BLDC_GetAngularSpeed() * 0.05f, -1.0f, 1.0f));
+        }
+
+        DigitalOut_Write(&led1, 1);
+        PwmOut_Write(&ledg, Abs(BLDC_GetAmpVolt()) * 0.4f);
+        PwmOut_Write(&ledb, Abs(BLDC_GetAmpVolt()) * 0.4f - 1.0f);
+      }
     }
-
-    double target_torque = reverse ? -20.0 : 20.0;
-
-    // 1秒ごとに正転と逆転を切り替える
-    // BLDC_VoltageControl(0.2);
-    BLDC_AngularSpeedControl(50);
-    // BLDC_PositionControl(PI);
-    BLDC_SensoredVectorControlDrive(encoder_value, 20);  // エンコーダ値と電圧を渡して駆動
-
-    debug1 = BLDC_GetMechTheta();
-    debug2 = BLDC_GetAngularSpeed();
-    while (Timer_ReadUs(&control_timer) < 100) {
-    }
-    Timer_Reset(&control_timer);
   }
 }

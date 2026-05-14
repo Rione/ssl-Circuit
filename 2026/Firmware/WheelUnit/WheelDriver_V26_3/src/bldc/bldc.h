@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "config.h"
-// #include "flash.h"
+#include "flash.h"
 #include "main.h"
 #include "mymath.h"
 #include "pwm_out.h"
