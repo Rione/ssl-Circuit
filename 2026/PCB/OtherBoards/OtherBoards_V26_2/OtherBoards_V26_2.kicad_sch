@@ -1122,22 +1122,10 @@
 		)
 	)
 	(junction
-		(at 67.31 64.77)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "074f51ba-4b1f-42cb-af3a-bded23171257")
-	)
-	(junction
 		(at 25.4 34.29)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "0bff9b12-33e6-4cc2-b22d-1c07726ca953")
-	)
-	(junction
-		(at 67.31 67.31)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "5755c52d-d7ba-4005-908c-8adedb783294")
 	)
 	(junction
 		(at 35.56 34.29)
@@ -1156,22 +1144,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7dc4abdd-6855-4e34-81ee-cb27711a7a41")
-	)
-	(junction
-		(at 67.31 69.85)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f76950ee-6eac-464a-9e28-eb29c622d145")
-	)
-	(wire
-		(pts
-			(xy 67.31 64.77) (xy 67.31 67.31)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "058e0e12-de7d-4572-b426-15fe7ce043b8")
 	)
 	(wire
 		(pts
@@ -1232,26 +1204,6 @@
 			(type default)
 		)
 		(uuid "6287330a-0828-443e-a480-7c832e4ace5c")
-	)
-	(wire
-		(pts
-			(xy 67.31 62.23) (xy 67.31 64.77)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6477eeaa-788c-4df7-a228-e5c6a0aa9909")
-	)
-	(wire
-		(pts
-			(xy 67.31 67.31) (xy 67.31 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "661f5cd6-e1a7-4e7c-bc25-3ffe3d3cd9f3")
 	)
 	(wire
 		(pts
@@ -1932,71 +1884,6 @@
 			(project "OtherBoards_V26_1_1"
 				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
 					(reference "H3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 67.31 69.85 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "839c3b82-8ebd-42c8-8b20-6ae70bf1e2dc")
-		(property "Reference" "#PWR07"
-			(at 67.31 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 67.31 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 67.31 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 67.31 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 67.31 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "7710308a-1ba2-41df-b81a-23a03cd7cc9e")
-		)
-		(instances
-			(project "OtherBoards_V26_1_1"
-				(path "/922ba30f-3458-4c49-82e1-28de8fd4b87e"
-					(reference "#PWR07")
 					(unit 1)
 				)
 			)
