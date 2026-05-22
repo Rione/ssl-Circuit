@@ -67,12 +67,10 @@ void Error_Handler(void);
 #define LED1_GPIO_Port GPIOB
 #define LED2_Pin GPIO_PIN_13
 #define LED2_GPIO_Port GPIOB
-#define LED3_Pin GPIO_PIN_14
-#define LED3_GPIO_Port GPIOB
-#define LED4_Pin GPIO_PIN_15
-#define LED4_GPIO_Port GPIOB
 #define IMU_RESET_Pin GPIO_PIN_8
 #define IMU_RESET_GPIO_Port GPIOC
+#define HB_Pin GPIO_PIN_8
+#define HB_GPIO_Port GPIOA
 #define DISCHARGE_Pin GPIO_PIN_5
 #define DISCHARGE_GPIO_Port GPIOB
 #define LED0_Pin GPIO_PIN_9
