@@ -36,6 +36,18 @@ void MainMode_Loop(MainMode *self) {
     LocalController_Stop(&self->local_controller, r);
   }
 
+  Robot_UpdateHeartBeat(r);
+
+  // 動作確認用 LED2 Lチカ（500ms間隔）
+  static uint32_t led2_count = 0;
+  static uint8_t led2_state = 0;
+  led2_count++;
+  if (led2_count >= 500) {
+    led2_count = 0;
+    led2_state ^= 1;
+    DigitalOut_Write(&r->led2, led2_state);
+  }
+
   // 1ms 制御ループを維持
   while (Timer_ReadMs(&timer) < 1);
 }
