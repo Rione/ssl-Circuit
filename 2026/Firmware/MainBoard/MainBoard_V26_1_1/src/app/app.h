@@ -1,16 +1,9 @@
-#ifndef __APP_HPP_
-#define __APP_HPP_
-#ifdef __cplusplus
+#ifndef __APP_H_
+#define __APP_H_
 
 #include "main.h"
 
-extern "C" {
-#endif
+void Setup(void);
+void MainApp(void);
 
-void Setup();
-void MainApp();
-
-#ifdef __cplusplus
-}
-#endif
-#endif  // __APP_HPP_
+#endif  // __APP_H_
