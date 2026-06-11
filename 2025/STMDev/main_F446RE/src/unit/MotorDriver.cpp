@@ -70,6 +70,12 @@ void MotorDriver::sendEmg() {
       _canBus->send(data);
 }
 
+int16_t MotorDriver::motorToWheelScaled(int16_t motor_omega) {
+      float wheel_omega = (float)motor_omega * INV_GEAR_RATIO;
+      int16_t scaled = (int16_t)(wheel_omega * 100.0f);
+      return Constrain(scaled, WHEEL_OMEGA_SCALE_MIN, WHEEL_OMEGA_SCALE_MAX);
+}
+
 void MotorDriver::getVelocity(int16_t* velX, int16_t* velY, int16_t* motorAngulerVelocity) {
       float M[4];
       for (int i = 0; i < 4; i++) {

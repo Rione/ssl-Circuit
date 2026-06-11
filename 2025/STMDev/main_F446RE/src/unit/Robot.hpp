@@ -137,6 +137,9 @@ typedef struct {
       } status;
 
       // Infomation STM32→RaspberryPi -------------------------
+      // serial5, 14 bytes: 0xFF | battery(1) | dribbleStatus(1) | capVal(1)
+      //   | FL wheel ω(2) | BL(2) | BR(2) | FR(2) | 0xAA
+      // wheel ω: int16 LE, rad/s × 100 (motor ω / GEAR_RATIO)
       union {
             struct {
                   bool isDetectedBall : 1;  // ボール検知（フォトセンサーの検知）2024版のisHolDBall
