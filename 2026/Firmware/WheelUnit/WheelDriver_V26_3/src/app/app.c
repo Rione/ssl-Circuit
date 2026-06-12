@@ -24,7 +24,7 @@ float supply_volt;
 
 bool is_voltage_out_of_range;
 
-float target_angular_speed, target_voltage, target_position, brake_volt;
+float target_angular_speed, target_torque;
 
 uint8_t mode = 0;
 
@@ -43,9 +43,7 @@ static void GetSensors() {
 static void RecvSerial() {
   const static uint8_t HEADER = 0xFF;
   const static uint8_t ANGULAR_SPEED_HEADER = 0xFE;
-  const static uint8_t POSITION_HEADER = 0xFD;
   const static uint8_t TORQUE_HEADER = 0xFC;
-  const static uint8_t BRAKE_HEADER = 0xFB;
   const static uint8_t FOOTER = 0xAA;
   const static uint8_t DATA_SIZE = 2;
   static uint8_t recv_data[2];
@@ -63,14 +61,8 @@ static void RecvSerial() {
       if (recv_byte == ANGULAR_SPEED_HEADER) {
         mode = 1;
         index++;
-      } else if (recv_byte == POSITION_HEADER) {
-        mode = 2;
-        index++;
       } else if (recv_byte == TORQUE_HEADER) {
-        mode = 3;
-        index++;
-      } else if (recv_byte == BRAKE_HEADER) {
-        mode = 4;
+        mode = 2;
         index++;
       } else {
         index = 0;
@@ -81,11 +73,7 @@ static void RecvSerial() {
         if (mode == 1) {
           target_angular_speed = (int16_t)((recv_data[0] << 8) | recv_data[1]) * 0.01f;
         } else if (mode == 2) {
-          target_position = (int16_t)((recv_data[0] << 8) | recv_data[1]) * 0.001f;
-        } else if (mode == 3) {
-          target_voltage = (int16_t)((recv_data[0] << 8) | recv_data[1]) * 0.0001f;
-        } else if (mode == 4) {
-          brake_volt = (int16_t)((recv_data[0] << 8) | recv_data[1]) * 0.0001f;
+          target_torque = (int16_t)((recv_data[0] << 8) | recv_data[1]) * 0.001f;
         }
         Timer_Reset(&serial_recv_timer);
       }
@@ -144,7 +132,7 @@ void Setup() {
   STSPIN32G4_Init(&hi2c3);
   HAL_Delay(100);
 
-  BLDC_Init(true, &adc_val[0]);
+  BLDC_Init(true, 4, &adc_val[0]);
 
   Serial_Init(&uart2, &huart2, 256);
 
@@ -164,43 +152,36 @@ void MainApp() {
     GetSensors();
     SendSerial();
 
-    if (supply_volt > SUPPLY_VOLTAGE_MAX_LIMIT || supply_volt < SUPPLY_VOLTAGE_MIN_LIMIT || is_voltage_out_of_range) {
-      printf("Supply voltage out of range: %.2fV\n", supply_volt);
-      is_voltage_out_of_range = true;
-      BLDC_Stop(false);
+    // if (supply_volt > SUPPLY_VOLTAGE_MAX_LIMIT || supply_volt < SUPPLY_VOLTAGE_MIN_LIMIT || is_voltage_out_of_range) {
+    //   printf("Supply voltage out of range: %.2fV\n", supply_volt);
+    //   is_voltage_out_of_range = true;
+    //   BLDC_Stop(false);
 
-      if (supply_volt > (SUPPLY_VOLTAGE_MIN_LIMIT + 0.5f) && supply_volt < (SUPPLY_VOLTAGE_MAX_LIMIT - 0.5f)) {
-        is_voltage_out_of_range = false;
-        PwmOut_Write(&ledr, 0);
-      } else {
-        PwmOut_Write(&ledr, 1);
-        HAL_Delay(100);
-        PwmOut_Write(&ledr, 0);
-        HAL_Delay(100);
-      }
-    } else {
-      RecvSerial();
-      if (mode == 0) {
-        BLDC_Stop(false);
-        DigitalOut_Write(&led1, 0);
-        PwmOut_Write(&ledg, 0);
-        PwmOut_Write(&ledb, 0);
-      } else {
-        BLDC_SensoredVectorControlDrive(encoder_val, supply_volt);
-        if (mode == 1) {
-          BLDC_AngularSpeedControl(target_angular_speed);
-        } else if (mode == 2) {
-          BLDC_PositionControl(target_position);
-        } else if (mode == 3) {
-          BLDC_VoltageControl(target_voltage);
-        } else if (mode == 4) {
-          BLDC_VoltageControl(brake_volt * Constrain(BLDC_GetAngularSpeed() * 0.05f, -1.0f, 1.0f));
-        }
-
-        DigitalOut_Write(&led1, 1);
-        PwmOut_Write(&ledg, Abs(BLDC_GetAmpVolt()) * 0.4f);
-        PwmOut_Write(&ledb, Abs(BLDC_GetAmpVolt()) * 0.4f - 1.0f);
-      }
-    }
+    //   if (supply_volt > (SUPPLY_VOLTAGE_MIN_LIMIT + 0.5f) && supply_volt < (SUPPLY_VOLTAGE_MAX_LIMIT - 0.5f)) {
+    //     is_voltage_out_of_range = false;
+    //     PwmOut_Write(&ledr, 0);
+    //   } else {
+    //     PwmOut_Write(&ledr, 1);
+    //     HAL_Delay(100);
+    //     PwmOut_Write(&ledr, 0);
+    //     HAL_Delay(100);
+    //   }
+    // } else {
+    //   RecvSerial();
+    //   if (mode == 0) {
+    //     BLDC_Stop(false);
+    //     DigitalOut_Write(&led1, 0);
+    //     PwmOut_Write(&ledg, 0);
+    //     PwmOut_Write(&ledb, 0);
+    //   } else {
+    //     if (mode == 1) {
+    //       BLDC_AngularSpeedControl(target_angular_speed);
+    //     } else if (mode == 2) {
+    //       BLDC_VoltageControl(target_torque);
+    //     }
+    //   }
+    // }
+    BLDC_AngularSpeedControl(10);
+    BLDC_SensoredVectorControlDrive(encoder_val, 10);
   }
 }

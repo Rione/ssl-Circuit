@@ -30,6 +30,7 @@ typedef struct {
   uint32_t max_encoder_val;    // エンコーダーの最大値
   uint32_t min_encoder_val;    // エンコーダーの最小値
   float encoder_offset_theta;  // エンコーダーのオフセット値
+  uint32_t id;                 // モーターID (1-4)
 } BLDCFlashData;
 
 typedef struct {
@@ -44,6 +45,7 @@ typedef struct {
 } PIDController;
 
 typedef struct {
+  uint32_t id;                 // モーターID (1-4)
   float dt;                    // 制御周期 [s]
   float amp;                   // 電圧振幅 [0 to 1]
   float amp_volt;              // 電圧振幅 [v]
@@ -59,7 +61,7 @@ typedef struct {
   PIDController position_pid;  // 位置制御用PID
 } SensoredVectorControl;
 
-void BLDC_Init(bool do_set_encoder, uint16_t* encoder_val);
+void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val);
 void BLDC_Stop(bool brake);
 void BLDC_OpenLoopDrive(float amp, float freq);
 void BLDC_SensoredVectorControlDrive(uint16_t encoder_value, float supply_volt);
