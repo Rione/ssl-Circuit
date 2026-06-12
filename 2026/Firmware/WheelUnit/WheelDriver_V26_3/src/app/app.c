@@ -43,46 +43,48 @@ static void GetSensors() {
   temprature = adc_val[2] * ADC2VOLT * 100.0f - 50.0f;
 }
 
+// Packet format (11 bytes):
+//   [0]    0xFF          header
+//   [1]    command       0xFE=angular speed, 0xFC=torque/voltage
+//   [2-3]  m[0] int16   motor 1 (big-endian)
+//   [4-5]  m[1] int16   motor 2
+//   [6-7]  m[2] int16   motor 3
+//   [8-9]  m[3] int16   motor 4
+//   [10]   0xAA          footer
 static void RecvSerial() {
   const static uint8_t HEADER = 0xFF;
-  const static uint8_t ANGULAR_SPEED_HEADER = 0xFE;
-  const static uint8_t TORQUE_HEADER = 0xFC;
+  const static uint8_t ANGULAR_SPEED_CMD = 0xFE;
+  const static uint8_t TORQUE_CMD = 0xFC;
   const static uint8_t FOOTER = 0xAA;
-  const static uint8_t DATA_SIZE = 2;
-  static uint8_t recv_data[2];
+  const static uint8_t PACKET_LEN = 11;
+  static uint8_t recv_buf[11];
   static uint8_t index = 0;
 
   if (Serial_Available(&uart2)) {
     uint8_t recv_byte = Serial_Read(&uart2);
+
     if (index == 0) {
       if (recv_byte == HEADER) {
-        index++;
-      } else {
-        index = 0;
+        recv_buf[0] = HEADER;
+        index = 1;
       }
-    } else if (index == 1) {
-      if (recv_byte == ANGULAR_SPEED_HEADER) {
-        mode = 1;
-        index++;
-      } else if (recv_byte == TORQUE_HEADER) {
-        mode = 2;
-        index++;
-      } else {
-        index = 0;
-      }
-    } else if (index == (DATA_SIZE + 2)) {
-      if (recv_byte == FOOTER && recv_data[0] == BLDC_GetId()) {
-        if (mode == 1) {
-          target_angular_speed = (int16_t)((recv_data[1] << 8) | recv_data[2]) * 0.01f;
-        } else if (mode == 2) {
-          target_torque = (int16_t)((recv_data[1] << 8) | recv_data[2]) * 0.001f;
+    } else if (index == PACKET_LEN - 1) {
+      if (recv_byte == FOOTER) {
+        uint32_t id = BLDC_GetId();
+        uint8_t cmd = recv_buf[1];
+        int16_t value = (int16_t)((recv_buf[2 + (id - 1) * 2] << 8) | recv_buf[2 + (id - 1) * 2 + 1]);
+        if (cmd == 1) {
+          mode = 1;
+          target_angular_speed = value * 0.01f;
+        } else {
+          mode = 0;
+          target_angular_speed = 0;
         }
         Timer_Reset(&serial_recv_timer);
       }
       index = 0;
     } else {
-      recv_data[index - 2] = recv_byte;
-      index++;
+      recv_buf[index++] = recv_byte;
     }
   } else if (Timer_Read(&serial_recv_timer) > 0.5f) {
     mode = 0;
@@ -95,17 +97,13 @@ static void SendSerial() {
   if (Timer_ReadUs(&serial_send_timer) > SERIAL_SEND_INTERVAL_US) {
     const static uint8_t HEADER = 0xFF;
     const static uint8_t FOOTER = 0xAA;
-    static uint8_t data[9];
+    static uint8_t data[5];
 
     data[0] = HEADER;
     data[1] = (is_voltage_out_of_range << 1) | (mode != 0);
-    data[2] = ((uint16_t)(BLDC_GetMechTheta() * 10000) >> 8) & 0xFF;
-    data[3] = (uint16_t)(BLDC_GetMechTheta() * 10000) & 0xFF;
-    data[4] = ((int16_t)(BLDC_GetAngularSpeed() * 100) >> 8) & 0xFF;
-    data[5] = (int16_t)(BLDC_GetAngularSpeed() * 100) & 0xFF;
-    data[6] = ((int16_t)(BLDC_GetAngularAccel() * 10) >> 8) & 0xFF;
-    data[7] = (int16_t)(BLDC_GetAngularAccel() * 10) & 0xFF;
-    data[8] = FOOTER;
+    data[2] = ((int16_t)(BLDC_GetAngularSpeed() * 100) >> 8) & 0xFF;
+    data[3] = (int16_t)(BLDC_GetAngularSpeed() * 100) & 0xFF;
+    data[4] = FOOTER;
 
     Serial_Write(&uart2, data, sizeof(data));
     Timer_Reset(&serial_send_timer);
