@@ -136,6 +136,8 @@ void Setup() {
   Timer_Reset(&serial_send_timer);
   Timer_Init(&serial_recv_timer);
   Timer_Reset(&serial_recv_timer);
+  Timer_Init(&control_timer);
+  Timer_Reset(&control_timer);
 
   DigitalOut_Write(&led1, 0);
   DigitalOut_Write(&led2, 0);
@@ -173,5 +175,7 @@ void MainApp() {
       }
     }
     BLDC_SensoredVectorControlDrive(encoder_val, supply_volt);
+    while (Timer_ReadUs(&control_timer) < CONTROL_INTERVAL_US);
+    Timer_Reset(&control_timer);
   }
 }

@@ -15,10 +15,12 @@
 #define MAX_DUTY 0.99f                     // 最大デューティ比
 #define MIN_DUTY 0.01f                     // 最小デューティ比
 #define MAX_ADC_VAL 4095                   // ADCの最大値(12bit)
-#define SPEED_LPF 0.6f                     // 角速度のローパスフィルタ係数
-#define SPEED_LPF_INV 0.4f                 // (1.0 - SPEED_LPF) 事前計算値
-#define AMP_LPF_COEF 0.7f                  // 振幅ローパスフィルタ係数
-#define AMP_VOLT_LPF_COEF 0.3f             // 電圧振幅ローパスフィルタ係数
+#define SPEED_LPF 0.7f                     // 角速度のローパスフィルタ係数
+#define SPEED_LPF_INV 0.3f                 // (1.0 - SPEED_LPF) 事前計算値
+#define SPEED_MEAS_MIN_DT 0.005f           // 速度計測の最小サンプリング間隔 [s]（量子化ノイズ低減）
+#define K_SPEED_FF 0.052f                  // 速度フィードフォワードゲイン [V/(rad/s)] (=60/(Kv×2π), Kv=185rpm/V)
+#define AMP_LPF_COEF 0.4f                  // 振幅ローパスフィルタ係数
+#define AMP_VOLT_LPF_COEF 0.6f             // 電圧振幅ローパスフィルタ係数
 #define K_ADV 0.01f                        // 進角ゲイン
 #define ADC2RADIAN 0.0015339807878856412f  // ADC値をラジアンに変換する係数(2π/4096)
 

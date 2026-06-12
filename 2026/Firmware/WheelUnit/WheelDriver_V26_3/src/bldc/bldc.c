@@ -23,8 +23,8 @@ static inline void BLDC_CalculateAngularSpeed(void) {
   static float pre_delta_theta = 0;
 
   float dt = Timer_Read(&speed_dt_timer);
-  if (dt < 0.001) return;
-  if (dt > 0.01) dt = 0.01;  // 制御周期が大きすぎる場合は無視
+  if (dt < SPEED_MEAS_MIN_DT) return;  // 低速時の量子化ノイズ低減のため計測間隔を延長
+  if (dt > 0.05f) dt = 0.05f;
   Timer_Reset(&speed_dt_timer);
 
   if (pre_theta == svc.mech_theta) {
@@ -185,8 +185,8 @@ void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val) {
 
   // PIDコントローラ
   // 角速度制御
-  svc.speed_pid.kp = 0.025;
-  svc.speed_pid.ki = 0.5;
+  svc.speed_pid.kp = 0.05;
+  svc.speed_pid.ki = 0.25;
   svc.speed_pid.kd = 0;
   svc.speed_pid.d_term = 0;
   svc.speed_pid.d_lpf = 0.0f;
@@ -255,7 +255,8 @@ void BLDC_AngularSpeedControl(float target_angular_speed) {
   target_angular_speed = prev_target_angular_speed + accel * svc.dt;
   prev_target_angular_speed = target_angular_speed;
 
-  svc.amp_volt = BLDC_PIDControl(&svc.speed_pid, target_angular_speed - svc.angular_speed, svc.dt);
+  float pid_out = BLDC_PIDControl(&svc.speed_pid, target_angular_speed - svc.angular_speed, svc.dt);
+  svc.amp_volt = Constrain(pid_out + target_angular_speed * K_SPEED_FF, -MAX_AMP_VOLT, MAX_AMP_VOLT);
 }
 
 void BLDC_VoltageControl(float target_volt) {
