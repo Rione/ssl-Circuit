@@ -43,19 +43,11 @@ static void GetSensors() {
   temprature = adc_val[2] * ADC2VOLT * 100.0f - 50.0f;
 }
 
-// Packet format (11 bytes):
-//   [0]    0xFF          header
-//   [1]    command       0xFE=angular speed, 0xFC=torque/voltage
-//   [2-3]  m[0] int16   motor 1 (big-endian)
-//   [4-5]  m[1] int16   motor 2
-//   [6-7]  m[2] int16   motor 3
-//   [8-9]  m[3] int16   motor 4
-//   [10]   0xAA          footer
 static void RecvSerial() {
   const static uint8_t HEADER = 0xFF;
   const static uint8_t FOOTER = 0xAA;
-  const static uint8_t PACKET_LEN = 11;
-  static uint8_t recv_buf[11];
+  const static uint8_t PACKET_LEN = 9;
+  static uint8_t recv_buf[9];
   static uint8_t index = 0;
 
   if (Serial_Available(&uart2)) {
@@ -63,10 +55,13 @@ static void RecvSerial() {
 
     if (index == 0) {
       if (recv_byte == HEADER) {
-        index = 1;
+        index++;
+      } else {
+        index = 0;
       }
-    } else if (index == PACKET_LEN - 1) {
+    } else if (index == (PACKET_LEN + 1)) {
       if (recv_byte == FOOTER) {
+        printf("Received packet: ");
         uint32_t id = BLDC_GetId();
         uint8_t cmd = recv_buf[0];
         int16_t value = (int16_t)((recv_buf[1 + (id - 1) * 2] << 8) | recv_buf[1 + (id - 1) * 2 + 1]);
@@ -78,10 +73,12 @@ static void RecvSerial() {
           target_angular_speed = 0;
         }
         Timer_Reset(&serial_recv_timer);
+        printf("Received command: mode=%d, target_angular_speed=%.2f\n", mode, target_angular_speed);
       }
       index = 0;
     } else {
-      recv_buf[index++] = recv_byte;
+      recv_buf[index - 1] = recv_byte;
+      index++;
     }
   } else if (Timer_Read(&serial_recv_timer) > 0.5f) {
     mode = 0;
