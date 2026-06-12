@@ -61,7 +61,6 @@ static void RecvSerial() {
       }
     } else if (index == (PACKET_LEN + 1)) {
       if (recv_byte == FOOTER) {
-        printf("Received packet: ");
         uint32_t id = BLDC_GetId();
         uint8_t cmd = recv_buf[0];
         int16_t value = (int16_t)((recv_buf[1 + (id - 1) * 2] << 8) | recv_buf[1 + (id - 1) * 2 + 1]);
@@ -73,7 +72,6 @@ static void RecvSerial() {
           target_angular_speed = 0;
         }
         Timer_Reset(&serial_recv_timer);
-        printf("Received command: mode=%d, target_angular_speed=%.2f\n", mode, target_angular_speed);
       }
       index = 0;
     } else {
