@@ -53,8 +53,6 @@ static void GetSensors() {
 //   [10]   0xAA          footer
 static void RecvSerial() {
   const static uint8_t HEADER = 0xFF;
-  const static uint8_t ANGULAR_SPEED_CMD = 0xFE;
-  const static uint8_t TORQUE_CMD = 0xFC;
   const static uint8_t FOOTER = 0xAA;
   const static uint8_t PACKET_LEN = 11;
   static uint8_t recv_buf[11];
@@ -65,14 +63,13 @@ static void RecvSerial() {
 
     if (index == 0) {
       if (recv_byte == HEADER) {
-        recv_buf[0] = HEADER;
         index = 1;
       }
     } else if (index == PACKET_LEN - 1) {
       if (recv_byte == FOOTER) {
         uint32_t id = BLDC_GetId();
-        uint8_t cmd = recv_buf[1];
-        int16_t value = (int16_t)((recv_buf[2 + (id - 1) * 2] << 8) | recv_buf[2 + (id - 1) * 2 + 1]);
+        uint8_t cmd = recv_buf[0];
+        int16_t value = (int16_t)((recv_buf[1 + (id - 1) * 2] << 8) | recv_buf[1 + (id - 1) * 2 + 1]);
         if (cmd == 1) {
           mode = 1;
           target_angular_speed = value * 0.01f;
@@ -133,7 +130,7 @@ void Setup() {
 
   BLDC_Init(false, 0, &adc_val[0]);
 
-  Serial_Init(&uart2, &huart2, 256);
+  Serial_Init(&uart2, &huart2, 512);
 
   LPF_Init(&supply_volt_lpf, 0.9, 12);
 
