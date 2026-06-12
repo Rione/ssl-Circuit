@@ -3,8 +3,8 @@
 
 #define TEMP_LIMIT 60  // 温度制限 [°C]
 
-#define SUPPLY_VOLTAGE_MIN_LIMIT 7
-#define SUPPLY_VOLTAGE_MAX_LIMIT 20
+#define SUPPLY_VOLTAGE_MIN_LIMIT 10
+#define SUPPLY_VOLTAGE_MAX_LIMIT 30
 
 #define SERIAL_SEND_INTERVAL_US 500  // シリアル送信間隔 [μs]
 

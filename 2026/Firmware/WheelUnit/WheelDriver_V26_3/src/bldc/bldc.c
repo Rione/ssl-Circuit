@@ -167,22 +167,13 @@ void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val) {
   Timer_Init(&speed_dt_timer);
   Timer_Init(&accel_dt_timer);  // フラッシュから読み込み
 
-  BLDCFlashData read_data;
-  Flash_ReadData(FLASH_USER_START_ADDR, &read_data, sizeof(read_data));
-  printf("(From Flash)max_encoder_val: %lu, min_encoder_val: %lu, encoder_offset_theta: %.6f\n",
-         (unsigned long)read_data.max_encoder_val,
-         (unsigned long)read_data.min_encoder_val,
-         read_data.encoder_offset_theta,
-         read_data.id);
-
-  svc.max_encoder_val = (uint16_t)read_data.max_encoder_val;
-  svc.min_encoder_val = (uint16_t)read_data.min_encoder_val;
-  svc.encoder_offset_theta = read_data.encoder_offset_theta;
-  svc.id = read_data.id;
-
   // フラッシュに書き込み
   if (do_set_encoder) {
     printf("BLDC_EncoderOffset\n");
+    BLDCFlashData read_data;
+    Flash_ReadData(FLASH_USER_START_ADDR, &read_data, sizeof(read_data));
+    printf("(From Flash)id: %u\n", read_data.id);
+    svc.id = read_data.id;
     BLDC_SetEncoder(encoder_val);
     BLDCFlashData write_data = {svc.max_encoder_val, svc.min_encoder_val, (float)svc.encoder_offset_theta, (id == 0) ? svc.id : id};
     if (Flash_WriteData(FLASH_USER_START_ADDR, &write_data, sizeof(write_data)) != HAL_OK) {
@@ -191,6 +182,7 @@ void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val) {
   }
 
   // フラッシュから読み込み
+  BLDCFlashData read_data;
   Flash_ReadData(FLASH_USER_START_ADDR, &read_data, sizeof(read_data));
   printf("(From Flash)max_encoder_val: %lu, min_encoder_val: %lu, encoder_offset_theta: %.6f, id: %u\n",
          (unsigned long)read_data.max_encoder_val,
@@ -251,8 +243,8 @@ void BLDC_SensoredVectorControlDrive(uint16_t encoder_value, float supply_volt) 
   BLDC_CalculateAngularAccel();    // 角加速度を計算
 
   // 電気角度を計算
-  svc.elec_theta = svc.mech_theta * POLE_PAIRS;  // 電気角度 = 機械角度 * 極対数 + 位相合わせオフセット
-  // svc.elec_theta += Constrain(svc.angular_speed * K_ADV, -1.5, 1.5);  // 進角を加算(これがあると高速回転時に安定する)
+  svc.elec_theta = svc.mech_theta * POLE_PAIRS;                       // 電気角度 = 機械角度 * 極対数 + 位相合わせオフセット
+  svc.elec_theta += Constrain(svc.angular_speed * K_ADV, -1.5, 1.5);  // 進角を加算(これがあると高速回転時に安定する)
   svc.elec_theta = NormalizeRadians(svc.elec_theta);
 
   svc.amp = svc.amp * AMP_LPF_COEF + (svc.amp_volt / supply_volt) * AMP_VOLT_LPF_COEF;

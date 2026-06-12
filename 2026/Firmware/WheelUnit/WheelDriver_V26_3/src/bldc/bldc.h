@@ -74,5 +74,6 @@ float BLDC_GetAngularAccel(void);
 float BLDC_GetMechTheta(void);
 float BLDC_GetElecTheta(void);
 float BLDC_GetAmpVolt(void);
+uint32_t BLDC_GetId(void);
 
 #endif  // BLDC_H_
