@@ -23,7 +23,7 @@ static inline void BLDC_CalculateAngularSpeed(void) {
   static float pre_delta_theta = 0;
 
   float dt = Timer_Read(&speed_dt_timer);
-  if (dt < 0.002) return;
+  if (dt < 0.001) return;
   if (dt > 0.01) dt = 0.01;  // 制御周期が大きすぎる場合は無視
   Timer_Reset(&speed_dt_timer);
 
@@ -50,18 +50,6 @@ static inline void BLDC_CalculateAngularSpeed(void) {
   svc.angular_speed = speed;
   pre_speed = speed;
   pre_theta = svc.mech_theta;
-}
-
-static inline void BLDC_CalculateAngularAccel(void) {
-  static float pre_speed = 0;
-  float dt = Timer_Read(&accel_dt_timer);
-  if (dt < 0.02) return;
-  if (dt > 0.1) dt = 0.1;  // 制御周期が大きすぎる場合は無視
-  Timer_Reset(&accel_dt_timer);
-
-  float accel = (svc.angular_speed - pre_speed) / dt;
-  svc.angular_accel = accel * ACCEL_LPF_INV + svc.angular_accel * ACCEL_LPF;  // ローパスフィルタ
-  pre_speed = svc.angular_speed;
 }
 
 static inline float BLDC_PIDControl(PIDController* pid, float error, float dt) {
@@ -197,28 +185,17 @@ void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val) {
 
   // PIDコントローラ
   // 角速度制御
-  svc.speed_pid.kp = 0.02;
-  svc.speed_pid.ki = 0.2;
+  svc.speed_pid.kp = 0.025;
+  svc.speed_pid.ki = 0.5;
   svc.speed_pid.kd = 0;
   svc.speed_pid.d_term = 0;
   svc.speed_pid.d_lpf = 0.0f;
   svc.speed_pid.output_limit = MAX_AMP_VOLT;
-
-  // 位置制御
-  svc.position_pid.kp = 5;
-  svc.position_pid.ki = 15;
-  svc.position_pid.kd = 0.01;
-  svc.position_pid.d_term = 0;
-  svc.position_pid.d_lpf = 0.9f;
-  svc.position_pid.output_limit = MAX_AMP_VOLT;
 }
 
-void BLDC_Stop(bool brake) {
-  if (brake) {
-    BLDC_WritePwm(0, 0, 0);
-  } else {
-    BLDC_WritePwm(0.5, 0.5, 0.5);
-  }
+void BLDC_Stop() {
+  svc.amp = 0;
+  svc.amp_volt = 0;
 }
 
 void BLDC_OpenLoopDrive(float amp, float phase) {
@@ -239,8 +216,7 @@ void BLDC_SensoredVectorControlDrive(uint16_t encoder_value, float supply_volt) 
 
   // エンコーダ値を処理
   BLDC_GetEncoder(encoder_value);  // ラジアン(0〜2π)に変換
-  BLDC_CalculateAngularSpeed();    // 角速度・角加速度を計算
-  BLDC_CalculateAngularAccel();    // 角加速度を計算
+  BLDC_CalculateAngularSpeed();    // 角速度を計算
 
   // 電気角度を計算
   svc.elec_theta = svc.mech_theta * POLE_PAIRS;                       // 電気角度 = 機械角度 * 極対数 + 位相合わせオフセット
@@ -250,10 +226,16 @@ void BLDC_SensoredVectorControlDrive(uint16_t encoder_value, float supply_volt) 
   svc.amp = svc.amp * AMP_LPF_COEF + (svc.amp_volt / supply_volt) * AMP_VOLT_LPF_COEF;
   svc.amp = Constrain(svc.amp, -0.5, 0.5);
 
-  // 正弦波を生成
-  float u = 0.5f + svc.amp * Sin(svc.elec_theta);
-  float v = 0.5f + svc.amp * Sin(svc.elec_theta - TWO_THIRDS_PI);
-  float w = 0.5f + svc.amp * Sin(svc.elec_theta + TWO_THIRDS_PI);
+  // SVPWM (min-max offset injection)
+  float u_ref = svc.amp * Sin(svc.elec_theta);
+  float v_ref = svc.amp * Sin(svc.elec_theta - TWO_THIRDS_PI);
+  float w_ref = svc.amp * Sin(svc.elec_theta + TWO_THIRDS_PI);
+  float v_max = u_ref > v_ref ? (u_ref > w_ref ? u_ref : w_ref) : (v_ref > w_ref ? v_ref : w_ref);
+  float v_min = u_ref < v_ref ? (u_ref < w_ref ? u_ref : w_ref) : (v_ref < w_ref ? v_ref : w_ref);
+  float offset = 0.5f * (v_max + v_min);
+  float u = 0.5f + u_ref - offset;
+  float v = 0.5f + v_ref - offset;
+  float w = 0.5f + w_ref - offset;
   BLDC_WritePwm(u, v, w);
 }
 
@@ -274,16 +256,6 @@ void BLDC_AngularSpeedControl(float target_angular_speed) {
   prev_target_angular_speed = target_angular_speed;
 
   svc.amp_volt = BLDC_PIDControl(&svc.speed_pid, target_angular_speed - svc.angular_speed, svc.dt);
-}
-
-void BLDC_PositionControl(float target_position) {
-  // 位置制御のためのPID計算
-  float error = target_position - svc.mech_theta;  // 目標位置と現在位置の誤差
-
-  // 0と2πのまたぎ対策
-  while (error > PI) error -= TWO_PI;
-  while (error < -PI) error += TWO_PI;
-  svc.amp_volt = -BLDC_PIDControl(&svc.position_pid, error, svc.dt);
 }
 
 void BLDC_VoltageControl(float target_volt) {

@@ -72,6 +72,7 @@ static void RecvSerial() {
           target_angular_speed = 0;
         }
         Timer_Reset(&serial_recv_timer);
+        DigitalOut_Write(&led1, 1);
       }
       index = 0;
     } else {
@@ -79,6 +80,7 @@ static void RecvSerial() {
       index++;
     }
   } else if (Timer_Read(&serial_recv_timer) > 0.5f) {
+    DigitalOut_Write(&led1, 0);
     mode = 0;
     Serial_Reset(&uart2);
     Timer_Reset(&serial_recv_timer);
@@ -114,15 +116,16 @@ void Setup() {
   PwmOut_Init(&ledr, &htim4, TIM_CHANNEL_2);
   PwmOut_Init(&ledg, &htim4, TIM_CHANNEL_1);
   PwmOut_Init(&ledb, &htim3, TIM_CHANNEL_1);
-  DigitalOut_Write(&led3, 1);
 
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_val, 3);
-  HAL_Delay(100);
-  DigitalOut_Write(&led2, 1);
+  HAL_Delay(10);
+  DigitalOut_Write(&led1, 1);
 
   STSPIN32G4_Init(&hi2c3);
-  HAL_Delay(100);
+  DigitalOut_Write(&led2, 1);
+  HAL_Delay(10);
 
+  DigitalOut_Write(&led3, 1);
   BLDC_Init(false, 0, &adc_val[0]);
 
   Serial_Init(&uart2, &huart2, 512);
@@ -133,7 +136,10 @@ void Setup() {
   Timer_Reset(&serial_send_timer);
   Timer_Init(&serial_recv_timer);
   Timer_Reset(&serial_recv_timer);
-  Timer_Init(&control_timer);
+
+  DigitalOut_Write(&led1, 0);
+  DigitalOut_Write(&led2, 0);
+  DigitalOut_Write(&led3, 0);
 
   printf("BLDC setup completed.\n");
 }
@@ -146,27 +152,24 @@ void MainApp() {
     if (supply_volt > SUPPLY_VOLTAGE_MAX_LIMIT || supply_volt < SUPPLY_VOLTAGE_MIN_LIMIT || is_voltage_out_of_range) {
       printf("Supply voltage out of range: %.2fV\n", supply_volt);
       is_voltage_out_of_range = true;
-      BLDC_Stop(false);
+      BLDC_Stop();
 
       if (supply_volt > (SUPPLY_VOLTAGE_MIN_LIMIT + 0.5f) && supply_volt < (SUPPLY_VOLTAGE_MAX_LIMIT - 0.5f)) {
         is_voltage_out_of_range = false;
-        PwmOut_Write(&ledr, 0);
+        DigitalOut_Write(&led3, 0);
       } else {
-        PwmOut_Write(&ledr, 1);
+        DigitalOut_Write(&led3, 1);
         HAL_Delay(100);
-        PwmOut_Write(&ledr, 0);
+        DigitalOut_Write(&led3, 0);
         HAL_Delay(100);
       }
     } else {
       RecvSerial();
       if (mode == 0) {
-        BLDC_Stop(false);
-      } else {
-        if (mode == 1) {
-          BLDC_AngularSpeedControl(target_angular_speed);
-        } else if (mode == 2) {
-          BLDC_VoltageControl(target_torque);
-        }
+        BLDC_Stop();
+      } else if (mode == 1) {
+        BLDC_AngularSpeedControl(target_angular_speed);
+        PwmOut_Write(&ledr, Abs(BLDC_GetAmpVolt() * 0.1));
       }
     }
     BLDC_SensoredVectorControlDrive(encoder_val, supply_volt);

@@ -17,13 +17,9 @@
 #define MAX_ADC_VAL 4095                   // ADCの最大値(12bit)
 #define SPEED_LPF 0.6f                     // 角速度のローパスフィルタ係数
 #define SPEED_LPF_INV 0.4f                 // (1.0 - SPEED_LPF) 事前計算値
-#define ACCEL_LPF 0.6f                     // 角加速度のローパスフィルタ係数
-#define ACCEL_LPF_INV 0.4f                 // (1.0 - ACCEL_LPF) 事前計算値
 #define AMP_LPF_COEF 0.7f                  // 振幅ローパスフィルタ係数
 #define AMP_VOLT_LPF_COEF 0.3f             // 電圧振幅ローパスフィルタ係数
-#define K_ENC_LPF 0.015f                   // エンコーダのローパスフィルタ係数ゲイン
 #define K_ADV 0.01f                        // 進角ゲイン
-#define ELEC_THETA_OFFSET (PI)             // 電気角の位相合わせ用オフセット
 #define ADC2RADIAN 0.0015339807878856412f  // ADC値をラジアンに変換する係数(2π/4096)
 
 typedef struct {
@@ -52,21 +48,19 @@ typedef struct {
   float encoder_offset_theta;  // エンコーダオフセット値
   uint16_t max_encoder_val;
   uint16_t min_encoder_val;
-  float mech_theta;            // 機械角度 [rad]
-  float elec_theta;            // 電気角度 [rad]
-  float angular_speed;         // 角速度 [rad/s]
-  float angular_accel;         // 角加速度 [rad/s^2]
-  uint8_t pole_pairs;          // 極対数 (磁石の数/2)
-  PIDController speed_pid;     // 角速度制御用PID
-  PIDController position_pid;  // 位置制御用PID
+  float mech_theta;         // 機械角度 [rad]
+  float elec_theta;         // 電気角度 [rad]
+  float angular_speed;      // 角速度 [rad/s]
+  float angular_accel;      // 角加速度 [rad/s^2]
+  uint8_t pole_pairs;       // 極対数 (磁石の数/2)
+  PIDController speed_pid;  // 角速度制御用PID
 } SensoredVectorControl;
 
 void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val);
-void BLDC_Stop(bool brake);
+void BLDC_Stop();
 void BLDC_OpenLoopDrive(float amp, float freq);
 void BLDC_SensoredVectorControlDrive(uint16_t encoder_value, float supply_volt);
 void BLDC_AngularSpeedControl(float target_angular_speed);
-void BLDC_PositionControl(float target_position);
 void BLDC_VoltageControl(float target_volt);
 
 float BLDC_GetAngularSpeed(void);
