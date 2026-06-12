@@ -36,8 +36,6 @@ void OmniDrive_SetFree(OmniDrive* self) {
 }
 
 void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
-  printf("OmniDrive_Send: cmd=%d, m=[%d, %d, %d, %d]\n", command, m[0], m[1], m[2], m[3]);
-
   static uint8_t send_data[11];
   send_data[0] = 0xFF;
   send_data[1] = command;

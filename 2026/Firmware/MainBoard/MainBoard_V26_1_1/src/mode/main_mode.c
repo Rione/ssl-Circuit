@@ -1,15 +1,15 @@
 #include "main_mode.h"
 
-void MainMode_Init(MainMode *self, Robot *robot) {
+Timer main_control_timer;
+
+void MainMode_Init(MainMode* self, Robot* robot) {
   self->robot = robot;
   LocalController_Init(&self->local_controller);
+  Timer_Init(&main_control_timer);
 }
 
-void MainMode_Loop(MainMode *self) {
-  static Timer timer = {0};
-  Timer_Reset(&timer);
-
-  Robot *r = self->robot;
+void MainMode_Loop(MainMode* self) {
+  Robot* r = self->robot;
 
   // シリアル通信
   Robot_RockRecvSerial(r, &r->info);
@@ -19,6 +19,8 @@ void MainMode_Loop(MainMode *self) {
 
   Robot_RockSendSerial(r, &r->info);
   OmniDrive_Recv(&r->omni_drive);
+
+  Robot_UpdateSensor(r);
 
   if (!r->info.status.emergency_stop && r->info.status.is_signal_received) {
     // Robot is Running
@@ -49,5 +51,6 @@ void MainMode_Loop(MainMode *self) {
   }
 
   // 1ms 制御ループを維持
-  while (Timer_ReadMs(&timer) < 1);
+  while (Timer_ReadMs(&main_control_timer) < 1);
+  Timer_Reset(&main_control_timer);
 }

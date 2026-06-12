@@ -3,11 +3,12 @@
 #include <math.h>
 #include <stdio.h>
 
-void Robot_Initialize(Robot* self) {
-  // DWTを有効化してTimerを使えるようにする
-  Timer dwt_init = {0};
-  Timer_Init(&dwt_init);
+uint16_t adc_val[1];
 
+#define ADC2VOLT 0.008862304688f
+
+void Robot_Initialize(Robot* self) {
+  printf("Robot Initialize Start\n");
   // GPIO 初期化
   DigitalOut_Init(&self->led0, LED0_GPIO_Port, LED0_Pin);
   DigitalOut_Init(&self->led1, LED1_GPIO_Port, LED1_Pin);
@@ -23,8 +24,10 @@ void Robot_Initialize(Robot* self) {
   DigitalOut_Write(&self->led0, 0);
   HAL_Delay(100);
   DigitalOut_Write(&self->led0, 1);
-  printf("Robot Initialize Start\n");
   HAL_Delay(100);
+
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_val, 1);
+  HAL_Delay(10);
 
   // シリアル初期化（DMA受信開始）
   UART_HandleTypeDef* md_uarts[4] = {&huart2, &huart3, &huart5, &huart6};
@@ -44,6 +47,12 @@ void Robot_Initialize(Robot* self) {
 
   printf("Robot Initialize Finish\n");
   DigitalOut_Write(&self->led0, 0);
+}
+
+void Robot_UpdateSensor(Robot* self) {
+  // 電圧センサ値を更新
+  self->info.battery_voltage = adc_val[0] * ADC2VOLT;  // 0-255 (0-25.5V)
+  printf("adc_val: %d, battery_voltage: %d\n", adc_val[0], self->info.battery_voltage);
 }
 
 void Robot_RockRecvSerial(Robot* self, RobotInfo* info) {

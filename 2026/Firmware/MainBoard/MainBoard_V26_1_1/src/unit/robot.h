@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "adc.h"
 #include "can_bus.h"
 #include "digitalinout.h"
 #include "dribbler.h"
@@ -124,6 +125,8 @@ void Robot_RockRecvSerial(Robot* self, RobotInfo* info);
 void Robot_RockSendSerial(Robot* self, RobotInfo* info);
 
 void Robot_UpdateFromUi(Robot* self);
+
+void Robot_UpdateSensor(Robot* self);
 
 void Robot_SendDribble(Robot* self, uint8_t power, uint8_t force_send);
 void Robot_SendKicker(Robot* self, RobotInfo* info);
