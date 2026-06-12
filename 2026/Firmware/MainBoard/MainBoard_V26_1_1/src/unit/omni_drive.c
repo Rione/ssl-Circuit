@@ -41,7 +41,7 @@ void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
     m[i] *= 100;
   }  // 0.1 rad/s 単位から 0.01 rad/s 単位に変換
 
-  uint8_t send_data[11];
+  static uint8_t send_data[11];
   send_data[0] = 0xFF;
   send_data[1] = command;
   send_data[2] = (uint8_t)((m[0] >> 8) & 0xFF);
