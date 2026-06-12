@@ -45,11 +45,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
         PwmOut_Write(&led, 0);
         break;
       case 0x13:  // ストレートキック
-        Kicker_Kick(1, 0.2);
+        Kicker_Kick(1, can_recv_data.data[0] / 255.0f);
         PwmOut_Write(&led, 0);
         break;
       case 0x14:  // チップキック
-        Kicker_Kick(2, 0.2);
+        Kicker_Kick(2, can_recv_data.data[0] / 255.0f);
         PwmOut_Write(&led, 0);
         break;
       default:
