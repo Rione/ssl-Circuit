@@ -1,5 +1,7 @@
 #include "omni_drive.h"
 
+#include <stdio.h>
+
 void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   for (int i = 0; i < 4; i++) {
     self->serials[i] = &serials[i];
@@ -34,6 +36,11 @@ void OmniDrive_SetFree(OmniDrive* self) {
 }
 
 void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
+  printf("OmniDrive_Send: cmd=%d, m=[%d, %d, %d, %d]\n", command, m[0], m[1], m[2], m[3]);
+  for (int i = 0; i < 4; i++) {
+    m[i] *= 100;
+  }  // 0.1 rad/s 単位から 0.01 rad/s 単位に変換
+
   uint8_t send_data[11];
   send_data[0] = 0xFF;
   send_data[1] = command;
