@@ -70,6 +70,7 @@ class UiKit {
     const uint16_t colBorder = sprite.color565(230, 230, 230);   // Borders
     const uint16_t colMuted = sprite.color565(240, 240, 240);    // Muted background
     const uint16_t colSuccess = sprite.color565(40, 167, 69);    // #28a745
+    const uint16_t colWarning = sprite.color565(255, 193, 7);    // #ffc107 (Yellow)
     const uint16_t colError = sprite.color565(220, 53, 69);      // #dc3545
     const uint16_t colPrimary = sprite.color565(0, 123, 255);    // Active elements
     const uint16_t colTextMuted = sprite.color565(100, 100, 100); // Muted text

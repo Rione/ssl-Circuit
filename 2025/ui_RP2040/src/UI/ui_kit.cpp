@@ -163,13 +163,33 @@ void UiKit::infoTab(bool forceUpdate) {
         int batPct = (info.batteryVoltage - 14.0) * 50;
         if(batPct < 0) batPct = 0;
         if(batPct > 100) batPct = 100;
-        
+
+        // 87% (Bold / 大きい文字)
+        display.sprite->setTextFont(4); // 26px font
+        display.sprite->setTextColor(colFg, colBg);
         String batText = String(batPct) + "%";
-        display.sprite->drawString(batText, 100, 14);
-        
-        // プログレスバー
-        display.sprite->fillRect(150, 10, 150, 8, colMuted);
-        display.sprite->fillRect(150, 10, 150 * batPct / 100, 8, colPrimary);
+        display.sprite->drawString(batText, 80, 14);
+        int percentWidth = display.sprite->textWidth(batText);
+
+        // 16.18V (Muted / 小さい文字)
+        display.sprite->setTextFont(2); // 16px font
+        display.sprite->setTextColor(colTextMuted, colBg);
+        String volText = String(info.batteryVoltage, 2) + "V";
+        display.sprite->drawString(volText, 80 + percentWidth + 6, 14);
+        int volWidth = display.sprite->textWidth(volText);
+
+        // プログレスバー (色可変, 角丸)
+        uint16_t barCol = colSuccess; // デフォルトは緑(50%超)
+        if (batPct <= 20) {
+            barCol = colError;   // 20%以下: 赤
+        } else if (batPct <= 50) {
+            barCol = colWarning; // 20〜50%: 黄
+        }
+
+        int barX = 80 + percentWidth + 6 + volWidth + 12;
+        int barW = 310 - barX;
+        display.sprite->fillRoundRect(barX, 10, barW, 8, 4, colMuted);
+        display.sprite->fillRoundRect(barX, 10, barW * batPct / 100, 8, 4, barCol);
         
         display.publish(72, 0, 248, 28);
     }
