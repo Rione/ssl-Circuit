@@ -2,10 +2,79 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
+
+#include "spi.h"
 
 uint16_t adc_val[1];
 
 #define ADC2VOLT 0.008862304688f
+#define ROCK_SPI_RX_PACKET_SIZE 18U
+// この時間(ms)受信できなかったら信号ロストと判定する（ここを変えれば猶予秒数を調整可能）
+#define ROCK_SPI_SIGNAL_TIMEOUT_MS 100U
+
+static uint8_t rock_spi_tx_packet[ROCK_SPI_RX_PACKET_SIZE] = {};
+static uint8_t rock_spi_rx_packet[ROCK_SPI_RX_PACKET_SIZE];    // 割り込みの受信先
+static uint8_t rock_spi_rx_snapshot[ROCK_SPI_RX_PACKET_SIZE];  // メインループ反映用
+static volatile uint8_t rock_rx_ready = 0;                     // 新しいフレームを受信したフラグ
+
+// 最後に受信できた時刻(ms)。これからの経過時間でタイムアウトを判定する
+static uint32_t rock_last_recv_tick = 0;
+
+static void Robot_RockBuildTxPacket(RobotInfo* info);
+
+// 最後の受信から一定時間が過ぎていたら信号ロスト(0)にする
+static void Robot_RockUpdateSignalTimeout(RobotInfo* info) {
+  if ((HAL_GetTick() - rock_last_recv_tick) > ROCK_SPI_SIGNAL_TIMEOUT_MS) {
+    info->status.is_signal_received = 0;
+  }
+}
+
+// SPI送受信の待ち受けを開始/再開する（常に待ち受け状態を保ち、隙間を作らない）
+static void Robot_RockArm(void) {
+  HAL_SPI_TransmitReceive_IT(&hspi2, rock_spi_tx_packet, rock_spi_rx_packet,
+                             ROCK_SPI_RX_PACKET_SIZE);
+}
+
+// 送受信完了割り込み：受信データを退避してフラグを立て、即座に次を待ち受ける
+// （重い処理(printf等)はISR内でやらず、反映はメインループに任せる）
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef* hspi) {
+  if (hspi->Instance != SPI2) return;
+
+  memcpy(rock_spi_rx_snapshot, rock_spi_rx_packet, ROCK_SPI_RX_PACKET_SIZE);
+  rock_last_recv_tick = HAL_GetTick();
+  rock_rx_ready = 1;
+
+  Robot_RockArm();  // 隙間なく次フレームを待ち受け
+}
+
+// SPIエラー(オーバーラン等)時も待ち受けを再開して復帰する
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef* hspi) {
+  if (hspi->Instance != SPI2) return;
+  Robot_RockArm();
+}
+
+static void Robot_RockApplyRecvPacket(RobotInfo* info, const uint8_t* data) {
+  info->vel_x.l = data[0];
+  info->vel_x.h = data[1];
+  info->vel_y.l = data[2];
+  info->vel_y.h = data[3];
+  info->vel_angular.l = data[4];
+  info->vel_angular.h = data[5];
+  info->dribble_power = data[6];
+  info->kicker.straight = data[7];
+  info->kicker.chip = data[8];
+  info->relative_position_x.l = data[9];
+  info->relative_position_x.h = data[10];
+  info->relative_position_y.l = data[11];
+  info->relative_position_y.h = data[12];
+  info->relative_theta.l = data[13];
+  info->relative_theta.h = data[14];
+  info->camera.x = data[15];
+  info->camera.y = data[16];
+  info->status.data = data[17];
+  info->status.is_signal_received = 1;
+}
 
 void Robot_Initialize(Robot* self) {
   printf("Robot Initialize Start\n");
@@ -45,6 +114,10 @@ void Robot_Initialize(Robot* self) {
   Dribbler_Init(&self->dribbler, &self->can);
   UI_Init(&self->ui, &self->serial4);
 
+  // Rock との SPI を割り込みで常時待ち受け開始（スレーブが常に受信待ちになる）
+  Robot_RockBuildTxPacket(&self->info);
+  Robot_RockArm();
+
   printf("Robot Initialize Finish\n");
   DigitalOut_Write(&self->led0, 0);
 }
@@ -52,69 +125,39 @@ void Robot_Initialize(Robot* self) {
 void Robot_UpdateSensor(Robot* self) {
   // 電圧センサ値を更新
   self->info.battery_voltage = adc_val[0] * ADC2VOLT;  // 0-255 (0-25.5V)
-  printf("adc_val: %d, battery_voltage: %d\n", adc_val[0], self->info.battery_voltage);
+  // printf("adc_val: %d, battery_voltage: %d\n", adc_val[0], self->info.battery_voltage);
 }
 
-void Robot_RockRecvSerial(Robot* self, RobotInfo* info) {
-  // if (self->serial1.huart->hdmarx == NULL) return;  // USART1 DMA未設定
+// 送信パケットを組み立てる（先頭4byteが実データ、残りは0クリア）
+static void Robot_RockBuildTxPacket(RobotInfo* info) {
+  (void)info;
 
-  // static uint8_t recv_data[18];
-  // static uint8_t index = 0;
+  rock_spi_tx_packet[0] = 100;
+  rock_spi_tx_packet[1] = 120;
+  rock_spi_tx_packet[2] = 130;
+  rock_spi_tx_packet[3] = 140;
 
-  // if (!Serial_Available(&self->serial1)) return;
-
-  // uint8_t recv_byte = Serial_Read(&self->serial1);
-
-  // if (index == 0) {
-  //   if (recv_byte == 0xFF) {
-  //     index++;
-  //   }
-  // } else if (index == 19) {
-  //   if (recv_byte == 0xAA) {
-  //     info->vel_x.l = recv_data[0];
-  //     info->vel_x.h = recv_data[1];
-  //     info->vel_y.l = recv_data[2];
-  //     info->vel_y.h = recv_data[3];
-  //     info->vel_angular.l = recv_data[4];
-  //     info->vel_angular.h = recv_data[5];
-  //     info->dribble_power = recv_data[6];
-  //     info->kicker.straight = recv_data[7];
-  //     info->kicker.chip = recv_data[8];
-  //     info->relative_position_x.l = recv_data[9];
-  //     info->relative_position_x.h = recv_data[10];
-  //     info->relative_position_y.l = recv_data[11];
-  //     info->relative_position_y.h = recv_data[12];
-  //     info->relative_theta.l = recv_data[13];
-  //     info->relative_theta.h = recv_data[14];
-  //     info->camera.x = recv_data[15];
-  //     info->camera.y = recv_data[16];
-  //     info->status.data = recv_data[17];
-  //   }
-  //   index = 0;
-  // } else {
-  //   recv_data[index - 1] = recv_byte;
-  //   index++;
-  // }
+  for (uint16_t i = 4; i < ROCK_SPI_RX_PACKET_SIZE; i++) {
+    rock_spi_tx_packet[i] = 0x00;
+  }
 }
 
-void Robot_RockSendSerial(Robot* self, RobotInfo* info) {
-  // if (self->serial1.huart->hdmatx == NULL) return;  // USART1 DMA未設定
+// メインループから毎周呼ぶ。実際の送受信は割り込みでバックグラウンド実行されているので、
+// ここでは「次に送るデータの更新」と「受信済みフレームの反映/タイムアウト判定」だけを行う。
+void Robot_RockUpdateSPI(Robot* self, RobotInfo* info) {
+  (void)self;
 
-  // static Timer timer = {0};
-  // if (Timer_ReadMs(&timer) < 100) return;
+  // 次フレームで送る送信データを更新（割り込みが再アーム時にこれを送る）
+  Robot_RockBuildTxPacket(info);
 
-  // // ヘッダ(4バイト) + データ(3バイト) を1回で送信
-  // uint8_t send_buf[7];
-  // send_buf[0] = 0xFF;
-  // send_buf[1] = 0x00;
-  // send_buf[2] = 0xFF;
-  // send_buf[3] = 0x00;
-  // send_buf[4] = info->dribble_status.data;
-  // send_buf[5] = info->battery_voltage;
-  // send_buf[6] = info->kicker_status.cap_val_estimate;
-
-  // Serial_Write(&self->serial1, send_buf, sizeof(send_buf));
-  // Timer_Reset(&timer);
+  if (rock_rx_ready) {
+    // 新しいフレームを受信済み → 反映（is_signal_received=1）
+    rock_rx_ready = 0;
+    Robot_RockApplyRecvPacket(info, rock_spi_rx_snapshot);
+  } else {
+    // しばらく受信が無ければ信号ロスト判定
+    Robot_RockUpdateSignalTimeout(info);
+  }
 }
 
 void Robot_UpdateFromUi(Robot* self) {

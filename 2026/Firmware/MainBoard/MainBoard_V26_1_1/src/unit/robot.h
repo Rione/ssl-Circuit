@@ -121,8 +121,7 @@ typedef struct Robot {
 
 void Robot_Initialize(Robot* self);
 
-void Robot_RockRecvSerial(Robot* self, RobotInfo* info);
-void Robot_RockSendSerial(Robot* self, RobotInfo* info);
+void Robot_RockUpdateSPI(Robot* self, RobotInfo* info);
 
 void Robot_UpdateFromUi(Robot* self);
 
