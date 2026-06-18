@@ -60,6 +60,7 @@ typedef struct {
 
 void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val);
 void BLDC_Stop();
+void BLDC_ForceLowSide(void);
 void BLDC_OpenLoopDrive(float amp, float freq);
 void BLDC_SensoredVectorControlDrive(uint16_t encoder_value, float supply_volt);
 void BLDC_AngularSpeedControl(float target_angular_speed);

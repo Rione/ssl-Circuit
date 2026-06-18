@@ -5,6 +5,47 @@ static DigitalOut wake;
 static DigitalIn ready;
 static DigitalIn nFault;
 
+bool STSPIN32G4_WaitReady(uint32_t timeout_ms) {
+  /* Wait until the gate-driver power section (BUCK/VCC) is ready.
+   * On a cold power-up the STSPIN32G4 power section needs time to start up,
+   * and the READY pin is driven high only once it is ready to accept I2C
+   * configuration. Skipping this wait makes the I2C config silently fail on
+   * power-on while a warm restart (re-flash) happens to work. */
+  uint32_t start = HAL_GetTick();
+  while (!DigitalIn_Read(&ready)) {
+    if ((HAL_GetTick() - start) >= timeout_ms) {
+      printf("STSPIN32G4 READY timeout (%lums)\n", (unsigned long)timeout_ms);
+      return false;
+    }
+    HAL_Delay(1);
+  }
+  return true;
+}
+
+bool STSPIN32G4_IsReady(void) {
+  /* READY pin is driven high once the gate-driver power section
+   * (BUCK/VCC, fed from the motor supply VM) is up and ready. */
+  return DigitalIn_Read(&ready);
+}
+
+bool STSPIN32G4_IsFault(void) {
+  /* nFAULT is active-low: low level means a fault is asserted. */
+  return DigitalIn_Read(&nFault) == 0;
+}
+
+void STSPIN32G4_Configure(void) {
+  /* Register configuration of the gate-driver power section.
+   * Must run while the power section is powered (READY high), otherwise the
+   * writes do not stick. Safe to call repeatedly (e.g. when motor power is
+   * applied after the MCU has already booted). */
+  STSPIN32G4_Reset();
+  HAL_Delay(10);
+  STSPIN32G4_SetBuckConverterVoltage(8);
+  STSPIN32G4_SetNfaultStatus();
+  HAL_Delay(10);
+  STSPIN32G4_ClearRegister();
+}
+
 void STSPIN32G4_Init(I2C_HandleTypeDef* hi2c) {
   s_hi2c = hi2c;
   DigitalOut_Init(&wake, WAKE_GPIO_Port, WAKE_Pin);
@@ -12,13 +53,14 @@ void STSPIN32G4_Init(I2C_HandleTypeDef* hi2c) {
   DigitalIn_Init(&nFault, nFAULT_GPIO_Port, nFAULT_Pin);
   DigitalOut_Write(&wake, 1);
 
-  /* Match original C++ init() sequence. */
-  STSPIN32G4_Reset();
-  HAL_Delay(10);
-  STSPIN32G4_SetBuckConverterVoltage(8);
-  STSPIN32G4_SetNfaultStatus();
-  HAL_Delay(10);
-  STSPIN32G4_ClearRegister();
+  /* Try to configure now if the power section is already up. If the motor
+   * supply (VM) is not present yet, READY stays low; in that case the
+   * application loop will (re)configure once power is applied. */
+  if (STSPIN32G4_WaitReady(1000)) {
+    STSPIN32G4_Configure();
+  } else {
+    printf("STSPIN32G4 not ready at boot (motor power off?). Will configure when power is applied.\n");
+  }
 }
 
 bool STSPIN32G4_I2C_Write(uint8_t deviceAddr, uint8_t regAddr, uint8_t data) {

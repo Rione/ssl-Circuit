@@ -196,6 +196,20 @@ void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val) {
 void BLDC_Stop() {
   svc.amp = 0;
   svc.amp_volt = 0;
+  // アンチワインドアップ:停止中はPID積分項を積み上げない。
+  // これをしないと、ゲートドライバ無効中などモーターが動けない間に
+  // 積分項が飽和し、駆動開始の瞬間にフル電圧が出て急加速する。
+  svc.speed_pid.integral = 0;
+  svc.speed_pid.prev_error = 0;
+  svc.speed_pid.d_term = 0;
+}
+
+// 全相をローサイドONにする(ハイサイド完全OFF, duty=0)。
+// ブートストラップ・コンデンサの充電に使う。MIN_DUTYのクランプを通さず生の0を書く。
+void BLDC_ForceLowSide(void) {
+  PwmOut_Write(&u_pwm, 0.0f);
+  PwmOut_Write(&v_pwm, 0.0f);
+  PwmOut_Write(&w_pwm, 0.0f);
 }
 
 void BLDC_OpenLoopDrive(float amp, float phase) {

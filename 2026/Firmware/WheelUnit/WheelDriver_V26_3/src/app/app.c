@@ -146,9 +146,65 @@ void Setup() {
   printf("BLDC setup completed.\n");
 }
 
+// モーター電源(VM)が後から投入された場合に STSPIN32G4 を設定する。
+// 電源(READY)と電圧が安定してから一度だけ設定し、リセット連発を防ぐ。
+// フォルト(NFAULT=0)時は STATUS レジスタを読んで種別を表示する(診断用)。
+// 戻り値: ゲートドライバが設定済みで駆動可能なら true
+static bool UpdateGateDriver() {
+  static bool configured = false;
+  static uint32_t last_action_ms = 0;
+
+  bool ready = STSPIN32G4_IsReady();
+  bool fault = STSPIN32G4_IsFault();
+  bool power_ok = (supply_volt > SUPPLY_VOLTAGE_MIN_LIMIT && supply_volt < SUPPLY_VOLTAGE_MAX_LIMIT);
+
+  // 電源が落ちた/電圧異常 → 未設定状態に戻し、次に電源が揃ったら再設定
+  if (!ready || !power_ok) {
+    configured = false;
+    return false;
+  }
+
+  if (!configured) {
+    // 電源が揃った直後の設定(連続実行を防ぐため200ms間隔)
+    if (HAL_GetTick() - last_action_ms > 200) {
+      HAL_Delay(20);  // 電源安定待ち
+
+      // ★ブートストラップ・コンデンサ充電★
+      // コールド起動時はハイサイド駆動用のブートストラップが空で、
+      // いきなり通常PWMを出すとVDS_P(過電流)保護が誤作動してラッチする。
+      // 全相ローサイドONにして先にブートストラップを充電してからクリアする。
+      BLDC_ForceLowSide();         // 全相ローサイドON(ハイサイドOFF)
+      STSPIN32G4_Configure();      // reset + buck + nfault
+      STSPIN32G4_ClearRegister();  // フォルトクリア→ブリッジ有効、ローサイド導通
+      HAL_Delay(80);               // ブートストラップ充電(Vds低のためフォルト出ない)
+      STSPIN32G4_ClearRegister();  // 残フォルトクリア
+      HAL_Delay(2);
+
+      if (!STSPIN32G4_IsFault()) {
+        configured = true;
+        printf("STSPIN32G4 configured OK. (supply=%.2fV)\n", supply_volt);
+      } else {
+        printf("STSPIN32G4 still FAULT after config (supply=%.2fV): ", supply_volt);
+        STSPIN32G4_ReadStatus();  // どのフォルトか表示
+      }
+      last_action_ms = HAL_GetTick();
+    }
+  } else if (fault) {
+    // 設定後に発生したフォルトを表示(500ms間隔)
+    if (HAL_GetTick() - last_action_ms > 500) {
+      printf("STSPIN32G4 FAULT during run (supply=%.2fV): ", supply_volt);
+      STSPIN32G4_ReadStatus();
+      last_action_ms = HAL_GetTick();
+    }
+  }
+
+  return configured;
+}
+
 void MainApp() {
   while (1) {
     GetSensors();
+    bool driver_ready = UpdateGateDriver();
     SendSerial();
 
     if (supply_volt > SUPPLY_VOLTAGE_MAX_LIMIT || supply_volt < SUPPLY_VOLTAGE_MIN_LIMIT || is_voltage_out_of_range) {
@@ -165,6 +221,9 @@ void MainApp() {
         DigitalOut_Write(&led3, 0);
         HAL_Delay(100);
       }
+    } else if (!driver_ready) {
+      // ゲートドライバ準備完了前は駆動しない(積分項も積み上げない)
+      BLDC_Stop();
     } else {
       RecvSerial();
       if (mode == 0) {
