@@ -185,8 +185,8 @@ void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val) {
 
   // PIDコントローラ
   // 角速度制御
-  svc.speed_pid.kp = 0.05;
-  svc.speed_pid.ki = 0.25;
+  svc.speed_pid.kp = 0.02;
+  svc.speed_pid.ki = 0.4;
   svc.speed_pid.kd = 0;
   svc.speed_pid.d_term = 0;
   svc.speed_pid.d_lpf = 0.0f;
