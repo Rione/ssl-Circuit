@@ -56,10 +56,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define KICK1_Pin GPIO_PIN_1
-#define KICK1_GPIO_Port GPIOA
-#define KICK2_Pin GPIO_PIN_2
-#define KICK2_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_3
 #define LED_GPIO_Port GPIOA
 #define BUTTON_Pin GPIO_PIN_8

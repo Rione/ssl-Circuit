@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "adc.h"
 #include "can_bus.h"
 #include "digitalinout.h"
 #include "main.h"

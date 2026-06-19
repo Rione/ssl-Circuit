@@ -7,9 +7,12 @@
 
 #include "digitalinout.h"
 #include "pwm_out.h"
+#include "timer.h"
 
 void Kicker_Init();
+void Kicker_SetBoostVoltage(float voltage);
 void Kicker_Kick(int kickType, float power);
+void Kicker_Update();
 void Kicker_Charge();
 void Kicker_Discharge();
 
