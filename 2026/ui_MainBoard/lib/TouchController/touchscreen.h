@@ -1,0 +1,56 @@
+#ifndef _TOUCHSCREEN_H_
+#define _TOUCHSCREEN_H_
+
+#include <XPT2046_Touchscreen.h>
+
+class COORDINATE {
+  public:
+    COORDINATE(int x, int y) {
+        this->x = x;
+        this->y = y;
+    }
+
+    int x;
+    int y;
+
+  private:
+};
+
+class TOUCHSCREEN {
+  public:
+    XPT2046_Touchscreen *ptr;
+
+    TOUCHSCREEN(XPT2046_Touchscreen *ptr, const int csPin) {
+        this->ptr = ptr;
+        this->csPin = csPin;
+    }
+
+    void begin(void) {
+        pinMode(csPin, OUTPUT);
+
+        ptr->begin();
+        ptr->setRotation(3);
+    }
+
+    COORDINATE raw = COORDINATE(0, 0);
+    COORDINATE point = COORDINATE(0, 0);
+
+    bool isTouched = false;  // タッチ判定
+    bool isTouchedPrev = false; //　タッチされてたか
+
+    void read();
+
+  private:
+    COORDINATE upperLeft = COORDINATE(250, 250);
+    COORDINATE bottomRight = COORDINATE(3700, 3800);
+
+    int csPin;
+
+    bool isTouched_1ms = false; // 1msごとのタッチ判定。
+    int touchCount_1ms = 0; // 1msごとのタッチカウント
+    uint32_t Time_touchStart = 0;
+    static const int countMax = 10; // タッチカウントの最大値
+    static const int countMin = -10; // タッチカウントの最小値
+};
+
+#endif
