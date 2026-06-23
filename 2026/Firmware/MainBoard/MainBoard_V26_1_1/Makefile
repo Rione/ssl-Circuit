@@ -15,6 +15,17 @@
 ######################################
 TARGET = MainBoard_V26_1_1
 
+ifeq ($(OS),Windows_NT)
+UNAME_S := $(shell uname -s)
+ifneq (,$(findstring MINGW,$(UNAME_S)))
+SHELL := /usr/bin/bash
+PATH := /usr/bin:$(PATH)
+endif
+ifneq (,$(findstring MSYS,$(UNAME_S)))
+SHELL := /usr/bin/bash
+PATH := /usr/bin:$(PATH)
+endif
+endif
 
 ######################################
 # building variables
