@@ -1,9 +1,9 @@
 #include "kicker.h"
 
-#define KICK_TIME_MS 1          // キック通電時間 [ms]
+#define KICK_TIME_MS 10         // キック通電時間 [ms]
 #define CHARGE_RESET_US 200     // CHARGEをトグルしてラッチを解除する時間 [us]
 #define KICK_READY_VOLTAGE 250  // この昇圧電圧[V]以上でのみキックを許可
-#define KICK_MAX_DUTY 0.5f      // キックPWMデューティの上限(電流制限)
+#define KICK_MAX_DUTY 1.0f      // キックPWMデューティの上限(電流制限)
 
 PwmOut kick1;
 PwmOut kick2;
@@ -81,6 +81,7 @@ void Kicker_Charge() {
 
 void Kicker_Discharge() {
   printf("Discharge\n");
+  PwmOut_Write(&kick1, 0.01f);
   DigitalOut_Write(&lt_charge, 0);
   DigitalOut_Write(&lt_discharge, 1);
 }
