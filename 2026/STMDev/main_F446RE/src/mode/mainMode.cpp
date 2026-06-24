@@ -47,12 +47,11 @@ void MainMode::loop() {
                   robot->motorDriver.setVelocityFF(0, 0, 0);
             }
             if (isTestingDribbler) {
-                  robot->sendDribble(100); // 最大パワー
+                  robot->sendDribble(100); // テスト時パワー100
             } else {
                   robot->sendDribble(0);
             }
             robot->sendKicker(robot->info);
-            robot->kickerBoard.chargeControl(robot->info.status.doCharge);
       } else if (robot->info.status.isSignalReceived) {
             // Robot is Running
             robot->sendDribble(robot->info.dribblePower);

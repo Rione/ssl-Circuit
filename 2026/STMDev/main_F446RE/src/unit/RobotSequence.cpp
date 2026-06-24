@@ -18,43 +18,40 @@ void stopRobot(uint16_t interval) {
 }
 
 void uiKickControl(RobotInfo_t &info) {
-    // UIからの充電制御・テストコマンド
+    // UIからの充電制御
     if (info.uiStatus.chargeStateChange == 1) {
-        // 充放電の切り替え
-        if(info.isKickerChargeMode == false) {
-            robot.kickerBoard.chargeControl(CHARGE);
-            printf("UI Start charge\n");
-            robot.led2 = true;
-        } else {
-            robot.kickerBoard.chargeControl(DISCHARGE);
-            printf("UI Start discharge\n");
-            robot.led2 = false;
-        }
+        // 常に充電開始にする（トグルしない）
+        robot.kickerBoard.chargeControl(CHARGE);
+        printf("UI Start charge\n");
+        robot.led2 = true;
         info.uiStatus.chargeStateChange = 0;
         robot.manageByUserCounter.reset();
     } else if(info.uiStatus.kick == 1) {
-        // 通常のキック
+        // 以前のキックボタン用の互換性
         robot.kickerBoard.kick(STRAIGHT, 50);
         printf("kick\n");
         info.uiStatus.kick = 0;
         robot.manageByUserCounter.reset();
     }
-
-    // テストコマンドの処理
+    
+    // UIからのテストコマンド処理
     if (info.testCommand != 0) {
         if (info.testCommand == 1) { // CMD_KICK
             robot.kickerBoard.kick(STRAIGHT, 50);
         } else if (info.testCommand == 2) { // CMD_CHIP_KICK
-            robot.kickerBoard.kick(CHIP, 50);
-        } else if (info.testCommand == 3) { // CMD_DRIBBLER_TEST
+            robot.kickerBoard.kick(CHIP, 20); // パワーを20に弱める
+        } else if (info.testCommand == 3) { // CMD_DRIBBLER
             info.isDribblerTesting = !info.isDribblerTesting; // トグル
         } else if (info.testCommand == 4) { // CMD_MOTOR_TEST
             info.isMotorTesting = true;
             info.motorTestTimer.reset();
         } else if (info.testCommand == 5) { // CMD_DISCHARGE
             robot.kickerBoard.kick(STRAIGHT, 20); // 弱いキック
+            HAL_Delay(5); // CANの送信バッファが埋まるのを防ぐ
             robot.kickerBoard.chargeControl(DISCHARGE);
             robot.led2 = false;
+            info.isDribblerTesting = false; // テストも強制終了して安全状態にする
+            info.isMotorTesting = false;
         }
         info.testCommand = 0; // コマンドを処理したらクリア
         robot.manageByUserCounter.reset();
@@ -62,15 +59,13 @@ void uiKickControl(RobotInfo_t &info) {
 }
 
 void buzzerControl(RobotInfo_t &info) {
-    // BUZZERの制御（ワンショット: 状態変化時のみ設定）
-    // doDirectKick, doDirectChipKickがfalse→trueに変化した瞬間のみBUZZERを鳴らす
-    static bool prevDirectKick = false;
-    bool currentDirectKick = info.status.doDirectKick || info.status.doDirectChipKick;
-    if (currentDirectKick && !prevDirectKick) {
+    // BUZZERの制御
+    // doDirectKick, doDirectChipKickの状態に応じてBUZZERを鳴らす
+    if (info.status.doDirectKick || info.status.doDirectChipKick) {
         info.buzzer = playType::SUCCESS;
+    } else {
+        info.buzzer = playType::NONE;
     }
-    // info.buzzerのNONEリセットはuiSendSerial送信後に行われる
-    prevDirectKick = currentDirectKick;
 }
 
 void swKickControl(RobotInfo_t &info) {
@@ -96,29 +91,30 @@ void swKickControl(RobotInfo_t &info) {
     } else {
         if (robot.manageByUserCounter.read_ms() >= 15000) { // ユーザーがスイッチでキッカーの充電or放電をしてから15秒以上経過したらPiの指示に従う
             if (doChargeTimer.read_ms() > 100) {      // 100msごとに実行
-                if (robot.info.status.doCharge == true) {
-                    static uint8_t countD = 0;
-                    // Piから充電しろと言われている。
-                    if (robot.info.isKickerChargeMode == false) {
-                        // KickerBoardから充電していないとの情報を得ている。噛み合っていない
-                        countD++;
-                        if (countD > 10) {
-                            robot.kickerBoard.chargeControl(CHARGE);
-                            // printf("charge from Pi\n");
-                            countD = 0;
+                if (robot.info.status.isSignalReceived) { // Piからの信号がある場合のみ
+                    if (robot.info.status.doCharge == true) {
+                        static uint8_t countD = 0;
+                        // Piから充電しろと言われている。
+                        if (robot.info.isKickerChargeMode == false) {
+                            // KickerBoardから充電していないとの情報を得ている。噛み合っていない
+                            countD++;
+                            if (countD > 10) {
+                                robot.kickerBoard.chargeControl(CHARGE);
+                                // printf("charge from Pi\n");
+                                countD = 0;
+                            }
                         }
-                    }
-                } else {
-                    // Piから放電しろと来ている
-                    static uint8_t countC = 0;
-                    if (robot.info.isKickerChargeMode == true) {
-                        countC++;
-                        if (countC > 10) {
-                            robot.kickerBoard.chargeControl(DISCHARGE);
-                            // printf("discharge from Pi\n");
-                            countC = 0;
+                    } else {
+                        // Piから放電しろと来ている
+                        static uint8_t countC = 0;
+                        if (robot.info.isKickerChargeMode == true) {
+                            countC++;
+                            if (countC > 10) {
+                                robot.kickerBoard.chargeControl(DISCHARGE);
+                                // printf("discharge from Pi\n");
+                                countC = 0;
+                            }
                         }
-                        // KickerBoardから充電しているとの情報を得ている。噛み合っていない
                     }
                 }
                 doChargeTimer.reset();

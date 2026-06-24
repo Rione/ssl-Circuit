@@ -93,13 +93,13 @@ void UiKit::sidebarTouchUpdate() {
 }
 
 void UiKit::stmRecvSerial(RobotInfo_t *info, RobotInfo_t *infoPrev) {
-  static const uint8_t HEADER = 0xFF; // ヘッダ
-  static const uint8_t dataSize = 21; // データのサイズ
+  static const uint8_t HEADER = 0xFF; // 繝倥ャ繝
+  static const uint8_t dataSize = 21; // 諡｡蠑ｵ縺輔ｌ縺溘ョ繝ｼ繧ｿ繧ｵ繧､繧ｺ
   static bool headerReceived =
-      false; // ヘッダを受信したかどうか
+      false; // 繝倥ャ繝繧貞女菫｡縺励◆縺九←縺・°
   static uint8_t index =
-      0; // 受信したデータのインデックスカウンター
-  static uint8_t data[dataSize] = {0}; // 受信したデータ
+      0; // 蜿嶺ｿ｡縺励◆繝・・繧ｿ縺ｮ繧､繝ｳ繝・ャ繧ｯ繧ｹ繧ｫ繧ｦ繝ｳ繧ｿ繝ｼ
+  static uint8_t data[dataSize] = {0}; // 蜿嶺ｿ｡縺励◆繝・・繧ｿ
 
   while (Serial1.available()) {
     uint8_t recvData = Serial1.read();
@@ -124,11 +124,13 @@ void UiKit::stmRecvSerial(RobotInfo_t *info, RobotInfo_t *infoPrev) {
         info->buzzerState = data[2];
         info->ballSensor = data[3] > 0;
 
+        // 繝｢繝ｼ繧ｿ繝ｼ騾溷ｺｦ (4繝舌う繝・4)
         memcpy(&info->motor[0].velocity, &data[4], 4);
         memcpy(&info->motor[1].velocity, &data[8], 4);
         memcpy(&info->motor[2].velocity, &data[12], 4);
         memcpy(&info->motor[3].velocity, &data[16], 4);
 
+        // 繝｢繝ｼ繧ｿ繝ｼ繧ｹ繝・・繧ｿ繧ｹ (1繝舌う繝医ン繝・ヨ繝槭せ繧ｯ)
         uint8_t mStatus = data[20];
         info->motor[0].statusOk = (mStatus & 0x01) != 0;
         info->motor[1].statusOk = (mStatus & 0x02) != 0;
@@ -144,7 +146,7 @@ void UiKit::stmSendSerial(RobotInfo_t *info) {
 
   Serial1.write(HEADER);
   Serial1.write(info->modeStatus.data);
-  Serial1.write(info->testCommand);
+  Serial1.write(info->testCommand); // STM32は2バイトのデータ(modeStatusとtestCommand)を受信する仕様
 }
 
 void UiKit::infoTab(bool forceUpdate) {
@@ -161,8 +163,8 @@ void UiKit::infoTab(bool forceUpdate) {
     // display.sprite->loadFont(bold20); // 繝輔か繝ｳ繝医・驕ｩ螳・
     display.sprite->setTextDatum(ML_DATUM);
 
-    // 繝舌ャ繝・Μ繝ｼ% (莉ｮ險育ｮ・ 16V=100%, 14V=0%)
-    int batPct = (info.batteryVoltage - 14.0) * 50;
+    // バッテリー% (4S LiPo: 16.8V=100%, 14.0V=0%)
+    int batPct = (info.batteryVoltage - 14.0) / 2.8 * 100.0;
     if (batPct < 0)
       batPct = 0;
     if (batPct > 100)

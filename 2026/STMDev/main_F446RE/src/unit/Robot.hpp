@@ -157,14 +157,13 @@ typedef struct {
       // Information STM32→Xiao(UI) -----------------------------
       union {
             struct {
-                  bool chargeState : 1;   // stmから送られてくる充電状態
+                  uint8_t chargeState : 1;   // stmから送られてくる充電状態
                   uint8_t chargeVal : 7;  // capValEstimate
             };
             uint8_t data;
       } capaData;
 
-      uint8_t testCommand = 0;
-
+      uint8_t testCommand = 0; // XIAOからのテストコマンド
       bool isDribblerTesting = false; // ドリブラテスト中フラグ
       bool isMotorTesting = false; // モーターテスト中フラグ
       Timer motorTestTimer; // モーターテスト用タイマー

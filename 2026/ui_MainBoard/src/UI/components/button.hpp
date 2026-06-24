@@ -55,11 +55,11 @@ class TEXT_BUTTON {
     bool determine();
   public:
     int x, y, w, h;
+    const char* text;
+    uint16_t bg, fg;
   private:
     DISPLAY_DEVICE *display;
     TOUCHSCREEN *touch;
-    const char* text;
-    uint16_t bg, fg;
     bool isPressed = false;
     uint32_t pressTime = 0;
 };

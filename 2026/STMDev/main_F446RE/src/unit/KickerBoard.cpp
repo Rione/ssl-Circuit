@@ -21,10 +21,9 @@ void KickerBoard::kick(uint8_t type, uint8_t power, uint8_t doDirect) {
         .data = {power, doDirect, 0, 0, 0, 0, 0, 0},
     };
 
-    if (capValEstimate < power) {
+    capValEstimate -= power; // キックした分だけ充電量を減らす
+    if (capValEstimate < 0) {
         capValEstimate = 0;
-    } else {
-        capValEstimate -= power; // キックした分だけ充電量を減らす
     }
 
     _canBus->send(canData);

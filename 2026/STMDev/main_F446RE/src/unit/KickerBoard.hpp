@@ -26,10 +26,9 @@ class KickerBoard {
     void chargeControl(uint8_t state);
 
     void minusCapValEstimate(uint8_t val) {
-        if (capValEstimate < val) {
+        capValEstimate -= val;
+        if (capValEstimate < 0) {
             capValEstimate = 0;
-        } else {
-            capValEstimate -= val;
         }
     }
 

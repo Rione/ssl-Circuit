@@ -32,35 +32,122 @@ TestMode::TestMode(char letter, const char name[], UiKit *uiPtr,
                                  btnBg, ui->colFg);
 }
 
+static bool isDribblerOn = false;
+static bool isMotorTestOn = false;
+static uint32_t motorTestStartTime = 0;
+static uint32_t kickTime = 0;
+static uint32_t chipKickTime = 0;
+
 void TestMode::displaySet() {
+  static bool prevChargeState = false;
+  static uint8_t prevChargeVal = 255;
+
   if (ui->changeFlag_overMode) {
     drawUI();
   }
 
-  static uint8_t prevChargeVal = 255;
-  uint8_t currentChargeVal = ui->info.capaData.chargeVal;
+  uint32_t currentMillis = millis();
 
-  uint16_t color = ui->colSuccess;
-  if (currentChargeVal < 80) color = ui->colWarning;
-  if (currentChargeVal < 30) color = ui->colError;
+  // Motor test automatically stops after 3 seconds
+  if (isMotorTestOn && (currentMillis - motorTestStartTime > 3000)) {
+    isMotorTestOn = false;
+  }
 
-  uint16_t btnBg = ui->display.sprite->color565(248, 249, 250);
-  ui->display.sprite->setTextColor(color, btnBg);
-  ui->display.sprite->setTextDatum(MR_DATUM);
-  ui->display.sprite->setTextFont(4);
-  ui->display.sprite->setTextPadding(ui->display.sprite->textWidth("100%"));
+  uint16_t defaultBtnBg = ui->display.sprite->color565(248, 249, 250);
 
-  char chargeBuf[8];
-  sprintf(chargeBuf, "%3d%%", currentChargeVal);
-  String chargeStr = String(chargeBuf);
+  bool needsRedrawDribbler = false;
+  bool needsRedrawMotor = false;
+  bool needsRedrawKick = false;
+  bool needsRedrawChip = false;
 
-  ui->display.sprite->drawString(chargeStr, btnCharge->x + btnCharge->w - 12,
-                                 btnCharge->y + btnCharge->h / 2);
-  ui->display.sprite->setTextPadding(0);
+  uint16_t expectedDribblerBg = isDribblerOn ? ui->colPrimary : defaultBtnBg;
+  if (btnDribbler->bg != expectedDribblerBg) {
+    btnDribbler->bg = expectedDribblerBg;
+    btnDribbler->fg = isDribblerOn ? ui->colBg : ui->colFg;
+    needsRedrawDribbler = true;
+  }
 
-  if (currentChargeVal != prevChargeVal || ui->changeFlag_overMode) {
-    prevChargeVal = currentChargeVal;
+  uint16_t expectedMotorBg = isMotorTestOn ? ui->colPrimary : defaultBtnBg;
+  if (btnMotorTest->bg != expectedMotorBg) {
+    btnMotorTest->bg = expectedMotorBg;
+    btnMotorTest->fg = isMotorTestOn ? ui->colBg : ui->colFg;
+    needsRedrawMotor = true;
+  }
+
+  bool isKickOn = (currentMillis - kickTime <= 750) && kickTime > 0;
+  uint16_t expectedKickBg = isKickOn ? ui->colPrimary : defaultBtnBg;
+  if (btnKick->bg != expectedKickBg) {
+    btnKick->bg = expectedKickBg;
+    btnKick->fg = isKickOn ? ui->colBg : ui->colFg;
+    needsRedrawKick = true;
+  }
+
+  bool isChipOn = (currentMillis - chipKickTime <= 750) && chipKickTime > 0;
+  uint16_t expectedChipBg = isChipOn ? ui->colPrimary : defaultBtnBg;
+  if (btnChipKick->bg != expectedChipBg) {
+    btnChipKick->bg = expectedChipBg;
+    btnChipKick->fg = isChipOn ? ui->colBg : ui->colFg;
+    needsRedrawChip = true;
+  }
+
+  if (needsRedrawDribbler && !ui->changeFlag_overMode) btnDribbler->draw(false);
+  if (needsRedrawMotor && !ui->changeFlag_overMode) btnMotorTest->draw(false);
+  if (needsRedrawKick && !ui->changeFlag_overMode) btnKick->draw(false);
+  if (needsRedrawChip && !ui->changeFlag_overMode) btnChipKick->draw(false);
+
+  // いずれかのボタンが再描画された場合は画面を更新する
+  if ((needsRedrawDribbler || needsRedrawMotor || needsRedrawKick || needsRedrawChip) && !ui->changeFlag_overMode) {
     ui->display.publish(0, 0);
+  }
+
+  bool chargeStateChanged = (ui->info.capaData.chargeState != prevChargeState) || ui->changeFlag_overMode;
+  bool chargeValChanged = (ui->info.capaData.chargeVal != prevChargeVal) || ui->changeFlag_overMode;
+
+  if (chargeStateChanged) {
+    prevChargeState = ui->info.capaData.chargeState;
+    uint16_t defaultBtnBg = ui->display.sprite->color565(248, 249, 250);
+
+    if (prevChargeState) {
+      btnCharge->bg = ui->colError; // 充電中は赤色
+      btnCharge->fg = ui->colBg;    // 白文字
+      btnDischarge->bg = defaultBtnBg;
+      btnDischarge->fg = ui->colFg;
+    } else {
+      btnCharge->bg = defaultBtnBg;
+      btnCharge->fg = ui->colFg;
+      btnDischarge->bg = ui->colPrimary; // 放電中（非充電中）は青色
+      btnDischarge->fg = ui->colBg;      // 白文字
+    }
+
+    btnCharge->draw(false);
+    btnDischarge->draw(false);
+  }
+
+  if (chargeValChanged || chargeStateChanged) {
+    prevChargeVal = ui->info.capaData.chargeVal;
+    
+    // ボタンのテキストを動的に更新する
+    static char chargeBtnText[16];
+    snprintf(chargeBtnText, sizeof(chargeBtnText), "Chg %d%%", prevChargeVal);
+    btnCharge->text = chargeBtnText;
+
+    uint16_t color = ui->colSuccess;
+    if (prevChargeVal < 80)
+      color = ui->colWarning;
+    if (prevChargeVal < 30)
+      color = ui->colError;
+
+    // もしボタンの背景が赤(colError)の場合、%の色が見えづらくなる可能性があるので白にする
+    if (prevChargeState) {
+        color = ui->colBg; // 白
+    }
+    
+    btnCharge->fg = color;
+    btnCharge->draw(false);
+  }
+
+  if (chargeStateChanged || chargeValChanged) {
+      ui->display.publish(0, 0);
   }
 }
 
@@ -78,43 +165,69 @@ void TestMode::drawUI() {
 }
 
 void TestMode::determine() {
+  // 状態の更新(はなされた時に戻す処理)
+  btnDribbler->updateState();
+  btnKick->updateState();
+  btnChipKick->updateState();
+  btnMotorTest->updateState();
+  btnCharge->updateState();
+  btnDischarge->updateState();
+
   if (btnDribbler->determine()) {
-    ui->info.testCommand = 3;
-    ui->stmSendSerial(&ui->info);
-    ui->info.testCommand = 0;
-    media->setBuzzerType(playType::NOTIFY);
+    if (!ui->info.capaData.chargeState && !isDribblerOn) {
+      media->setBuzzerType(playType::ERROR);
+    } else {
+      isDribblerOn = !isDribblerOn;
+      ui->info.testCommand = 3; // CMD_DRIBBLER
+      ui->stmSendSerial(&ui->info);
+      ui->info.testCommand = 0;
+      media->setBuzzerType(playType::NOTIFY);
+    }
   }
-
   if (btnKick->determine()) {
-    ui->info.modeStatus.kick = 1;
-    ui->stmSendSerial(&ui->info);
-    ui->info.modeStatus.kick = 0;
-    media->setBuzzerType(playType::NOTIFY);
+    if (!ui->info.capaData.chargeState) {
+      media->setBuzzerType(playType::ERROR);
+    } else {
+      kickTime = millis();
+      ui->info.testCommand = 1; // CMD_KICK
+      ui->stmSendSerial(&ui->info);
+      ui->info.testCommand = 0;
+      media->setBuzzerType(playType::NOTIFY);
+    }
   }
-
   if (btnChipKick->determine()) {
-    ui->info.testCommand = 2;
-    ui->stmSendSerial(&ui->info);
-    ui->info.testCommand = 0;
-    media->setBuzzerType(playType::NOTIFY);
+    if (!ui->info.capaData.chargeState) {
+      media->setBuzzerType(playType::ERROR);
+    } else {
+      chipKickTime = millis();
+      ui->info.testCommand = 2; // CMD_CHIP_KICK
+      ui->stmSendSerial(&ui->info);
+      ui->info.testCommand = 0;
+      media->setBuzzerType(playType::NOTIFY);
+    }
   }
-
   if (btnMotorTest->determine()) {
-    ui->info.testCommand = 4;
-    ui->stmSendSerial(&ui->info);
-    ui->info.testCommand = 0;
-    media->setBuzzerType(playType::NOTIFY);
+    if (!ui->info.capaData.chargeState) {
+      media->setBuzzerType(playType::ERROR);
+    } else {
+      isMotorTestOn = true;
+      motorTestStartTime = millis();
+      ui->info.testCommand = 4; // CMD_MOTOR_TEST
+      ui->stmSendSerial(&ui->info);
+      ui->info.testCommand = 0;
+      media->setBuzzerType(playType::NOTIFY);
+    }
   }
-
   if (btnCharge->determine()) {
     ui->info.modeStatus.charge_state = 1;
     ui->stmSendSerial(&ui->info);
     ui->info.modeStatus.charge_state = 0;
     media->setBuzzerType(playType::NOTIFY);
   }
-
   if (btnDischarge->determine()) {
-    ui->info.testCommand = 5;
+    isDribblerOn = false;
+    isMotorTestOn = false;
+    ui->info.testCommand = 5; // CMD_DISCHARGE
     ui->stmSendSerial(&ui->info);
     ui->info.testCommand = 0;
     media->setBuzzerType(playType::NOTIFY);

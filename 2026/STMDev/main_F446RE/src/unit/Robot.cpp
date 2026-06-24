@@ -66,26 +66,29 @@ void Robot::rasRecvSerial(RobotInfo_t &info) {
 
                         if (index == dataSize) {
                               // データ受信完了
-                              info.velX.L = data[0];
-                              info.velX.H = data[1];
-                              info.velY.L = data[2];
-                              info.velY.H = data[3];
-                              info.velAngler.L = data[4];
-                              info.velAngler.H = data[5];
-                              info.dribblePower = data[6];
-                              info.kicker.straight = data[7];
-                              info.kicker.chip = data[8];
+                              // ラズパイ起動時などのシリアルノイズ（0xFFの連続など）による誤作動を防ぐフィルタ
+                              if (data[6] <= 100 && data[17] != 0xFF) {
+                                    info.velX.L = data[0];
+                                    info.velX.H = data[1];
+                                    info.velY.L = data[2];
+                                    info.velY.H = data[3];
+                                    info.velAngler.L = data[4];
+                                    info.velAngler.H = data[5];
+                                    info.dribblePower = data[6];
+                                    info.kicker.straight = data[7];
+                                    info.kicker.chip = data[8];
 
-                              info.relativePositionX.L = data[9];
-                              info.relativePositionX.H = data[10];
-                              info.relativePositionY.L = data[11];
-                              info.relativePositionY.H = data[12];
-                              info.relativeTheta.L = data[13];
-                              info.relativeTheta.H = data[14];
-                              info.camera.x = data[15];
-                              info.camera.y = data[16];
+                                    info.relativePositionX.L = data[9];
+                                    info.relativePositionX.H = data[10];
+                                    info.relativePositionY.L = data[11];
+                                    info.relativePositionY.H = data[12];
+                                    info.relativeTheta.L = data[13];
+                                    info.relativeTheta.H = data[14];
+                                    info.camera.x = data[15];
+                                    info.camera.y = data[16];
 
-                              info.status.data = data[17];
+                                    info.status.data = data[17];
+                              }
 
                               headerReceived = false;  // 次のヘッダを待つ準備をする
                               index = 0;               // インデックスをリセット
@@ -202,7 +205,7 @@ void Robot::checkRobotRest(RobotInfo_t &info) {
 void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
       // UIにデータを送信する
       static const uint8_t HEADER = 0xFF;  // ヘッダ
-      static const uint8_t dataSize = 21;  // データのサイズ
+      static const uint8_t dataSize = 21;  // 拡張されたデータのサイズ
       static Timer timer;
 
       if (timer.read_ms() < interval) {
@@ -233,6 +236,14 @@ void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
       // Motor status (all OK for now)
       buffer[20] = 0x0F; 
 
+      // UI基板(XIAO)の受信バグ回避: ペイロード内にHEADER(0xFF)と同じ値が含まれると受信がずれてブザーが鳴りっぱなしになる等の不具合が起きるため、
+      // 0xFFが含まれていた場合は0xFEに置換する。UI表示用データなので1bitの誤差は問題ない。
+      for (int i = 0; i < dataSize; i++) {
+            if (buffer[i] == HEADER) {
+                  buffer[i] = 0xFE;
+            }
+      }
+
       serial4.write(HEADER);
       serial4.write(buffer, dataSize);
 
@@ -240,12 +251,12 @@ void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
 }
 
 void Robot::uiRecvSerial(RobotInfo_t &info) {
-      // UIからデータを受信する
-      static const uint8_t HEADER = 0xFF;  // ヘッダ
-      static const uint8_t dataSize = 2;   // データのサイズ
-      static bool headerReceived = false;  // ヘッダを受信したかどうか
-      static uint8_t index = 0;            // 受信したデータのインデックスカウンター
-      static uint8_t data[dataSize] = {0}; // 受信したデータ
+      // UIにデータを送信する
+      static const uint8_t HEADER = 0xFF;   // ヘッダ
+      static const uint8_t dataSize = 2;    // データのサイズ
+      static bool headerReceived = false;   // ヘッダを受信したかどうか
+      static uint8_t index = 0;             // 受信したデータのインデックスカウンター
+      static uint8_t data[dataSize] = {0};  // 受信したデータ
 
       while (serial4.available()) {
             uint8_t receivedByte = serial4.read();

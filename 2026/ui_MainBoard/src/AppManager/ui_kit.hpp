@@ -17,7 +17,7 @@ typedef struct {
   float batteryVoltage;
   union {
     struct {
-      bool chargeState : 1;  // stmから送られてくる充電状態
+      uint8_t chargeState : 1;  // stmから送られてくる充電状態
       uint8_t chargeVal : 7; // capChargeCertitude
     };
     uint8_t data;
@@ -41,8 +41,8 @@ typedef struct {
     };
     uint8_t data;
   } modeStatus;
+  uint8_t testCommand = 0; // 新規追加: テストコマンド
   uint8_t modePrev = 0;
-  uint8_t testCommand = 0;
 
 } RobotInfo_t;
 
