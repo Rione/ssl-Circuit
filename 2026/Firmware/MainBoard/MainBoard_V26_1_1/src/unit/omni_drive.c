@@ -24,7 +24,7 @@ void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel
 
     // タイヤの角速度[rad/s]に変換
     float v_wheel_angular = v_wheel_linear / ROBOT_WHEEL_RADIUS;
-    m[i] = (int16_t)v_wheel_angular * 100;
+    m[i] = (int16_t)(v_wheel_angular * 100);
   }
 
   OmniDrive_Send(self, m, 1);  // command: 1 (Drive)
@@ -57,25 +57,32 @@ void OmniDrive_Recv(OmniDrive* self) {
   static uint8_t index[4] = {0};
 
   for (int i = 0; i < 4; i++) {
-    if (!Serial_Available(self->serials[i])) continue;
+    if (Serial_Available(self->serials[i])) {
+      uint8_t recv_byte = Serial_Read(self->serials[i]);
 
-    uint8_t recv_byte = Serial_Read(self->serials[i]);
+      if (index[i] == 0) {
+        if (recv_byte == 0xFF) {
+          index[i]++;
+        } else {
+          index[i] = 0;
+        }
+      } else if (index[i] == 4) {
+        if (recv_byte == 0xAA) {
+          self->emg = recv_data[i][0] & 0x01;
+          self->ready = (recv_data[i][0] >> 1) & 0x01;
+          self->vel_wheel_angular[i] =
+              (int16_t)((recv_data[i][1] << 8) | recv_data[i][2]) * 0.01;
 
-    if (index[i] == 0) {
-      if (recv_byte == 0xFF) {
+          if (i == 0) {
+            printf("OmniDrive_Recv: emg=%d, ready=%d, vel_wheel_angular[0]=%f\n",
+                   self->emg, self->ready, self->vel_wheel_angular[0]);
+          }
+        }
+        index[i] = 0;
+      } else {
+        recv_data[i][index[i] - 1] = recv_byte;
         index[i]++;
       }
-    } else if (index[i] == 4) {
-      if (recv_byte == 0xAA) {
-        self->emg = recv_data[i][0] & 0x01;
-        self->ready = (recv_data[i][0] >> 1) & 0x01;
-        self->vel_wheel_angular[i] =
-            (int16_t)((recv_data[i][1] << 8) | recv_data[i][2]);
-      }
-      index[i] = 0;
-    } else {
-      recv_data[i][index[i] - 1] = recv_byte;
-      index[i]++;
     }
   }
 }

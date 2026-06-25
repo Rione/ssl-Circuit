@@ -132,9 +132,9 @@ void Robot_UpdateSensor(Robot* self) {
 static void Robot_RockBuildTxPacket(RobotInfo* info) {
   (void)info;
 
-  rock_spi_tx_packet[0] = 100;
-  rock_spi_tx_packet[1] = 120;
-  rock_spi_tx_packet[2] = 130;
+  rock_spi_tx_packet[0] = info->battery_voltage * 10;
+  rock_spi_tx_packet[1] = info->dribble_status.data;
+  rock_spi_tx_packet[2] = info->kicker_status.cap_val;
   rock_spi_tx_packet[3] = 140;
 
   for (uint16_t i = 4; i < ROCK_SPI_RX_PACKET_SIZE; i++) {

@@ -15,7 +15,7 @@ typedef struct {
 
 typedef struct {
   Serial *serials[4];
-  int16_t vel_wheel_angular[4];
+  float vel_wheel_angular[4];
   uint8_t emg;
   uint8_t ready;
 } OmniDrive;
