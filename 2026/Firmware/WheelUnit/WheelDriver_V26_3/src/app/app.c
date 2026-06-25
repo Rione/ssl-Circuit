@@ -83,9 +83,8 @@ static void RecvSerial() {
   static uint8_t recv_buf[9];
   static uint8_t index = 0;
 
-  if (Serial_Available(&uart2)) {
+  while (Serial_Available(&uart2)) {
     uint8_t recv_byte = Serial_Read(&uart2);
-    printf("[UART2] recv_byte=0x%02X index=%u\n", recv_byte, index);
 
     if (index == 0) {
       if (recv_byte == HEADER) {
@@ -113,7 +112,8 @@ static void RecvSerial() {
       recv_buf[index - 1] = recv_byte;
       index++;
     }
-  } else if (Timer_Read(&serial_recv_timer) > 0.5f) {
+  }
+  if (Timer_Read(&serial_recv_timer) > 1.0f) {
     DigitalOut_Write(&led1, 0);
     mode = 0;
     Serial_Reset(&uart2);
@@ -201,7 +201,7 @@ static bool UpdateGateDriver() {
   if (!ready || !power_ok) {
     if (not_ready_since_ms == 0) {
       not_ready_since_ms = HAL_GetTick();
-    } else if (HAL_GetTick() - not_ready_since_ms > 50) {
+    } else if (HAL_GetTick() - not_ready_since_ms > 100) {
       configured = false;
     }
     return false;
@@ -209,8 +209,8 @@ static bool UpdateGateDriver() {
   not_ready_since_ms = 0;
 
   if (!configured) {
-    // 電源が揃った直後の設定(連続実行を防ぐため200ms間隔)
-    if (HAL_GetTick() - last_action_ms > 200) {
+    // 電源が揃った直後の設定(連続実行を防ぐため500ms間隔)
+    if (HAL_GetTick() - last_action_ms > 500) {
       HAL_Delay(20);  // 電源安定待ち
 
       // ★ブートストラップ・コンデンサ充電★
@@ -270,17 +270,21 @@ void MainApp() {
     } else if (!driver_ready) {
       // ゲートドライバ準備完了前は駆動しない(積分項も積み上げない)
       BLDC_Stop();
+      DigitalOut_Write(&led2, 1);
     } else {
+      DigitalOut_Write(&led2, 0);
       if (mode == 0) {
-        // BLDC_Stop();
+        BLDC_Stop();
       } else if (mode == 1) {
         BLDC_AngularSpeedControl(target_angular_speed);
         PwmOut_Write(&ledr, Abs(BLDC_GetAmpVolt() * 0.1));
       }
+      BLDC_SensoredVectorControlDrive(encoder_val, supply_volt);
     }
-    BLDC_AngularSpeedControl(10);
-    BLDC_SensoredVectorControlDrive(encoder_val, supply_volt);
+
+    DigitalOut_Write(&led3, 1);
     while (Timer_ReadUs(&control_timer) < CONTROL_INTERVAL_US);
+    DigitalOut_Write(&led3, 0);
     Timer_Reset(&control_timer);
   }
 }
