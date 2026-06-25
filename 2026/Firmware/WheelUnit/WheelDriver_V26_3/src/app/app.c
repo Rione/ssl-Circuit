@@ -33,6 +33,39 @@ Timer serial_send_timer;
 Timer serial_recv_timer;
 Timer control_timer;
 
+// --- UART2受信ロックアップ調査用デバッグ計測 ---
+static volatile uint32_t uart2_err_count = 0;
+static volatile uint32_t uart2_last_error_code = 0;
+
+// USART2でORE等の受信エラーが発生した場合、DMA異常停止からの復帰を待たずに即座に受信を再開する。
+void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
+  if (huart->Instance == USART2) {
+    uart2_last_error_code = huart->ErrorCode;
+    uart2_err_count++;
+    Serial_Reset(&uart2);
+  }
+}
+
+// 受信が止まっている間の状態を定期的に出力し、ロックアップの原因(ORE等のエラー発生有無、
+// DMA転送カウンタが本当に止まっているか)を切り分けるための調査用関数。
+static void DebugUart2Status() {
+  static uint32_t last_print_ms = 0;
+  if (HAL_GetTick() - last_print_ms < 1000) {
+    return;
+  }
+  last_print_ms = HAL_GetTick();
+
+  uint16_t dma_counter = __HAL_DMA_GET_COUNTER(huart2.hdmarx);
+  uint16_t rx_top = uart2.rxBufSize - dma_counter;
+
+  printf(
+      "[UART2 DBG] err_cnt=%lu last_err=0x%02lX dma_cnt=%u rxTop=%u rxBtm=%u "
+      "RxState=%lu gState=%lu CR1=0x%08lX CR3=0x%08lX ISR=0x%08lX\n",
+      uart2_err_count, uart2_last_error_code, dma_counter, rx_top, uart2.rxBtm,
+      (uint32_t)huart2.RxState, (uint32_t)huart2.gState, huart2.Instance->CR1,
+      huart2.Instance->CR3, huart2.Instance->ISR);
+}
+
 static void GetSensors() {
   encoder_val = adc_val[0];
   supply_volt_val = adc_val[1];
@@ -52,6 +85,7 @@ static void RecvSerial() {
 
   if (Serial_Available(&uart2)) {
     uint8_t recv_byte = Serial_Read(&uart2);
+    printf("[UART2] recv_byte=0x%02X index=%u\n", recv_byte, index);
 
     if (index == 0) {
       if (recv_byte == HEADER) {
@@ -153,16 +187,26 @@ void Setup() {
 static bool UpdateGateDriver() {
   static bool configured = false;
   static uint32_t last_action_ms = 0;
+  static uint32_t not_ready_since_ms = 0;
 
   bool ready = STSPIN32G4_IsReady();
   bool fault = STSPIN32G4_IsFault();
   bool power_ok = (supply_volt > SUPPLY_VOLTAGE_MIN_LIMIT && supply_volt < SUPPLY_VOLTAGE_MAX_LIMIT);
 
-  // 電源が落ちた/電圧異常 → 未設定状態に戻し、次に電源が揃ったら再設定
+  // 電源が落ちた/電圧異常 → 未設定状態に戻し、次に電源が揃ったら再設定。
+  // ただしSTSPIN32G4_Configure()内のリセットコマンド直後はREADYピンが
+  // 一瞬だけ不安定になることがあるため、即座に未設定状態へ戻すと
+  // 「再設定→READYが乱れる→再設定」の無限ループに陥る。
+  // 50ms以上continuously not-readyが続いた場合のみ未設定状態に戻す。
   if (!ready || !power_ok) {
-    configured = false;
+    if (not_ready_since_ms == 0) {
+      not_ready_since_ms = HAL_GetTick();
+    } else if (HAL_GetTick() - not_ready_since_ms > 50) {
+      configured = false;
+    }
     return false;
   }
+  not_ready_since_ms = 0;
 
   if (!configured) {
     // 電源が揃った直後の設定(連続実行を防ぐため200ms間隔)
@@ -204,8 +248,10 @@ static bool UpdateGateDriver() {
 void MainApp() {
   while (1) {
     GetSensors();
+    DebugUart2Status();
     bool driver_ready = UpdateGateDriver();
     SendSerial();
+    RecvSerial();
 
     if (supply_volt > SUPPLY_VOLTAGE_MAX_LIMIT || supply_volt < SUPPLY_VOLTAGE_MIN_LIMIT || is_voltage_out_of_range) {
       printf("Supply voltage out of range: %.2fV\n", supply_volt);
@@ -225,14 +271,14 @@ void MainApp() {
       // ゲートドライバ準備完了前は駆動しない(積分項も積み上げない)
       BLDC_Stop();
     } else {
-      RecvSerial();
       if (mode == 0) {
-        BLDC_Stop();
+        // BLDC_Stop();
       } else if (mode == 1) {
         BLDC_AngularSpeedControl(target_angular_speed);
         PwmOut_Write(&ledr, Abs(BLDC_GetAmpVolt() * 0.1));
       }
     }
+    BLDC_AngularSpeedControl(10);
     BLDC_SensoredVectorControlDrive(encoder_val, supply_volt);
     while (Timer_ReadUs(&control_timer) < CONTROL_INTERVAL_US);
     Timer_Reset(&control_timer);
