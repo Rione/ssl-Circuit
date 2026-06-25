@@ -1,4 +1,5 @@
 #include "ui_kit.hpp"
+#include "UI/image/new_image.h"
 
 void UiKit::init() {
     touch.begin();
@@ -9,20 +10,30 @@ void UiKit::init() {
     Serial1.setRX(29);
     Serial1.begin(115200);
 
-    // 起動画面の出力
-    display.setBackgroundImage(rione);
+    // スプラッシュ（起動）画面の出力
+    display.sprite->fillScreen(colBg);
+    
+    // new_image_array is 697x223. Scale or center it.
+    // For now, center it. It's wider than 320, so x will be negative.
+    display.sprite->pushImage((320 - 697) / 2, (240 - 223) / 2, 697, 223, new_image_array);
+    
+    display.publish();
 
-    // 初期モードの選択
+    // 初期モードの選択 (0: Sensor, 1: Test)
     info.modeStatus.mode = 0;
     info.modePrev = 0;
 
-    while (millis() < 3000) {
+    // スプラッシュ画面を2秒間表示しながら通信待機
+    uint32_t startTime = millis();
+    while (millis() - startTime < 2000) {
         stmRecvSerial(&info, &infoPrev);
     }
 
-    // tab部分の出力
-    display.setParttImage(0, 0, 320, 30, infoTabImg);
-    infoTab(true); // 初回は強制的に更新
+    // 初期UI(サイドバー、トップバー)の描画
+    display.sprite->fillScreen(colBg);
+    display.publish(); // 全画面クリア
+
+    infoTab(true); // トップバー・サイドバーの初回更新
 }
 
 void UiKit::touchUpdate() {
@@ -47,41 +58,50 @@ void UiKit::touchUpdate() {
 
 }
 
-void UiKit::homeScreenGesture() {
-    static bool flag = false;
-    static uint32_t timeWhenFlagged = 0;
+void UiKit::sidebarTouchUpdate() {
+    static bool isTouchedPrev = false;
 
-    if (touch.isTouched) {
-        if (touch.point.y < 60 && !touch.isTouchedPrev && !flag) {
-            // Serial.println("flagged");
-            flag = true;
-            timeWhenFlagged = millis();
-        }else if (flag && (millis() - timeWhenFlagged) > 400) {
-            if (millis() - timeWhenFlagged < 600) {
-                media.setBuzzerType(playType::NOTIFY);
-            } else {
-                media.setBuzzerType(playType::SUCCESS);
-                flag = false;
-                homeFlag = !homeFlag;
-                changeFlag_overMode = true;
-                // Serial.println("homeFlag");
+    if (touch.isTouched && !isTouchedPrev) {
+        // Touch is within the sidebar (X < 72)
+        if (touch.point.x < 72) {
+            // Sensor Tab (Y: 40-64)
+            if (touch.point.y >= 40 && touch.point.y <= 64) {
+                if (info.modeStatus.mode != 0) {
+                    info.modeStatus.mode = 0;
+                    changeFlag_overMode = true;
+                    media.setBuzzerType(playType::NOTIFY);
+                }
+            }
+            // Test Tab (Y: 68-92)
+            else if (touch.point.y >= 68 && touch.point.y <= 92) {
+                if (info.modeStatus.mode != 1) {
+                    info.modeStatus.mode = 1;
+                    changeFlag_overMode = true;
+                    media.setBuzzerType(playType::NOTIFY);
+                }
+            }
+            // E-Stop (Y: 96-120)
+            else if (touch.point.y >= 96 && touch.point.y <= 120) {
+                info.modeStatus.emergencyStop = 1;
+                stmSendSerial(&info);
+                info.modeStatus.emergencyStop = 0;
+                media.setBuzzerType(playType::SUCCESS); // or alarm
+                // Flash background or something
             }
         }
-    } else {
-        flag = false;
     }
+    isTouchedPrev = touch.isTouched;
 }
 
 void UiKit::stmRecvSerial(RobotInfo_t *info, RobotInfo_t *infoPrev) {
     static const uint8_t HEADER = 0xFF;  // ヘッダ
-    static const uint8_t dataSize = 3;   // データのサイズ
+    static const uint8_t dataSize = 21;  // 拡張されたデータサイズ
     static bool headerReceived = false;  // ヘッダを受信したかどうか
     static uint8_t index = 0;            // 受信したデータのインデックスカウンター
     static uint8_t data[dataSize] = {0}; // 受信したデータ
 
     while (Serial1.available()) {
         uint8_t recvData = Serial1.read();
-        // Serial.write(recvData); // シリアルデバッグ用
 
         if (!headerReceived) {
             index = 0;
@@ -94,12 +114,26 @@ void UiKit::stmRecvSerial(RobotInfo_t *info, RobotInfo_t *infoPrev) {
                 headerReceived = false;
                 index = 0;
                 
-                infoPrev->batteryVoltage = info->batteryVoltage; // 前回の電圧を保存
-                infoPrev->capaData.data = info->capaData.data; // 前回のデータを保存
+                infoPrev->batteryVoltage = info->batteryVoltage;
+                infoPrev->capaData.data = info->capaData.data;
 
                 info->batteryVoltage = (float)data[0] / 10.0;
                 info->capaData.data = data[1];
                 info->buzzerState = data[2];
+                info->ballSensor = data[3] > 0;
+                
+                // モーター速度 (4バイトx4)
+                memcpy(&info->motor[0].velocity, &data[4], 4);
+                memcpy(&info->motor[1].velocity, &data[8], 4);
+                memcpy(&info->motor[2].velocity, &data[12], 4);
+                memcpy(&info->motor[3].velocity, &data[16], 4);
+                
+                // モーターステータス (1バイトビットマスク)
+                uint8_t mStatus = data[20];
+                info->motor[0].statusOk = (mStatus & 0x01) != 0;
+                info->motor[1].statusOk = (mStatus & 0x02) != 0;
+                info->motor[2].statusOk = (mStatus & 0x04) != 0;
+                info->motor[3].statusOk = (mStatus & 0x08) != 0;
             }
         }
     }
@@ -114,58 +148,80 @@ void UiKit::stmSendSerial(RobotInfo_t *info) {
 }
 
 void UiKit::infoTab(bool forceUpdate) {
-    sprite.setTextColor(TFT_BLACK, tabBack);
-    sprite.loadFont(regular15);
+    // 1. トップバー (Top Bar) の描画 (バッテリー等)
     static uint32_t timeUpdate = 0;
-
-    // 電圧は１秒に１回のみ出力
     if (millis() - timeUpdate > 1000 && info.batteryVoltage != infoPrev.batteryVoltage || forceUpdate) {
         timeUpdate = millis();
+        display.sprite->fillRect(72, 0, 248, 28, colBg);
+        display.sprite->drawFastHLine(72, 27, 248, colBorder);
+        
+        display.sprite->setTextColor(colFg, colBg);
+        // display.sprite->loadFont(bold20); // フォントは適宜
+        display.sprite->setTextDatum(ML_DATUM);
+        
+        // バッテリー% (仮計算: 16V=100%, 14V=0%)
+        int batPct = (info.batteryVoltage - 14.0) * 50;
+        if(batPct < 0) batPct = 0;
+        if(batPct > 100) batPct = 100;
 
-        // 電圧の情報出力
-        display.createSprite(36, 15);
-        sprite.fillScreen(tabBack);
-        sprite.setCursor(0, 0);
-        sprite.print(info.batteryVoltage);
-        display.publish(281, 8);
+        // 87% (Bold / 大きい文字)
+        display.sprite->setTextFont(4); // 26px font
+        display.sprite->setTextColor(colFg, colBg);
+        String batText = String(batPct) + "%";
+        display.sprite->drawString(batText, 80, 14);
+        int percentWidth = display.sprite->textWidth(batText);
 
-        if (info.batteryVoltage < 14.5) {
-            display.setParttImage(262, 7, 16, 16, redCircleImg);
-        } else if (info.batteryVoltage < 16.0) {
-            display.setParttImage(262, 7, 16, 16, yellowCircleImg);
-        } else {
-            display.setParttImage(262, 7, 16, 16, greenCircleImg);
+        // 16.18V (Muted / 小さい文字)
+        display.sprite->setTextFont(2); // 16px font
+        display.sprite->setTextColor(colTextMuted, colBg);
+        String volText = String(info.batteryVoltage, 2) + "V";
+        display.sprite->drawString(volText, 80 + percentWidth + 6, 14);
+        int volWidth = display.sprite->textWidth(volText);
+
+        // プログレスバー (色可変, 角丸)
+        uint16_t barCol = colSuccess; // デフォルトは緑(50%超)
+        if (batPct <= 20) {
+            barCol = colError;   // 20%以下: 赤
+        } else if (batPct <= 50) {
+            barCol = colWarning; // 20〜50%: 黄
         }
+
+        int barX = 80 + percentWidth + 6 + volWidth + 12;
+        int barW = 310 - barX;
+        display.sprite->fillRoundRect(barX, 10, barW, 8, 4, colMuted);
+        display.sprite->fillRoundRect(barX, 10, barW * batPct / 100, 8, 4, barCol);
+        
+        display.publish(72, 0, 248, 28);
     }
 
-    if(info.capaData.data != infoPrev.capaData.data || forceUpdate) {
-        // コンデンサの情報出力
-        display.createSprite(36, 15);
-        sprite.fillScreen(tabBack);
-        sprite.setCursor(0, 0);
-        sprite.print(info.capaData.chargeVal);
-        display.publish(191, 8);
+    // 2. サイドバー (Sidebar) の描画
+    if (changeFlag_overMode || forceUpdate) {
+        display.sprite->fillRect(0, 0, 72, 240, colSidebar);
+        display.sprite->drawFastVLine(71, 0, 240, colBorder);
+        display.sprite->drawFastHLine(0, 36, 72, colBorder);
+        
+        display.sprite->setTextDatum(MC_DATUM);
+        display.sprite->setTextColor(colFg, colSidebar);
+        display.sprite->drawString("LOGO", 36, 18); // あとで画像に置換
+        
+        // Sensor Tab
+        if (info.modeStatus.mode == 0) display.sprite->fillRect(4, 40, 64, 24, colPrimary);
+        display.sprite->setTextColor(info.modeStatus.mode == 0 ? colBg : colFg);
+        display.sprite->drawString("Sensor", 36, 52);
+        
+        // Test Tab
+        if (info.modeStatus.mode == 1) display.sprite->fillRect(4, 68, 64, 24, colPrimary);
+        display.sprite->setTextColor(info.modeStatus.mode == 1 ? colBg : colFg);
+        display.sprite->drawString("Test", 36, 80);
+        
+        // E-Stop (緊急停止)
+        display.sprite->fillRect(4, 96, 64, 24, colMuted);
+        display.sprite->drawRect(4, 96, 64, 24, colError);
+        display.sprite->setTextColor(colError);
+        display.sprite->drawString("E-Stop", 36, 108);
 
-        if (info.capaData.chargeState == 0) {
-            display.setParttImage(172, 7, 16, 16, greenCircleImg);
-        } else if (info.capaData.chargeState == 1) {
-            display.setParttImage(172, 7, 16, 16, yellowCircleImg);
-        }
+        display.publish(0, 0, 72, 240);
     }
 
-    // modeの出力
-    if(changeFlag_overMode || forceUpdate){
-        switch (info.modeStatus.mode) {
-        case 0: // main
-            display.setParttImage(12, 8, 80, 13, Tab_mainImg);
-            break;
-        case 1: // kick
-            display.setParttImage(12, 8, 80, 13, Tab_kickImg);
-            break;
-        default:
-            break;
-        }
-    }
-
-    if(!forceUpdate) changeFlag_overMode = false;  //初回のみtrueのまま
+    if(!forceUpdate) changeFlag_overMode = false;
 }

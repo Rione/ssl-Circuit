@@ -4,20 +4,20 @@
 UiKit ui;
 MediaExecutor media;
 
-#include "Mode/mainMode.hpp"
-#include "Mode/home.hpp"
-MainMode mainMode('M', "Main", &ui, &media);
-Home home('H', "Home", &ui, &media);
+#include "Mode/sensorMode.hpp"
+#include "Mode/testMode.hpp"
 
-Mode *modes[] = {&mainMode};
-Mode *currentMode; // 初期モードをmainModeに設定
+SensorMode sensorMode('S', "Sensor", &ui, &media);
+TestMode testMode('T', "Test", &ui, &media);
+
+Mode *modes[] = {&sensorMode, &testMode};
+Mode *currentMode; // 初期モードをsensorModeに設定
 
 void modeSwitch() {
     if (ui.changeFlag_overMode) {
         Serial.println("modeSwitch");
-        if (ui.homeFlag) {
-            currentMode = &home;
-        } else {
+        // モード番号に従って切り替え (0: Sensor, 1: Test)
+        if (ui.info.modeStatus.mode < 2) {
             currentMode = modes[ui.info.modeStatus.mode];
             ui.info.modePrev = ui.info.modeStatus.mode;
         }
@@ -41,7 +41,7 @@ void loop() {
     ui.touchUpdate();
 
     currentMode->determine();
-    ui.homeScreenGesture();
+    ui.sidebarTouchUpdate();
 
     modeSwitch();
     currentMode->displaySet();
