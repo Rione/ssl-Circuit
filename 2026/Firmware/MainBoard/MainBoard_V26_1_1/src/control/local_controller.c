@@ -8,7 +8,8 @@ void LocalController_Init(LocalController* self) {
 
 void LocalController_Stop(LocalController* self, Robot* robot) {
   (void)self;
-  OmniDrive_SetFree(&robot->omni_drive);
+  // OmniDrive_SetFree(&robot->omni_drive);
+  OmniDrive_SetVel(&robot->omni_drive, 100, 0, 0);
 
   Kicker_CancelDirect(&robot->kicker, KICKER_STRAIGHT);
   Kicker_CancelDirect(&robot->kicker, KICKER_CHIP);
