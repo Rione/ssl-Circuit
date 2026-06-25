@@ -181,7 +181,12 @@ void Robot_UpdateFromUi(Robot* self) {
     }
   }
 
-  UI_Send(&self->ui, self);
+  static uint16_t send_count = 0;
+  send_count++;
+  if (send_count >= 100) { // 100msに1回送信 (1秒間に10回)
+    UI_Send(&self->ui, self);
+    send_count = 0;
+  }
 }
 
 void Robot_SendDribble(Robot* self, uint8_t power, uint8_t force_send) {
