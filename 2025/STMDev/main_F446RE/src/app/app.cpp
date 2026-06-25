@@ -55,16 +55,20 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
                         robot.info.photoSensorValue = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;
                         break;
                   case MD0_RECV:
-                        robot.info.mdStatus.motorAngularVelocity[0] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+                        robot.info.mdStatus.motorAngularVelocity[0] =
+                            (int16_t)(canRecvData.data[0] | (canRecvData.data[1] << 8));
                         break;
                   case MD1_RECV:
-                        robot.info.mdStatus.motorAngularVelocity[1] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+                        robot.info.mdStatus.motorAngularVelocity[1] =
+                            (int16_t)(canRecvData.data[0] | (canRecvData.data[1] << 8));
                         break;
                   case MD2_RECV:
-                        robot.info.mdStatus.motorAngularVelocity[2] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+                        robot.info.mdStatus.motorAngularVelocity[2] =
+                            (int16_t)(canRecvData.data[0] | (canRecvData.data[1] << 8));
                         break;
                   case MD3_RECV:
-                        robot.info.mdStatus.motorAngularVelocity[3] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+                        robot.info.mdStatus.motorAngularVelocity[3] =
+                            (int16_t)(canRecvData.data[0] | (canRecvData.data[1] << 8));
                         break;
                   default:
                         break;

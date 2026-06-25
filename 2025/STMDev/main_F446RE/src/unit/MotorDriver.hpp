@@ -9,6 +9,9 @@
 // vel [m/s]
 // angler [rad/s]
 #define GEAR_RATIO (56.0 / 15.0)                                                                // gear ratio 56：15
+#define INV_GEAR_RATIO (15.0 / 56.0)                                                            // motor → wheel
+#define WHEEL_OMEGA_SCALE_MIN (-32100)
+#define WHEEL_OMEGA_SCALE_MAX (32000)
 #define WHEEL_DIAMETER 54                                                                       // wheel diameter 54mm
 #define WHEEL_BASE_DIAMETER 170                                                                 // robot wheel base diameter
 #define ROBOT_SPIN_TO_MOTOR_ROTATE_RATIO ((WHEEL_BASE_DIAMETER / WHEEL_DIAMETER) * GEAR_RATIO)  // robot spins → wheelRotate → motorRotate
@@ -25,6 +28,8 @@ class MotorDriver {
       void setMotors(int16_t M0, int16_t M1, int16_t M2, int16_t M3);
 
       void getVelocity(int16_t *velX, int16_t *velY, int16_t *motorAngulerVelocity);
+
+      static int16_t motorToWheelScaled(int16_t motor_omega);
 
       void sendEmg();
       // void setVelocity(int16_t velX, int16_t velY, float velAng);
