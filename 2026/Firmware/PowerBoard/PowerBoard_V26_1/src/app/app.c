@@ -100,7 +100,10 @@ void MainApp() {
       CanData can_send_data = {
           .stdId = 0x50,
           .data = {
-              Kicker_DoneCheck()},
+              Kicker_DoneCheck(),
+              GetSupplyVoltage() * 5,   // 電源電圧 [V] * 10
+              GetBoostVoltage() * 0.5,  // 昇圧電圧 [V]
+          },
       };
       Can_Send(&can_bus, &can_send_data);
       Timer_Reset(&can_trasmit_interval_timer);

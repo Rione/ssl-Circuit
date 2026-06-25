@@ -13,8 +13,9 @@ DigitalIn lt_done;
 DigitalOut lt_charge;
 DigitalOut lt_discharge;
 
-Timer kick_timer;          // キックパルスの経過時間計測用
-volatile bool is_kicking;  // キックパルス出力中フラグ
+Timer kick_timer;              // キックパルスの経過時間計測用
+volatile bool is_kicking;      // キックパルス出力中フラグ
+volatile bool is_discharging;  // 放電中フラグ
 
 float boost_voltage;  // 最新の昇圧電圧 [V](app側からSetで更新)
 
@@ -30,6 +31,7 @@ void Kicker_Init() {
 
   Timer_Init(&kick_timer);
   is_kicking = false;
+  is_discharging = false;
 }
 
 // ISRから呼ばれる。待たずにパルスを開始するだけ。
@@ -39,6 +41,7 @@ void Kicker_Kick(int kickType, float power) {
 
   DigitalOut_Write(&lt_charge, 0);
   DigitalOut_Write(&lt_discharge, 0);
+  is_discharging = false;
 
   // 強さはPWMのデューティ(power)で制御する。電流制限のため上限でクランプ。
   float duty = (power > KICK_MAX_DUTY) ? KICK_MAX_DUTY : power;
@@ -60,17 +63,28 @@ void Kicker_Kick(int kickType, float power) {
 // メインループから毎周期呼ぶ。規定時間が経過したらキック出力をOFFにする。
 void Kicker_Update() {
   if (is_kicking && Timer_ReadMs(&kick_timer) >= KICK_TIME_MS) {
-    PwmOut_Write(&kick1, 0);  // キック後は必ずOFFに戻す
-    PwmOut_Write(&kick2, 0);
     is_kicking = false;
 
     Kicker_Charge();  // キック後は自動で再チャージを開始
+  }
+  if (is_kicking == false) {
+    if (is_discharging) {
+      PwmOut_Write(&kick1, 0.025f);  // 放電中は継続して出力し続ける
+      PwmOut_Write(&kick2, 0);
+    } else {
+      PwmOut_Write(&kick1, 0);
+      PwmOut_Write(&kick2, 0);
+    }
+  } else {
+    PwmOut_Write(&kick1, 0);  // キック後は必ずOFFに戻す
+    PwmOut_Write(&kick2, 0);
   }
 }
 
 void Kicker_Charge() {
   printf("Charge\n");
   DigitalOut_Write(&lt_discharge, 0);
+  is_discharging = false;
 
   // CHARGEを一度確実にLowにしてからHighにし、Low->Highのトグルで
   // LT3751のラッチ(DONE/FAULT)を解除して新しい充電サイクルを開始する。
@@ -81,7 +95,7 @@ void Kicker_Charge() {
 
 void Kicker_Discharge() {
   printf("Discharge\n");
-  PwmOut_Write(&kick1, 0.01f);
+  is_discharging = true;
   DigitalOut_Write(&lt_charge, 0);
   DigitalOut_Write(&lt_discharge, 1);
 }
