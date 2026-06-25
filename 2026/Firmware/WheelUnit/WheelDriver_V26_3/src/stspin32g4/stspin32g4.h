@@ -27,6 +27,7 @@
 #define STATUS_REG 0x80
 
 void STSPIN32G4_Init(I2C_HandleTypeDef* hi2c);
+void STSPIN32G4_Wake(void);
 void STSPIN32G4_Configure(void);
 bool STSPIN32G4_WaitReady(uint32_t timeout_ms);
 bool STSPIN32G4_IsReady(void);

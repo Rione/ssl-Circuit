@@ -197,12 +197,23 @@ static bool UpdateGateDriver() {
   // ただしSTSPIN32G4_Configure()内のリセットコマンド直後はREADYピンが
   // 一瞬だけ不安定になることがあるため、即座に未設定状態へ戻すと
   // 「再設定→READYが乱れる→再設定」の無限ループに陥る。
-  // 50ms以上continuously not-readyが続いた場合のみ未設定状態に戻す。
+  // 100ms以上continuously not-readyが続いた場合のみ未設定状態に戻す。
   if (!ready || !power_ok) {
     if (not_ready_since_ms == 0) {
       not_ready_since_ms = HAL_GetTick();
     } else if (HAL_GetTick() - not_ready_since_ms > 100) {
       configured = false;
+    }
+    // 他基板との電源共有等によるVM瞬間沈み込みでSTSPIN32G4がUVLO/フォルトに
+    // ラッチすると、電圧が回復してもREADYは自然には戻らずWAKEの再パルスが
+    // 必要になることがある。!readyが1秒以上続く場合、500ms間隔でWAKEを
+    // 再パルスして復帰を試みる。
+    if (!ready && (HAL_GetTick() - not_ready_since_ms > 1000) && (HAL_GetTick() - last_action_ms > 500)) {
+      printf("STSPIN32G4 READY stuck low (supply=%.2fV, NFAULT=%d): ", supply_volt, !STSPIN32G4_IsFault());
+      STSPIN32G4_ReadStatus();  // LOCK/RESET/VDS_P/THSD/VCC_UVLOビットを表示
+      printf("Re-pulsing WAKE...\n");
+      STSPIN32G4_Wake();
+      last_action_ms = HAL_GetTick();
     }
     return false;
   }
@@ -248,7 +259,7 @@ static bool UpdateGateDriver() {
 void MainApp() {
   while (1) {
     GetSensors();
-    DebugUart2Status();
+    // DebugUart2Status();
     bool driver_ready = UpdateGateDriver();
     SendSerial();
     RecvSerial();
