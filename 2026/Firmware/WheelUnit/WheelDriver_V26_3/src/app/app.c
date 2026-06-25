@@ -33,37 +33,11 @@ Timer serial_send_timer;
 Timer serial_recv_timer;
 Timer control_timer;
 
-// --- UART2受信ロックアップ調査用デバッグ計測 ---
-static volatile uint32_t uart2_err_count = 0;
-static volatile uint32_t uart2_last_error_code = 0;
-
 // USART2でORE等の受信エラーが発生した場合、DMA異常停止からの復帰を待たずに即座に受信を再開する。
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
   if (huart->Instance == USART2) {
-    uart2_last_error_code = huart->ErrorCode;
-    uart2_err_count++;
     Serial_Reset(&uart2);
   }
-}
-
-// 受信が止まっている間の状態を定期的に出力し、ロックアップの原因(ORE等のエラー発生有無、
-// DMA転送カウンタが本当に止まっているか)を切り分けるための調査用関数。
-static void DebugUart2Status() {
-  static uint32_t last_print_ms = 0;
-  if (HAL_GetTick() - last_print_ms < 1000) {
-    return;
-  }
-  last_print_ms = HAL_GetTick();
-
-  uint16_t dma_counter = __HAL_DMA_GET_COUNTER(huart2.hdmarx);
-  uint16_t rx_top = uart2.rxBufSize - dma_counter;
-
-  printf(
-      "[UART2 DBG] err_cnt=%lu last_err=0x%02lX dma_cnt=%u rxTop=%u rxBtm=%u "
-      "RxState=%lu gState=%lu CR1=0x%08lX CR3=0x%08lX ISR=0x%08lX\n",
-      uart2_err_count, uart2_last_error_code, dma_counter, rx_top, uart2.rxBtm,
-      (uint32_t)huart2.RxState, (uint32_t)huart2.gState, huart2.Instance->CR1,
-      huart2.Instance->CR3, huart2.Instance->ISR);
 }
 
 static void GetSensors() {
@@ -204,17 +178,6 @@ static bool UpdateGateDriver() {
     } else if (HAL_GetTick() - not_ready_since_ms > 100) {
       configured = false;
     }
-    // 他基板との電源共有等によるVM瞬間沈み込みでSTSPIN32G4がUVLO/フォルトに
-    // ラッチすると、電圧が回復してもREADYは自然には戻らずWAKEの再パルスが
-    // 必要になることがある。!readyが1秒以上続く場合、500ms間隔でWAKEを
-    // 再パルスして復帰を試みる。
-    if (!ready && (HAL_GetTick() - not_ready_since_ms > 1000) && (HAL_GetTick() - last_action_ms > 500)) {
-      printf("STSPIN32G4 READY stuck low (supply=%.2fV, NFAULT=%d): ", supply_volt, !STSPIN32G4_IsFault());
-      STSPIN32G4_ReadStatus();  // LOCK/RESET/VDS_P/THSD/VCC_UVLOビットを表示
-      printf("Re-pulsing WAKE...\n");
-      STSPIN32G4_Wake();
-      last_action_ms = HAL_GetTick();
-    }
     return false;
   }
   not_ready_since_ms = 0;
@@ -259,7 +222,6 @@ static bool UpdateGateDriver() {
 void MainApp() {
   while (1) {
     GetSensors();
-    // DebugUart2Status();
     bool driver_ready = UpdateGateDriver();
     SendSerial();
     RecvSerial();

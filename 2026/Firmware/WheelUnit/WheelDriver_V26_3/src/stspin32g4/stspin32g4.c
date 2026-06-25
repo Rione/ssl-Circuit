@@ -22,17 +22,6 @@ bool STSPIN32G4_WaitReady(uint32_t timeout_ms) {
   return true;
 }
 
-void STSPIN32G4_Wake(void) {
-  /* Re-pulse WAKE (low -> high) to recover from a latched UVLO/fault
-   * shutdown of the power section that holding WAKE high does not clear
-   * (e.g. after a brief VM sag caused by other boards sharing the same
-   * supply). Holding WAKE continuously high is not enough to re-trigger
-   * this; a fresh low-to-high edge is required. */
-  DigitalOut_Write(&wake, 0);
-  HAL_Delay(1);
-  DigitalOut_Write(&wake, 1);
-}
-
 bool STSPIN32G4_IsReady(void) {
   /* READY pin is driven high once the gate-driver power section
    * (BUCK/VCC, fed from the motor supply VM) is up and ready. */
@@ -172,10 +161,16 @@ void STSPIN32G4_Reset(void) {
 
 void STSPIN32G4_ReadStatus(void) {
   if (s_hi2c == NULL) return;
-  uint8_t data[1];
+  uint8_t data[1] = {0};
   uint8_t addr = STATUS_REG;
-  HAL_I2C_Master_Transmit(s_hi2c, STSPING4_CONTROLER_ADDR << 1, &addr, 1, 100);
-  HAL_I2C_Master_Receive(s_hi2c, STSPING4_CONTROLER_ADDR << 1, data, 1, 100);
+  /* READYが落ちている間はI2Cが応答せずTransmit/Receiveが失敗することがある。
+   * 失敗を無視するとdata[]が未更新のまま(=直前の値か0)表示され、
+   * 「フォルトなし」に見える誤ったログになってデバッグを混乱させる。 */
+  if (HAL_I2C_Master_Transmit(s_hi2c, STSPING4_CONTROLER_ADDR << 1, &addr, 1, 100) != HAL_OK ||
+      HAL_I2C_Master_Receive(s_hi2c, STSPING4_CONTROLER_ADDR << 1, data, 1, 100) != HAL_OK) {
+    printf("STSPIN32G4 STATUS read FAILED (I2C no response)\n");
+    return;
+  }
   printf("RAW:0b%d%d%d%d%d%d%d%d LOCK:%d RESET:%d VDS_P:%d THSD:%d VCC_UVLO:%d\n",
          (data[0] >> 7) & 0x01, (data[0] >> 6) & 0x01, (data[0] >> 5) & 0x01, (data[0] >> 4) & 0x01,
          (data[0] >> 3) & 0x01, (data[0] >> 2) & 0x01, (data[0] >> 1) & 0x01, (data[0] >> 0) & 0x01,
