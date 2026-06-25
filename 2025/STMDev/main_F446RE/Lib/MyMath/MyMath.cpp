@@ -1,5 +1,7 @@
 #include "MyMath.hpp"
 
+#include <cmath>
+
 const float _sin[91] = {
     SIN0,
     SIN1,
@@ -149,8 +151,8 @@ float MyMath::tan(float rad) {
 /// https://garchiving.com
 
 int MyMath::atan2(int _y, int _x) {
-    int x = abs(_x);
-    int y = abs(_y);
+    int x = std::abs(_x);
+    int y = std::abs(_y);
     float z;
     bool c;
 

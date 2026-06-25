@@ -1,5 +1,7 @@
 #include "PID.h"
 
+#include <cmath>
+
 PID::PID(float _p, float _i, float _d, float _dt) : p(_p), i(_i), d(_d), dt(_dt) {
     limit = 1000;
     setLimit(limit);
@@ -8,7 +10,7 @@ PID::PID(float _p, float _i, float _d, float _dt) : p(_p), i(_i), d(_d), dt(_dt)
 }
 
 void PID::setLimit(float _limit) {
-    limit = abs(_limit);
+    limit = std::abs(_limit);
     min = -limit;
     max = limit;
 }
@@ -31,7 +33,7 @@ void PID::reset() {
 void PID::compute() {
     // please append error before compute
     float _error = error;
-    integral += (abs(_output) > limit ? 0 : _error * dt); // アンチワインドアップ
+    integral += (std::abs(_output) > limit ? 0 : _error * dt); // アンチワインドアップ
 
     pTerm = p * _error;                    // 比例
     iTerm = i * integral;                  // 積分

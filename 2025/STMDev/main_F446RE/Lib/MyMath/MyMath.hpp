@@ -19,7 +19,6 @@ extern "C" {
 #define CW true
 #define CCW false
 
-#define abs(x) ((x) > 0 ? (x) : -(x))
 #define Range(a, x, b) ((a) <= (x) && (x) <= (b))
 #define Constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
 #define Round(x) ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
