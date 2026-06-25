@@ -99,8 +99,7 @@ void Robot::rasRecvSerial(RobotInfo_t &info) {
 }
 
 void Robot::rasSendSerial(RobotInfo_t &info, uint16_t interval) {
-      static const uint8_t dataSize = 3;  // データのサイズ
-      static const uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
+      static const uint8_t packetSize = 13;
       static Timer timer;
 
       if (timer.read_ms() < interval) {
@@ -109,13 +108,26 @@ void Robot::rasSendSerial(RobotInfo_t &info, uint16_t interval) {
 
       info.dribbleStatus.isNewDrib = true;  // 新機体
 
-      uint8_t buffer[dataSize] = {
-          info.batteryVoltage,
-          info.dribbleStatus.data,
-          info.capValEstimate,
+      const int16_t *motor = info.mdStatus.motorAngularVelocity;
+      const int16_t wheel_scaled[4] = {
+          MotorDriver::motorToWheelScaled(motor[3]),  // FL (M3, -55°)
+          MotorDriver::motorToWheelScaled(motor[1]),  // BL (M1, 135°)
+          MotorDriver::motorToWheelScaled(motor[2]),  // BR (M2, -135°)
+          MotorDriver::motorToWheelScaled(motor[0]),  // FR (M0, 55°)
       };
-      serial5.write(startBytes, 4);
-      serial5.write(buffer, dataSize);
+
+      uint8_t buffer[packetSize];
+      buffer[0] = 0xFF;
+      buffer[1] = info.batteryVoltage;
+      buffer[2] = info.dribbleStatus.data;
+      buffer[3] = info.capValEstimate;
+      for (int i = 0; i < 4; i++) {
+            buffer[4 + i * 2] = (uint8_t)(wheel_scaled[i] & 0xFF);
+            buffer[5 + i * 2] = (uint8_t)((wheel_scaled[i] >> 8) & 0xFF);
+      }
+      buffer[12] = 0xAA;
+
+      serial5.write(buffer, packetSize);
       timer.reset();
 }
 
