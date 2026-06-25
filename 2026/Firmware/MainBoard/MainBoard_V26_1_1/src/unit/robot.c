@@ -9,6 +9,7 @@
 uint16_t adc_val[1];
 
 #define ADC2VOLT 0.008862304688f
+#define BATTERY_VOLTAGE_OFFSET 2.0f  // 実測とのズレを補正するオフセット
 #define ROCK_SPI_RX_PACKET_SIZE 18U
 // この時間(ms)受信できなかったら信号ロストと判定する（ここを変えれば猶予秒数を調整可能）
 #define ROCK_SPI_SIGNAL_TIMEOUT_MS 100U
@@ -124,8 +125,8 @@ void Robot_Initialize(Robot* self) {
 
 void Robot_UpdateSensor(Robot* self) {
   // 電圧センサ値を更新
-  self->info.battery_voltage = adc_val[0] * ADC2VOLT;  // 0-255 (0-25.5V)
-  // printf("adc_val: %d, battery_voltage: %d\n", adc_val[0], self->info.battery_voltage);
+  self->info.battery_voltage = adc_val[0] * ADC2VOLT + BATTERY_VOLTAGE_OFFSET;  // 0-255 (0-25.5V)
+  printf("adc_val: %d, battery_voltage: %d\n", adc_val[0], self->info.battery_voltage);
 }
 
 // 送信パケットを組み立てる（先頭4byteが実データ、残りは0クリア）
@@ -183,7 +184,7 @@ void Robot_UpdateFromUi(Robot* self) {
 
   static uint16_t send_count = 0;
   send_count++;
-  if (send_count >= 100) { // 100msに1回送信 (1秒間に10回)
+  if (send_count >= 100) {  // 100msに1回送信 (1秒間に10回)
     UI_Send(&self->ui, self);
     send_count = 0;
   }

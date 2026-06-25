@@ -16,24 +16,25 @@ typedef struct {
     };
     uint8_t do_direct_status;
   };
-  uint8_t cap_val_estimate;
+  uint16_t cap_val;
+  uint8_t done_charge;
 } KickerStatus;
 
 #define KICKER_STRAIGHT 1
-#define KICKER_CHIP     0
+#define KICKER_CHIP 0
 
 typedef struct {
-  CanBus     *can;
+  CanBus* can;
   KickerStatus status;
 } Kicker;
 
-void    Kicker_Init(Kicker *self, CanBus *can);
-void    Kicker_Kick(Kicker *self, uint8_t is_straight, uint8_t power, uint8_t do_direct);
-void    Kicker_Charge(Kicker *self);
-void    Kicker_Discharge(Kicker *self);
-void    Kicker_CancelDirect(Kicker *self, uint8_t is_straight);
-void    Kicker_UpdateCapValEstimate(Kicker *self, uint8_t power);
-uint8_t Kicker_GetCapValEstimate(Kicker *self);
-void    Kicker_SetCapValEstimate(Kicker *self, uint8_t val);
+void Kicker_Init(Kicker* self, CanBus* can);
+void Kicker_Kick(Kicker* self, uint8_t is_straight, uint8_t power, uint8_t do_direct);
+void Kicker_Charge(Kicker* self);
+void Kicker_Discharge(Kicker* self);
+void Kicker_CancelDirect(Kicker* self, uint8_t is_straight);
+void Kicker_UpdateCapVal(Kicker* self, uint8_t power);
+uint16_t Kicker_GetCapVal(Kicker* self);
+void Kicker_SetCapVal(Kicker* self, uint16_t val);
 
 #endif  // __KICKER_H_
