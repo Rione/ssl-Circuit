@@ -126,7 +126,6 @@ void Robot_Initialize(Robot* self) {
 void Robot_UpdateSensor(Robot* self) {
   // 電圧センサ値を更新
   self->info.battery_voltage = adc_val[0] * ADC2VOLT + BATTERY_VOLTAGE_OFFSET;  // 0-255 (0-25.5V)
-  printf("adc_val: %d, battery_voltage: %d\n", adc_val[0], self->info.battery_voltage);
 }
 
 // 送信パケットを組み立てる（先頭4byteが実データ、残りは0クリア）
