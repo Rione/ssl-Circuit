@@ -174,15 +174,11 @@ void TestMode::determine() {
   btnDischarge->updateState();
 
   if (btnDribbler->determine()) {
-    if (!ui->info.capaData.chargeState && !isDribblerOn) {
-      media->setBuzzerType(playType::ERROR);
-    } else {
-      isDribblerOn = !isDribblerOn;
-      ui->info.testCommand = 3; // CMD_DRIBBLER
-      ui->stmSendSerial(&ui->info);
-      ui->info.testCommand = 0;
-      media->setBuzzerType(playType::NOTIFY);
-    }
+    isDribblerOn = !isDribblerOn;
+    ui->info.testCommand = 3; // CMD_DRIBBLER
+    ui->stmSendSerial(&ui->info);
+    ui->info.testCommand = 0;
+    media->setBuzzerType(playType::NOTIFY);
   }
   if (btnKick->determine()) {
     if (!ui->info.capaData.chargeState) {
@@ -207,16 +203,12 @@ void TestMode::determine() {
     }
   }
   if (btnMotorTest->determine()) {
-    if (!ui->info.capaData.chargeState) {
-      media->setBuzzerType(playType::ERROR);
-    } else {
-      isMotorTestOn = true;
-      motorTestStartTime = millis();
-      ui->info.testCommand = 4; // CMD_MOTOR_TEST
-      ui->stmSendSerial(&ui->info);
-      ui->info.testCommand = 0;
-      media->setBuzzerType(playType::NOTIFY);
-    }
+    isMotorTestOn = true;
+    motorTestStartTime = millis();
+    ui->info.testCommand = 4; // CMD_MOTOR_TEST
+    ui->stmSendSerial(&ui->info);
+    ui->info.testCommand = 0;
+    media->setBuzzerType(playType::NOTIFY);
   }
   if (btnCharge->determine()) {
     ui->info.modeStatus.charge_state = 1;

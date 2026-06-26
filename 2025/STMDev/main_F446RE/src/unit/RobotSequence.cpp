@@ -50,8 +50,8 @@ void uiKickControl(RobotInfo_t &info) {
             HAL_Delay(5);
             robot.kickerBoard.chargeControl(DISCHARGE);
             robot.led2 = false;
-            info.isDribblerTesting = false; // テストも強制終了
-            info.isMotorTesting = false;
+            // info.isDribblerTesting = false; // テストも強制終了
+            // info.isMotorTesting = false;
         }
         info.testCommand = 0; // コマンドを処理したらクリア
         robot.manageByUserCounter.reset();
