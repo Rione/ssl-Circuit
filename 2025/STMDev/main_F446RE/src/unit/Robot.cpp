@@ -142,6 +142,13 @@ void Robot::getSensors(RobotInfo_t *info) {
       }
       info->isUnderVoltage = (underVoltageCount == 0);
       info->capValEstimate = kickerBoard.getCapValEstimate();
+
+#if DRIBBLER_VERSION == DRIBBLER_OLD
+      // 旧基板はドリブラーからのフィードバックがないため、フォトセンサのみでボール保持/検知を判定する
+      bool isBallDetected = (medianPhotoValue.calc(info->photoSensorValue) < PHOTOSENSOR_THRESHOLD);
+      info->dribbleStatus.isDetectedBall = isBallDetected;
+      info->dribbleStatus.isHoldBall = isBallDetected;
+#endif
 }
 
 void Robot::sendDribble(uint8_t power, bool forceSend) {
@@ -152,11 +159,18 @@ void Robot::sendDribble(uint8_t power, bool forceSend) {
             if (timer.read_ms() < 100)  // パワーが変わっていない場合は送信しない。 forceSendがtrueの場合は100msごとに送信する
                   return;
       }
+#if DRIBBLER_VERSION == DRIBBLER_OLD
+      CANBus::CANData canData = {
+          .stdId = DRIBBLE,
+          .data = {power, 0, 0, 0, 0, 0, 0, 0},
+      };
+#else
       power = (power != 0) ? 100 : 0;
       CANBus::CANData canData = {
           .stdId = DRIBBLE_SEND,
           .data = {power, 0, 0, 0, 0, 0, 0, 0},
       };
+#endif
       can.send(canData);
       timer.reset();
       dribblePowerPrev = power;
