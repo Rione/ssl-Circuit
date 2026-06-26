@@ -33,12 +33,19 @@ class BufferedSerial {
         return read();
     }
 
+    void onRxError();
+
   private:
+    bool matchesUart(UART_HandleTypeDef *huart) const;
+    void startRxDma();
+    void restartRxDma();
+
     UART_HandleTypeDef *_huart;
     uint8_t *_rxBuf;
     uint16_t rxTop, rxBtm;
     uint16_t _rxBufSize;
     bool _useDMA;
+    volatile bool _rxErrorPending;
 };
 
 #endif
