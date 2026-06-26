@@ -57,7 +57,7 @@ void OmniDrive_Recv(OmniDrive* self) {
   static uint8_t index[4] = {0};
 
   for (int i = 0; i < 4; i++) {
-    if (Serial_Available(self->serials[i])) {
+    while (Serial_Available(self->serials[i])) {
       uint8_t recv_byte = Serial_Read(self->serials[i]);
 
       if (index[i] == 0) {
@@ -72,11 +72,6 @@ void OmniDrive_Recv(OmniDrive* self) {
           self->ready = (recv_data[i][0] >> 1) & 0x01;
           self->vel_wheel_angular[i] =
               (int16_t)((recv_data[i][1] << 8) | recv_data[i][2]) * 0.01;
-
-          if (i == 0) {
-            printf("OmniDrive_Recv: emg=%d, ready=%d, vel_wheel_angular[0]=%f\n",
-                   self->emg, self->ready, self->vel_wheel_angular[0]);
-          }
         }
         index[i] = 0;
       } else {
