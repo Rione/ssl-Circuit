@@ -11,6 +11,10 @@ void MediaExecutor::init() {
     pinMode(NEOPIXEL_POWER_PIN, OUTPUT);
     digitalWrite(NEOPIXEL_POWER_PIN, HIGH);
 
+    // ブザーピンの明示的な初期化を追加
+    pinMode(BUZZER_PIN, OUTPUT);
+    digitalWrite(BUZZER_PIN, LOW);
+
     pixels.begin(); // NeoPixel制御開始
 }
 

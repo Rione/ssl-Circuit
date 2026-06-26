@@ -41,12 +41,45 @@ void CameraMode::loop() {
             camera_correction_timer.reset();
       }
 
-      if (camera_x == 0 && camera_y == 0) {
-            robot->motorDriver.setVelocityFF(0, 0, 1500);
+      bool isTestingMotor = robot->info.isMotorTesting && (robot->info.motorTestTimer.read_ms() < 3000);
+      bool isTestingDribbler = robot->info.isDribblerTesting;
+
+      if (robot->info.isMotorTesting && robot->info.motorTestTimer.read_ms() >= 3000) {
+            robot->info.isMotorTesting = false;
+      }
+
+      if (robot->info.status.emergencyStop) {
+            stopRobot(500);
+      } else if (isTestingMotor || isTestingDribbler || robot->manageByUserCounter.read_ms() < 15000) {
+            // === UIテスト中 ===
+            if (isTestingMotor) {
+                  robot->motorDriver.setVelocityFF(500, 0, 0); // モーターテスト
+            } else {
+                  robot->motorDriver.setVelocityFF(0, 0, 0);
+            }
+            
+            if (isTestingDribbler) {
+                  robot->sendDribble(100);
+            } else {
+                  robot->sendDribble(0);
+            }
+            
+            robot->sendKicker(robot->info);
+      } else if (robot->info.status.isSignalReceived) {
+            // === 試合中 (RasPi信号あり) ===
+            if (camera_x == 0 && camera_y == 0) {
+                  robot->motorDriver.setVelocityFF(0, 0, 1500);
+            } else {
+                  vel_x = Constrain(robot->info.camera.y * 30, -max_speed, max_speed);
+                  vel_y = 0;
+                  robot->motorDriver.setVelocityFF(vel_x, vel_y, (127 - robot->info.camera.x) * 30);
+            }
+            robot->sendDribble(robot->info.dribblePower);
+            robot->sendKicker(robot->info);
+            robot->sendMotor(robot->info, 10);
       } else {
-            vel_x = Constrain(robot->info.camera.y * 30, -max_speed, max_speed);
-            vel_y = 0;
-            robot->motorDriver.setVelocityFF(vel_x, vel_y, (127 - robot->info.camera.x) * 30);
+            // === 待機状態 ===
+            stopRobot(500);
       }
       // if (robot->info.dribbleStatus.isDetectedBall == true || (robot->info.camera.y < 5 && robot->info.camera.y != 0)) {
       //       robot->sendDribble(50);

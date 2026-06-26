@@ -3,14 +3,14 @@
 
 #include <Arduino.h>
 
-#include "UI/unit/display.h"
-#include "UI/unit/touchscreen.h"
+#include "display.h"
+#include "touchscreen.h"
 
-#include "UI/image/image.h"
-#include "UI/image/top.h"
-#include "UI/image/kick.h"
-#include "UI/image/main_img.h"
-#include "UI/image/home_img.h"
+#include "UI/images/image.h"
+#include "UI/images/top.h"
+#include "UI/images/kick.h"
+#include "UI/images/main_img.h"
+#include "UI/images/home_img.h"
 
 // UIボタンに関するクラス
 class BUTTON {
@@ -45,5 +45,24 @@ class BUTTON {
     uint32_t pressTime = 0; // ボタンが押された時間
     uint32_t releaseTime = 0; // ボタンが離された時間
 };
+
+
+class TEXT_BUTTON {
+  public:
+    TEXT_BUTTON(DISPLAY_DEVICE *display, TOUCHSCREEN *touch, int x, int y, int w, int h, const char* text, uint16_t bg, uint16_t fg);
+    void draw(bool state);
+    void updateState();
+    bool determine();
+  public:
+    int x, y, w, h;
+    const char* text;
+    uint16_t bg, fg;
+  private:
+    DISPLAY_DEVICE *display;
+    TOUCHSCREEN *touch;
+    bool isPressed = false;
+    uint32_t pressTime = 0;
+};
+
 
 #endif

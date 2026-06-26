@@ -279,7 +279,7 @@ void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
 void Robot::uiRecvSerial(RobotInfo_t &info) {
       // UIにデータを送信する
       static const uint8_t HEADER = 0xFF;   // ヘッダ
-      static const uint8_t dataSize = 1;    // データのサイズ
+      static const uint8_t dataSize = 2;    // データのサイズ (modeStatusとtestCommandの2バイト)
       static bool headerReceived = false;   // ヘッダを受信したかどうか
       static uint8_t index = 0;             // 受信したデータのインデックスカウンター
       static uint8_t data[dataSize] = {0};  // 受信したデータ
@@ -294,6 +294,7 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
                   index++;
                   if (index == dataSize) {
                         info.uiStatus.data = data[0];
+                        info.testCommand = data[1]; // UIからのテストコマンドを受信
                         headerReceived = false;
                         index = 0;
                   }

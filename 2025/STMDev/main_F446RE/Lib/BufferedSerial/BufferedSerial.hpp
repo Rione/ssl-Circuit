@@ -34,9 +34,9 @@ class BufferedSerial {
     }
 
     void onRxError();
+    bool matchesUart(UART_HandleTypeDef *huart) const;
 
   private:
-    bool matchesUart(UART_HandleTypeDef *huart) const;
     void startRxDma();
     void restartRxDma();
 
