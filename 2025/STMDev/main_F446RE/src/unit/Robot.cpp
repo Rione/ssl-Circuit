@@ -41,10 +41,21 @@ void Robot::rasRecvSerial(RobotInfo_t &info) {
       static bool headerReceived = false;   // ヘッダを受信したかどうか
       static uint8_t index = 0;             // 受信したデータのインデックスカウンター
       static uint8_t data[dataSize] = {0};  // 受信したデータ
+      static Timer timeoutTimer;            // 最後にバイトを受信してからの経過時間
+
+      if (!serial5.available() && timeoutTimer.read_ms() > 1000) {
+            // 1秒間受信がない場合は受信状態とバッファをリセットする
+            serial5.flush();
+            headerReceived = false;
+            index = 0;
+            timeoutTimer.reset();
+            return;
+      }
 
       while (serial5.available()) {
             // 1バイト読み込み
             uint8_t receivedByte = serial5.read();
+            timeoutTimer.reset();
             // printf("received %d\n ", receivedByte);
 
             if (!headerReceived) {

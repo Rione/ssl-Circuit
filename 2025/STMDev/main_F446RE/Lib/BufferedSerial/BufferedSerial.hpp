@@ -19,6 +19,7 @@ class BufferedSerial {
     void init(bool dma = false);
     bool available();
     uint8_t read();
+    void flush();
 
     void write(uint8_t data) {
         HAL_UART_Transmit(_huart, &data, 1, 100);

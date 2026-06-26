@@ -30,4 +30,9 @@ uint8_t BufferedSerial::read() {
     return data;
 }
 
+void BufferedSerial::flush() {
+    // 読み取り位置をDMAの現在位置まで進め、未読データを破棄する
+    rxBtm = _rxBufSize - _huart->hdmarx->Instance->NDTR;
+}
+
 
