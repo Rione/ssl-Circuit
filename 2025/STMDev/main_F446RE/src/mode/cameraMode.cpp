@@ -16,6 +16,10 @@ void CameraMode::loop() {
       robot->rasRecvSerial(robot->info);   // sync
       robot->checkRobotRest(robot->info);  // ロボットが停止しているか確認
 
+      robot->uiRecvSerial(robot->info);    // UIからデータ受信
+      uiKickControl(robot->info);          // UIからのキック・チャージ制御
+      swKickControl(robot->info);          // 物理スイッチからのキック・チャージ制御
+
       buzzerControl(robot->info);  // ブザーの制御
 
       robot->uiSendSerial(robot->info, 100);  // UIにデータを送信する
