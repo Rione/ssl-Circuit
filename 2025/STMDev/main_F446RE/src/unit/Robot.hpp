@@ -166,11 +166,10 @@ typedef struct {
   // Information Xiao(UI)→STM32 ---------------------------
   union {
     struct {
-      uint8_t mode : 4;
+      uint8_t mode : 5;
+      bool emergencyStop : 1;
       bool chargeStateChange : 1;  // 1.切替、0.切替なし
       bool kick : 1;               // キック
-      bool param6 : 1;
-      bool param7 : 1;
     };
     uint8_t data;
   } uiStatus;

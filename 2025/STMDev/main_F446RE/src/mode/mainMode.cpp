@@ -31,24 +31,23 @@ void MainMode::loop() {
     robot->info.isMotorTesting = false;
   }
 
-  if (robot->info.status.emergencyStop) {
-    stopRobot(500);
-  } else if (isTestingMotor || isTestingDribbler || robot->manageByUserCounter.read_ms() < 15000) {
-    // === UIテスト中 ===
-    // Raspberry Piからの充放電指令(doCharge)を上書きしないようにする！
+  if (isTestingMotor || isTestingDribbler) {
+    // === UIテスト中（2026の仕様に合わせ、安全裁定をバイパス） ===
     if (isTestingMotor) {
-      robot->motorDriver.setVelocityFF(500, 0, 0); // モーターテスト: 500 mm/s 前進
+      robot->motorDriver.setVelocityFF(100, 0, 0); // モーターテスト: 100 mm/s 前進
     } else {
       robot->motorDriver.setVelocityFF(0, 0, 0);
     }
     
     if (isTestingDribbler) {
-      robot->sendDribble(100); // ドリブラーテスト
+      robot->sendDribble(100); // テスト時パワー100 (新旧ドリブラー仕様に準拠)
     } else {
       robot->sendDribble(0);
     }
     
     robot->sendKicker(robot->info);
+  } else if (robot->info.status.emergencyStop) {
+    stopRobot(500);
   } else if (robot->info.status.isSignalReceived) {
     // === 通常の試合中 (RasPiからの信号あり) ===
     robot->sendDribble(robot->info.dribblePower);

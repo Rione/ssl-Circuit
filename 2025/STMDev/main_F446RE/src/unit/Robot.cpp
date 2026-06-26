@@ -292,12 +292,17 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
             } else {
                   data[index] = receivedByte;
                   index++;
-                  if (index == dataSize) {
-                        info.uiStatus.data = data[0];
-                        info.testCommand = data[1]; // UIからのテストコマンドを受信
-                        headerReceived = false;
-                        index = 0;
-                  }
+                    if (index == dataSize) {
+                          info.uiStatus.mode = data[0] & 0x1F;
+                          if (data[0] & (1 << 6)) info.uiStatus.chargeStateChange = 1;
+                          if (data[0] & (1 << 7)) info.uiStatus.kick = 1;
+                          
+                          if (data[1] != 0) {
+                              info.testCommand = data[1]; // 0以外のコマンドを保持
+                          }
+                          headerReceived = false;
+                          index = 0;
+                    }
             }
       }
 }
