@@ -46,14 +46,19 @@ void UiKit::touchUpdate() {
     if (touch.isTouched) {
         BackLightTime = millis();
         if (!BackLightFlag) {
+            tft.writecommand(0x11); // TFT_SLPOUT (Sleep Out)
+            delay(120);             // Wake up delay
+            tft.writecommand(0x29); // TFT_DISPON (Display On)
             digitalWrite(display.backlightPin, HIGH);
             BackLightFlag = true;
         }
-    }/*else if (BackLightFlag && (millis() - BackLightTime) > 10000) {
-        // 10遘帝俣繧ｿ繝・メ縺後↑縺代ｌ縺ｰ繝舌ャ繧ｯ繝ｩ繧､繝医ｒ豸医☆
+    } else if (BackLightFlag && (millis() - BackLightTime) > 8000) {
+        // 8秒間タッチがなければ画面自体をスリープさせ、バックライトも消す
         BackLightFlag = false;
         digitalWrite(display.backlightPin, LOW);
-    }*/
+        tft.writecommand(0x28); // TFT_DISPOFF (Display Off)
+        tft.writecommand(0x10); // TFT_SLPIN (Sleep In)
+    }
 
 }
 
