@@ -27,6 +27,7 @@ uint16_t adc_val[4];  // 0: Current, 1: BallSensor
 #define CAN_SEND_INTERVAL_MS 10   // 10ms
 
 #define CAN_RECV_ID 0x20
+#define CAN_SEND_ID 0x70
 
 void Setup() {
   printf("Dribbler Setup Start\n");
@@ -88,7 +89,7 @@ void MainApp() {
     if (Timer_ReadMs(&can_send_interval_timer) >= CAN_SEND_INTERVAL_MS) {
       DigitalOut_Write(&CAN_LED, 1);
       CanData data = {
-          .stdId = 0x50,
+          .stdId = CAN_SEND_ID,
           .data =
               {
                   Dribbler_IsBallCapturedByPhoto(),
