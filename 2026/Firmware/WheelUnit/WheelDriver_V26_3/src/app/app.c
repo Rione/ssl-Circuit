@@ -15,6 +15,7 @@ PwmOut ledb;
 Serial uart2;
 
 LPF supply_volt_lpf;
+LPF send_angular_speed_lpf;
 
 uint16_t adc_val[3];
 
@@ -101,10 +102,12 @@ static void SendSerial() {
     const static uint8_t FOOTER = 0xAA;
     static uint8_t data[5];
 
+    float send_angular_speed = LPF_Update(&send_angular_speed_lpf, BLDC_GetAngularSpeed());
+
     data[0] = HEADER;
     data[1] = (is_voltage_out_of_range << 1) | (mode != 0);
-    data[2] = ((int16_t)(BLDC_GetAngularSpeed() * 100) >> 8) & 0xFF;
-    data[3] = (int16_t)(BLDC_GetAngularSpeed() * 100) & 0xFF;
+    data[2] = ((int16_t)(send_angular_speed * 100) >> 8) & 0xFF;
+    data[3] = (int16_t)(send_angular_speed * 100) & 0xFF;
     data[4] = FOOTER;
 
     Serial_Write(&uart2, data, sizeof(data));
@@ -139,6 +142,7 @@ void Setup() {
   Serial_Init(&uart2, &huart2, 512);
 
   LPF_Init(&supply_volt_lpf, 0.9, 12);
+  LPF_Init(&send_angular_speed_lpf, 0.9, 0);
 
   Timer_Init(&serial_send_timer);
   Timer_Reset(&serial_send_timer);
