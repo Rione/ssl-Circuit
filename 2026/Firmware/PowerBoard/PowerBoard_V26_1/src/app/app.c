@@ -94,8 +94,6 @@ void MainApp() {
     Kicker_SetBoostVoltage(GetBoostVoltage());  // 最新の昇圧電圧を渡す
     Kicker_Update();                            // キックパルスの終了処理(非ブロッキング)
 
-    printf("Supply Voltage: %.2f V, Boost Voltage: %.2f V, Temperature: %.2f degC\n", GetSupplyVoltage(), GetBoostVoltage(), GetTemperature());
-
     if (Timer_ReadMs(&can_trasmit_interval_timer) > 10) {
       CanData can_send_data = {
           .stdId = 0x50,

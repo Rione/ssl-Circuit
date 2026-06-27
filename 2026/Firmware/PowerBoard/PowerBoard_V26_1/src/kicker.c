@@ -3,7 +3,7 @@
 #define KICK_TIME_MS 10         // キック通電時間 [ms]
 #define CHARGE_RESET_US 200     // CHARGEをトグルしてラッチを解除する時間 [us]
 #define KICK_READY_VOLTAGE 250  // この昇圧電圧[V]以上でのみキックを許可
-#define KICK_MAX_DUTY 1.0f      // キックPWMデューティの上限(電流制限)
+#define KICK_MAX_DUTY 0.9f      // キックPWMデューティの上限
 
 PwmOut kick1;
 PwmOut kick2;
@@ -75,9 +75,6 @@ void Kicker_Update() {
       PwmOut_Write(&kick1, 0);
       PwmOut_Write(&kick2, 0);
     }
-  } else {
-    PwmOut_Write(&kick1, 0);  // キック後は必ずOFFに戻す
-    PwmOut_Write(&kick2, 0);
   }
 }
 
