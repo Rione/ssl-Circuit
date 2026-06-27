@@ -22,8 +22,9 @@ void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel
         vy_m * CosDeg(ROBOT_MOTOR_DEGREE[i]) +
         ROBOT_WHEEL_BASE_RADIUS * vel_angle * 0.001f;
 
-    // タイヤの角速度[rad/s]に変換
+    // タイヤの角速度[rad/s]に変換し、最大角速度で制限
     float v_wheel_angular = v_wheel_linear / ROBOT_WHEEL_RADIUS;
+    v_wheel_angular = Constrain(v_wheel_angular, -100.0f, 100.0f);
     m[i] = (int16_t)(v_wheel_angular * 100);
   }
 
