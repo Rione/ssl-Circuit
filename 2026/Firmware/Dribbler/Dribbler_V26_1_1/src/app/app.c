@@ -22,9 +22,11 @@ uint16_t adc_val[4];  // 0: Current, 1: BallSensor
 #define MOTOR_CURRENT_IDX 0
 #define BALL_SENSOR_IDX 1
 
-#define CONTROL_FREQ_HZ 1000                             // 1000Hz
-#define CONTROL_INTERVAL_US (1000000 / CONTROL_FREQ_HZ)  // 1000us
-#define CAN_SEND_INTERVAL_MS 10                          // 10ms
+#define CONTROL_FREQ_HZ 1000      // 1000Hz
+#define CONTROL_INTERVAL_US 1000  // 1000us
+#define CAN_SEND_INTERVAL_MS 10   // 10ms
+
+#define CAN_RECV_ID 0x20
 
 void Setup() {
   printf("Dribbler Setup Start\n");
@@ -112,7 +114,7 @@ void MainApp() {
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
   if (can.hcan == hcan) {
     Can_Recv(&can, &canRecvData);
-    if (canRecvData.stdId == 0x20) {
+    if (canRecvData.stdId == CAN_RECV_ID) {
       // 受信した0~255の速度データをレベルに変換
       uint8_t level = (canRecvData.data[0] * MAX_SPEED_LEVEL) / 255;
       Motor_Drive(level);

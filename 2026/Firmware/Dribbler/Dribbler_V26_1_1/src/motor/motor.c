@@ -12,8 +12,8 @@ static uint32_t base_currents[MAX_SPEED_LEVEL + 1];
 static uint8_t current_drive_level = 0;
 
 void Motor_Init() {
-  PwmOut_Init(&MD_INA, &htim3, TIM_CHANNEL_4);
-  PwmOut_Init(&MD_INB, &htim3, TIM_CHANNEL_3);
+  PwmOut_Init(&MD_INA, &htim3, TIM_CHANNEL_3);
+  PwmOut_Init(&MD_INB, &htim3, TIM_CHANNEL_4);
   MAF_Init(&maf, 50);
 }
 
