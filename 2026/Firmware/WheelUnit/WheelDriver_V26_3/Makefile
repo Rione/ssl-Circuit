@@ -15,6 +15,23 @@
 ######################################
 TARGET = WheelDriver_V26_3
 
+######################################
+# OS detection
+######################################
+
+ifeq ($(OS),Windows_NT)
+UNAME_S := $(shell uname -s)
+ifneq (,$(findstring MINGW,$(UNAME_S)))
+SHELL := /usr/bin/bash
+PATH := /usr/bin:$(PATH)
+endif
+ifneq (,$(findstring MSYS,$(UNAME_S)))
+SHELL := /usr/bin/bash
+PATH := /usr/bin:$(PATH)
+endif
+endif
+######################################
+
 
 ######################################
 # building variables
@@ -65,8 +82,7 @@ Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart_ex.c \
-$(shell find src -name '*.c') \
-$(shell find ../../CommonLib-C -name '*.c') \
+$(wildcard src/*/*.c) \
 Core/Src/i2c.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_i2c.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_i2c_ex.c \
