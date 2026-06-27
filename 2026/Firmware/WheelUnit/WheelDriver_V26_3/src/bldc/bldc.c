@@ -185,8 +185,8 @@ void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val) {
 
   // PIDコントローラ
   // 角速度制御
-  svc.speed_pid.kp = 0.02;
-  svc.speed_pid.ki = 0.4;
+  svc.speed_pid.kp = 0.025;
+  svc.speed_pid.ki = 0.25;
   svc.speed_pid.kd = 0;
   svc.speed_pid.d_term = 0;
   svc.speed_pid.d_lpf = 0.0f;
@@ -269,7 +269,22 @@ void BLDC_AngularSpeedControl(float target_angular_speed) {
   target_angular_speed = prev_target_angular_speed + accel * svc.dt;
   prev_target_angular_speed = target_angular_speed;
 
-  float pid_out = BLDC_PIDControl(&svc.speed_pid, target_angular_speed - svc.angular_speed, svc.dt);
+  // 低速ゲインスケジューリング: 低速域は逆起電力によるフィードフォワードが効きにくく、
+  // 静止摩擦の補償をPIDのフィードバックだけで背負うため、目標値が小さいほどkp/kiを連続的に増幅する。
+  // ノイズが乗った測定速度ではなく目標値(スルーレート制限後)でスケジューリングすることで、
+  // 速度ノイズがゲイン自体を揺らして発振を助長する事態を避けている。
+  float speed_ratio = Constrain(Abs(target_angular_speed) / LOW_SPEED_GAIN_THRESHOLD, 0.0f, 1.0f);
+  float gain_scale = LOW_SPEED_GAIN_MAX - (LOW_SPEED_GAIN_MAX - 1.0f) * speed_ratio;
+
+  PIDController scaled_pid = svc.speed_pid;
+  // scaled_pid.kp *= gain_scale;
+  scaled_pid.ki *= gain_scale;
+
+  float pid_out = BLDC_PIDControl(&scaled_pid, target_angular_speed - svc.angular_speed, svc.dt);
+  svc.speed_pid.integral = scaled_pid.integral;
+  svc.speed_pid.prev_error = scaled_pid.prev_error;
+  svc.speed_pid.d_term = scaled_pid.d_term;
+
   svc.amp_volt = Constrain(pid_out + target_angular_speed * K_SPEED_FF, -MAX_AMP_VOLT, MAX_AMP_VOLT);
 }
 

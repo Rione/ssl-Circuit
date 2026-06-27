@@ -6,7 +6,7 @@
 #define SUPPLY_VOLTAGE_MIN_LIMIT 15
 #define SUPPLY_VOLTAGE_MAX_LIMIT 30
 
-#define SERIAL_SEND_INTERVAL_US 500  // シリアル送信間隔 [μs]
+#define SERIAL_SEND_INTERVAL_US 250  // シリアル送信間隔 [μs]
 
 #define CONTROL_INTERVAL_US 100  // 制御周期 [μs]
 
