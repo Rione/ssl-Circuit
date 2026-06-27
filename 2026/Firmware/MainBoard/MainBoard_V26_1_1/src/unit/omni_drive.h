@@ -6,6 +6,7 @@
 #include "mymath.h"
 #include "parammeter.h"
 #include "serial.h"
+#include "timer.h"
 
 typedef struct {
   int16_t vel_x;

@@ -36,6 +36,12 @@ void OmniDrive_SetFree(OmniDrive* self) {
 }
 
 void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
+  static Timer timer = {0};
+
+  // 1ms 経過するまで送信しない
+  if (Timer_ReadMs(&timer) < 1) return;
+  Timer_Reset(&timer);
+
   static uint8_t send_data[11];
   send_data[0] = 0xFF;
   send_data[1] = command;
@@ -49,7 +55,7 @@ void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
   send_data[9] = (uint8_t)(m[3] & 0xFF);
   send_data[10] = 0xAA;
 
-  Serial_Write(self->serials[0], send_data, 11);
+  Serial_Write(self->serials[2], send_data, 11);
 }
 
 void OmniDrive_Recv(OmniDrive* self) {

@@ -218,12 +218,8 @@ void Robot_SendKicker(Robot* self, RobotInfo* info) {
 }
 
 void Robot_SendOmniDrive(Robot* self, RobotInfo* info, uint8_t interval) {
-  static uint8_t send_count = 0;
-  send_count++;
-  if (send_count % interval == 0) {
-    OmniDrive_SetVel(&self->omni_drive, info->vel_x.vel, info->vel_y.vel,
-                     info->vel_angular.vel);
-  }
+  OmniDrive_SetVel(&self->omni_drive, info->vel_x.vel, info->vel_y.vel,
+                   info->vel_angular.vel);
 }
 
 // 2秒周期のSin波でPWM出力（HBピン: PA8 / TIM1_CH1）
