@@ -23,7 +23,7 @@
 #define AMP_VOLT_LPF_COEF 0.4f             // 電圧振幅ローパスフィルタ係数
 #define K_ADV 0.01f                        // 進角ゲイン
 #define LOW_SPEED_GAIN_THRESHOLD 20.0f     // 速度ゲインスケジューリングのしきい値 [rad/s] (要実機調整)
-#define LOW_SPEED_GAIN_MAX 10.0f           // 速度0付近でのkp/ki倍率 (要実機調整)
+#define LOW_SPEED_GAIN_MAX 5.0f            // 速度0付近でのkp/ki倍率 (要実機調整)
 #define ADC2RADIAN 0.0015339807878856412f  // ADC値をラジアンに変換する係数(2π/4096)
 
 typedef struct {
