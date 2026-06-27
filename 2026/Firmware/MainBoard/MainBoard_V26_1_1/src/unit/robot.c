@@ -128,7 +128,7 @@ void Robot_UpdateSensor(Robot* self) {
   self->info.battery_voltage = adc_val[0] * ADC2VOLT + BATTERY_VOLTAGE_OFFSET;  // 0-255 (0-25.5V)
 }
 
-// 送信パケットを組み立てる（先頭4byteが実データ、残りは0クリア）
+// 送信パケットを組み立てる（先頭11byteが実データ、残りは0クリア）
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info) {
   rock_spi_tx_packet[0] = info->battery_voltage * 10;
   rock_spi_tx_packet[1] = info->dribble_status.data;
@@ -144,7 +144,7 @@ static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info) {
     rock_spi_tx_packet[4 + i * 2] = (uint8_t)((wheel_scaled[i] >> 8) & 0xFF);
   }
 
-  for (uint16_t i = 4; i < ROCK_SPI_RX_PACKET_SIZE; i++) {
+  for (uint16_t i = 11; i < ROCK_SPI_RX_PACKET_SIZE; i++) {
     rock_spi_tx_packet[i] = 0x00;
   }
 }
