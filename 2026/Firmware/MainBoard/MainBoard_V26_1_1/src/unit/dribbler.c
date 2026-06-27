@@ -1,10 +1,12 @@
 #include "dribbler.h"
 
-void Dribbler_Init(Dribbler *self, CanBus *can) {
+#include <stdio.h>
+
+void Dribbler_Init(Dribbler* self, CanBus* can) {
   self->can = can;
 }
 
-void Dribbler_Send(Dribbler *self, uint8_t power, uint8_t force_send) {
+void Dribbler_Send(Dribbler* self, uint8_t power, uint8_t force_send) {
   static Timer timer = {0};
   static uint8_t dribble_power_prev = 0;
 
@@ -18,9 +20,10 @@ void Dribbler_Send(Dribbler *self, uint8_t power, uint8_t force_send) {
 
   CanData can_data = {
       .stdId = CAN_ID_TX_DRIBBLER,
-      .data  = {send_power, 0, 0, 0, 0, 0, 0, 0},
+      .data = {send_power, 0, 0, 0, 0, 0, 0, 0},
   };
   Can_Send(self->can, &can_data);
+  printf("Dribbler_Send: power=%d\n", send_power);
 
   Timer_Reset(&timer);
   dribble_power_prev = power;
