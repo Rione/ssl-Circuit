@@ -16,15 +16,12 @@ CanData canRecvData;
 Serial serial;
 
 Timer can_send_interval_timer;
-Timer control_cycle_timer;
 
 uint16_t adc_val[4];  // 0: Current, 1: BallSensor
 #define MOTOR_CURRENT_IDX 0
 #define BALL_SENSOR_IDX 1
 
-#define CONTROL_FREQ_HZ 1000     // 1000Hz
-#define CONTROL_INTERVAL_US 100  // 1000us
-#define CAN_SEND_INTERVAL_MS 1   // 10ms
+#define CAN_SEND_INTERVAL_MS 10  // 10ms
 
 #define CAN_RECV_ID 0x20
 #define CAN_SEND_ID 0x70
@@ -72,7 +69,6 @@ void Setup() {
 
   // タイマーの初期化
   Timer_Init(&can_send_interval_timer);
-  Timer_Init(&control_cycle_timer);
 
   PwmOut_Write(&LED1, 0);
   PwmOut_Write(&LED2, 0);
@@ -84,22 +80,42 @@ void Setup() {
 }
 
 void MainApp() {
+  // 前回送信した状態（変化検出用）。初回は必ず送信されるように-1で初期化
+  static int16_t prev_by_photo = -1;
+  static int16_t prev_by_current = -1;
+  static int16_t prev_captured = -1;
+
   while (1) {
     Dribbler_Update(adc_val[BALL_SENSOR_IDX], adc_val[MOTOR_CURRENT_IDX]);
 
-    if (Timer_ReadMs(&can_send_interval_timer) >= CAN_SEND_INTERVAL_MS) {
+    uint8_t by_photo = Dribbler_IsBallCapturedByPhoto();
+    uint8_t by_current = Dribbler_IsBallCapturedByCurrent();
+    uint8_t captured = Dribbler_IsBallCaptured();
+
+    // いずれかの値が変化した瞬間、または10ms周期でCAN送信
+    bool changed = (by_photo != prev_by_photo) ||
+                   (by_current != prev_by_current) ||
+                   (captured != prev_captured);
+    bool interval_elapsed =
+        Timer_ReadMs(&can_send_interval_timer) >= CAN_SEND_INTERVAL_MS;
+
+    if (changed || interval_elapsed) {
       DigitalOut_Write(&CAN_LED, 1);
       CanData data = {
           .stdId = CAN_SEND_ID,
           .data =
               {
-                  Dribbler_IsBallCapturedByPhoto(),
-                  Dribbler_IsBallCapturedByCurrent(),
-                  Dribbler_IsBallCaptured(),
+                  by_photo,
+                  by_current,
+                  captured,
               },
       };
       Can_Send(&can, &data);
       Timer_Reset(&can_send_interval_timer);
+
+      prev_by_photo = by_photo;
+      prev_by_current = by_current;
+      prev_captured = captured;
     } else {
       DigitalOut_Write(&CAN_LED, 0);
     }
@@ -107,9 +123,6 @@ void MainApp() {
     PwmOut_Write(&LED1, Dribbler_IsBallCapturedByPhoto());
     PwmOut_Write(&LED2, Dribbler_IsBallCapturedByCurrent());
     PwmOut_Write(&LED3, Dribbler_IsBallCaptured());
-
-    while (Timer_ReadUs(&control_cycle_timer) <= CONTROL_INTERVAL_US);
-    Timer_Reset(&control_cycle_timer);
   }
 }
 
