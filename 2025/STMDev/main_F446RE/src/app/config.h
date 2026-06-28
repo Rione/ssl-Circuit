@@ -11,8 +11,7 @@
 // (ドリブラーからボール保持/検知のフィードバックをCAN受信)
 #define DRIBBLER_OLD 0
 #define DRIBBLER_NEW 1
-#define DRIBBLER_VERSION                                                       \
-  DRIBBLER_OLD // 2026で動いていたということは新基板(0xF4)である可能性が高いためNEWに変更
+#define DRIBBLER_VERSION DRIBBLER_NEW
 
 // CAN Standard ID
 // kickboard

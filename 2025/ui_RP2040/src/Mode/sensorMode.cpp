@@ -41,13 +41,13 @@ void SensorMode::updateBallSensor(bool force) {
         ui->display.sprite->fillRect(80, 58, 232, 22, ui->colBg); // clear inner area
         
         if (ui->info.ballSensor) {
-            ui->display.sprite->fillCircle(88, 69, 5, ui->colSuccess);
+            ui->display.sprite->fillCircle(88, 69, 5, ui->colWarning);
             ui->display.sprite->setTextColor(ui->colFg);
             ui->display.sprite->setTextDatum(ML_DATUM);
             ui->display.sprite->drawString("Ball", 100, 69);
 
-            ui->display.sprite->drawRect(160, 58, 70, 20, ui->colSuccess);
-            ui->display.sprite->setTextColor(ui->colSuccess);
+            ui->display.sprite->drawRect(160, 58, 70, 20, ui->colWarning);
+            ui->display.sprite->setTextColor(ui->colWarning);
             ui->display.sprite->setTextDatum(MC_DATUM);
             ui->display.sprite->drawString("DETECTED", 195, 69);
         } else {

@@ -16,14 +16,14 @@ TestMode::TestMode(char letter, const char name[], UiKit *uiPtr,
 
   btnDribbler = new TEXT_BUTTON(&ui->display, &ui->touch, startX, startY, bw,
                                 bh, "Dribbler", btnBg, ui->colFg);
-  btnKick = new TEXT_BUTTON(&ui->display, &ui->touch, startX + bw + gapX,
-                            startY, bw, bh, "Kick", btnBg, ui->colFg);
-  btnChipKick =
-      new TEXT_BUTTON(&ui->display, &ui->touch, startX, startY + bh + gapY, bw,
-                      bh, "Chip Kick", btnBg, ui->colFg);
   btnMotorTest = new TEXT_BUTTON(&ui->display, &ui->touch, startX + bw + gapX,
-                                 startY + bh + gapY, bw, bh, "Motor Test",
+                                 startY, bw, bh, "Motor Test",
                                  btnBg, ui->colFg);
+  btnKick =
+      new TEXT_BUTTON(&ui->display, &ui->touch, startX, startY + bh + gapY, bw,
+                      bh, "Kick", btnBg, ui->colFg);
+  btnChipKick = new TEXT_BUTTON(&ui->display, &ui->touch, startX + bw + gapX,
+                            startY + bh + gapY, bw, bh, "Chip Kick", btnBg, ui->colFg);
   btnCharge = new TEXT_BUTTON(&ui->display, &ui->touch, startX,
                               startY + 2 * (bh + gapY), bw, bh, "Charge", btnBg,
                               ui->colFg);
@@ -60,35 +60,41 @@ void TestMode::displaySet() {
   bool needsRedrawKick = false;
   bool needsRedrawChip = false;
 
-  uint16_t expectedDribblerBg = isDribblerOn ? ui->colPrimary : defaultBtnBg;
-  if (btnDribbler->bg != expectedDribblerBg) {
-    btnDribbler->bg = expectedDribblerBg;
-    btnDribbler->fg = isDribblerOn ? ui->colBg : ui->colFg;
-    needsRedrawDribbler = true;
-  }
+    uint16_t expectedDribblerBg = isDribblerOn ? ui->colPrimary : ui->colSuccess;
+    uint16_t expectedDribblerFg = ui->colBg;
+    if (btnDribbler->bg != expectedDribblerBg) {
+      btnDribbler->bg = expectedDribblerBg;
+      btnDribbler->fg = expectedDribblerFg;
+      needsRedrawDribbler = true;
+    }
 
-  uint16_t expectedMotorBg = isMotorTestOn ? ui->colPrimary : defaultBtnBg;
-  if (btnMotorTest->bg != expectedMotorBg) {
-    btnMotorTest->bg = expectedMotorBg;
-    btnMotorTest->fg = isMotorTestOn ? ui->colBg : ui->colFg;
-    needsRedrawMotor = true;
-  }
+    uint16_t expectedMotorBg = isMotorTestOn ? ui->colPrimary : ui->colSuccess;
+    uint16_t expectedMotorFg = ui->colBg;
+    if (btnMotorTest->bg != expectedMotorBg) {
+      btnMotorTest->bg = expectedMotorBg;
+      btnMotorTest->fg = expectedMotorFg;
+      needsRedrawMotor = true;
+    }
 
-  bool isKickOn = (currentMillis - kickTime <= 750) && kickTime > 0;
-  uint16_t expectedKickBg = isKickOn ? ui->colPrimary : defaultBtnBg;
-  if (btnKick->bg != expectedKickBg) {
-    btnKick->bg = expectedKickBg;
-    btnKick->fg = isKickOn ? ui->colBg : ui->colFg;
-    needsRedrawKick = true;
-  }
+    bool isKickOn = (currentMillis - kickTime <= 750) && kickTime > 0;
+    bool isKickReady = ui->info.capaData.chargeState;
+    uint16_t expectedKickBg = isKickOn ? ui->colPrimary : (isKickReady ? ui->colSuccess : defaultBtnBg);
+    uint16_t expectedKickFg = (isKickOn || isKickReady) ? ui->colBg : ui->colFg;
+    if (btnKick->bg != expectedKickBg) {
+      btnKick->bg = expectedKickBg;
+      btnKick->fg = expectedKickFg;
+      needsRedrawKick = true;
+    }
 
-  bool isChipOn = (currentMillis - chipKickTime <= 750) && chipKickTime > 0;
-  uint16_t expectedChipBg = isChipOn ? ui->colPrimary : defaultBtnBg;
-  if (btnChipKick->bg != expectedChipBg) {
-    btnChipKick->bg = expectedChipBg;
-    btnChipKick->fg = isChipOn ? ui->colBg : ui->colFg;
-    needsRedrawChip = true;
-  }
+    bool isChipOn = (currentMillis - chipKickTime <= 750) && chipKickTime > 0;
+    bool isChipReady = ui->info.capaData.chargeState;
+    uint16_t expectedChipBg = isChipOn ? ui->colPrimary : (isChipReady ? ui->colSuccess : defaultBtnBg);
+    uint16_t expectedChipFg = (isChipOn || isChipReady) ? ui->colBg : ui->colFg;
+    if (btnChipKick->bg != expectedChipBg) {
+      btnChipKick->bg = expectedChipBg;
+      btnChipKick->fg = expectedChipFg;
+      needsRedrawChip = true;
+    }
 
   if (needsRedrawDribbler && !ui->changeFlag_overMode) btnDribbler->draw(false);
   if (needsRedrawMotor && !ui->changeFlag_overMode) btnMotorTest->draw(false);
