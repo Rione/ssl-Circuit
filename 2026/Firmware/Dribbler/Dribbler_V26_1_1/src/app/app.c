@@ -24,7 +24,7 @@ uint16_t adc_val[4];  // 0: Current, 1: BallSensor
 
 #define CONTROL_FREQ_HZ 1000      // 1000Hz
 #define CONTROL_INTERVAL_US 1000  // 1000us
-#define CAN_SEND_INTERVAL_MS 10   // 10ms
+#define CAN_SEND_INTERVAL_MS 1    // 10ms
 
 #define CAN_RECV_ID 0x20
 #define CAN_SEND_ID 0x70
@@ -48,12 +48,12 @@ void Setup() {
 
   // CANの初期化
   Can_Init(&can, &hcan1, 0);
+  HAL_CAN_DeactivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
 
   PwmOut_Write(&LED2, 1);  // CANの初期化確認
 
   // ADCの初期化
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_val, 4);
-  HAL_Delay(1000);
   printf("ADC_DMA start\n");
 
   PwmOut_Write(&LED3, 1);  // ADCの初期化確認
@@ -80,6 +80,7 @@ void Setup() {
   PwmOut_Write(&LED4, 0);
 
   printf("Dribbler Setup Complete\n");
+  HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
 }
 
 void MainApp() {
