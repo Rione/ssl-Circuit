@@ -17,8 +17,13 @@ typedef union {
   uint8_t data;
 } DribbleStatus;
 
+#define DRIBBLER_MAX_POWER 250        // 0以外を指定した際の送信パワー（現状は2値制御）
+#define DRIBBLER_SEND_INTERVAL_MS 100  // パワー未変化時の再送間隔[ms]
+
 typedef struct {
   CanBus *can;
+  Timer send_timer;
+  uint8_t power_prev;
 } Dribbler;
 
 void Dribbler_Init(Dribbler *self, CanBus *can);

@@ -197,6 +197,15 @@ void Robot_SendDribble(Robot* self, uint8_t power, uint8_t force_send) {
   Dribbler_Send(&self->dribbler, power, force_send);
 }
 
+// do_direct中はボール検知の立ち上がりエッジ(未検知→検知)でだけ発火させ、
+// それ以外はpowerが指定されている限り毎回発火させる。
+static void Robot_KickIfTriggered(Kicker* kicker, uint8_t is_straight, uint8_t power,
+                                  uint8_t do_direct, uint8_t ball_detected_edge) {
+  if (power == 0) return;
+  if (do_direct && !ball_detected_edge) return;
+  Kicker_Kick(kicker, is_straight, power);
+}
+
 // ボールセンサ反応時の自動キック(do_direct)はメイン基板内で発火判定まで行う。
 // Rock5Aはdo_direct中ずっと1を送り続けるので、do_direct_straightの値そのものをゲートに使い、
 // ボール検知の立ち上がりエッジ(未検知→検知)でだけ発火させる(ボールが離れれば次の検知で再発火できる)。
@@ -205,22 +214,13 @@ void Robot_SendKicker(Robot* self, RobotInfo* info) {
 
   uint8_t ball_detected = info->dribble_status.is_detected_ball;
   uint8_t ball_detected_edge = ball_detected && !prev_ball_detected;
+  info->status.do_direct_straight = 1;
+  info->kicker.straight = 50;
 
-  if (info->status.do_direct_straight) {
-    if (ball_detected_edge && info->kicker.straight > 0) {
-      Kicker_Kick(&self->kicker, KICKER_STRAIGHT, info->kicker.straight);
-    }
-  } else if (info->kicker.straight > 0) {
-    Kicker_Kick(&self->kicker, KICKER_STRAIGHT, info->kicker.straight);
-  }
-
-  if (info->status.do_direct_chip_kick) {
-    if (ball_detected_edge && info->kicker.chip > 0) {
-      Kicker_Kick(&self->kicker, KICKER_CHIP, info->kicker.chip);
-    }
-  } else if (info->kicker.chip > 0) {
-    Kicker_Kick(&self->kicker, KICKER_CHIP, info->kicker.chip);
-  }
+  Robot_KickIfTriggered(&self->kicker, KICKER_STRAIGHT, info->kicker.straight,
+                        info->status.do_direct_straight, ball_detected_edge);
+  Robot_KickIfTriggered(&self->kicker, KICKER_CHIP, info->kicker.chip,
+                        info->status.do_direct_chip_kick, ball_detected_edge);
 
   prev_ball_detected = ball_detected;
 }

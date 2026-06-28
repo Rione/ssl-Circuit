@@ -9,13 +9,6 @@
 #include "timer.h"
 
 typedef struct {
-  union {
-    struct {
-      uint8_t do_direct_straight : 1;
-      uint8_t do_direct_chip : 1;
-    };
-    uint8_t do_direct_status;
-  };
   uint16_t cap_val;
   uint8_t done_charge;
 } KickerStatus;
@@ -25,14 +18,12 @@ typedef struct {
 
 typedef struct {
   CanBus* can;
-  KickerStatus status;
+  Timer kick_timer;
 } Kicker;
 
 void Kicker_Init(Kicker* self, CanBus* can);
 void Kicker_Kick(Kicker* self, uint8_t is_straight, uint8_t power);
 void Kicker_Charge(Kicker* self);
 void Kicker_Discharge(Kicker* self);
-void Kicker_CancelDirect(Kicker* self);
-uint16_t Kicker_GetCapVal(Kicker* self);
 
 #endif  // __KICKER_H_
