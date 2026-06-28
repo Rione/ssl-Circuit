@@ -8,7 +8,7 @@
 
 class DISPLAY_DEVICE {
   public:
-    DISPLAY_DEVICE(TFT_eSPI *tftPtr, TFT_eSprite *spritePtr);
+    DISPLAY_DEVICE(TFT_eSPI *tftPtr, TFT_eSprite *sprite);
 
     void init(void);
     void setSPIClockFast(void);
@@ -23,9 +23,10 @@ class DISPLAY_DEVICE {
 
     static const int backlightPin = 0;
 
+    TFT_eSprite *sprite;
+
   private:
     TFT_eSPI *tftPtr;
-    TFT_eSprite *spritePtr;
     
 };
 

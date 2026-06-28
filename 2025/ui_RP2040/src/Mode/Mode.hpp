@@ -1,7 +1,7 @@
 #ifndef _Mode_
 #define _Mode_
 
-#include "UI/ui_kit.hpp"
+#include "AppManager/ui_kit.hpp"
 #include "Media/MediaExecutor.hpp"
 
 class Mode {

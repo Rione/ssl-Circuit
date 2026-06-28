@@ -239,7 +239,7 @@ void Robot::checkRobotRest(RobotInfo_t &info) {
 void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
       // UIにデータを送信する
       static const uint8_t HEADER = 0xFF;  // ヘッダ
-      static const uint8_t dataSize = 3;   // データのサイズ
+      static const uint8_t dataSize = 21;  // 新UIに合わせて21バイトに変更
       static Timer timer;
 
       if (timer.read_ms() < interval) {
@@ -249,14 +249,29 @@ void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
       info.capaData.chargeState = info.isKickerChargeMode;
       info.capaData.chargeVal = info.capValEstimate;
 
-      uint8_t buffer[dataSize] = {
-          info.batteryVoltage,
-          info.capaData.data,
-          (uint8_t)info.buzzer,
-      };
+      uint8_t buffer[dataSize] = {0};
+      buffer[0] = info.batteryVoltage;
+      buffer[1] = info.capaData.data;
+      buffer[2] = (uint8_t)info.buzzer;
+      buffer[3] = info.dribbleStatus.isDetectedBall ? 1 : 0; // ボールセンサ
+
+      // モーター速度 (float 4bytes x 4)
+      float motorVel[4];
+      for (int i = 0; i < 4; i++) {
+          motorVel[i] = (float)info.mdStatus.motorAngularVelocity[i];
+      }
+      memcpy(&buffer[4], &motorVel[0], 4);
+      memcpy(&buffer[8], &motorVel[1], 4);
+      memcpy(&buffer[12], &motorVel[2], 4);
+      memcpy(&buffer[16], &motorVel[3], 4);
+
+      // モーターステータス (bitmask)
+      // エラー検知がSTM側にない場合は、とりあえず全て正常(0x0F)とする
+      buffer[20] = 0x0F;
+
       serial4.write(HEADER);
       serial4.write(buffer, dataSize);
-      printf("send %d %d %d\n", buffer[0], info.capaData.chargeState, info.capaData.chargeVal);
+      // printf("send ui: bat=%d cap=%d buzzer=%d\n", buffer[0], info.capaData.chargeVal, buffer[2]);
 
       timer.reset();
 }
@@ -264,7 +279,7 @@ void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
 void Robot::uiRecvSerial(RobotInfo_t &info) {
       // UIにデータを送信する
       static const uint8_t HEADER = 0xFF;   // ヘッダ
-      static const uint8_t dataSize = 1;    // データのサイズ
+      static const uint8_t dataSize = 2;    // データのサイズ (modeStatusとtestCommandの2バイト)
       static bool headerReceived = false;   // ヘッダを受信したかどうか
       static uint8_t index = 0;             // 受信したデータのインデックスカウンター
       static uint8_t data[dataSize] = {0};  // 受信したデータ
@@ -277,11 +292,17 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
             } else {
                   data[index] = receivedByte;
                   index++;
-                  if (index == dataSize) {
-                        info.uiStatus.data = data[0];
-                        headerReceived = false;
-                        index = 0;
-                  }
+                    if (index == dataSize) {
+                          info.uiStatus.mode = data[0] & 0x1F;
+                          if (data[0] & (1 << 6)) info.uiStatus.chargeStateChange = 1;
+                          if (data[0] & (1 << 7)) info.uiStatus.kick = 1;
+                          
+                          if (data[1] != 0) {
+                              info.testCommand = data[1]; // 0以外のコマンドを保持
+                          }
+                          headerReceived = false;
+                          index = 0;
+                    }
             }
       }
 }

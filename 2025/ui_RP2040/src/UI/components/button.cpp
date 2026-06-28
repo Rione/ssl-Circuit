@@ -36,3 +36,49 @@ bool BUTTON::buttonDisable() {
     else return false; // ボタン有効化
 }
     
+
+TEXT_BUTTON::TEXT_BUTTON(DISPLAY_DEVICE *display, TOUCHSCREEN *touch, int x, int y, int w, int h, const char* text, uint16_t bg, uint16_t fg) {
+    this->display = display;
+    this->touch = touch;
+    this->x = x;
+    this->y = y;
+    this->w = w;
+    this->h = h;
+    this->text = text;
+    this->bg = bg;
+    this->fg = fg;
+}
+
+void TEXT_BUTTON::draw(bool state) {
+    uint16_t drawBg = state ? display->sprite->color565(200, 200, 200) : bg;
+    uint16_t borderCol = display->sprite->color565(200, 200, 200);
+    
+    display->sprite->fillRoundRect(x, y, w, h, 4, drawBg);
+    display->sprite->drawRoundRect(x, y, w, h, 4, borderCol);
+    display->sprite->setTextColor(fg);
+    display->sprite->setTextDatum(ML_DATUM);
+    display->sprite->setTextFont(2);
+    display->sprite->drawString(text, x + 16, y + h / 2);
+    display->sprite->setTextFont(1);
+}
+
+void TEXT_BUTTON::updateState() {
+    if (isPressed && millis() - pressTime > 150) {
+        isPressed = false;
+        draw(false);
+        display->publish(0, 0);
+    }
+}
+
+bool TEXT_BUTTON::determine() {
+    if (touch->isTouched && !touch->isTouchedPrev) {
+        if (touch->point.x > x && touch->point.x < x + w && touch->point.y > y && touch->point.y < y + h) {
+            isPressed = true;
+            pressTime = millis();
+            draw(true);
+            display->publish(0, 0);
+            return true;
+        }
+    }
+    return false;
+}

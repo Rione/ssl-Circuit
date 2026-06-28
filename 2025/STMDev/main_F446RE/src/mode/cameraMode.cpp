@@ -16,6 +16,10 @@ void CameraMode::loop() {
       robot->rasRecvSerial(robot->info);   // sync
       robot->checkRobotRest(robot->info);  // ロボットが停止しているか確認
 
+      robot->uiRecvSerial(robot->info);    // UIからデータ受信
+      uiKickControl(robot->info);          // UIからのキック・チャージ制御
+      swKickControl(robot->info);          // 物理スイッチからのキック・チャージ制御
+
       buzzerControl(robot->info);  // ブザーの制御
 
       robot->uiSendSerial(robot->info, 100);  // UIにデータを送信する
@@ -37,12 +41,45 @@ void CameraMode::loop() {
             camera_correction_timer.reset();
       }
 
-      if (camera_x == 0 && camera_y == 0) {
-            robot->motorDriver.setVelocityFF(0, 0, 1500);
+      bool isTestingMotor = robot->info.isMotorTesting && (robot->info.motorTestTimer.read_ms() < 3000);
+      bool isTestingDribbler = robot->info.isDribblerTesting;
+
+      if (robot->info.isMotorTesting && robot->info.motorTestTimer.read_ms() >= 3000) {
+            robot->info.isMotorTesting = false;
+      }
+
+      if (isTestingMotor || isTestingDribbler) {
+            // === UIテスト中（2026の仕様に合わせ、安全裁定をバイパス） ===
+            if (isTestingMotor) {
+                  robot->motorDriver.setVelocityFF(100, 0, 0); // モーターテスト: 100 mm/s 前進
+            } else {
+                  robot->motorDriver.setVelocityFF(0, 0, 0);
+            }
+            
+            if (isTestingDribbler) {
+                  robot->sendDribble(100); // テスト時パワー100 (新旧ドリブラー仕様に準拠)
+            } else {
+                  robot->sendDribble(0);
+            }
+            
+            robot->sendKicker(robot->info);
+      } else if (robot->info.status.emergencyStop) {
+            stopRobot(500);
+      } else if (robot->info.status.isSignalReceived) {
+            // === 試合中 (RasPi信号あり) ===
+            if (camera_x == 0 && camera_y == 0) {
+                  robot->motorDriver.setVelocityFF(0, 0, 1500);
+            } else {
+                  vel_x = Constrain(robot->info.camera.y * 30, -max_speed, max_speed);
+                  vel_y = 0;
+                  robot->motorDriver.setVelocityFF(vel_x, vel_y, (127 - robot->info.camera.x) * 30);
+            }
+            robot->sendDribble(robot->info.dribblePower);
+            robot->sendKicker(robot->info);
+            robot->sendMotor(robot->info, 10);
       } else {
-            vel_x = Constrain(robot->info.camera.y * 30, -max_speed, max_speed);
-            vel_y = 0;
-            robot->motorDriver.setVelocityFF(vel_x, vel_y, (127 - robot->info.camera.x) * 30);
+            // === 待機状態 ===
+            stopRobot(500);
       }
       // if (robot->info.dribbleStatus.isDetectedBall == true || (robot->info.camera.y < 5 && robot->info.camera.y != 0)) {
       //       robot->sendDribble(50);

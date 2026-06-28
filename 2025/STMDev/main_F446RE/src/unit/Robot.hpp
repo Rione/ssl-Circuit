@@ -173,6 +173,11 @@ typedef struct {
     };
     uint8_t data;
   } uiStatus;
+  
+  uint8_t testCommand;        // UIからのテストコマンド (1: Kick, 2: Chip, 3: Dribbler, 4: Motor, 5: Discharge)
+  bool isDribblerTesting;     // UIテスト用ドリブラー動作フラグ
+  bool isMotorTesting;        // UIテスト用モーター動作フラグ
+  Timer motorTestTimer;       // UIテスト用モーター動作タイマー
 
   // Information MD→STM32 ---------------------------
   struct {

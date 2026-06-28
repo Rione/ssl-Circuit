@@ -9,16 +9,18 @@
 #include "IO_Setup_Control.hpp"
 
 #ifdef __cplusplus
-
 extern "C" {
+#endif
+
   void Setup(void);
   void MainLoop(void);
-  void Interrupt_Processing_f10ms();
-  void Interrupt_Processing_f1ms();
-  void CAN_Data_Output_ID0x1d2_246();
-  void CAN_Data_Input_ID0x1d1_245();
-}
+  void Interrupt_Processing_f10ms(void);
+  void Interrupt_Processing_f1ms(void);
+  void CAN_Data_Output_ID0x1d2_246(void);
+  void CAN_Data_Input_ID0x1d1_245(void);
 
+#ifdef __cplusplus
+}
 #endif
 
 #endif

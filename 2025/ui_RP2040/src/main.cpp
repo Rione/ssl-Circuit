@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#include "UI/ui_kit.hpp"
+#include "AppManager/ui_kit.hpp"
 UiKit ui;
 MediaExecutor media;
 
@@ -29,6 +29,9 @@ void setup() {
 
     ui.init();
 
+    media.init();
+    media.playFuncBuzzer(playType::START);
+
     currentMode =  modes[ui.info.modeStatus.mode];
     currentMode->displaySet();
 }
@@ -50,19 +53,10 @@ void loop() {
     ui.infoTab();
     
     media.setBuzzerType((playType)ui.info.buzzerState);
+    media.execute();
 
     interval = millis() - time;
     // Serial.println(interval);
-}
-
-void setup1() {
-    media.init();
-    media.playFuncBuzzer(playType::START);
-    delay(300);
-    media.playFuncBuzzer(playType::STOP);
-}
-void loop1() {
-    media.execute();
 }
 
 // メモ

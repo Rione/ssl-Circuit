@@ -1,5 +1,5 @@
 #include "ui_kit.hpp"
-#include "UI/image/new_image.h"
+#include "UI/images/new_image.h"
 
 void UiKit::init() {
     touch.begin();

@@ -2,7 +2,7 @@
 #define _TEST_MODE_
 
 #include "Mode.hpp"
-#include "UI/unit/button.hpp"
+#include "UI/components/button.hpp"
 
 class TestMode : public Mode {
   public:
