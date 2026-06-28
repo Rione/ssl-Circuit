@@ -10,14 +10,25 @@ uint16_t adc_val[1];
 
 #define ADC2VOLT 0.008862304688f
 #define BATTERY_VOLTAGE_OFFSET 2.0f  // 実測とのズレを補正するオフセット
-#define ROCK_SPI_RX_PACKET_SIZE 18U
+
+// フレーム構成: [ヘッダ0xFF][ペイロード18byte][フッタ0xAA] = 20byte
+// CS(NSS)が無いSPIスレーブはフレーム先頭が分からないので、1フレームより大きい
+// 固定長(2フレーム分)を一括受信し、その中からソフトで「FF…(18)…AA」を探して
+// 切り出す。一括受信中は取りこぼさず、2フレーム分あれば開始位置がどこにズレても
+// 必ず1フレーム丸ごと含まれるため、再アームの隙間でバイトが欠けても復帰できる。
+#define ROCK_SPI_HEADER 0xFFU
+#define ROCK_SPI_FOOTER 0xAAU
+#define ROCK_SPI_PAYLOAD_SIZE 18U
+#define ROCK_SPI_FRAME_SIZE (ROCK_SPI_PAYLOAD_SIZE + 2U)   // ヘッダ+ペイロード+フッタ=20
+#define ROCK_SPI_RX_BUF_SIZE (ROCK_SPI_FRAME_SIZE * 2U)    // 一括受信バッファ=40(2フレーム)
 // この時間(ms)受信できなかったら信号ロストと判定する（ここを変えれば猶予秒数を調整可能）
 #define ROCK_SPI_SIGNAL_TIMEOUT_MS 100U
 
-static uint8_t rock_spi_tx_packet[ROCK_SPI_RX_PACKET_SIZE] = {};
-static uint8_t rock_spi_rx_packet[ROCK_SPI_RX_PACKET_SIZE];    // 割り込みの受信先
-static uint8_t rock_spi_rx_snapshot[ROCK_SPI_RX_PACKET_SIZE];  // メインループ反映用
-static volatile uint8_t rock_rx_ready = 0;                     // 新しいフレームを受信したフラグ
+static uint8_t rock_spi_tx_buf[ROCK_SPI_RX_BUF_SIZE] = {};   // 送信(20byteフレーム×2)
+static uint8_t rock_spi_rx_buf[ROCK_SPI_RX_BUF_SIZE];        // 割り込みの受信先(40byte)
+static uint8_t rock_spi_rx_snapshot[ROCK_SPI_RX_BUF_SIZE];   // メインループ走査用
+static volatile uint8_t rock_rx_ready = 0;                   // 新しい一括受信完了フラグ
+static volatile uint8_t rock_rearm_pending = 0;             // 再アーム失敗→メインで貼り直す
 
 // 最後に受信できた時刻(ms)。これからの経過時間でタイムアウトを判定する
 static uint32_t rock_last_recv_tick = 0;
@@ -31,28 +42,41 @@ static void Robot_RockUpdateSignalTimeout(RobotInfo* info) {
   }
 }
 
-// SPI送受信の待ち受けを開始/再開する（常に待ち受け状態を保ち、隙間を作らない）
+// 40byte一括の送受信を仕掛ける。失敗したらメインループで貼り直す。
 static void Robot_RockArm(void) {
-  HAL_SPI_TransmitReceive_IT(&hspi2, rock_spi_tx_packet, rock_spi_rx_packet,
-                             ROCK_SPI_RX_PACKET_SIZE);
+  if (HAL_SPI_TransmitReceive_IT(&hspi2, rock_spi_tx_buf, rock_spi_rx_buf,
+                                 ROCK_SPI_RX_BUF_SIZE) != HAL_OK) {
+    rock_rearm_pending = 1;  // 失敗→メインで貼り直してフリーズ防止
+  }
 }
 
 // 送受信完了割り込み：受信データを退避してフラグを立て、即座に次を待ち受ける
-// （重い処理(printf等)はISR内でやらず、反映はメインループに任せる）
+// （重い処理(printf/フレーム探索)はISR内でやらず、反映はメインループに任せる）
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef* hspi) {
   if (hspi->Instance != SPI2) return;
 
-  memcpy(rock_spi_rx_snapshot, rock_spi_rx_packet, ROCK_SPI_RX_PACKET_SIZE);
-  rock_last_recv_tick = HAL_GetTick();
+  memcpy(rock_spi_rx_snapshot, rock_spi_rx_buf, ROCK_SPI_RX_BUF_SIZE);
   rock_rx_ready = 1;
-
-  Robot_RockArm();  // 隙間なく次フレームを待ち受け
+  Robot_RockArm();  // 隙間なく次の一括受信へ
 }
 
-// SPIエラー(オーバーラン等)時も待ち受けを再開して復帰する
+// SPIエラー(オーバーラン等)時の復帰。HALがフラグ処理済みなので、
+// ISR内で直接貼り直さずメインに依頼してフリーズを防ぐ。
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef* hspi) {
   if (hspi->Instance != SPI2) return;
-  Robot_RockArm();
+  rock_rearm_pending = 1;
+}
+
+// 一括受信バッファ(40byte)から「FF…(18)…AA」のフレームを探し、見つけたら
+// ペイロード先頭オフセットを返す。見つからなければ -1。
+static int16_t Robot_RockFindFrame(const uint8_t* buf) {
+  for (uint16_t i = 0; i + ROCK_SPI_FRAME_SIZE <= ROCK_SPI_RX_BUF_SIZE; i++) {
+    if (buf[i] == ROCK_SPI_HEADER &&
+        buf[i + ROCK_SPI_FRAME_SIZE - 1] == ROCK_SPI_FOOTER) {
+      return (int16_t)(i + 1);  // ペイロード先頭(ヘッダの次)
+    }
+  }
+  return -1;
 }
 
 static void Robot_RockApplyRecvPacket(RobotInfo* info, const uint8_t* data) {
@@ -128,24 +152,33 @@ void Robot_UpdateSensor(Robot* self) {
   self->info.battery_voltage = adc_val[0] * ADC2VOLT + BATTERY_VOLTAGE_OFFSET;  // 0-255 (0-25.5V)
 }
 
-// 送信パケットを組み立てる（先頭11byteが実データ、残りは0クリア）
+// 送信パケットを組み立てる
+// 20byteフレーム[FF][ペイロード18][AA]を作り、40byteバッファに2連続で詰める
+// （受信側と同様、マスターがどの位置から読んでも1フレーム拾えるようにする）
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info) {
-  rock_spi_tx_packet[0] = info->battery_voltage * 10;
-  rock_spi_tx_packet[1] = info->dribble_status.data;
-  rock_spi_tx_packet[2] = info->kicker_status.cap_val;
+  uint8_t frame[ROCK_SPI_FRAME_SIZE];
+  frame[0] = ROCK_SPI_HEADER;
+  frame[1] = info->battery_voltage * 10;
+  frame[2] = info->dribble_status.data;
+  frame[3] = info->kicker_status.cap_val;
   int16_t wheel_scaled[4] = {
       self->omni_drive.vel_wheel_angular[0] * 100,
       self->omni_drive.vel_wheel_angular[1] * 100,
       self->omni_drive.vel_wheel_angular[2] * 100,
       self->omni_drive.vel_wheel_angular[3] * 100};
   for (int i = 0; i < 4; i++) {
-    rock_spi_tx_packet[3 + i * 2] = (uint8_t)(wheel_scaled[i] & 0xFF);
-    rock_spi_tx_packet[4 + i * 2] = (uint8_t)((wheel_scaled[i] >> 8) & 0xFF);
+    frame[4 + i * 2] = (uint8_t)(wheel_scaled[i] & 0xFF);
+    frame[5 + i * 2] = (uint8_t)((wheel_scaled[i] >> 8) & 0xFF);
   }
+  // ペイロード末尾(未使用領域)を0クリア、最後にフッタを書く
+  for (uint16_t i = 12; i < ROCK_SPI_FRAME_SIZE - 1; i++) {
+    frame[i] = 0x00;
+  }
+  frame[ROCK_SPI_FRAME_SIZE - 1] = ROCK_SPI_FOOTER;
 
-  for (uint16_t i = 11; i < ROCK_SPI_RX_PACKET_SIZE; i++) {
-    rock_spi_tx_packet[i] = 0x00;
-  }
+  // 40byteバッファに同じフレームを2連続でコピー
+  memcpy(&rock_spi_tx_buf[0], frame, ROCK_SPI_FRAME_SIZE);
+  memcpy(&rock_spi_tx_buf[ROCK_SPI_FRAME_SIZE], frame, ROCK_SPI_FRAME_SIZE);
 }
 
 // メインループから毎周呼ぶ。実際の送受信は割り込みでバックグラウンド実行されているので、
@@ -154,10 +187,24 @@ void Robot_RockUpdateSPI(Robot* self, RobotInfo* info) {
   // 次フレームで送る送信データを更新（割り込みが再アーム時にこれを送る）
   Robot_RockBuildTxPacket(self, info);
 
+  // 再アームに失敗してSPIが止まっていたら、ここで確実に貼り直す（フリーズ復帰）
+  if (rock_rearm_pending) {
+    rock_rearm_pending = 0;
+    HAL_SPI_Abort(&hspi2);  // 状態をREADYへ戻す
+    Robot_RockArm();
+  }
+
   if (rock_rx_ready) {
-    // 新しいフレームを受信済み → 反映（is_signal_received=1）
     rock_rx_ready = 0;
-    Robot_RockApplyRecvPacket(info, rock_spi_rx_snapshot);
+    // 40byteバッファから「FF…(18)…AA」のフレームを探して切り出す
+    int16_t payload_offset = Robot_RockFindFrame(rock_spi_rx_snapshot);
+    if (payload_offset >= 0) {
+      rock_last_recv_tick = HAL_GetTick();  // 有効フレーム受信時刻を更新
+      Robot_RockApplyRecvPacket(info, &rock_spi_rx_snapshot[payload_offset]);
+    } else {
+      // 有効フレーム無し（取りこぼし等）→ 反映せずタイムアウト判定に任せる
+      Robot_RockUpdateSignalTimeout(info);
+    }
   } else {
     // しばらく受信が無ければ信号ロスト判定
     Robot_RockUpdateSignalTimeout(info);
