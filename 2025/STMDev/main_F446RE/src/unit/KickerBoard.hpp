@@ -22,7 +22,7 @@ class KickerBoard {
     void resetDoDirect(uint8_t type);
 
     // -- charge, dischargeのコントロール
-    // state: 0: discharge, 1: doCharge  
+    // state: CHARGE(0) / DISCHARGE(1) — Robot.hpp の定数を渡すこと
     void chargeControl(uint8_t state);
 
     void minusCapValEstimate(uint8_t val) {

@@ -52,6 +52,7 @@ void MainMode::loop() {
     // === 通常の試合中 (RasPiからの信号あり) ===
     robot->sendDribble(robot->info.dribblePower);
     robot->sendKicker(robot->info);
+    robot->kickerBoard.chargeControl(robot->info.status.doCharge ? CHARGE : DISCHARGE);
     robot->sendMotor(robot->info, 10);
   } else {
     // === 待機状態 ===
