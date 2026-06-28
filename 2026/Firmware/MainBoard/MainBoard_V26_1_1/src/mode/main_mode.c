@@ -40,7 +40,8 @@ void MainMode_Loop(MainMode* self) {
 
   Robot_UpdateHeartBeat(r);
 
-  // 1ms 制御ループを維持
-  while (Timer_ReadMs(&main_control_timer) < 1);
+  while (Timer_ReadUs(&main_control_timer) < ROBOT_CONTROL_LOOP_DT_US) {
+    // 制御ループ周期まで待機
+  };
   Timer_Reset(&main_control_timer);
 }

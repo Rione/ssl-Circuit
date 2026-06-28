@@ -214,13 +214,15 @@ void Robot_SendKicker(Robot* self, RobotInfo* info) {
 
   uint8_t ball_detected = info->dribble_status.is_detected_ball;
   uint8_t ball_detected_edge = ball_detected && !prev_ball_detected;
-  info->status.do_direct_straight = 1;
-  info->kicker.straight = 50;
 
-  Robot_KickIfTriggered(&self->kicker, KICKER_STRAIGHT, info->kicker.straight,
-                        info->status.do_direct_straight, ball_detected_edge);
-  Robot_KickIfTriggered(&self->kicker, KICKER_CHIP, info->kicker.chip,
-                        info->status.do_direct_chip_kick, ball_detected_edge);
+  if (!info->status.do_direct_straight) {
+    Robot_KickIfTriggered(&self->kicker, KICKER_CHIP, info->kicker.chip,
+                          info->status.do_direct_chip, ball_detected_edge);
+  }
+  if (!info->status.do_direct_chip) {
+    Robot_KickIfTriggered(&self->kicker, KICKER_STRAIGHT, info->kicker.straight,
+                          info->status.do_direct_straight, ball_detected_edge);
+  }
 
   prev_ball_detected = ball_detected;
 }

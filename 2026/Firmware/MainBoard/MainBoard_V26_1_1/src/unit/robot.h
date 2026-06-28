@@ -78,7 +78,7 @@ typedef struct {
     struct {
       uint8_t emergency_stop : 1;
       uint8_t do_direct_straight : 1;   // ボールセンサ反応時にストレートキック
-      uint8_t do_direct_chip_kick : 1;  // ボールセンサ反応時にチップキック
+      uint8_t do_direct_chip : 1;  // ボールセンサ反応時にチップキック
       uint8_t reserved : 1;
       uint8_t do_charge : 1;           // 0: discharge, 1: charge
       uint8_t is_signal_received : 1;  // コントローラから信号受信中

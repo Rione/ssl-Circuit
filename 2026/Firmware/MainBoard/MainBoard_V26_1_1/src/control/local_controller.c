@@ -15,7 +15,7 @@ void LocalController_Stop(LocalController* self, Robot* robot) {
   robot->info.kicker.straight = 0;
   robot->info.kicker.chip = 0;
   robot->info.status.do_direct_straight = 0;
-  robot->info.status.do_direct_chip_kick = 0;
+  robot->info.status.do_direct_chip = 0;
   Robot_SendKicker(robot, &robot->info);  // キック指示をクリアするために送信
 
   Robot_SendDribble(robot, 0, 0);
