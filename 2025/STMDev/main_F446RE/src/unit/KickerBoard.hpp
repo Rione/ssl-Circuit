@@ -37,6 +37,9 @@ class KickerBoard {
         capValEstimate = val;
     }
 
+    // KickerBoard CAN 0x123 からの充電フィードバック
+    void updateChargeFeedback(uint8_t chargeDone, uint8_t chargeMode);
+
   private:
     CANBus *_canBus;
     uint8_t capValEstimate; // 充電量の推定値

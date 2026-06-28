@@ -18,42 +18,43 @@ void stopRobot(uint16_t interval) {
 }
 
 void uiKickControl(RobotInfo_t &info) {
-    // UIからの充電制御
-    if (info.uiStatus.chargeStateChange == 1) {
-        // 常に充電開始にする（トグルしない）
-        robot.kickerBoard.chargeControl(CHARGE);
-        printf("UI Start charge\n");
-        robot.led2 = true;
-        info.uiStatus.chargeStateChange = 0;
-        robot.manageByUserCounter.reset();
-    } else if(info.uiStatus.kick == 1) {
-        // キック
-        robot.kickerBoard.kick(STRAIGHT, 50);
-        printf("kick\n");
-        info.uiStatus.kick = 0;
-        robot.manageByUserCounter.reset();
-    }
-    
-    // UIからのテストコマンド処理 (2026 UIプロトコル対応)
+    // testCommand を最優先（放電とキックが同時に走らないようにする）
     if (info.testCommand != 0) {
         if (info.testCommand == 1) { // CMD_KICK
-            robot.kickerBoard.kick(STRAIGHT, 255); // パワーを最大にする
+            robot.kickerBoard.kick(STRAIGHT, 100);
+            if (info.isKickerChargeMode) {
+                robot.kickerBoard.chargeControl(CHARGE);
+            }
         } else if (info.testCommand == 2) { // CMD_CHIP_KICK
-            robot.kickerBoard.kick(CHIP, 255); 
+            robot.kickerBoard.kick(CHIP, 100);
+            if (info.isKickerChargeMode) {
+                robot.kickerBoard.chargeControl(CHARGE);
+            }
         } else if (info.testCommand == 3) { // CMD_DRIBBLER
-            info.isDribblerTesting = !info.isDribblerTesting; // トグル
+            info.isDribblerTesting = !info.isDribblerTesting;
         } else if (info.testCommand == 4) { // CMD_MOTOR_TEST
             info.isMotorTesting = true;
             info.motorTestTimer.reset();
         } else if (info.testCommand == 5) { // CMD_DISCHARGE
-            robot.kickerBoard.kick(STRAIGHT, 20); // 弱いキック
-            HAL_Delay(5);
             robot.kickerBoard.chargeControl(DISCHARGE);
+            info.isKickerChargeMode = false;
             robot.led2 = false;
-            // info.isDribblerTesting = false; // テストも強制終了
-            // info.isMotorTesting = false;
+            info.isDribblerTesting = false;
+            info.isMotorTesting = false;
         }
-        info.testCommand = 0; // コマンドを処理したらクリア
+        info.testCommand = 0;
+        robot.manageByUserCounter.reset();
+    } else if (info.uiStatus.chargeStateChange == 1) {
+        robot.kickerBoard.chargeControl(CHARGE);
+        info.isKickerChargeMode = true;
+        printf("UI Start charge\n");
+        robot.led2 = true;
+        info.uiStatus.chargeStateChange = 0;
+        robot.manageByUserCounter.reset();
+    } else if (info.uiStatus.kick == 1) {
+        robot.kickerBoard.kick(STRAIGHT, 50);
+        printf("kick\n");
+        info.uiStatus.kick = 0;
         robot.manageByUserCounter.reset();
     }
 

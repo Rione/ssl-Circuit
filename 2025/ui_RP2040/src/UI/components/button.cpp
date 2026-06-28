@@ -71,14 +71,24 @@ void TEXT_BUTTON::updateState() {
 }
 
 bool TEXT_BUTTON::determine() {
-    if (touch->isTouched && !touch->isTouchedPrev) {
-        if (touch->point.x > x && touch->point.x < x + w && touch->point.y > y && touch->point.y < y + h) {
+    bool inBounds = touch->point.x > x && touch->point.x < x + w &&
+                    touch->point.y > y && touch->point.y < y + h;
+
+    if (touch->isTouched) {
+        if (inBounds && !isPressed) {
             isPressed = true;
             pressTime = millis();
             draw(true);
             display->publish(0, 0);
-            return true;
         }
+        return false;
+    }
+
+    if (isPressed) {
+        isPressed = false;
+        draw(false);
+        display->publish(0, 0);
+        return true;
     }
     return false;
 }

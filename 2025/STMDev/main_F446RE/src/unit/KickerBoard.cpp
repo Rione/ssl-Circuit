@@ -63,3 +63,18 @@ void KickerBoard::chargeControl(uint8_t state) {
 
   timer.reset();
 }
+
+void KickerBoard::updateChargeFeedback(uint8_t chargeDone, uint8_t chargeMode) {
+  if (chargeDone == 0xFF) {
+    capValEstimate = 100;
+    return;
+  }
+  // 充電中は完了パルスを待ちながら充電率を漸増（CAN 10ms周期 × 50 ≒ 0.5s/step）
+  if (chargeMode == 0xFF && capValEstimate < 99) {
+    static uint8_t rampCounter = 0;
+    if (++rampCounter >= 50) {
+      rampCounter = 0;
+      capValEstimate++;
+    }
+  }
+}

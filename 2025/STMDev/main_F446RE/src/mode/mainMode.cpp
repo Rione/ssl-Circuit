@@ -52,7 +52,10 @@ void MainMode::loop() {
     // === 通常の試合中 (RasPiからの信号あり) ===
     robot->sendDribble(robot->info.dribblePower);
     robot->sendKicker(robot->info);
-    robot->kickerBoard.chargeControl(robot->info.status.doCharge ? CHARGE : DISCHARGE);
+    // UI/スイッチ操作後15秒間はPiの充放電指令を無視する
+    if (robot->manageByUserCounter.read_ms() >= 15000) {
+      robot->kickerBoard.chargeControl(robot->info.status.doCharge ? CHARGE : DISCHARGE);
+    }
     robot->sendMotor(robot->info, 10);
   } else {
     // === 待機状態 ===

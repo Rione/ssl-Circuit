@@ -146,7 +146,13 @@ void UiKit::stmSendSerial(RobotInfo_t *info) {
 
   Serial1.write(HEADER);
   Serial1.write(info->modeStatus.data);
-  Serial1.write(info->testCommand); // STM32は2バイトのデータ(modeStatusとtestCommand)を受信する仕様
+  Serial1.write(info->testCommand);
+  Serial1.flush();
+
+  // ワンショットフラグは送信後にクリア（STM32側のビット残留を防ぐ）
+  info->modeStatus.charge_state = 0;
+  info->modeStatus.kick = 0;
+  info->modeStatus.emergencyStop = 0;
 }
 
 void UiKit::infoTab(bool forceUpdate) {

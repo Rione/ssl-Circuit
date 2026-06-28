@@ -44,7 +44,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 #if DRIBBLER_VERSION == DRIBBLER_OLD
                         robot.info.photoSensorValue = (uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8;  // フォトセンサの値の処理
 #endif
-                        robot.setChageDoneSignal(canRecvData.data[2]);                      // 充電完了信号の処理
+                        robot.kickerBoard.updateChargeFeedback(canRecvData.data[2], canRecvData.data[3]);
+                        robot.setChageDoneSignal(canRecvData.data[2]);                      // 充電完了信号（LED等）
                         robot.setKickerBoardChargeMode(canRecvData.data[3]);                // 充電モード信号の処理
                         robot.info.kickerBoardDoDirectStatus.status = canRecvData.data[4];  // doDirectの状態を受信
                         // uint16_t photoSensorThreshold = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;
