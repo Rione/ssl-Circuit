@@ -15,7 +15,6 @@ void Kicker_Kick(Kicker* self, uint8_t is_straight, uint8_t power) {
       .data = {power, 0, 0, 0, 0, 0, 0, 0},
   };
   Can_Send(self->can, &can_data);
-  printf("Kicker_Kick: is_straight=%d, power=%d\n", is_straight, power);
 
   Timer_Reset(&self->kick_timer);
 }
