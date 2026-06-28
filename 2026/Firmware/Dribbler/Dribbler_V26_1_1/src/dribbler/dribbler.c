@@ -5,7 +5,7 @@ DigitalOut BS_OUT;
 
 MAF maf_photo;
 
-#define PHOTO_THRESHOLD_MARGIN 300
+#define PHOTO_THRESHOLD_MARGIN 200
 #define BASE_PHOTO_MEASURE_NUM 100
 
 static uint32_t photo_th;

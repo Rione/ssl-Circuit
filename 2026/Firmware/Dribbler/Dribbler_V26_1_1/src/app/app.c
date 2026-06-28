@@ -22,9 +22,9 @@ uint16_t adc_val[4];  // 0: Current, 1: BallSensor
 #define MOTOR_CURRENT_IDX 0
 #define BALL_SENSOR_IDX 1
 
-#define CONTROL_FREQ_HZ 1000      // 1000Hz
-#define CONTROL_INTERVAL_US 1000  // 1000us
-#define CAN_SEND_INTERVAL_MS 1    // 10ms
+#define CONTROL_FREQ_HZ 1000     // 1000Hz
+#define CONTROL_INTERVAL_US 100  // 1000us
+#define CAN_SEND_INTERVAL_MS 1   // 10ms
 
 #define CAN_RECV_ID 0x20
 #define CAN_SEND_ID 0x70
