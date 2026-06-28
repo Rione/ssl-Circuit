@@ -138,7 +138,6 @@ static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info) {
       self->omni_drive.vel_wheel_angular[1] * 100,
       self->omni_drive.vel_wheel_angular[2] * 100,
       self->omni_drive.vel_wheel_angular[3] * 100};
-
   for (int i = 0; i < 4; i++) {
     rock_spi_tx_packet[3 + i * 2] = (uint8_t)(wheel_scaled[i] & 0xFF);
     rock_spi_tx_packet[4 + i * 2] = (uint8_t)((wheel_scaled[i] >> 8) & 0xFF);
@@ -198,23 +197,32 @@ void Robot_SendDribble(Robot* self, uint8_t power, uint8_t force_send) {
   Dribbler_Send(&self->dribbler, power, force_send);
 }
 
+// ボールセンサ反応時の自動キック(do_direct)はメイン基板内で発火判定まで行う。
+// Rock5Aはdo_direct中ずっと1を送り続けるので、do_direct_straightの値そのものをゲートに使い、
+// ボール検知の立ち上がりエッジ(未検知→検知)でだけ発火させる(ボールが離れれば次の検知で再発火できる)。
 void Robot_SendKicker(Robot* self, RobotInfo* info) {
-  if (info->kicker.straight > 0) {
-    Kicker_Kick(&self->kicker, KICKER_STRAIGHT, info->kicker.straight,
-                info->status.do_direct_kick);
-  } else if (info->kicker.chip > 0) {
-    Kicker_Kick(&self->kicker, KICKER_CHIP, info->kicker.chip,
-                info->status.do_direct_chip_kick);
-  } else {
-    if (info->status.do_direct_kick != info->kicker_status.do_direct_straight &&
-        info->kicker_status.do_direct_straight) {
-      Kicker_CancelDirect(&self->kicker, KICKER_STRAIGHT);
+  static uint8_t prev_ball_detected = 0;
+
+  uint8_t ball_detected = info->dribble_status.is_detected_ball;
+  uint8_t ball_detected_edge = ball_detected && !prev_ball_detected;
+
+  if (info->status.do_direct_straight) {
+    if (ball_detected_edge && info->kicker.straight > 0) {
+      Kicker_Kick(&self->kicker, KICKER_STRAIGHT, info->kicker.straight);
     }
-    if (info->status.do_direct_chip_kick != info->kicker_status.do_direct_chip &&
-        info->kicker_status.do_direct_chip) {
-      Kicker_CancelDirect(&self->kicker, KICKER_CHIP);
-    }
+  } else if (info->kicker.straight > 0) {
+    Kicker_Kick(&self->kicker, KICKER_STRAIGHT, info->kicker.straight);
   }
+
+  if (info->status.do_direct_chip_kick) {
+    if (ball_detected_edge && info->kicker.chip > 0) {
+      Kicker_Kick(&self->kicker, KICKER_CHIP, info->kicker.chip);
+    }
+  } else if (info->kicker.chip > 0) {
+    Kicker_Kick(&self->kicker, KICKER_CHIP, info->kicker.chip);
+  }
+
+  prev_ball_detected = ball_detected;
 }
 
 void Robot_SendOmniDrive(Robot* self, RobotInfo* info, uint8_t interval) {

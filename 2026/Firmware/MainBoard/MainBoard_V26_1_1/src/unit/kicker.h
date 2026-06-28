@@ -29,12 +29,10 @@ typedef struct {
 } Kicker;
 
 void Kicker_Init(Kicker* self, CanBus* can);
-void Kicker_Kick(Kicker* self, uint8_t is_straight, uint8_t power, uint8_t do_direct);
+void Kicker_Kick(Kicker* self, uint8_t is_straight, uint8_t power);
 void Kicker_Charge(Kicker* self);
 void Kicker_Discharge(Kicker* self);
-void Kicker_CancelDirect(Kicker* self, uint8_t is_straight);
-void Kicker_UpdateCapVal(Kicker* self, uint8_t power);
+void Kicker_CancelDirect(Kicker* self);
 uint16_t Kicker_GetCapVal(Kicker* self);
-void Kicker_SetCapVal(Kicker* self, uint16_t val);
 
 #endif  // __KICKER_H_

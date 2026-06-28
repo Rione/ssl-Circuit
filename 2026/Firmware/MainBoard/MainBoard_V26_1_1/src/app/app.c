@@ -14,7 +14,6 @@ MainMode main_mode;
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
   if (Can_GetHandle(&robot.can) == hcan) {
     Can_Recv(&robot.can, &can_data);
-    printf("CAN RX: id=0x%lX\n", can_data.stdId);  // TODO: 切り分けテスト用(確認後に削除)
     switch (can_data.stdId) {
       case CAN_ID_RX_SUPPLY_BOARD:  // 電源・キッカー情報
         robot.info.kicker_status.done_charge = can_data.data[0];
@@ -22,6 +21,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
         robot.info.kicker_status.cap_val = can_data.data[3] * 2;
         break;
       case CAN_ID_RX_DRIBBLER:  // ドリブル情報
+        robot.info.dribble_status.data = can_data.data[0];
         break;
     }
   }

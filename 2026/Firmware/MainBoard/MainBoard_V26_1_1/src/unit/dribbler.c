@@ -16,14 +16,13 @@ void Dribbler_Send(Dribbler* self, uint8_t power, uint8_t force_send) {
   }
 
   // 現状の仕様では0以外は最大出力(100)にする
-  uint8_t send_power = (power != 0) ? 100 : 0;
+  uint8_t send_power = (power != 0) ? 250 : 0;
 
   CanData can_data = {
       .stdId = CAN_ID_TX_DRIBBLER,
       .data = {send_power, 0, 0, 0, 0, 0, 0, 0},
   };
   Can_Send(self->can, &can_data);
-  printf("Dribbler_Send: power=%d\n", send_power);
 
   Timer_Reset(&timer);
   dribble_power_prev = power;
