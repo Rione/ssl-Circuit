@@ -15,6 +15,7 @@ PwmOut ledb;
 Serial uart2;
 
 LPF supply_volt_lpf;
+LPF encoder_lpf;
 LPF send_angular_speed_lpf;
 
 uint16_t adc_val[3];
@@ -34,6 +35,11 @@ Timer serial_send_timer;
 Timer serial_recv_timer;
 Timer control_timer;
 
+static bool pending_encoder_calibrate = false;
+static bool encoder_calibrate_done = false;
+
+static inline bool IsSwitchPressed(void) { return !DigitalIn_Read(&sw); }
+
 // USART2でORE等の受信エラーが発生した場合、DMA異常停止からの復帰を待たずに即座に受信を再開する。
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
   if (huart->Instance == USART2) {
@@ -42,7 +48,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 }
 
 static void GetSensors() {
-  encoder_val = adc_val[0];
+  encoder_val = (uint16_t)(LPF_Update(&encoder_lpf, (double)adc_val[0]) + 0.5);
   supply_volt_val = adc_val[1];
 
   supply_volt = supply_volt_val * ADC2VOLT * 20.0f;
@@ -137,11 +143,23 @@ void Setup() {
   HAL_Delay(10);
 
   DigitalOut_Write(&led3, 1);
+
+#if ENCODER_CALIBRATE_ON_BOOT
+  pending_encoder_calibrate = true;
+  printf("Encoder calibration scheduled (ENCODER_CALIBRATE_ON_BOOT=1).\n");
+#else
+  if (IsSwitchPressed()) {
+    pending_encoder_calibrate = true;
+    printf("Encoder calibration scheduled (SW pressed at boot).\n");
+  }
+#endif
+
   BLDC_Init(false, 0, &adc_val[0]);
 
   Serial_Init(&uart2, &huart2, 512);
 
   LPF_Init(&supply_volt_lpf, 0.9, 12);
+  LPF_Init(&encoder_lpf, ENCODER_LPF_COEF, (double)adc_val[0]);
   LPF_Init(&send_angular_speed_lpf, 0.9, 0);
 
   Timer_Init(&serial_send_timer);
@@ -230,27 +248,41 @@ void MainApp() {
     SendSerial();
     RecvSerial();
 
-    if (supply_volt > SUPPLY_VOLTAGE_MAX_LIMIT || supply_volt < SUPPLY_VOLTAGE_MIN_LIMIT || is_voltage_out_of_range) {
+    if (temprature > TEMP_LIMIT) {
+      printf("Temperature limit exceeded: %.1fC\n", temprature);
+      BLDC_Stop();
+      DigitalOut_Write(&led3, 1);
+      HAL_Delay(100);
+      DigitalOut_Write(&led3, 0);
+      HAL_Delay(100);
+    } else if (supply_volt > SUPPLY_VOLTAGE_MAX_LIMIT || supply_volt < SUPPLY_VOLTAGE_MIN_LIMIT) {
       printf("Supply voltage out of range: %.2fV\n", supply_volt);
       is_voltage_out_of_range = true;
       BLDC_Stop();
-
-      if (supply_volt > (SUPPLY_VOLTAGE_MIN_LIMIT + 0.5f) && supply_volt < (SUPPLY_VOLTAGE_MAX_LIMIT - 0.5f)) {
-        is_voltage_out_of_range = false;
-        DigitalOut_Write(&led3, 0);
-      } else {
-        DigitalOut_Write(&led3, 1);
-        HAL_Delay(100);
-        DigitalOut_Write(&led3, 0);
-        HAL_Delay(100);
-      }
+      DigitalOut_Write(&led3, 1);
+      HAL_Delay(100);
+      DigitalOut_Write(&led3, 0);
+      HAL_Delay(100);
+    } else if (is_voltage_out_of_range) {
+      is_voltage_out_of_range = false;
+      BLDC_Stop();
+      DigitalOut_Write(&led3, 0);
     } else if (!driver_ready) {
       // ゲートドライバ準備完了前は駆動しない(積分項も積み上げない)
       BLDC_Stop();
       DigitalOut_Write(&led2, 1);
     } else {
       DigitalOut_Write(&led2, 0);
-      if (mode == 0) {
+      if (pending_encoder_calibrate && !encoder_calibrate_done) {
+        pending_encoder_calibrate = false;
+        if (BLDC_CalibrateAndSaveEncoder(&adc_val[0], 0)) {
+          encoder_calibrate_done = true;
+          printf("Encoder calibration completed.\n");
+        } else {
+          printf("Encoder calibration failed.\n");
+        }
+        BLDC_Stop();
+      } else if (mode == 0) {
         BLDC_Stop();
       } else if (mode == 1) {
         BLDC_AngularSpeedControl(target_angular_speed);

@@ -16,4 +16,7 @@
 #define MAX_ANGULAR_ACCEL 10000.0f  // 最大角加速度 [rad/s^2]
 #define MAX_AMP_VOLT 10.0f          // 最大印加電圧 [V]
 
+#define ENCODER_CALIBRATE_ON_BOOT 0
+#define ENCODER_LPF_COEF 0.80
+
 #endif  // CONFIG_H_
