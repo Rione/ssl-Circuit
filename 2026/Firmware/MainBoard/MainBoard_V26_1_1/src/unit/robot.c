@@ -26,7 +26,7 @@ uint16_t adc_val[1];
 static uint8_t rock_spi_tx_buf[2][ROCK_SPI_FRAME_SIZE];
 static volatile uint8_t rock_spi_tx_arm_idx = 0;
 
-static uint8_t rock_spi_rx_xfer[ROCK_SPI_FRAME_SIZE];       // 直近 1 トランザクション分
+static uint8_t rock_spi_rx_xfer[ROCK_SPI_FRAME_SIZE];        // 直近 1 トランザクション分
 static uint8_t rock_spi_rx_window[ROCK_SPI_RX_WINDOW_SIZE];  // 再同期用 2 フレーム分
 static volatile uint8_t rock_rx_ready = 0;
 static volatile uint8_t rock_rearm_pending = 0;
@@ -251,11 +251,11 @@ void Robot_SendKicker(Robot* self, RobotInfo* info) {
   uint8_t ball_detected = info->dribble_status.is_detected_ball;
   uint8_t ball_detected_edge = ball_detected && !prev_ball_detected;
 
-  if (!info->status.do_direct_straight) {
+  if (!info->status.do_direct_straight && info->kicker.chip > 0) {
     Robot_KickIfTriggered(&self->kicker, KICKER_CHIP, info->kicker.chip,
                           info->status.do_direct_chip, ball_detected_edge);
   }
-  if (!info->status.do_direct_chip) {
+  if (!info->status.do_direct_chip && info->kicker.straight > 0) {
     Robot_KickIfTriggered(&self->kicker, KICKER_STRAIGHT, info->kicker.straight,
                           info->status.do_direct_straight, ball_detected_edge);
   }

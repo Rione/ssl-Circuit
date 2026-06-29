@@ -18,7 +18,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
       case CAN_ID_RX_SUPPLY_BOARD:  // 電源・キッカー情報
         robot.info.kicker_status.done_charge = can_data.data[0];
         robot.info.battery_voltage = can_data.data[1] * 0.2;
-        robot.info.kicker_status.cap_val = can_data.data[3] * 2;
+        robot.info.kicker_status.cap_val = can_data.data[2] * 2;
         break;
       case CAN_ID_RX_DRIBBLER:  // ドリブル情報
         robot.info.dribble_status.data = can_data.data[0];
