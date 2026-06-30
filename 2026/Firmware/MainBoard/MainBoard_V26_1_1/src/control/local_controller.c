@@ -9,7 +9,6 @@ void LocalController_Init(LocalController* self) {
 void LocalController_Stop(LocalController* self, Robot* robot) {
   (void)self;
   OmniDrive_SetFree(&robot->omni_drive);
-
   // 信号ロスト/緊急停止時、受信済みの最後のキック指示が残っていると
   // ROBOT_KICK_INTERVAL_MSごとに再発火してしまうため、ここで明示的にクリアする。
   robot->info.kicker.straight = 0;
