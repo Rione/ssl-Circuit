@@ -8,6 +8,8 @@ void MainMode_Init(MainMode* self, Robot* robot) {
   self->robot = robot;
   LocalController_Init(&self->local_controller);
   Timer_Init(&main_control_timer);
+
+  Kicker_Discharge(&self->robot->kicker);
 }
 
 void MainMode_Loop(MainMode* self) {

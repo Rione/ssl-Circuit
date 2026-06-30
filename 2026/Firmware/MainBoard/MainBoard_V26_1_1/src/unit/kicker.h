@@ -19,6 +19,8 @@ typedef struct {
 typedef struct {
   CanBus* can;
   Timer kick_timer;
+  Timer charge_timer;
+  Timer discharge_timer;
 } Kicker;
 
 void Kicker_Init(Kicker* self, CanBus* can);
