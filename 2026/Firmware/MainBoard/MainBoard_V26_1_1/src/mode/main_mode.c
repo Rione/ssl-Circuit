@@ -42,10 +42,16 @@ void MainMode_Loop(MainMode* self) {
 
   Robot_UpdateHeartBeat(r);
 
-  if (r->info.kicker_status.done_charge) {
+  if (r->info.kicker_status.cap_val > 200) {
     DigitalOut_Write(&r->led1, 1);
   } else {
     DigitalOut_Write(&r->led1, 0);
+  }
+
+  if (r->info.status.do_direct_straight || r->info.status.do_direct_chip) {
+    DigitalOut_Write(&r->led2, 1);
+  } else {
+    DigitalOut_Write(&r->led2, 0);
   }
 
   while (Timer_ReadUs(&main_control_timer) < ROBOT_CONTROL_LOOP_DT_US) {
