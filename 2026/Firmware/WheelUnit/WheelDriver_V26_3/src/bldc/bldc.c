@@ -32,38 +32,27 @@ static inline void BLDC_GetEncoder(uint16_t encoder_val) {
     svc.mech_theta = theta;
   }
 
-  svc.mech_theta = NormalizeRadians(theta - svc.encoder_offset_theta);
+  svc.mech_theta = NormalizeRadians(svc.mech_theta - svc.encoder_offset_theta);
 }
 
 static inline void BLDC_CalculateAngularSpeed(void) {
-  static float pre_speed = 0;
   static float pre_theta = 0;
-  static float pre_delta_theta = 0;
 
+  // 固定間隔(SPEED_MEAS_MIN_DT)ごとに角度差から速度を求める
   float dt = Timer_Read(&speed_dt_timer);
   if (dt < SPEED_MEAS_MIN_DT) return;  // 低速時の量子化ノイズ低減のため計測間隔を延長
-  if (dt > 0.05f) dt = 0.05f;
   Timer_Reset(&speed_dt_timer);
 
-  if (pre_theta == svc.mech_theta) {
-    pre_theta = svc.mech_theta + pre_delta_theta;
-    return;
-  }
-
   float delta_theta = svc.mech_theta - pre_theta;
+  pre_theta = svc.mech_theta;
 
   // 0と2πの境目を跨いだ場合の補正
   if (delta_theta > PI) delta_theta -= TWO_PI;
   if (delta_theta < -PI) delta_theta += TWO_PI;
 
-  pre_delta_theta = delta_theta;
-
   float speed = delta_theta / dt;
-  speed = speed * SPEED_LPF_INV + pre_speed * SPEED_LPF;  // ローパスフィルタ
-
-  svc.angular_speed = speed;
-  pre_speed = speed;
-  pre_theta = svc.mech_theta;
+  // ローパスフィルタ
+  svc.angular_speed = speed * SPEED_LPF_INV + svc.angular_speed * SPEED_LPF;
 }
 
 static inline float BLDC_PIDControl(PIDController* pid, float error, float dt) {
@@ -255,8 +244,8 @@ void BLDC_SensoredVectorControlDrive(uint16_t encoder_value, float supply_volt) 
   if (svc.amp_volt != MAX_AMP_VOLT) {
     Timer_Reset(&wheel_rock_timer);
   }
-  if (Timer_Read(&wheel_rock_timer) > 5) {
-    if (Timer_Read(&wheel_rock_timer) > 10) {
+  if (Timer_Read(&wheel_rock_timer) > 10) {
+    if (Timer_Read(&wheel_rock_timer) > 12) {
       Timer_Reset(&wheel_rock_timer);
     }
     svc.amp_volt = 0;
