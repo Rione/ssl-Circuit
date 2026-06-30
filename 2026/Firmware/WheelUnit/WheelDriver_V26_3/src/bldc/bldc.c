@@ -10,6 +10,8 @@ static Timer dt_timer;
 static Timer speed_dt_timer;
 static Timer accel_dt_timer;
 
+static Timer wheel_rock_timer;
+
 static inline void BLDC_GetEncoder(uint16_t encoder_val) {
   uint16_t clamped_encoder_val = Constrain(encoder_val, svc.min_encoder_val, svc.max_encoder_val);
   float encoder_range = (float)(svc.max_encoder_val - svc.min_encoder_val);
@@ -166,6 +168,7 @@ void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val) {
   Timer_Init(&dt_timer);
   Timer_Init(&speed_dt_timer);
   Timer_Init(&accel_dt_timer);  // フラッシュから読み込み
+  Timer_Init(&wheel_rock_timer);
 
   // フラッシュに書き込み
   if (do_set_encoder) {
@@ -248,6 +251,16 @@ void BLDC_SensoredVectorControlDrive(uint16_t encoder_value, float supply_volt) 
   svc.elec_theta = svc.mech_theta * POLE_PAIRS;                       // 電気角度 = 機械角度 * 極対数 + 位相合わせオフセット
   svc.elec_theta += Constrain(svc.angular_speed * K_ADV, -1.5, 1.5);  // 進角を加算(これがあると高速回転時に安定する)
   svc.elec_theta = NormalizeRadians(svc.elec_theta);
+
+  if (svc.amp_volt != MAX_AMP_VOLT) {
+    Timer_Reset(&wheel_rock_timer);
+  }
+  if (Timer_Read(&wheel_rock_timer) > 5) {
+    if (Timer_Read(&wheel_rock_timer) > 10) {
+      Timer_Reset(&wheel_rock_timer);
+    }
+    svc.amp_volt = 0;
+  }
 
   svc.amp = svc.amp * AMP_LPF_COEF + (svc.amp_volt / supply_volt) * AMP_VOLT_LPF_COEF;
   svc.amp = Constrain(svc.amp, -0.5, 0.5);
