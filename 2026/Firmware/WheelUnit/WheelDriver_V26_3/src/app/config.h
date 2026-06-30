@@ -8,7 +8,7 @@
 
 #define SERIAL_SEND_INTERVAL_US 500  // シリアル送信間隔 [μs]
 
-#define CONTROL_INTERVAL_US 50  // 制御周期 [μs]
+#define CONTROL_INTERVAL_US 100  // 制御周期 [μs]
 
 // BLDCのパラメーター
 #define POLE_PAIRS 8                // 極対数 (磁石の数/2)
