@@ -42,6 +42,12 @@ void MainMode_Loop(MainMode* self) {
 
   Robot_UpdateHeartBeat(r);
 
+  if (r->info.kicker_status.done_charge) {
+    DigitalOut_Write(&r->led1, 1);
+  } else {
+    DigitalOut_Write(&r->led1, 0);
+  }
+
   while (Timer_ReadUs(&main_control_timer) < ROBOT_CONTROL_LOOP_DT_US) {
     // 制御ループ周期まで待機
   };
