@@ -61,7 +61,6 @@ typedef struct {
 } SensoredVectorControl;
 
 void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val);
-bool BLDC_CalibrateAndSaveEncoder(uint16_t* encoder_val, uint32_t id);
 void BLDC_Stop();
 void BLDC_ForceLowSide(void);
 void BLDC_OpenLoopDrive(float amp, float freq);

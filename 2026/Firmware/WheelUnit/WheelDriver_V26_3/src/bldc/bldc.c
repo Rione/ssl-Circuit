@@ -28,9 +28,7 @@ static inline void BLDC_CalculateAngularSpeed(void) {
   Timer_Reset(&speed_dt_timer);
 
   if (pre_theta == svc.mech_theta) {
-    pre_delta_theta = 0.0f;
-    pre_speed *= 0.5f;
-    svc.angular_speed = pre_speed;
+    pre_theta = svc.mech_theta + pre_delta_theta;
     return;
   }
 
@@ -195,29 +193,6 @@ void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val) {
   svc.speed_pid.output_limit = MAX_AMP_VOLT;
 }
 
-bool BLDC_CalibrateAndSaveEncoder(uint16_t* encoder_val, uint32_t id) {
-  printf("BLDC_EncoderOffset\n");
-  BLDCFlashData read_data;
-  Flash_ReadData(FLASH_USER_START_ADDR, &read_data, sizeof(read_data));
-  printf("(From Flash)id: %u\n", read_data.id);
-  svc.id = read_data.id;
-
-  BLDC_SetEncoder(encoder_val);
-
-  BLDCFlashData write_data = {svc.max_encoder_val, svc.min_encoder_val, (float)svc.encoder_offset_theta, (id == 0) ? svc.id : id};
-  if (Flash_WriteData(FLASH_USER_START_ADDR, &write_data, sizeof(write_data)) != HAL_OK) {
-    printf("Flash write error\n");
-    return false;
-  }
-
-  Flash_ReadData(FLASH_USER_START_ADDR, &read_data, sizeof(read_data));
-  svc.max_encoder_val = (uint16_t)read_data.max_encoder_val;
-  svc.min_encoder_val = (uint16_t)read_data.min_encoder_val;
-  svc.encoder_offset_theta = read_data.encoder_offset_theta;
-  svc.id = read_data.id;
-  return true;
-}
-
 void BLDC_Stop() {
   svc.amp = 0;
   svc.amp_volt = 0;
@@ -302,7 +277,7 @@ void BLDC_AngularSpeedControl(float target_angular_speed) {
   float gain_scale = LOW_SPEED_GAIN_MAX - (LOW_SPEED_GAIN_MAX - 1.0f) * speed_ratio;
 
   PIDController scaled_pid = svc.speed_pid;
-  scaled_pid.kp *= gain_scale;
+  // scaled_pid.kp *= gain_scale;
   scaled_pid.ki *= gain_scale;
 
   float pid_out = BLDC_PIDControl(&scaled_pid, target_angular_speed - svc.angular_speed, svc.dt);
