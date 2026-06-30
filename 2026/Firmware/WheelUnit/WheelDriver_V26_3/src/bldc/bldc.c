@@ -14,6 +14,22 @@ static inline void BLDC_GetEncoder(uint16_t encoder_val) {
   uint16_t clamped_encoder_val = Constrain(encoder_val, svc.min_encoder_val, svc.max_encoder_val);
   float encoder_range = (float)(svc.max_encoder_val - svc.min_encoder_val);
   float theta = ((float)(clamped_encoder_val - svc.min_encoder_val) / encoder_range) * TWO_PI;
+
+  // ローパスフィルタ
+  static float x_filt = 1.0f, y_filt = 0.0f;
+  float enc_lpf = Constrain((50 - Abs(svc.angular_speed)) * 0.015, 0, 0.75);  // フィルタ強度
+
+  if (Abs(svc.angular_speed) <= 20) {
+    float x = Cos(theta);
+    float y = Sin(theta);
+
+    x_filt = x * (1 - enc_lpf) + x_filt * enc_lpf;
+    y_filt = y * (1 - enc_lpf) + y_filt * enc_lpf;
+    svc.mech_theta = NormalizeRadians(Atan2(y_filt, x_filt));
+  } else {
+    svc.mech_theta = theta;
+  }
+
   svc.mech_theta = NormalizeRadians(theta - svc.encoder_offset_theta);
 }
 
@@ -38,10 +54,6 @@ static inline void BLDC_CalculateAngularSpeed(void) {
   if (delta_theta > PI) delta_theta -= TWO_PI;
   if (delta_theta < -PI) delta_theta += TWO_PI;
 
-  // ノイズによる速度の異常値を補正（物理的に不可能な変位はノイズとして棄却）
-  // 補正後のdelta_thetaは必ず[-π,π]に収まるため"> PI"では機能しなかった(dead code)
-  float max_delta = MAX_ANGULAR_SPEED * dt;
-  if (Abs(delta_theta) > max_delta) delta_theta = pre_delta_theta;
   pre_delta_theta = delta_theta;
 
   float speed = delta_theta / dt;
@@ -185,7 +197,7 @@ void BLDC_Init(bool do_set_encoder, uint32_t id, uint16_t* encoder_val) {
 
   // PIDコントローラ
   // 角速度制御
-  svc.speed_pid.kp = 0.03;
+  svc.speed_pid.kp = 0.05;
   svc.speed_pid.ki = 0.5;
   svc.speed_pid.kd = 0;
   svc.speed_pid.d_term = 0;
