@@ -42,7 +42,7 @@ void MainMode_Loop(MainMode* self) {
 
   Robot_UpdateHeartBeat(r);
 
-  if (r->info.kicker_status.cap_val > 200) {
+  if (r->info.kicker_status.cap_val > 150) {
     DigitalOut_Write(&r->led1, 1);
   } else {
     DigitalOut_Write(&r->led1, 0);

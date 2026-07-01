@@ -12,9 +12,6 @@ void Kicker_Init(Kicker* self, CanBus* can) {
 void Kicker_Kick(Kicker* self, uint8_t is_straight, uint8_t power) {
   if (Timer_ReadMs(&self->kick_timer) < ROBOT_KICK_INTERVAL_MS) return;
 
-  power = 40 + (uint16_t)power * 20 / 255;
-  if (power > 60) power = 60;
-
   CanData can_data = {
       .stdId = is_straight ? CAN_ID_TX_STRAIGHT_KICK : CAN_ID_TX_CHIP_KICK,
       .data = {power, 0, 0, 0, 0, 0, 0, 0},
