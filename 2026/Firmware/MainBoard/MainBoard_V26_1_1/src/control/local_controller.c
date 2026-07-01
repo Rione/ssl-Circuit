@@ -8,7 +8,8 @@ void LocalController_Init(LocalController* self) {
 
 void LocalController_Stop(LocalController* self, Robot* robot) {
   (void)self;
-  OmniDrive_SetFree(&robot->omni_drive);
+  // OmniDrive_SetFree(&robot->omni_drive);
+  OmniDrive_SetVel(&robot->omni_drive, 1000, 0, 0);
   // 信号ロスト/緊急停止時、受信済みの最後のキック指示が残っていると
   // ROBOT_KICK_INTERVAL_MSごとに再発火してしまうため、ここで明示的にクリアする。
   robot->info.kicker.straight = 0;
@@ -18,4 +19,25 @@ void LocalController_Stop(LocalController* self, Robot* robot) {
   Robot_SendKicker(robot, &robot->info);  // キック指示をクリアするために送信
 
   Robot_SendDribble(robot, 0, 0);
+}
+
+// 前(+x)→後(-x)→左(+y)→右(-y)の順に1秒ごとに切り替わる動作テスト
+void LocalController_TestMove(LocalController* self, Robot* robot) {
+  (void)self;
+  static const int16_t kTestVel = 500;
+  static const int16_t kDirVel[4][2] = {
+      {kTestVel, 0},   // 前
+      {-kTestVel, 0},  // 後
+      {0, kTestVel},   // 左
+      {0, -kTestVel},  // 右
+  };
+  static Timer timer = {0};
+  static uint8_t phase = 0;
+
+  if (Timer_ReadMs(&timer) >= 1000) {
+    Timer_Reset(&timer);
+    phase = (phase + 1) % 4;
+  }
+
+  OmniDrive_SetVel(&robot->omni_drive, kDirVel[phase][0], kDirVel[phase][1], 0);
 }

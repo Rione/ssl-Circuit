@@ -38,6 +38,7 @@ void MainMode_Loop(MainMode* self) {
   } else {
     // Robot is Stop or Emergency Stop
     LocalController_Stop(&self->local_controller, r);
+    // LocalController_TestMove(&self->local_controller, r);
   }
 
   Robot_UpdateHeartBeat(r);
