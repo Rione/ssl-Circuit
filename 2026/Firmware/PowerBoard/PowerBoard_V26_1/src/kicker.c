@@ -1,9 +1,11 @@
 #include "kicker.h"
 
-#define KICK_TIME_MS 10         // キック通電時間 [ms]
-#define CHARGE_RESET_US 200     // CHARGEをトグルしてラッチを解除する時間 [us]
-#define KICK_READY_VOLTAGE 250  // この昇圧電圧[V]以上でのみキックを許可
-#define KICK_MAX_DUTY 0.9f      // キックPWMデューティの上限
+#define KICK_TIME_MS 10          // キック通電時間 [ms]
+#define CHARGE_RESET_US 200      // CHARGEをトグルしてラッチを解除する時間 [us]
+#define KICK_READY_VOLTAGE 150   // この昇圧電圧[V]以上でのみキックを許可
+#define KICK_MAX_DUTY 0.9f       // キックPWMデューティの上限
+#define DISCHARGE_DUTY 0.1f      // 放電中にソレノイドへ出すduty
+#define DISCHARGE_TOGGLE_MS 100  // 放電中にduty ON/OFFを切り替える周期 [ms](ビヨンビヨン動作)
 
 PwmOut kick1;
 PwmOut kick2;
@@ -14,6 +16,7 @@ DigitalOut lt_charge;
 DigitalOut lt_discharge;
 
 Timer kick_timer;              // キックパルスの経過時間計測用
+Timer discharge_timer;         // 放電ON/OFFトグルの経過時間計測用
 volatile bool is_kicking;      // キックパルス出力中フラグ
 volatile bool is_discharging;  // 放電中フラグ
 
@@ -30,6 +33,7 @@ void Kicker_Init() {
   DigitalIn_Init(&lt_done, LT_DONE_GPIO_Port, LT_DONE_Pin);
 
   Timer_Init(&kick_timer);
+  Timer_Init(&discharge_timer);
   is_kicking = false;
   is_discharging = false;
 }
@@ -69,7 +73,11 @@ void Kicker_Update() {
   }
   if (is_kicking == false) {
     if (is_discharging) {
-      PwmOut_Write(&kick1, 0.025f);  // 放電中は継続して出力し続ける
+      // DISCHARGE_TOGGLE_MSごとにduty ON/OFFを切り替え、ソレノイドを
+      // ビヨンビヨンと振動させながら放電する。
+      uint32_t elapsed = Timer_ReadMs(&discharge_timer);
+      bool toggle_on = (elapsed / DISCHARGE_TOGGLE_MS) % 2 == 0;
+      PwmOut_Write(&kick1, toggle_on ? DISCHARGE_DUTY : 0);
       PwmOut_Write(&kick2, 0);
     } else {
       PwmOut_Write(&kick1, 0);
@@ -81,7 +89,10 @@ void Kicker_Update() {
 void Kicker_Charge() {
   printf("Charge\n");
   DigitalOut_Write(&lt_discharge, 0);
+  PwmOut_Write(&kick1, 0);
+  PwmOut_Write(&kick2, 0);
   is_discharging = false;
+  WaitUs(1000);
 
   // CHARGEを一度確実にLowにしてからHighにし、Low->Highのトグルで
   // LT3751のラッチ(DONE/FAULT)を解除して新しい充電サイクルを開始する。
