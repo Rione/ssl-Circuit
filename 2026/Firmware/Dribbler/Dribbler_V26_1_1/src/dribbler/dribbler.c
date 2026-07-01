@@ -3,13 +3,23 @@
 DigitalOut BS_LED;
 DigitalOut BS_OUT;
 
-MAF maf_photo;
-
-#define PHOTO_THRESHOLD_MARGIN 200
-#define BASE_PHOTO_MEASURE_NUM 100
+#define PHOTO_THRESHOLD_MARGIN 350
+#define BASE_PHOTO_MEASURE_NUM 200
+#define PHOTO_LPF_K 0.95
 
 static uint32_t photo_th;
 static uint16_t filtered_photo = 0;
+static bool photo_lpf_initialized = false;
+static LPF photo_lpf;
+
+static uint16_t PhotoLpf_Update(uint16_t photo_val) {
+  if (!photo_lpf_initialized) {
+    LPF_Init(&photo_lpf, PHOTO_LPF_K, (double)photo_val);
+    photo_lpf_initialized = true;
+  }
+
+  return (uint16_t)LPF_Update(&photo_lpf, (double)photo_val);
+}
 
 void Dribbler_Init() {
   Motor_Init();
@@ -17,19 +27,23 @@ void Dribbler_Init() {
   DigitalOut_Init(&BS_OUT, BS_OUT_GPIO_Port, BS_OUT_Pin);
   DigitalOut_Write(&BS_LED, 1);
   DigitalOut_Write(&BS_OUT, 1);
-  MAF_Init(&maf_photo, 50);
+  photo_th = 0;
+  filtered_photo = 0;
+  photo_lpf_initialized = false;
 }
 
 void Dribbler_Update(uint16_t photo_val, uint16_t current_val) {
-  filtered_photo = MAF_Update(&maf_photo, photo_val);
+  filtered_photo = PhotoLpf_Update(photo_val);
   Motor_Update(current_val);
 }
 
 bool Dribbler_SetPhotoThreshold(uint16_t photo_val) {
   static uint16_t count = 0;
+  uint16_t filtered_threshold_photo = PhotoLpf_Update(photo_val);
 
   if (count < BASE_PHOTO_MEASURE_NUM) {
-    photo_th += photo_val;
+    photo_th += filtered_threshold_photo;
+    HAL_Delay(1);  // 1ms待機して次のサンプルを取得
   } else {
     photo_th /= BASE_PHOTO_MEASURE_NUM;
     photo_th -= PHOTO_THRESHOLD_MARGIN;

@@ -10,7 +10,7 @@
 #include "pwm_out.h"
 
 #define MAX_SPEED_LEVEL 10
-#define BASE_CURRENT_MEASURE_NUM 500
+#define BASE_CURRENT_MEASURE_NUM 300
 #define MOTOR_CURRENT_THRESHOLD 50
 
 void Motor_Init();
