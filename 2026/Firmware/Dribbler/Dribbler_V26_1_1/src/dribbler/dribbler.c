@@ -5,7 +5,7 @@ DigitalOut BS_OUT;
 
 #define PHOTO_THRESHOLD_MARGIN 300
 #define BASE_PHOTO_MEASURE_NUM 300
-#define PHOTO_LPF_K 0.98
+#define PHOTO_LPF_K 0.99
 
 static uint32_t photo_th;
 static uint16_t filtered_photo = 0;
