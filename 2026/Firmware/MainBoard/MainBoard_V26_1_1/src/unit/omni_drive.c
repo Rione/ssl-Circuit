@@ -8,6 +8,9 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   }
   self->emg = 0;
   self->ready = 0;
+  for (int i = 0; i < 4; i++) {
+    MAF_Init(&self->maf[i], 25);
+  }
 }
 
 void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
@@ -26,6 +29,7 @@ void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel
     float v_wheel_angular = v_wheel_linear / ROBOT_WHEEL_RADIUS;
     v_wheel_angular = Constrain(v_wheel_angular, -100.0f, 100.0f);
     m[i] = (int16_t)(v_wheel_angular * 100);
+    m[i] = MAF_Update(&self->maf[i], m[i]);
   }
 
   OmniDrive_Send(self, m, 1);  // command: 1 (Drive)
