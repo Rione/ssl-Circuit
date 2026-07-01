@@ -88,7 +88,7 @@ static void RecvSerial() {
       index++;
     }
   }
-  if (Timer_Read(&serial_recv_timer) > 1.0f) {
+  if (Timer_Read(&serial_recv_timer) > 2.0f) {
     DigitalOut_Write(&led1, 0);
     mode = 0;
     Serial_Reset(&uart2);
