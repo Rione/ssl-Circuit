@@ -92,8 +92,8 @@ static void Robot_RockApplyRecvPacket(RobotInfo* info, const uint8_t* data) {
   info->vel_angular.l = data[4];
   info->vel_angular.h = data[5];
   info->dribble_power = data[6];
-  info->kicker.straight = data[7] * 0.5;
-  info->kicker.chip = data[8] * 0.5;
+  info->kicker.straight = data[7] * 2.5;
+  info->kicker.chip = data[8] * 2.5;
   info->relative_position_x.l = data[9];
   info->relative_position_x.h = data[10];
   info->relative_position_y.l = data[11];
