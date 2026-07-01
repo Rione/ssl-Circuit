@@ -19,7 +19,7 @@ static inline void BLDC_GetEncoder(uint16_t encoder_val) {
 
   // ローパスフィルタ
   static float x_filt = 1.0f, y_filt = 0.0f;
-  float enc_lpf = Constrain((50 - Abs(svc.angular_speed)) * 0.015, 0, 0.75);  // フィルタ強度
+  float enc_lpf = Constrain((50 - Abs(svc.angular_speed)) * 0.02, 0, 0.9);  // フィルタ強度
 
   if (Abs(svc.angular_speed) <= 20) {
     float x = Cos(theta);
