@@ -53,10 +53,20 @@ void loop() {
     ui.infoTab();
     
     media.setBuzzerType((playType)ui.info.buzzerState);
-    media.execute();
 
     interval = millis() - time;
     // Serial.println(interval);
+}
+
+// ブザー再生はcore1で回す。
+// core0のloop()内でexecute()すると、setBuzzerType()が毎ループ同じ値を
+// 再セットするためエッジ検出(playFuncBuzzer)が働かず、doDirectKick中に
+// 一度しか鳴らなくなる。core1で高速ループさせることで、間にNONEを挟んだ
+// エッジが繰り返し立ち、「ピコピコ」と鳴り続ける。
+void setup1() {
+}
+void loop1() {
+    media.execute();
 }
 
 // メモ
