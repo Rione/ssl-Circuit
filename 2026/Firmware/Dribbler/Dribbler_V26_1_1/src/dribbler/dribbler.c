@@ -3,9 +3,9 @@
 DigitalOut BS_LED;
 DigitalOut BS_OUT;
 
-#define PHOTO_THRESHOLD_MARGIN 400
-#define BASE_PHOTO_MEASURE_NUM 200
-#define PHOTO_LPF_K 0.95
+#define PHOTO_THRESHOLD_MARGIN 300
+#define BASE_PHOTO_MEASURE_NUM 300
+#define PHOTO_LPF_K 0.98
 
 static uint32_t photo_th;
 static uint16_t filtered_photo = 0;
@@ -34,15 +34,15 @@ void Dribbler_Init() {
 
 void Dribbler_Update(uint16_t photo_val, uint16_t current_val) {
   filtered_photo = PhotoLpf_Update(photo_val);
+
   Motor_Update(current_val);
 }
 
 bool Dribbler_SetPhotoThreshold(uint16_t photo_val) {
   static uint16_t count = 0;
-  uint16_t filtered_threshold_photo = PhotoLpf_Update(photo_val);
 
   if (count < BASE_PHOTO_MEASURE_NUM) {
-    photo_th += filtered_threshold_photo;
+    photo_th += photo_val;
     HAL_Delay(1);  // 1ms待機して次のサンプルを取得
   } else {
     photo_th /= BASE_PHOTO_MEASURE_NUM;
