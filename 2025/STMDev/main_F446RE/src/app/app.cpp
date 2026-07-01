@@ -89,6 +89,12 @@ void setup() {
       } else {
             robot.info.runMode = 1;
       }
+      // フォトセンサしきい値をキッカーボードへ送信する。
+      // 0bb4dae1「app.cppの整理」でsetup()内のインライン送信がphotoThresholdSet()に
+      // 切り出された際、呼び出しが追加されず送信が抜け落ちていた。これによりキッカー
+      // ボードがデフォルト閾値のまま動き、ダイレクトキックの誤発火につながっていた。
+      HAL_Delay(1000);  // キッカーボードの起動待ち
+      robot.photoThresholdSet();
 }
 
 void main_app() {
