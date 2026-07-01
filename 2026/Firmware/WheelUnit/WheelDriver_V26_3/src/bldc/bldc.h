@@ -19,6 +19,8 @@
 #define SPEED_LPF_INV 0.5f                 // (1.0 - SPEED_LPF) 事前計算値
 #define SPEED_MEAS_MIN_DT 0.005f           // 速度計測の最小サンプリング間隔 [s]（量子化ノイズ低減）
 #define K_SPEED_FF 0.052f                  // 速度フィードフォワードゲイン [V/(rad/s)] (=60/(Kv×2π), Kv=185rpm/V)
+#define K_FRICTION_FF 0.2f                 // 静止摩擦補償フィードフォワード電圧 [V] (要実機調整)
+#define FRICTION_FF_DEADBAND 0.5f          // 摩擦補償を有効にする目標角速度しきい値 [rad/s] (ゼロ点でのチャタリング防止)
 #define AMP_LPF_COEF 0.5f                  // 振幅ローパスフィルタ係数
 #define AMP_VOLT_LPF_COEF 0.5f             // 電圧振幅ローパスフィルタ係数
 #define K_ADV 0.01f                        // 進角ゲイン

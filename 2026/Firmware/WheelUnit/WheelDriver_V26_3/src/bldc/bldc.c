@@ -299,7 +299,18 @@ void BLDC_AngularSpeedControl(float target_angular_speed) {
   svc.speed_pid.prev_error = scaled_pid.prev_error;
   svc.speed_pid.d_term = scaled_pid.d_term;
 
-  svc.amp_volt = Constrain(pid_out + target_angular_speed * K_SPEED_FF, -MAX_AMP_VOLT, MAX_AMP_VOLT);
+  // 静止摩擦フィードフォワード: K_SPEED_FFは粘性摩擧(速度比例)分のみ補償するため、
+  // 低速域で支配的な静止摩擦はPIDの積分項だけで補うと応答遅れ・振動の原因になる。
+  // 目標値の符号に応じて一定電圧を上乗せし、PIDの負担を減らす。
+  // デッドバンド内(±FRICTION_FF_DEADBAND)では補償を切り、ゼロ点通過時のキックを防ぐ。
+  float friction_ff = 0.0f;
+  if (target_angular_speed > FRICTION_FF_DEADBAND) {
+    friction_ff = K_FRICTION_FF;
+  } else if (target_angular_speed < -FRICTION_FF_DEADBAND) {
+    friction_ff = -K_FRICTION_FF;
+  }
+
+  svc.amp_volt = Constrain(pid_out + target_angular_speed * K_SPEED_FF + friction_ff, -MAX_AMP_VOLT, MAX_AMP_VOLT);
 }
 
 void BLDC_VoltageControl(float target_volt) {
