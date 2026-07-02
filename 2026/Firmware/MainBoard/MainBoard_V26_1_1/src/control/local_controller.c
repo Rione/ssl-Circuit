@@ -23,7 +23,7 @@ void LocalController_Stop(LocalController* self, Robot* robot) {
 // 前(+x)→後(-x)→左(+y)→右(-y)の順に1秒ごとに切り替わる動作テスト
 void LocalController_TestMove(LocalController* self, Robot* robot) {
   (void)self;
-  static const int16_t kTestVel = 300;
+  static const int16_t kTestVel = 100;
   static const int16_t kDirVel[4][2] = {
       {kTestVel, 0},   // 前
       {0, kTestVel},   // 左
@@ -37,14 +37,13 @@ void LocalController_TestMove(LocalController* self, Robot* robot) {
     Timer_Reset(&timer);
     phase = (phase + 1) % 4;
   }
-
   OmniDrive_SetVel(&robot->omni_drive, kDirVel[phase][0], kDirVel[phase][1], 0);
 }
 
 // 0.3秒ごとに前(+x)/後(-x)を切り替える動作テスト
 void LocalController_TestMoveForwardBack(LocalController* self, Robot* robot) {
   (void)self;
-  static const int16_t kTestVel = 100;
+  static const int16_t kTestVel = 500;
   static Timer timer = {0};
   static uint8_t is_forward = 1;
 

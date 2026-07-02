@@ -48,7 +48,7 @@ void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
   Timer_Reset(&timer);
 
   static uint8_t send_data[11];
-  send_data[0] = 0xFF;
+  send_data[0] = 0xAA;
   send_data[1] = command;
   send_data[2] = (uint8_t)((m[0] >> 8) & 0xFF);
   send_data[3] = (uint8_t)(m[0] & 0xFF);
@@ -58,7 +58,7 @@ void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
   send_data[7] = (uint8_t)(m[2] & 0xFF);
   send_data[8] = (uint8_t)((m[3] >> 8) & 0xFF);
   send_data[9] = (uint8_t)(m[3] & 0xFF);
-  send_data[10] = 0xAA;
+  send_data[10] = 0xFF;
 
   Serial_Write(self->serials[2], send_data, 11);
 }
