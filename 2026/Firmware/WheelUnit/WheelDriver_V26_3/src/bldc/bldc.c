@@ -244,8 +244,8 @@ void BLDC_SensoredVectorControlDrive(uint16_t encoder_value, float supply_volt) 
   if (svc.amp_volt != MAX_AMP_VOLT) {
     Timer_Reset(&wheel_rock_timer);
   }
-  if (Timer_Read(&wheel_rock_timer) > 10) {
-    if (Timer_Read(&wheel_rock_timer) > 12) {
+  if (Timer_Read(&wheel_rock_timer) > 1) {
+    if (Timer_Read(&wheel_rock_timer) > 5) {
       Timer_Reset(&wheel_rock_timer);
     }
     svc.amp_volt = 0;
