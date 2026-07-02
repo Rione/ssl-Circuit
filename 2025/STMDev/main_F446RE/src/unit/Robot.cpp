@@ -188,22 +188,28 @@ void Robot::sendDribble(uint8_t power, bool forceSend) {
 }
 
 void Robot::sendKicker(RobotInfo_t &info) {
-      // キックの処理
-      // ストレートを優先してキック
+      // --- doDirectの解除を最優先で判定する ---
+      // キッカーボードは一度doDirectを武装すると、data[1]!=0xFFのコマンドを受けるまで
+      // 解除されない。従来は「straight/chipのパワーが両方0のとき(else分岐)」でしか
+      // resetDoDirectを送っていなかったため、Piが解除(doDirectKick=0)にしてもキック
+      // パワーを送り続けるとelse分岐に入らず、ボードが武装したまま「戻らない」状態に
+      // なっていた。ここでPiの指令(解除)とボードの自認(武装中)が食い違う場合は、
+      // パワーの有無に関わらず確実に解除を送る。解除サイクルでは通常キックを打たない
+      // よう早期returnする。
+      if (!info.status.doDirectKick && info.kickerBoardDoDirectStatus.straight) {
+            kickerBoard.resetDoDirect(STRAIGHT);
+            return;
+      }
+      if (!info.status.doDirectChipKick && info.kickerBoardDoDirectStatus.chip) {
+            kickerBoard.resetDoDirect(CHIP);
+            return;
+      }
+
+      // キックの処理（ストレートを優先してキック）
       if (info.kicker.straight > 0) {
             kickerBoard.kick(STRAIGHT, info.kicker.straight, info.status.doDirectKick);
       } else if (info.kicker.chip > 0) {
             kickerBoard.kick(CHIP, info.kicker.chip, info.status.doDirectChipKick);
-      } else {
-            // どっちも0の場合はキックしない
-            if (info.status.doDirectKick != info.kickerBoardDoDirectStatus.straight && info.kickerBoardDoDirectStatus.straight) {
-                  // kickStraight(0, false); // パワー0のキックを投げてdoDirectをリセットする
-                  kickerBoard.resetDoDirect(STRAIGHT);
-            }
-            if (info.status.doDirectChipKick != info.kickerBoardDoDirectStatus.chip && info.kickerBoardDoDirectStatus.chip) {
-                  // kickChip(0, false); // パワー0のキックを投げてdoDirectをリセットする
-                  kickerBoard.resetDoDirect(CHIP);
-            }
       }
 }
 
