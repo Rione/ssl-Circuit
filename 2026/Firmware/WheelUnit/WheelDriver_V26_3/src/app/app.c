@@ -52,8 +52,8 @@ static void GetSensors() {
 }
 
 static void RecvSerial() {
-  const static uint8_t HEADER = 0xFF;
-  const static uint8_t FOOTER = 0xAA;
+  const static uint8_t HEADER = 0xAA;
+  const static uint8_t FOOTER = 0xFF;
   const static uint8_t PACKET_LEN = 9;
   static uint8_t recv_buf[9];
   static uint8_t index = 0;
