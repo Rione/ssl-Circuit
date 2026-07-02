@@ -3,9 +3,9 @@
 #define KICK_TIME_MS 10          // キック通電時間 [ms]
 #define CHARGE_RESET_US 200      // CHARGEをトグルしてラッチを解除する時間 [us]
 #define KICK_READY_VOLTAGE 150   // この昇圧電圧[V]以上でのみキックを許可
-#define KICK_MAX_DUTY 0.9f       // キックPWMデューティの上限
+#define KICK_MAX_DUTY 0.95f      // キックPWMデューティの上限
 #define DISCHARGE_DUTY 0.1f      // 放電中にソレノイドへ出すduty
-#define DISCHARGE_TOGGLE_MS 100  // 放電中にduty ON/OFFを切り替える周期 [ms](ビヨンビヨン動作)
+#define DISCHARGE_TOGGLE_MS 250  // 放電中にduty ON/OFFを切り替える周期 [ms](ビヨンビヨン動作)
 
 PwmOut kick1;
 PwmOut kick2;
