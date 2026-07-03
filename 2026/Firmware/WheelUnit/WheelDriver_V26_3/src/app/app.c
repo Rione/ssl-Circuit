@@ -25,6 +25,7 @@ float supply_volt;
 float temprature;
 
 bool is_voltage_out_of_range;
+bool is_overheated;
 
 float target_angular_speed, target_torque;
 
@@ -105,7 +106,7 @@ static void SendSerial() {
     float send_angular_speed = LPF_Update(&send_angular_speed_lpf, BLDC_GetAngularSpeed());
 
     data[0] = HEADER;
-    data[1] = (is_voltage_out_of_range << 1) | (mode != 0);
+    data[1] = (is_overheated << 2) | (is_voltage_out_of_range << 1) | (mode != 0);
     data[2] = ((int16_t)(send_angular_speed * 100) >> 8) & 0xFF;
     data[3] = (int16_t)(send_angular_speed * 100) & 0xFF;
     data[4] = FOOTER;
@@ -230,7 +231,25 @@ void MainApp() {
     SendSerial();
     RecvSerial();
 
-    if (supply_volt > SUPPLY_VOLTAGE_MAX_LIMIT || supply_volt < SUPPLY_VOLTAGE_MIN_LIMIT || is_voltage_out_of_range) {
+    // 過熱保護: 継続的な負荷で基板/モーター温度がTEMP_LIMITを超えたら駆動を停止し、
+    // TEMP_LIMIT - TEMP_RESET_HYSTERESIS まで冷えたら自動復帰する(ヒステリシス)。
+    // しきい値ちょうどで温度が揺れると停止/復帰を繰り返してしまうため、
+    // 復帰は遮断より低い温度で行い、チャタリングを防ぐ。
+    if (temprature > TEMP_LIMIT) {
+      is_overheated = true;
+    } else if (temprature < TEMP_LIMIT - TEMP_RESET_HYSTERESIS) {
+      is_overheated = false;
+    }
+
+    if (is_overheated) {
+      printf("Motor overheated: %.1f°C\n", temprature);
+      BLDC_Stop();  // 駆動停止(通電を止めて放熱させる)
+      // 過熱表示: led3を点滅
+      DigitalOut_Write(&led3, 1);
+      HAL_Delay(100);
+      DigitalOut_Write(&led3, 0);
+      HAL_Delay(100);
+    } else if (supply_volt > SUPPLY_VOLTAGE_MAX_LIMIT || supply_volt < SUPPLY_VOLTAGE_MIN_LIMIT || is_voltage_out_of_range) {
       printf("Supply voltage out of range: %.2fV\n", supply_volt);
       is_voltage_out_of_range = true;
       BLDC_Stop();
