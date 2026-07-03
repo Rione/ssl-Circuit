@@ -19,4 +19,7 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define ROBOT_KICKER_SIGNAL_INTERVAL_MS \
   ((uint32_t)100)  // チャージ/放電信号の最小送信周期[ms]
 
+#define ROBOT_STOP_DISCHARGE_SPEED_MMPS \
+  ((int16_t)100)  // 停止時にこの速度[mm/s]を超えていたら強制放電
+
 #endif  // __PARAMMETER_H_

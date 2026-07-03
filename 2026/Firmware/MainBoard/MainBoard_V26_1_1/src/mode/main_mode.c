@@ -44,13 +44,19 @@ void MainMode_Loop(MainMode* self) {
 
   Robot_UpdateHeartBeat(r);
 
-  if (r->info.kicker_status.cap_val > 150) {
+  if (r->info.kicker_status.cap_val > 100) {
     DigitalOut_Write(&r->led1, 1);
   } else {
     DigitalOut_Write(&r->led1, 0);
   }
 
-  if (r->info.status.do_direct_straight || r->info.status.do_direct_chip) {
+  // if (r->info.status.do_direct_straight || r->info.status.do_direct_chip) {
+  //   DigitalOut_Write(&r->led2, 1);
+  // } else {
+  //   DigitalOut_Write(&r->led2, 0);
+  // }
+
+  if (r->info.status.is_signal_received) {
     DigitalOut_Write(&r->led2, 1);
   } else {
     DigitalOut_Write(&r->led2, 0);

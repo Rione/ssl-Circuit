@@ -19,8 +19,6 @@ uint16_t adc_val[1];
 #define ROCK_SPI_PAYLOAD_SIZE 18U
 #define ROCK_SPI_FRAME_SIZE (ROCK_SPI_PAYLOAD_SIZE + 2U)  // ヘッダ+ペイロード+フッタ=20
 #define ROCK_SPI_RX_WINDOW_SIZE (ROCK_SPI_FRAME_SIZE * 2U)
-// この時間(ms)受信できなかったら信号ロストと判定する（ここを変えれば猶予秒数を調整可能）
-#define ROCK_SPI_SIGNAL_TIMEOUT_MS 1000U
 // SPI がこの時間(ms)完了もエラーもせず BUSY のまま固まったら強制リセットする。
 // ソフト NSS のスレーブはビットずれで「完了もエラーもしない BUSY ハング」に
 // 陥ることがあり、リセットしないと復帰しない。そのストール検出用。
@@ -42,12 +40,6 @@ static volatile uint32_t rock_spi_progress_tick = 0;
 
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst);
 static uint8_t* Robot_RockTxStaging(void);
-
-static void Robot_RockUpdateSignalTimeout(RobotInfo* info) {
-  if ((HAL_GetTick() - rock_last_recv_tick) > ROCK_SPI_SIGNAL_TIMEOUT_MS) {
-    info->status.is_signal_received = 0;
-  }
-}
 
 static void Robot_RockArm(void) {
   rock_spi_progress_tick = HAL_GetTick();
@@ -111,7 +103,6 @@ static void Robot_RockApplyRecvPacket(RobotInfo* info, const uint8_t* data) {
   info->camera.x = data[15];
   info->camera.y = data[16];
   info->status.data = data[17];
-  info->status.is_signal_received = 1;
 }
 
 static uint8_t* Robot_RockTxStaging(void) {
@@ -210,11 +201,7 @@ void Robot_RockUpdateSPI(Robot* self, RobotInfo* info) {
     if (payload_offset >= 0) {
       rock_last_recv_tick = HAL_GetTick();
       Robot_RockApplyRecvPacket(info, &rock_spi_rx_window[payload_offset]);
-    } else {
-      Robot_RockUpdateSignalTimeout(info);
     }
-  } else {
-    Robot_RockUpdateSignalTimeout(info);
   }
 }
 
