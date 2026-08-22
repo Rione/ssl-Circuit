@@ -10108,8 +10108,8 @@
 		(uuid "feea284d-0c54-40ed-9990-b7923344793b")
 	)
 	(no_connect
-		(at 135.89 128.27)
-		(uuid "06eb8849-9077-41d9-bf24-a36d0afba153")
+		(at 135.89 123.19)
+		(uuid "04641c73-db64-46a2-8744-55a4a994e134")
 	)
 	(no_connect
 		(at 100.33 107.95)
@@ -10130,10 +10130,6 @@
 	(no_connect
 		(at 86.36 229.87)
 		(uuid "27d685a5-f4bd-4e67-ac84-04697f6bde60")
-	)
-	(no_connect
-		(at 129.54 320.04)
-		(uuid "2b9aa1c6-b5f8-4f68-8e9d-42e4cf5ec589")
 	)
 	(no_connect
 		(at 129.54 337.82)
@@ -10168,6 +10164,10 @@
 		(uuid "5577f7e7-1440-4181-b16a-64e3c8363ac1")
 	)
 	(no_connect
+		(at 100.33 97.79)
+		(uuid "5e6f024d-8796-4cd4-ad26-897e8fd303b2")
+	)
+	(no_connect
 		(at 326.39 151.13)
 		(uuid "6117e268-ecd8-49a2-bdef-3075e2ef10f3")
 	)
@@ -10178,10 +10178,6 @@
 	(no_connect
 		(at 275.59 146.05)
 		(uuid "8b266a8b-579f-4e00-a9ac-d4fba0b7023f")
-	)
-	(no_connect
-		(at 100.33 87.63)
-		(uuid "9012670d-a2a8-44fb-bd45-5759833cba95")
 	)
 	(no_connect
 		(at 100.33 69.85)
@@ -12193,6 +12189,16 @@
 	)
 	(wire
 		(pts
+			(xy 187.96 91.44) (xy 187.96 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "76273d03-620d-4437-8b9e-eb3287bca74d")
+	)
+	(wire
+		(pts
 			(xy 502.92 210.82) (xy 510.54 210.82)
 		)
 		(stroke
@@ -13513,6 +13519,16 @@
 	)
 	(wire
 		(pts
+			(xy 187.96 93.98) (xy 182.88 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf28c373-bb10-4e55-97f8-2029b1a6ed74")
+	)
+	(wire
+		(pts
 			(xy 118.11 151.13) (xy 119.38 151.13)
 		)
 		(stroke
@@ -14705,6 +14721,28 @@
 			)
 		)
 	)
+	(global_label "LED1"
+		(shape output)
+		(at 135.89 128.27 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "069f204a-174e-41e4-acda-abb9c06afacc")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 143.5318 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "SWDIO"
 		(shape input)
 		(at 59.69 151.13 0)
@@ -14964,28 +15002,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SPI2.CS"
-		(shape bidirectional)
-		(at 135.89 102.87 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "22328943-cf22-4b6e-a1e0-390bcc923ed7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 147.3646 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -15496,6 +15512,50 @@
 			)
 		)
 	)
+	(global_label "ESTOP"
+		(shape bidirectional)
+		(at 129.54 320.04 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4cf8051d-4a9d-4d1a-9881-6d6c1c9881de")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 139.5631 320.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SPI2.CS"
+		(shape bidirectional)
+		(at 135.89 135.89 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4d9c2f82-e567-44af-813d-df3624b9a047")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 147.3646 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "SCK"
 		(shape bidirectional)
 		(at 229.87 222.25 180)
@@ -15580,6 +15640,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "ESTOP"
+		(shape bidirectional)
+		(at 100.33 87.63 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5640d204-8e44-454d-9e29-7e8cf7b349a2")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 90.3069 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -15905,6 +15987,28 @@
 		(uuid "7b1f0932-2fc6-4825-b520-422df7be4a48")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 260.7515 242.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "ESTOP"
+		(shape bidirectional)
+		(at 175.26 93.98 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "7b518d57-97d0-4eaf-be28-a7b296d3ce57")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 165.2369 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17035,28 +17139,6 @@
 			)
 		)
 	)
-	(global_label "LED1"
-		(shape output)
-		(at 135.89 135.89 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "cef51f6a-710c-4dc0-a908-1b39aa351122")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 143.5318 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "UART2_TX"
 		(shape output)
 		(at 135.89 69.85 0)
@@ -17321,6 +17403,28 @@
 			)
 		)
 	)
+	(global_label "SPI1.CS"
+		(shape bidirectional)
+		(at 135.89 102.87 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e7bf34ea-0169-4495-895a-64355dbba54e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 147.3646 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "LED2"
 		(shape output)
 		(at 135.89 138.43 0)
@@ -17515,28 +17619,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SPI1.CS"
-		(shape bidirectional)
-		(at 100.33 97.79 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "f9b2043c-bf23-47bb-981a-97239edacf22")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 88.8554 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -21790,6 +21872,74 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 179.07 93.98 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6df6aee5-9893-45c7-9db0-dddd0cf103b8")
+		(property "Reference" "R8"
+			(at 179.07 87.63 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10k"
+			(at 179.07 90.17 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 179.07 95.758 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 179.07 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 179.07 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7b43cdcf-c958-4fe7-b55c-925554124651")
+		)
+		(pin "2"
+			(uuid "6d20f82a-802c-44c1-9a28-2f3a798dee32")
+		)
+		(instances
+			(project "MainBoard_V26_1_3"
+				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
+					(reference "R8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Switch:SW_Omron_B3FS")
 		(at 152.4 339.09 0)
 		(unit 1)
@@ -22049,6 +22199,71 @@
 			(project "MainBoard_V26_1_1"
 				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
 					(reference "#PWR064")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 187.96 91.44 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "70f2ed37-8ae8-445b-bdb4-608277799aeb")
+		(property "Reference" "#PWR049"
+			(at 187.96 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 187.96 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 187.96 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 187.96 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 187.96 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c2d069d2-ea76-45e4-a7b9-fc509744f35e")
+		)
+		(instances
+			(project "MainBoard_V26_1_3"
+				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
+					(reference "#PWR049")
 					(unit 1)
 				)
 			)
@@ -26569,7 +26784,7 @@
 				)
 			)
 		)
-		(property "Footprint" "LGA_O32XTR_STM"
+		(property "Footprint" "0_Library:LGA_O32XTR_STM-M"
 			(at 275.59 138.43 0)
 			(effects
 				(font
