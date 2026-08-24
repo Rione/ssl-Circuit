@@ -10108,16 +10108,8 @@
 		(uuid "feea284d-0c54-40ed-9990-b7923344793b")
 	)
 	(no_connect
-		(at 135.89 123.19)
-		(uuid "04641c73-db64-46a2-8744-55a4a994e134")
-	)
-	(no_connect
 		(at 100.33 107.95)
 		(uuid "0fb5e4aa-047f-4141-aa47-a00b40308f19")
-	)
-	(no_connect
-		(at 135.89 115.57)
-		(uuid "200c5f4e-ab91-4887-8fe4-1d23b04ff952")
 	)
 	(no_connect
 		(at 403.86 346.71)
@@ -10172,8 +10164,16 @@
 		(uuid "6117e268-ecd8-49a2-bdef-3075e2ef10f3")
 	)
 	(no_connect
-		(at 135.89 120.65)
-		(uuid "6a483ed1-652d-4c1c-9a4f-c9efe8293245")
+		(at 135.89 143.51)
+		(uuid "6e6e7870-778a-4985-a859-51c0b15aa0c3")
+	)
+	(no_connect
+		(at 135.89 85.09)
+		(uuid "883dbf1e-c512-4aab-8d6f-5f602031dfd3")
+	)
+	(no_connect
+		(at 135.89 138.43)
+		(uuid "8a416d22-cdf3-46b1-a2c6-ad680f273de5")
 	)
 	(no_connect
 		(at 275.59 146.05)
@@ -10214,6 +10214,10 @@
 	(no_connect
 		(at 129.54 302.26)
 		(uuid "bd325d50-b6be-4bdb-bb76-834b780cb06c")
+	)
+	(no_connect
+		(at 135.89 140.97)
+		(uuid "c3c81fa3-a1f9-4cc5-877d-f00d4808396a")
 	)
 	(no_connect
 		(at 100.33 125.73)
@@ -14832,7 +14836,7 @@
 	)
 	(global_label "LED4"
 		(shape output)
-		(at 135.89 143.51 0)
+		(at 135.89 125.73 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -14840,9 +14844,9 @@
 			)
 			(justify left)
 		)
-		(uuid "1196f00b-41f4-47a7-9f53-77d3c2b98744")
+		(uuid "116a78ea-e9be-4d73-84eb-58b19cc1410b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 143.5318 143.51 0)
+			(at 143.5318 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15178,28 +15182,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "HEART_BEAT_LED"
-		(shape output)
-		(at 135.89 85.09 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "2beabc3d-f77d-4cbb-943f-683d4c2118d5")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 154.0257 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -15732,6 +15714,28 @@
 			)
 		)
 	)
+	(global_label "LED3"
+		(shape output)
+		(at 135.89 123.19 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "61cfff44-a274-4b6e-bb0a-8b1222f4d6ed")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 143.5318 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "SPI2.CLK"
 		(shape bidirectional)
 		(at 129.54 330.2 0)
@@ -16102,28 +16106,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "LED3"
-		(shape output)
-		(at 135.89 140.97 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "842e187b-71d5-4f2b-b775-5e5d442fc02f")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 143.5318 140.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -16602,6 +16584,28 @@
 		(uuid "a0db95f8-12f8-4f8a-b249-a2dd51979d29")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 320.266 242.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "HEART_BEAT_LED"
+		(shape output)
+		(at 135.89 115.57 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a580a7ae-5b3c-4cad-ba3d-a58f29d97194")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 154.0257 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17139,6 +17143,28 @@
 			)
 		)
 	)
+	(global_label "LED2"
+		(shape output)
+		(at 135.89 120.65 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d0d496c2-7f22-4e04-a11a-bac78a57504a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 143.5318 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "UART2_TX"
 		(shape output)
 		(at 135.89 69.85 0)
@@ -17416,28 +17442,6 @@
 		(uuid "e7bf34ea-0169-4495-895a-64355dbba54e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 147.3646 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "LED2"
-		(shape output)
-		(at 135.89 138.43 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "eb32cbca-0d50-4914-8323-5841a77bfb4f")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 143.5318 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
