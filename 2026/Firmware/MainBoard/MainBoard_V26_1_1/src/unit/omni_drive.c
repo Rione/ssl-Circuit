@@ -8,6 +8,9 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   }
   self->emg = 0;
   self->ready = 0;
+  for (int i = 0; i < 4; i++) {
+    MAF_Init(&self->maf[i], 25);
+  }
 }
 
 void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
@@ -20,11 +23,13 @@ void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel
     float v_wheel_linear =
         -vx_m * SinDeg(ROBOT_MOTOR_DEGREE[i]) +
         vy_m * CosDeg(ROBOT_MOTOR_DEGREE[i]) +
-        ROBOT_WHEEL_BASE_RADIUS * vel_angle;
+        ROBOT_WHEEL_BASE_RADIUS * vel_angle * 0.001f;
 
-    // タイヤの角速度[rad/s]に変換
+    // タイヤの角速度[rad/s]に変換し、最大角速度で制限
     float v_wheel_angular = v_wheel_linear / ROBOT_WHEEL_RADIUS;
-    m[i] = (int16_t)v_wheel_angular * 100;
+    v_wheel_angular = Constrain(v_wheel_angular, -100.0f, 100.0f);
+    m[i] = (int16_t)(v_wheel_angular * 100);
+    m[i] = MAF_Update(&self->maf[i], m[i]);
   }
 
   OmniDrive_Send(self, m, 1);  // command: 1 (Drive)
@@ -36,8 +41,14 @@ void OmniDrive_SetFree(OmniDrive* self) {
 }
 
 void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
+  static Timer timer = {0};
+
+  // 1ms 経過するまで送信しない
+  if (Timer_ReadMs(&timer) < 1) return;
+  Timer_Reset(&timer);
+
   static uint8_t send_data[11];
-  send_data[0] = 0xFF;
+  send_data[0] = 0xAA;
   send_data[1] = command;
   send_data[2] = (uint8_t)((m[0] >> 8) & 0xFF);
   send_data[3] = (uint8_t)(m[0] & 0xFF);
@@ -47,9 +58,9 @@ void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
   send_data[7] = (uint8_t)(m[2] & 0xFF);
   send_data[8] = (uint8_t)((m[3] >> 8) & 0xFF);
   send_data[9] = (uint8_t)(m[3] & 0xFF);
-  send_data[10] = 0xAA;
+  send_data[10] = 0xFF;
 
-  Serial_Write(self->serials[0], send_data, 11);
+  Serial_Write(self->serials[2], send_data, 11);
 }
 
 void OmniDrive_Recv(OmniDrive* self) {
@@ -57,25 +68,27 @@ void OmniDrive_Recv(OmniDrive* self) {
   static uint8_t index[4] = {0};
 
   for (int i = 0; i < 4; i++) {
-    if (!Serial_Available(self->serials[i])) continue;
+    while (Serial_Available(self->serials[i])) {
+      uint8_t recv_byte = Serial_Read(self->serials[i]);
 
-    uint8_t recv_byte = Serial_Read(self->serials[i]);
-
-    if (index[i] == 0) {
-      if (recv_byte == 0xFF) {
+      if (index[i] == 0) {
+        if (recv_byte == 0xFF) {
+          index[i]++;
+        } else {
+          index[i] = 0;
+        }
+      } else if (index[i] == 4) {
+        if (recv_byte == 0xAA) {
+          self->emg = recv_data[i][0] & 0x01;
+          self->ready = (recv_data[i][0] >> 1) & 0x01;
+          self->vel_wheel_angular[i] =
+              (int16_t)((recv_data[i][1] << 8) | recv_data[i][2]) * 0.01;
+        }
+        index[i] = 0;
+      } else {
+        recv_data[i][index[i] - 1] = recv_byte;
         index[i]++;
       }
-    } else if (index[i] == 4) {
-      if (recv_byte == 0xAA) {
-        self->emg = recv_data[i][0] & 0x01;
-        self->ready = (recv_data[i][0] >> 1) & 0x01;
-        self->vel_wheel_angular[i] =
-            (int16_t)((recv_data[i][1] << 8) | recv_data[i][2]);
-      }
-      index[i] = 0;
-    } else {
-      recv_data[i][index[i] - 1] = recv_byte;
-      index[i]++;
     }
   }
 }

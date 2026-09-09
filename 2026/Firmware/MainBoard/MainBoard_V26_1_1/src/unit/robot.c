@@ -9,49 +9,79 @@
 uint16_t adc_val[1];
 
 #define ADC2VOLT 0.008862304688f
-#define ROCK_SPI_RX_PACKET_SIZE 18U
-// この時間(ms)受信できなかったら信号ロストと判定する（ここを変えれば猶予秒数を調整可能）
-#define ROCK_SPI_SIGNAL_TIMEOUT_MS 100U
+#define BATTERY_VOLTAGE_OFFSET 2.0f  // 実測とのズレを補正するオフセット
 
-static uint8_t rock_spi_tx_packet[ROCK_SPI_RX_PACKET_SIZE] = {};
-static uint8_t rock_spi_rx_packet[ROCK_SPI_RX_PACKET_SIZE];    // 割り込みの受信先
-static uint8_t rock_spi_rx_snapshot[ROCK_SPI_RX_PACKET_SIZE];  // メインループ反映用
-static volatile uint8_t rock_rx_ready = 0;                     // 新しいフレームを受信したフラグ
+// フレーム構成: [ヘッダ0xFF][ペイロード18byte][フッタ0xAA] = 20byte
+// Rock5A マスターは 1 トランザクション 20byte。スレーブも 20byte で同期させる。
+// 再同期用に直近 2 フレーム分(40byte)のスライディングウィンドウを保持する。
+#define ROCK_SPI_HEADER 0xFFU
+#define ROCK_SPI_FOOTER 0xAAU
+#define ROCK_SPI_PAYLOAD_SIZE 18U
+#define ROCK_SPI_FRAME_SIZE (ROCK_SPI_PAYLOAD_SIZE + 2U)  // ヘッダ+ペイロード+フッタ=20
+#define ROCK_SPI_RX_WINDOW_SIZE (ROCK_SPI_FRAME_SIZE * 2U)
+// SPI がこの時間(ms)完了もエラーもせず BUSY のまま固まったら強制リセットする。
+// ソフト NSS のスレーブはビットずれで「完了もエラーもしない BUSY ハング」に
+// 陥ることがあり、リセットしないと復帰しない。そのストール検出用。
+#define ROCK_SPI_STALL_TIMEOUT_MS 750U
 
-// 最後に受信できた時刻(ms)。これからの経過時間でタイムアウトを判定する
+// TX: ダブルバッファ (ISR が arm 中のバッファと main が更新する staging を分離)
+static uint8_t rock_spi_tx_buf[2][ROCK_SPI_FRAME_SIZE];
+static volatile uint8_t rock_spi_tx_arm_idx = 0;
+
+static uint8_t rock_spi_rx_xfer[ROCK_SPI_FRAME_SIZE];        // 直近 1 トランザクション分
+static uint8_t rock_spi_rx_window[ROCK_SPI_RX_WINDOW_SIZE];  // 再同期用 2 フレーム分
+static volatile uint8_t rock_rx_ready = 0;
+static volatile uint8_t rock_rearm_pending = 0;
+
 static uint32_t rock_last_recv_tick = 0;
+// 直近に SPI トランザクションが進捗（Arm / 完了）した時刻。
+// これが長時間更新されなければ BUSY ハングとみなす。
+static volatile uint32_t rock_spi_progress_tick = 0;
 
-static void Robot_RockBuildTxPacket(RobotInfo* info);
+static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst);
+static uint8_t* Robot_RockTxStaging(void);
 
-// 最後の受信から一定時間が過ぎていたら信号ロスト(0)にする
-static void Robot_RockUpdateSignalTimeout(RobotInfo* info) {
-  if ((HAL_GetTick() - rock_last_recv_tick) > ROCK_SPI_SIGNAL_TIMEOUT_MS) {
-    info->status.is_signal_received = 0;
+static void Robot_RockArm(void) {
+  rock_spi_progress_tick = HAL_GetTick();
+  if (HAL_SPI_TransmitReceive_IT(
+          &hspi2, rock_spi_tx_buf[rock_spi_tx_arm_idx], rock_spi_rx_xfer,
+          ROCK_SPI_FRAME_SIZE) != HAL_OK) {
+    rock_rearm_pending = 1;
   }
 }
 
-// SPI送受信の待ち受けを開始/再開する（常に待ち受け状態を保ち、隙間を作らない）
-static void Robot_RockArm(void) {
-  HAL_SPI_TransmitReceive_IT(&hspi2, rock_spi_tx_packet, rock_spi_rx_packet,
-                             ROCK_SPI_RX_PACKET_SIZE);
-}
-
-// 送受信完了割り込み：受信データを退避してフラグを立て、即座に次を待ち受ける
-// （重い処理(printf等)はISR内でやらず、反映はメインループに任せる）
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef* hspi) {
   if (hspi->Instance != SPI2) return;
 
-  memcpy(rock_spi_rx_snapshot, rock_spi_rx_packet, ROCK_SPI_RX_PACKET_SIZE);
-  rock_last_recv_tick = HAL_GetTick();
   rock_rx_ready = 1;
-
-  Robot_RockArm();  // 隙間なく次フレームを待ち受け
+  rock_spi_tx_arm_idx = 1U - rock_spi_tx_arm_idx;
+  Robot_RockArm();
 }
 
-// SPIエラー(オーバーラン等)時も待ち受けを再開して復帰する
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef* hspi) {
   if (hspi->Instance != SPI2) return;
-  Robot_RockArm();
+  memset(rock_spi_rx_window, 0, ROCK_SPI_RX_WINDOW_SIZE);
+  rock_rearm_pending = 1;
+}
+
+static void Robot_RockRxWindowPush(const uint8_t* chunk) {
+  memmove(rock_spi_rx_window,
+          rock_spi_rx_window + ROCK_SPI_FRAME_SIZE,
+          ROCK_SPI_RX_WINDOW_SIZE - ROCK_SPI_FRAME_SIZE);
+  memcpy(rock_spi_rx_window + ROCK_SPI_RX_WINDOW_SIZE - ROCK_SPI_FRAME_SIZE, chunk,
+         ROCK_SPI_FRAME_SIZE);
+}
+
+// スライディングウィンドウ内の最後の有効フレームを返す (見つからなければ -1)
+static int16_t Robot_RockFindFrame(const uint8_t* buf, uint16_t buf_size) {
+  int16_t last = -1;
+  for (uint16_t i = 0; i + ROCK_SPI_FRAME_SIZE <= buf_size; i++) {
+    if (buf[i] == ROCK_SPI_HEADER &&
+        buf[i + ROCK_SPI_FRAME_SIZE - 1] == ROCK_SPI_FOOTER) {
+      last = (int16_t)(i + 1);
+    }
+  }
+  return last;
 }
 
 static void Robot_RockApplyRecvPacket(RobotInfo* info, const uint8_t* data) {
@@ -62,8 +92,8 @@ static void Robot_RockApplyRecvPacket(RobotInfo* info, const uint8_t* data) {
   info->vel_angular.l = data[4];
   info->vel_angular.h = data[5];
   info->dribble_power = data[6];
-  info->kicker.straight = data[7];
-  info->kicker.chip = data[8];
+  info->kicker.straight = data[7] * 2.55;
+  info->kicker.chip = data[8] * 2.55;
   info->relative_position_x.l = data[9];
   info->relative_position_x.h = data[10];
   info->relative_position_y.l = data[11];
@@ -73,12 +103,14 @@ static void Robot_RockApplyRecvPacket(RobotInfo* info, const uint8_t* data) {
   info->camera.x = data[15];
   info->camera.y = data[16];
   info->status.data = data[17];
-  info->status.is_signal_received = 1;
+}
+
+static uint8_t* Robot_RockTxStaging(void) {
+  return rock_spi_tx_buf[1U - rock_spi_tx_arm_idx];
 }
 
 void Robot_Initialize(Robot* self) {
   printf("Robot Initialize Start\n");
-  // GPIO 初期化
   DigitalOut_Init(&self->led0, LED0_GPIO_Port, LED0_Pin);
   DigitalOut_Init(&self->led1, LED1_GPIO_Port, LED1_Pin);
   DigitalOut_Init(&self->led2, LED2_GPIO_Port, LED2_Pin);
@@ -98,24 +130,21 @@ void Robot_Initialize(Robot* self) {
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_val, 1);
   HAL_Delay(10);
 
-  // シリアル初期化（DMA受信開始）
-  UART_HandleTypeDef* md_uarts[4] = {&huart2, &huart3, &huart5, &huart6};
+  UART_HandleTypeDef* md_uarts[4] = {&huart5, &huart6, &huart2, &huart3};
   Serial_Init(&self->serial4, &huart4, ROBOT_SERIAL_BUF_SIZE);
   for (int i = 0; i < 4; i++) {
     Serial_Init(&self->md_serials[i], md_uarts[i], ROBOT_SERIAL_BUF_SIZE);
   }
 
-  // CAN初期化
   Can_Init(&self->can, &hcan1, 0);
 
-  // ユニット初期化（シリアルとCAN初期化後に呼ぶ）
   OmniDrive_Init(&self->omni_drive, self->md_serials);
   Kicker_Init(&self->kicker, &self->can);
   Dribbler_Init(&self->dribbler, &self->can);
   UI_Init(&self->ui, &self->serial4);
 
-  // Rock との SPI を割り込みで常時待ち受け開始（スレーブが常に受信待ちになる）
-  Robot_RockBuildTxPacket(&self->info);
+  rock_spi_tx_arm_idx = 0;
+  Robot_RockBuildTxPacket(self, &self->info, rock_spi_tx_buf[0]);
   Robot_RockArm();
 
   printf("Robot Initialize Finish\n");
@@ -123,40 +152,56 @@ void Robot_Initialize(Robot* self) {
 }
 
 void Robot_UpdateSensor(Robot* self) {
-  // 電圧センサ値を更新
-  self->info.battery_voltage = adc_val[0] * ADC2VOLT;  // 0-255 (0-25.5V)
-  // printf("adc_val: %d, battery_voltage: %d\n", adc_val[0], self->info.battery_voltage);
+  self->info.battery_voltage = adc_val[0] * ADC2VOLT + BATTERY_VOLTAGE_OFFSET;
 }
 
-// 送信パケットを組み立てる（先頭4byteが実データ、残りは0クリア）
-static void Robot_RockBuildTxPacket(RobotInfo* info) {
-  (void)info;
-
-  rock_spi_tx_packet[0] = 100;
-  rock_spi_tx_packet[1] = 120;
-  rock_spi_tx_packet[2] = 130;
-  rock_spi_tx_packet[3] = 140;
-
-  for (uint16_t i = 4; i < ROCK_SPI_RX_PACKET_SIZE; i++) {
-    rock_spi_tx_packet[i] = 0x00;
+static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst) {
+  dst[0] = ROCK_SPI_HEADER;
+  dst[1] = info->battery_voltage * 10;
+  dst[2] = info->dribble_status.data;
+  dst[3] = info->kicker_status.cap_val;
+  int16_t wheel_scaled[4] = {
+      self->omni_drive.vel_wheel_angular[0] * 100,
+      self->omni_drive.vel_wheel_angular[1] * 100,
+      self->omni_drive.vel_wheel_angular[2] * 100,
+      self->omni_drive.vel_wheel_angular[3] * 100};
+  for (int i = 0; i < 4; i++) {
+    dst[4 + i * 2] = (uint8_t)(wheel_scaled[i] & 0xFF);
+    dst[5 + i * 2] = (uint8_t)((wheel_scaled[i] >> 8) & 0xFF);
   }
+  for (uint16_t i = 12; i < ROCK_SPI_FRAME_SIZE - 1; i++) {
+    dst[i] = 0x00;
+  }
+  dst[ROCK_SPI_FRAME_SIZE - 1] = ROCK_SPI_FOOTER;
 }
 
-// メインループから毎周呼ぶ。実際の送受信は割り込みでバックグラウンド実行されているので、
-// ここでは「次に送るデータの更新」と「受信済みフレームの反映/タイムアウト判定」だけを行う。
 void Robot_RockUpdateSPI(Robot* self, RobotInfo* info) {
-  (void)self;
+  uint32_t primask = __get_PRIMASK();
+  __disable_irq();
+  Robot_RockBuildTxPacket(self, info, Robot_RockTxStaging());
+  if (primask == 0U) {
+    __enable_irq();
+  }
 
-  // 次フレームで送る送信データを更新（割り込みが再アーム時にこれを送る）
-  Robot_RockBuildTxPacket(info);
+  if (rock_rearm_pending) {
+    rock_rearm_pending = 0;
+    HAL_SPI_Abort(&hspi2);
+    Robot_RockArm();
+  } else if ((HAL_GetTick() - rock_spi_progress_tick) > ROCK_SPI_STALL_TIMEOUT_MS) {
+    // 完了もエラーもせず BUSY のまま固まった（ソフト NSS スレーブの
+    // ビットずれによるハング）。強制的に Abort して再 Arm し復帰させる。
+    HAL_SPI_Abort(&hspi2);
+    Robot_RockArm();
+  }
 
   if (rock_rx_ready) {
-    // 新しいフレームを受信済み → 反映（is_signal_received=1）
     rock_rx_ready = 0;
-    Robot_RockApplyRecvPacket(info, rock_spi_rx_snapshot);
-  } else {
-    // しばらく受信が無ければ信号ロスト判定
-    Robot_RockUpdateSignalTimeout(info);
+    Robot_RockRxWindowPush(rock_spi_rx_xfer);
+    int16_t payload_offset = Robot_RockFindFrame(rock_spi_rx_window, ROCK_SPI_RX_WINDOW_SIZE);
+    if (payload_offset >= 0) {
+      rock_last_recv_tick = HAL_GetTick();
+      Robot_RockApplyRecvPacket(info, &rock_spi_rx_window[payload_offset]);
+    }
   }
 }
 
@@ -183,7 +228,7 @@ void Robot_UpdateFromUi(Robot* self) {
 
   static uint16_t send_count = 0;
   send_count++;
-  if (send_count >= 100) { // 100msに1回送信 (1秒間に10回)
+  if (send_count >= 100) {
     UI_Send(&self->ui, self);
     send_count = 0;
   }
@@ -193,35 +238,36 @@ void Robot_SendDribble(Robot* self, uint8_t power, uint8_t force_send) {
   Dribbler_Send(&self->dribbler, power, force_send);
 }
 
+static void Robot_KickIfTriggered(Kicker* kicker, uint8_t is_straight, uint8_t power,
+                                  uint8_t do_direct, uint8_t ball_detected_edge) {
+  if (power == 0) return;
+  if (do_direct && !ball_detected_edge) return;
+  Kicker_Kick(kicker, is_straight, power);
+}
+
 void Robot_SendKicker(Robot* self, RobotInfo* info) {
-  if (info->kicker.straight > 0) {
-    Kicker_Kick(&self->kicker, KICKER_STRAIGHT, info->kicker.straight,
-                info->status.do_direct_kick);
-  } else if (info->kicker.chip > 0) {
-    Kicker_Kick(&self->kicker, KICKER_CHIP, info->kicker.chip,
-                info->status.do_direct_chip_kick);
-  } else {
-    if (info->status.do_direct_kick != info->kicker_status.do_direct_straight &&
-        info->kicker_status.do_direct_straight) {
-      Kicker_CancelDirect(&self->kicker, KICKER_STRAIGHT);
-    }
-    if (info->status.do_direct_chip_kick != info->kicker_status.do_direct_chip &&
-        info->kicker_status.do_direct_chip) {
-      Kicker_CancelDirect(&self->kicker, KICKER_CHIP);
-    }
+  static uint8_t prev_ball_detected = 0;
+
+  uint8_t ball_detected = info->dribble_status.is_detected_ball;
+  uint8_t ball_detected_edge = ball_detected && !prev_ball_detected;
+
+  if (!info->status.do_direct_straight && info->kicker.chip > 0) {
+    Robot_KickIfTriggered(&self->kicker, KICKER_CHIP, info->kicker.chip,
+                          info->status.do_direct_chip, ball_detected_edge);
   }
+  if (!info->status.do_direct_chip && info->kicker.straight > 0) {
+    Robot_KickIfTriggered(&self->kicker, KICKER_STRAIGHT, info->kicker.straight,
+                          info->status.do_direct_straight, ball_detected_edge);
+  }
+
+  prev_ball_detected = ball_detected;
 }
 
 void Robot_SendOmniDrive(Robot* self, RobotInfo* info, uint8_t interval) {
-  static uint8_t send_count = 0;
-  send_count++;
-  if (send_count % interval == 0) {
-    OmniDrive_SetVel(&self->omni_drive, info->vel_x.vel, info->vel_y.vel,
-                     info->vel_angular.vel);
-  }
+  OmniDrive_SetVel(&self->omni_drive, info->vel_x.vel, info->vel_y.vel,
+                   info->vel_angular.vel);
 }
 
-// 2秒周期のSin波でPWM出力（HBピン: PA8 / TIM1_CH1）
 void Robot_UpdateHeartBeat(Robot* self) {
   static uint32_t count = 0;
   count = (count + 1) % 2000;

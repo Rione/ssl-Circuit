@@ -226,6 +226,10 @@ clean:
 run:
 	make -j12
 	sh SWDFlash.sh
+
+dap:
+	make -j12
+	sh DAPFlash.sh
 #######################################
 # dependencies
 #######################################

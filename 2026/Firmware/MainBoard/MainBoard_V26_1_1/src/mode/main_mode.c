@@ -8,6 +8,8 @@ void MainMode_Init(MainMode* self, Robot* robot) {
   self->robot = robot;
   LocalController_Init(&self->local_controller);
   Timer_Init(&main_control_timer);
+
+  Kicker_Discharge(&self->robot->kicker);
 }
 
 void MainMode_Loop(MainMode* self) {
@@ -36,11 +38,32 @@ void MainMode_Loop(MainMode* self) {
   } else {
     // Robot is Stop or Emergency Stop
     LocalController_Stop(&self->local_controller, r);
+    // LocalController_TestMove(&self->local_controller, r);
+    // LocalController_TestMoveForwardBack(&self->local_controller, r);
   }
 
   Robot_UpdateHeartBeat(r);
 
-  // 1ms 制御ループを維持
-  while (Timer_ReadMs(&main_control_timer) < 1);
+  if (r->info.kicker_status.cap_val > 100) {
+    DigitalOut_Write(&r->led1, 1);
+  } else {
+    DigitalOut_Write(&r->led1, 0);
+  }
+
+  // if (r->info.status.do_direct_straight || r->info.status.do_direct_chip) {
+  //   DigitalOut_Write(&r->led2, 1);
+  // } else {
+  //   DigitalOut_Write(&r->led2, 0);
+  // }
+
+  if (r->info.status.is_signal_received) {
+    DigitalOut_Write(&r->led2, 1);
+  } else {
+    DigitalOut_Write(&r->led2, 0);
+  }
+
+  while (Timer_ReadUs(&main_control_timer) < ROBOT_CONTROL_LOOP_DT_US) {
+    // 制御ループ周期まで待機
+  };
   Timer_Reset(&main_control_timer);
 }
