@@ -105,7 +105,6 @@ typedef struct Robot {
   RobotInfo info;
 
   DigitalOut led0, led1, led2;
-  DigitalIn sw_imu, sw_discharge;
   PwmOut heart_beat;
 
   CanBus can;

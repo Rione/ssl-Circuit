@@ -115,9 +115,6 @@ void Robot_Initialize(Robot* self) {
   DigitalOut_Init(&self->led1, LED1_GPIO_Port, LED1_Pin);
   DigitalOut_Init(&self->led2, LED2_GPIO_Port, LED2_Pin);
 
-  DigitalIn_Init(&self->sw_imu, IMU_RESET_GPIO_Port, IMU_RESET_Pin);
-  DigitalIn_Init(&self->sw_discharge, DISCHARGE_GPIO_Port, DISCHARGE_Pin);
-
   PwmOut_Init(&self->heart_beat, &htim1, TIM_CHANNEL_1);
 
   DigitalOut_Write(&self->led0, 1);

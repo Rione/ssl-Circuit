@@ -152,7 +152,7 @@ C_INCLUDES =  \
 -Isrc/mode \
 -Isrc/config \
 -Isrc/control \
--I$(shell find ../../CommonLib-C -maxdepth 2 -type d | sed 's/^//')
+$(addprefix -I,$(shell find ../../CommonLib-C -maxdepth 2 -type d))
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
