@@ -59,22 +59,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define VOLTAGE_Pin GPIO_PIN_4
 #define VOLTAGE_GPIO_Port GPIOA
-#define SPI1_CS_Pin GPIO_PIN_4
-#define SPI1_CS_GPIO_Port GPIOC
-#define SPI2_CS_Pin GPIO_PIN_2
-#define SPI2_CS_GPIO_Port GPIOB
-#define LED1_Pin GPIO_PIN_12
-#define LED1_GPIO_Port GPIOB
-#define LED2_Pin GPIO_PIN_13
-#define LED2_GPIO_Port GPIOB
-#define IMU_RESET_Pin GPIO_PIN_8
-#define IMU_RESET_GPIO_Port GPIOC
 #define HB_Pin GPIO_PIN_8
 #define HB_GPIO_Port GPIOA
-#define DISCHARGE_Pin GPIO_PIN_5
-#define DISCHARGE_GPIO_Port GPIOB
-#define LED0_Pin GPIO_PIN_9
-#define LED0_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
