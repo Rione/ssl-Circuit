@@ -72,7 +72,15 @@ void MX_ADC1_Init(void)
 
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
   */
+  /* USER CODE BEGIN BSIN_CHANNEL */
+  /* BS_IN は通常 PC3(IN13)。PC3 損傷機では PC2(IN12) へ移設している。
+     Makefile の BSIN_PC2=1 で切り替わる。CubeMX 再生成時は要復元。 */
+#ifdef BSIN_PIN_PC2
+  sConfig.Channel = ADC_CHANNEL_12;
+#else
   sConfig.Channel = ADC_CHANNEL_13;
+#endif
+  /* USER CODE END BSIN_CHANNEL */
   sConfig.Rank = 2;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {

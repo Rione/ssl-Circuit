@@ -123,6 +123,17 @@ C_DEFS =  \
 -DUSE_HAL_DRIVER \
 -DSTM32F446xx
 
+# ボールセンサ(BS_IN)の接続ピン切り替え
+#   make            -> PC3 / ADC1_IN13 (通常基板。設計どおり)
+#   make BSIN_PC2=1 -> PC2 / ADC1_IN12 (PC3損傷により移設した改造基板)
+# ※切り替え時は必ず make clean してください
+ifeq ($(BSIN_PC2),1)
+C_DEFS += -DBSIN_PIN_PC2
+$(info === BS_IN = PC2 (ADC1_IN12) : 改造基板向けビルド ===)
+else
+$(info === BS_IN = PC3 (ADC1_IN13) : 通常基板向けビルド ===)
+endif
+
 
 # AS includes
 AS_INCLUDES = 

@@ -59,8 +59,13 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// app.c の起動診断ブレッドクラム。停止箇所の特定に使う
+extern volatile uint32_t g_diag_step;
+
 int _write(int file, char* ptr, int len) {
-      HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, 10);
+      // 115200baudでは10msに約115バイトしか送れず、長い行が途中で
+      // 打ち切られてUTF-8が壊れる。バイト数に応じた余裕を持たせる。
+      HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, (uint32_t)len + 100);
       return len;
 }
 /* USER CODE END 0 */
@@ -173,7 +178,19 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-      /* User can add his own implementation to report the HAL error return state */
+      /* 無言で停止すると原因が分からないため、停止前に状況を吐き出す。
+         UART未初期化のうちに呼ばれた場合は送信をスキップする。 */
+      if (huart1.Instance != NULL) {
+            printf("\r\n[FATAL] Error_Handler() at diag_step=%lu, caller=0x%08lX\r\n",
+                   (unsigned long)g_diag_step,
+                   (unsigned long)(uintptr_t)__builtin_return_address(0));
+            printf("[FATAL] CAN  State=%d Err=0x%08lX MSR=0x%08lX ESR=0x%08lX\r\n",
+                   (int)hcan1.State, (unsigned long)hcan1.ErrorCode,
+                   (unsigned long)CAN1->MSR, (unsigned long)CAN1->ESR);
+            printf("[FATAL] ADC  State=0x%08lX Err=0x%08lX\r\n",
+                   (unsigned long)hadc1.State, (unsigned long)hadc1.ErrorCode);
+            printf("[FATAL] halt.\r\n");
+      }
       __disable_irq();
       while (1) {
       }

@@ -22,4 +22,8 @@ bool Dribbler_IsBallCapturedByCurrent();
 // 総合判定
 bool Dribbler_IsBallCaptured();
 
+// 診断用: 較正で決まった閾値と、LPF通過後のフォト値
+uint32_t Dribbler_GetPhotoThreshold();
+uint16_t Dribbler_GetFilteredPhoto();
+
 #endif  // DRIBBLER_H_

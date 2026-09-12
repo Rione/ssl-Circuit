@@ -3,7 +3,13 @@
 DigitalOut BS_LED;
 DigitalOut BS_OUT;
 
-#define PHOTO_THRESHOLD_MARGIN 300
+// 閾値は「ボール無し時の平均(baseline)」に対する割合で決める。
+// 固定値を引く方式だと baseline の水準が変わったときに破綻する。
+// 実測: baseline 約560 / ボール有り 約48 なので、50% (=280) は両者の中間に十分収まる。
+// 光学系の汚れ等で baseline が下がっても、比例なら余裕の比率が保たれる。
+#define PHOTO_THRESHOLD_RATIO_PCT 50
+// baseline がこれ未満ならセンサ異常とみなし、検知を無効化する(誤検知より安全)
+#define PHOTO_BASELINE_MIN 100
 #define BASE_PHOTO_MEASURE_NUM 300
 #define PHOTO_LPF_K 0.99
 
@@ -46,16 +52,37 @@ bool Dribbler_SetPhotoThreshold(uint16_t photo_val) {
     HAL_Delay(1);  // 1ms待機して次のサンプルを取得
   } else {
     photo_th /= BASE_PHOTO_MEASURE_NUM;
-    photo_th -= PHOTO_THRESHOLD_MARGIN;
+    uint32_t baseline = photo_th;
 
+    if (baseline < PHOTO_BASELINE_MIN) {
+      // 受光量が異常に低い。閾値0にして検知を止める(常時捕捉より安全)
+      printf("  !! photo baseline too low (%lu < %d)\r\n",
+             (unsigned long)baseline, PHOTO_BASELINE_MIN);
+      printf("     BSセンサ未接続/断線/ADC未動作を疑う。検知は無効化\r\n");
+      photo_th = 0;
+    } else {
+      photo_th = baseline * PHOTO_THRESHOLD_RATIO_PCT / 100U;
+    }
+
+    printf("  photo baseline = %lu, threshold = %lu (%d%%)\r\n",
+           (unsigned long)baseline, (unsigned long)photo_th,
+           PHOTO_THRESHOLD_RATIO_PCT);
     return true;
   }
 
-  printf("Photo threshold calibration: %lu / %d\r\n", photo_th, BASE_PHOTO_MEASURE_NUM);
+  // 毎サンプル出すとUARTで詰まるので間引く
+  if ((count % 50) == 0) {
+    printf("  photo calib %u/%d sum=%lu last=%u\r\n", count,
+           BASE_PHOTO_MEASURE_NUM, (unsigned long)photo_th, photo_val);
+  }
 
   count++;
   return false;
 }
+
+uint32_t Dribbler_GetPhotoThreshold() { return photo_th; }
+
+uint16_t Dribbler_GetFilteredPhoto() { return filtered_photo; }
 
 bool Dribbler_IsBallCapturedByPhoto() {
   return filtered_photo < photo_th;
