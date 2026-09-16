@@ -2,6 +2,15 @@
 
 #include <stdio.h>
 
+// ===========================================================================
+// 試験用ビルド設定
+// ===========================================================================
+// 1: ドリブラ保持力・干渉チェック試験モード。
+//    コントローラからの指令を無視し、ボール保持中に後退速度を上げていく。
+//    ドリブラ側には FW/Dribbler_V26_1_1-holdtest を書き込んでおくこと。
+// 0: 通常動作
+#define MAINBOARD_HOLD_TEST 1
+
 Timer main_control_timer;
 
 void MainMode_Init(MainMode* self, Robot* robot) {
@@ -24,6 +33,11 @@ void MainMode_Loop(MainMode* self) {
 
   OmniDrive_Recv(&r->omni_drive);
 
+#if MAINBOARD_HOLD_TEST
+  // 試験モード: コントローラ信号の有無によらず、ボール検知で動き出す。
+  // 電源投入直後は停止しており、最初にボールを置くまで動かない。
+  LocalController_TestBallHold(&self->local_controller, r);
+#else
   if (!r->info.status.emergency_stop && r->info.status.is_signal_received) {
     // Robot is Running
     Robot_SendDribble(r, r->info.dribble_power, 0);
@@ -41,6 +55,7 @@ void MainMode_Loop(MainMode* self) {
     // LocalController_TestMove(&self->local_controller, r);
     // LocalController_TestMoveForwardBack(&self->local_controller, r);
   }
+#endif  // MAINBOARD_HOLD_TEST
 
   Robot_UpdateHeartBeat(r);
 
