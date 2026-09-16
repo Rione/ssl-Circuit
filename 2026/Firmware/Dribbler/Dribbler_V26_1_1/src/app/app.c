@@ -46,6 +46,26 @@ uint16_t adc_val[4];  // 0: Current, 1: BallSensor
 // ベンチ安全対策: 検知が張り付いた場合に回し続けない上限[ms]
 #define TEST_MAX_RUN_MS 30000
 
+// ---------------------------------------------------------------------------
+// 保持力・干渉チェック試験 (HOLD_TEST)
+// ---------------------------------------------------------------------------
+// ドリブラは常に引き込み方向のみ。急に高速で回すとボールを弾くため、
+// 検知したら 0% から目標まで滑らかに立ち上げる。
+// ロボット本体の後退は MainBoard 側の担当(この基板からは制御できない)。
+// 1: 保持力試験モード。CAN受信での駆動は行わない
+#define HOLD_TEST 1
+// 保持中の目標デューティ[%]
+#define HOLD_TARGET_PERCENT 90
+// 0% から目標まで立ち上げる時間[ms]。大きいほど穏やかな加速
+#define HOLD_RAMP_MS 800
+// ボールが無いとき回しておくデューティ[%]。0にすると停止
+// 低速で回しておくと、転がってきたボールを弾かずに拾える
+#define HOLD_CATCH_PERCENT 20
+// 状態ログの出力レート[Hz]
+#define HOLD_LOG_HZ 10
+// ベンチ安全対策: 保持が張り付いた場合に回し続けない上限[ms] (0で無効)
+#define HOLD_MAX_RUN_MS 0
+
 #define CAN_RECV_ID 0x20
 #define CAN_SEND_ID 0x70
 
@@ -1107,7 +1127,137 @@ static void BallFollowTest(void) {
 }
 #endif  // BALL_FOLLOW_TEST
 
+#if HOLD_TEST
+// ドリブラ部品の干渉チェック / ボール保持力チェック用。
+//
+//   ボール無し : HOLD_CATCH_PERCENT で待機(低速で拾いに行く)
+//   検知       : 0% から HOLD_TARGET_PERCENT まで HOLD_RAMP_MS かけて立ち上げ
+//   保持中     : 目標デューティを維持
+//   離脱       : 待機へ戻る。次の検知でランプは 0% からやり直す
+//
+// ロボット本体の後退は MainBoard 側で行う。この基板はボール保持に専念し、
+// 保持状態を CAN(ID 0x70) で送るので、MainBoard 側はそれを見て後退できる。
+static void HoldTest(void) {
+  const float target = HOLD_TARGET_PERCENT / 100.0f;
+  const float catch_duty = HOLD_CATCH_PERCENT / 100.0f;
+  const uint32_t th_on = Dribbler_GetPhotoThreshold();
+  const uint32_t th_off = th_on + th_on / 4U;  // 離脱判定のヒステリシス
+
+  printf("\r\n======== 保持力・干渉チェック試験 ========\r\n");
+  printf("  ドリブラは引き込み方向のみ。逆転はしません\r\n");
+  printf("  待機デューティ = %d%%\r\n", HOLD_CATCH_PERCENT);
+  printf("  検知したら 0%% -> %d%% へ %dms かけて立ち上げ\r\n",
+         HOLD_TARGET_PERCENT, HOLD_RAMP_MS);
+  printf("  離脱したら待機へ戻り、次の検知でランプは 0%% からやり直し\r\n");
+  printf("  ON閾値 =%lu / OFF閾値=%lu\r\n", (unsigned long)th_on,
+         (unsigned long)th_off);
+  printf("  ロボット本体の後退は MainBoard 側で実施してください\r\n");
+  if (th_on == 0) {
+    printf("  !! 閾値が0。センサ異常のため回転させません\r\n");
+  }
+  printf("==========================================\r\n");
+  printf("  t[s]  state     duty  photo  cur\r\n");
+
+  enum { ST_WAIT, ST_RAMP, ST_HOLD } state = ST_WAIT;
+  const char *st_name[] = {"WAIT ", "RAMP ", "HOLD "};
+
+  uint32_t ramp_start = 0;
+  uint32_t hold_start = 0;
+  uint32_t last_log = HAL_GetTick();
+  uint32_t t0 = HAL_GetTick();
+  uint32_t catch_count = 0;
+  float duty = 0.0f;
+
+  while (1) {
+    Dribbler_Update(adc_val[BALL_SENSOR_IDX], adc_val[MOTOR_CURRENT_IDX]);
+    uint16_t lpf = Dribbler_GetFilteredPhoto();
+    uint32_t now = HAL_GetTick();
+    bool detected = (th_on > 0) && (lpf < th_on);
+    bool released = (th_on == 0) || (lpf > th_off);
+
+    switch (state) {
+      case ST_WAIT:
+        duty = (th_on == 0) ? 0.0f : catch_duty;
+        if (detected) {
+          state = ST_RAMP;
+          ramp_start = now;
+          catch_count++;
+          printf("[HOLD] 検知 -> ランプ開始  photo=%u (#%lu)\r\n", lpf,
+                 (unsigned long)catch_count);
+        }
+        break;
+
+      case ST_RAMP: {
+        uint32_t elapsed = now - ramp_start;
+        if (elapsed >= HOLD_RAMP_MS) {
+          duty = target;
+          state = ST_HOLD;
+          hold_start = now;
+          printf("[HOLD] 目標到達 %d%%  (%lums)\r\n", HOLD_TARGET_PERCENT,
+                 (unsigned long)elapsed);
+        } else {
+          // 0 -> target へ線形に立ち上げる
+          duty = target * (float)elapsed / (float)HOLD_RAMP_MS;
+        }
+        if (released) {
+          state = ST_WAIT;
+          printf("[HOLD] ランプ中に離脱  photo=%u duty=%d%%\r\n", lpf,
+                 (int)(duty * 100.0f));
+        }
+        break;
+      }
+
+      case ST_HOLD:
+        duty = target;
+        if (released) {
+          state = ST_WAIT;
+          printf("[HOLD] 離脱 -> 待機へ  photo=%u  保持%lums\r\n", lpf,
+                 (unsigned long)(now - hold_start));
+        }
+#if HOLD_MAX_RUN_MS > 0
+        else if ((now - hold_start) > HOLD_MAX_RUN_MS) {
+          state = ST_WAIT;
+          printf("[HOLD] !! 保持が上限に達したため待機へ戻します\r\n");
+        }
+#endif
+        break;
+    }
+
+    Motor_DriveDuty(duty);
+
+    if (now - last_log >= (1000 / HOLD_LOG_HZ)) {
+      last_log = now;
+      printf("  %4lu.%lu %s %4d%%  %5u  %4u\r\n",
+             (unsigned long)((now - t0) / 1000),
+             (unsigned long)(((now - t0) % 1000) / 100), st_name[state],
+             (int)(duty * 100.0f + 0.5f), lpf, adc_val[MOTOR_CURRENT_IDX]);
+    }
+
+    // 保持状態を CAN で送る。MainBoard 側はこれを見て後退を制御できる
+    if (Timer_ReadMs(&can_send_interval_timer) >= CAN_SEND_INTERVAL_MS) {
+      DigitalOut_Write(&CAN_LED, 1);
+      CanData data = {
+          .stdId = CAN_SEND_ID,
+          .data = {(uint8_t)detected, 0, (uint8_t)(state == ST_HOLD)},
+      };
+      Can_Send(&can, &data);
+      Timer_Reset(&can_send_interval_timer);
+    } else {
+      DigitalOut_Write(&CAN_LED, 0);
+    }
+
+    PwmOut_Write(&LED1, detected ? 1.0f : 0.0f);
+    PwmOut_Write(&LED3, (state == ST_HOLD) ? 1.0f : 0.0f);
+  }
+}
+#endif  // HOLD_TEST
+
 void MainApp() {
+#if HOLD_TEST
+  HoldTest();
+  return;
+#endif
+
 #if BALL_FOLLOW_TEST
   BallFollowTest();
   return;

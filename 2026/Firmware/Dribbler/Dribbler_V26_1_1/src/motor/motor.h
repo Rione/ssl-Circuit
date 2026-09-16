@@ -17,6 +17,9 @@ void Motor_Init();
 void Motor_Update(uint16_t current_val);
 bool Motor_SetBaseCurrent(uint16_t current_val);
 void Motor_Drive(uint8_t level);
+// 0.0〜1.0 のデューティで直接駆動する。
+// Motor_Drive はレベル0〜10の10段階しかないため、滑らかなランプ用にこちらを使う。
+void Motor_DriveDuty(float duty);
 void Motor_Brake();
 void Motor_Free();
 

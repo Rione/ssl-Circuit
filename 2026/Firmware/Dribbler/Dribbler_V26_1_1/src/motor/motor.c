@@ -67,6 +67,17 @@ void Motor_Drive(uint8_t level) {
   }
 }
 
+void Motor_DriveDuty(float duty) {
+  if (duty < 0.0f) duty = 0.0f;
+  if (duty > 1.0f) duty = 1.0f;
+
+  // Motor_IsBallCaptured 用のレベルも近い値に合わせておく
+  current_drive_level = (uint8_t)(duty * MAX_SPEED_LEVEL + 0.5f);
+
+  PwmOut_Write(&MD_INA, 0);
+  PwmOut_Write(&MD_INB, duty);
+}
+
 void Motor_Brake() {
   current_drive_level = 0;
   PwmOut_Write(&MD_INA, 1.0f);
