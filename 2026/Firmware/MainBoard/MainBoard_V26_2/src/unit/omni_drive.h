@@ -21,6 +21,11 @@ typedef struct {
   uint8_t emg;
   uint8_t ready;
   MAF maf[4];
+  // OmniDrive_GetVelの逆運動学(最小二乗擬似逆行列)係数。ROBOT_MOTOR_DEGREEから
+  // OmniDrive_Initで一度だけ計算してキャッシュする。
+  float ik_vx[4];
+  float ik_vy[4];
+  float ik_omega[4];
 } OmniDrive;
 
 void OmniDrive_Init(OmniDrive* self, Serial* serials);

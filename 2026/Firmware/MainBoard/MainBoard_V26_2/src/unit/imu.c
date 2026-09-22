@@ -64,8 +64,16 @@ void Imu_Calibrate(Imu* self) {
   printf("IMU Calibration Start (keep the robot stationary)\n");
 
   float sum_x = 0.0f, sum_y = 0.0f, sum_z = 0.0f;
-  for (uint16_t count = 0; count < IMU_CALIB_SAMPLE_COUNT;) {
-    if (!Lsm6dso32_DataReady(&self->sensor)) continue;
+  uint32_t start_tick = HAL_GetTick();
+  uint16_t count = 0;
+  while (count < IMU_CALIB_SAMPLE_COUNT) {
+    if (!Lsm6dso32_DataReady(&self->sensor)) {
+      if ((HAL_GetTick() - start_tick) > IMU_CALIB_TIMEOUT_MS) {
+        printf("IMU Calibration Timeout (DRDY not ready), using default bias\n");
+        break;
+      }
+      continue;
+    }
     Lsm6dso32_Update(&self->sensor);
     sum_x += self->sensor.gyroX;
     sum_y += self->sensor.gyroY;
@@ -73,10 +81,12 @@ void Imu_Calibrate(Imu* self) {
     count++;
   }
 
-  self->gyro_bias_x = sum_x / IMU_CALIB_SAMPLE_COUNT;
-  self->gyro_bias_y = sum_y / IMU_CALIB_SAMPLE_COUNT;
-  self->gyro_bias_z = sum_z / IMU_CALIB_SAMPLE_COUNT;
+  if (count > 0) {
+    self->gyro_bias_x = sum_x / count;
+    self->gyro_bias_y = sum_y / count;
+    self->gyro_bias_z = sum_z / count;
+  }
 
-  printf("IMU Calibration Done  GyroBias[dps] X:%+.3f Y:%+.3f Z:%+.3f\n",
-         self->gyro_bias_x, self->gyro_bias_y, self->gyro_bias_z);
+  printf("IMU Calibration Done  GyroBias[dps] X:%+.3f Y:%+.3f Z:%+.3f (samples:%u)\n",
+         self->gyro_bias_x, self->gyro_bias_y, self->gyro_bias_z, count);
 }

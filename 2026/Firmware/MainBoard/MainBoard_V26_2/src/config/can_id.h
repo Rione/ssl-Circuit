@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 // 送信用 CAN ID
-#define CAN_ID_TX_OFF ((uint16_t)0x10)            // ロボットの電源オフ
 #define CAN_ID_TX_CHARGE ((uint16_t)0x11)         // 充電
 #define CAN_ID_TX_DISCHARGE ((uint16_t)0x12)      // 放電
 #define CAN_ID_TX_STRAIGHT_KICK ((uint16_t)0x13)  // ストレートキック
