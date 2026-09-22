@@ -37,9 +37,12 @@ void MainMode_Loop(MainMode* self) {
     Robot_SendOmniDrive(r, &r->info, 1);  // 1ms ごとに送信
   } else {
     // Robot is Stop or Emergency Stop
-    LocalController_Stop(&self->local_controller, r);
+    // LocalController_Stop(&self->local_controller, r);
     // LocalController_TestMove(&self->local_controller, r);
     // LocalController_TestMoveForwardBack(&self->local_controller, r);
+
+    // ★ TCS性能検証用テスト (電源投入後10秒待機、2000mm/s最速加速、1.5m前後往復)
+    LocalController_TestTCSAcceleration(&self->local_controller, r);
   }
 
   Robot_UpdateHeartBeat(r);

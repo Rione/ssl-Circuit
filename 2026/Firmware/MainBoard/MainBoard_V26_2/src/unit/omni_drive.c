@@ -11,31 +11,67 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   for (int i = 0; i < 4; i++) {
     MAF_Init(&self->maf[i], 25);
   }
+  TCS_Init(&self->tcs);
 }
 
 void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
+  OmniDrive_SetVelEx(self, vel_x, vel_y, vel_angle, 0.0f, 0.0f);
+}
+
+void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle,
+                        float gyro_yaw_rate, float battery_voltage) {
   float vx_m = vel_x / 1000.0f;
   float vy_m = vel_y / 1000.0f;
-  int16_t m[4];
+  float omega_rad = vel_angle * 0.001f;
+  const float dt = (float)ROBOT_CONTROL_LOOP_DT_US * 1e-6f;
 
+  // 1. S字加減速 (ジャーク・加速度制限) による速度平滑化
+  float smooth_vx = vx_m;
+  float smooth_vy = vy_m;
+  float smooth_omega = omega_rad;
+  TCS_SmoothVelocity(&self->tcs, vx_m, vy_m, omega_rad, &smooth_vx, &smooth_vy,
+                     &smooth_omega, dt);
+
+  // 2. オムニホイール逆運動学: v_w = -vx*sin(θ) + vy*cos(θ) + R*ω
+  float target_wheel_angular[4];
   for (int i = 0; i < 4; i++) {
-    // オムニホイール逆運動学: v_w = -vx*sin(θ) + vy*cos(θ) + R*ω
     float v_wheel_linear =
-        -vx_m * SinDeg(ROBOT_MOTOR_DEGREE[i]) +
-        vy_m * CosDeg(ROBOT_MOTOR_DEGREE[i]) +
-        ROBOT_WHEEL_BASE_RADIUS * vel_angle * 0.001f;
+        -smooth_vx * SinDeg(ROBOT_MOTOR_DEGREE[i]) +
+        smooth_vy * CosDeg(ROBOT_MOTOR_DEGREE[i]) +
+        ROBOT_WHEEL_BASE_RADIUS * smooth_omega;
 
-    // タイヤの角速度[rad/s]に変換し、最大角速度で制限
-    float v_wheel_angular = v_wheel_linear / ROBOT_WHEEL_RADIUS;
-    v_wheel_angular = Constrain(v_wheel_angular, -100.0f, 100.0f);
-    m[i] = (int16_t)(v_wheel_angular * 100);
-    m[i] = MAF_Update(&self->maf[i], m[i]);
+    target_wheel_angular[i] = v_wheel_linear / ROBOT_WHEEL_RADIUS;
+  }
+
+  // 3. スリップ検知 (幾何学的残差拘束 & IMU旋回ジャイロ照合)
+  TCS_DetectSlip(&self->tcs, self->vel_wheel_angular, gyro_yaw_rate, dt);
+
+  // 4. 能動トラクション介入 (スリップ輪の即時トルク抜き & 滑らかランプ復帰)
+  TCS_ApplyIntervention(&self->tcs, target_wheel_angular, dt);
+
+  // 5. 電圧変動補正 (バッテリー低下時のトルク抜け補償)
+  if (battery_voltage > 0.0f) {
+    TCS_CompensateVoltage(&self->tcs, target_wheel_angular, battery_voltage);
+  }
+
+  // 6. 出力整形式・最大角速度クランプ
+  int16_t m[4];
+  for (int i = 0; i < 4; i++) {
+    float v_clamped = Constrain(target_wheel_angular[i], -100.0f, 100.0f);
+    int16_t raw_m = (int16_t)(v_clamped * 100.0f);
+
+    // S字制限が無効な場合のみ旧MAFフィルタを適用
+    if (!self->tcs.config.enable_s_curve) {
+      raw_m = MAF_Update(&self->maf[i], raw_m);
+    }
+    m[i] = raw_m;
   }
 
   OmniDrive_Send(self, m, 1);  // command: 1 (Drive)
 }
 
 void OmniDrive_SetFree(OmniDrive* self) {
+  TCS_Reset(&self->tcs);
   int16_t m[4] = {0, 0, 0, 0};
   OmniDrive_Send(self, m, 0);  // command: 0 (Free)
 }

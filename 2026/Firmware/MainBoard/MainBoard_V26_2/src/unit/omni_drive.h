@@ -8,6 +8,7 @@
 #include "parammeter.h"
 #include "serial.h"
 #include "timer.h"
+#include "traction_control.h"
 
 typedef struct {
   int16_t vel_x;
@@ -21,13 +22,17 @@ typedef struct {
   uint8_t emg;
   uint8_t ready;
   MAF maf[4];
+  TractionControl tcs;  // トラクションコントロールシステム
 } OmniDrive;
 
 void OmniDrive_Init(OmniDrive* self, Serial* serials);
 void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle);
+void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle,
+                        float gyro_yaw_rate, float battery_voltage);
 void OmniDrive_SetFree(OmniDrive* self);
 void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command);
 void OmniDrive_Recv(OmniDrive* self);
 void OmniDrive_GetVel(OmniDrive* self, int16_t* vel_x, int16_t* vel_y, int16_t* vel_angle);
 
 #endif  // __OMNI_DRIVE_H_
+

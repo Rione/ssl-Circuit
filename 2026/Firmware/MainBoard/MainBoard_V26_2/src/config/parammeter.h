@@ -15,6 +15,21 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define ROBOT_MAX_VEL 3.0f             // 最大並進速度[m/s]
 #define ROBOT_MAX_ANG_VEL 10.0f        // 最大角速度[rad/s]
 
+// トラクションコントロール (TCS) パラメータ
+#define TCS_ENABLE 1                   // TCS有効化フラグ (1: 有効, 0: 無効)
+#define TCS_ENABLE_S_CURVE 1           // S字/ジャーク制限加減速有効化 (1: 有効, 0: 無効)
+#define TCS_MAX_ACCEL 8.0f             // 最大並進加速度 [m/s^2] (摩擦限界を考慮: 約0.8G)
+#define TCS_MAX_JERK 60.0f             // 最大並進ジャーク [m/s^3] (トルクスパイク低減)
+#define TCS_MAX_ANG_ACCEL 40.0f        // 最大角加速度 [rad/s^2]
+#define TCS_MAX_ANG_JERK 300.0f        // 最大角ジャーク [rad/s^3]
+#define TCS_GEOM_K 1.158456f           // 4輪幾何拘束係数: sqrt(2)*sin(55deg)
+#define TCS_GEOM_SLIP_THRESH 6.0f      // 幾何残差スリップ判定閾値 [rad/s]
+#define TCS_ROT_SLIP_THRESH 2.5f       // 旋回ジャイロ残差スリップ判定閾値 [rad/s]
+#define TCS_SLIP_GAIN 0.8f             // スリップ検出時の抑制ゲイン
+#define TCS_MIN_GAIN 0.35f             // 最小抑制ゲイン (出力制限の下限比率)
+#define TCS_RECOVERY_RATE 2.0f         // グリップ回復後のゲイン復帰速度 [1/s] (0.5秒で全快)
+#define TCS_NOMINAL_VOLTAGE 16.0f      // 基準バッテリー電圧 [V] (4S LiPo想定)
+
 #define ROBOT_KICK_INTERVAL_MS ((uint32_t)1000)  // キック間隔[ms]
 #define ROBOT_KICKER_SIGNAL_INTERVAL_MS \
   ((uint32_t)100)  // チャージ/放電信号の最小送信周期[ms]

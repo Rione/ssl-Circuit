@@ -285,8 +285,10 @@ void Robot_SendKicker(Robot* self, RobotInfo* info) {
 }
 
 void Robot_SendOmniDrive(Robot* self, RobotInfo* info, uint8_t interval) {
-  OmniDrive_SetVel(&self->omni_drive, info->vel_x.vel, info->vel_y.vel,
-                   info->vel_angular.vel);
+  (void)interval;
+  OmniDrive_SetVelEx(&self->omni_drive, info->vel_x.vel, info->vel_y.vel,
+                     info->vel_angular.vel, self->imu.yaw_rate,
+                     info->battery_voltage);
 }
 
 void Robot_UpdateHeartBeat(Robot* self) {
