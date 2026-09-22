@@ -1,5 +1,6 @@
 #include "omni_drive.h"
 
+#include <math.h>
 #include <stdio.h>
 
 void OmniDrive_Init(OmniDrive* self, Serial* serials) {
@@ -32,7 +33,17 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
   TCS_SmoothVelocity(&self->tcs, vx_m, vy_m, omega_rad, &smooth_vx, &smooth_vy,
                      &smooth_omega, dt);
 
-  // 2. オムニホイール逆運動学: v_w = -vx*sin(θ) + vy*cos(θ) + R*ω
+  // 2. スリップ検知 (幾何学的残差拘束 & IMU旋回ジャイロ照合)
+  float current_speed_mps = sqrtf(smooth_vx * smooth_vx + smooth_vy * smooth_vy);
+  TCS_DetectSlip(&self->tcs, self->vel_wheel_angular, gyro_yaw_rate, current_speed_mps, dt);
+
+  // 3. 能動トラクション介入 (並進ベクトル一括等比スケーリング)
+  // ★ 車輪個別ではなく並進ベクトルを一括でスケールダウンするため、
+  // 4輪の推力比率を 100% 維持し、姿勢や進行方向の崩れを完全に防ぐ！
+  TCS_ApplyIntervention(&self->tcs, &smooth_vx, &smooth_vy, dt);
+
+  // 4. オムニホイール逆運動学: v_w = -vx*sin(θ) + vy*cos(θ) + R*ω
+  // ※ smooth_omega (姿勢制御) はスケーリングせず維持されるため、ヘディングロックが確実に機能する
   float target_wheel_angular[4];
   for (int i = 0; i < 4; i++) {
     float v_wheel_linear =
@@ -42,12 +53,6 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
 
     target_wheel_angular[i] = v_wheel_linear / ROBOT_WHEEL_RADIUS;
   }
-
-  // 3. スリップ検知 (幾何学的残差拘束 & IMU旋回ジャイロ照合)
-  TCS_DetectSlip(&self->tcs, self->vel_wheel_angular, gyro_yaw_rate, dt);
-
-  // 4. 能動トラクション介入 (スリップ輪の即時トルク抜き & 滑らかランプ復帰)
-  TCS_ApplyIntervention(&self->tcs, target_wheel_angular, dt);
 
   // 5. 電圧変動補正 (バッテリー低下時のトルク抜け補償)
   if (battery_voltage > 0.0f) {

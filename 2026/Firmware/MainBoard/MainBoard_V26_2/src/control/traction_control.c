@@ -21,6 +21,7 @@ void TCS_Init(TractionControl* self) {
   self->config.slip_gain = TCS_SLIP_GAIN;
   self->config.min_gain = TCS_MIN_GAIN;
   self->config.recovery_rate = TCS_RECOVERY_RATE;
+  self->config.deadzone_speed = TCS_DEADZONE_SPEED_MPS;
   self->config.nominal_voltage = TCS_NOMINAL_VOLTAGE;
 
   self->config.enable_tcs = (TCS_ENABLE != 0);
@@ -40,13 +41,8 @@ void TCS_Reset(TractionControl* self) {
 
   self->geom_residual = 0.0f;
   self->rot_residual = 0.0f;
-  self->is_any_slipping = false;
-
-  for (int i = 0; i < 4; i++) {
-    self->wheel_slip[i] = 0.0f;
-    self->is_slipping[i] = false;
-    self->wheel_gain[i] = 1.0f;
-  }
+  self->is_slipping = false;
+  self->trans_gain = 1.0f;
 }
 
 void TCS_SmoothVelocity(TractionControl* self, float target_vx, float target_vy,
@@ -144,14 +140,18 @@ void TCS_SmoothVelocity(TractionControl* self, float target_vx, float target_vy,
 
 
 void TCS_DetectSlip(TractionControl* self, const float actual_wheel_vel[4],
-                    float gyro_yaw_rate, float dt) {
+                    float gyro_yaw_rate, float current_speed_mps, float dt) {
   (void)dt;
   if (!self->config.enable_tcs) {
-    self->is_any_slipping = false;
-    for (int i = 0; i < 4; i++) {
-      self->is_slipping[i] = false;
-      self->wheel_gain[i] = 1.0f;
-    }
+    self->is_slipping = false;
+    self->trans_gain = 1.0f;
+    return;
+  }
+
+  // 低速デッドゾーン: 極低速域ではエンコーダの量子化誤差や立ち上がり遅れによる
+  // 誤判定を防ぐため、スリップ介入をバイパスする
+  if (fabsf(current_speed_mps) < self->config.deadzone_speed) {
+    self->is_slipping = false;
     return;
   }
 
@@ -162,14 +162,6 @@ void TCS_DetectSlip(TractionControl* self, const float actual_wheel_vel[4],
   self->geom_residual = actual_wheel_vel[0] - k * actual_wheel_vel[1] +
                         k * actual_wheel_vel[2] - actual_wheel_vel[3];
 
-  float n_sq = 2.0f + 2.0f * k * k;
-
-  // 各輪の幾何学的残差射影成分
-  self->wheel_slip[0] = self->geom_residual / n_sq;
-  self->wheel_slip[1] = -k * self->geom_residual / n_sq;
-  self->wheel_slip[2] = k * self->geom_residual / n_sq;
-  self->wheel_slip[3] = -self->geom_residual / n_sq;
-
   // 2. 旋回ジャイロ残差の計算 (オドメトリ角速度 - IMU角速度)
   float v_sum = 0.0f;
   for (int i = 0; i < 4; i++) {
@@ -178,76 +170,54 @@ void TCS_DetectSlip(TractionControl* self, const float actual_wheel_vel[4],
   float odom_yaw_rate = v_sum / (4.0f * ROBOT_WHEEL_BASE_RADIUS);
   self->rot_residual = odom_yaw_rate - gyro_yaw_rate;
 
-  // 3. スリップ判定
+  // 3. スリップ判定 (幾何残差または旋回ジャイロ残差が閾値を超過)
   bool geom_slip = fabsf(self->geom_residual) > self->config.geom_slip_thresh;
   bool rot_slip = fabsf(self->rot_residual) > self->config.rot_slip_thresh;
 
-  self->is_any_slipping = geom_slip || rot_slip;
-  float wheel_slip_thresh = self->config.geom_slip_thresh / sqrtf(n_sq);
-
-  for (int i = 0; i < 4; i++) {
-    float w = actual_wheel_vel[i];
-    float slip_proj = self->wheel_slip[i];
-
-    bool wheel_slip_active = false;
-    if (geom_slip) {
-      if ((w > 0.5f && slip_proj > 0.0f) || (w < -0.5f && slip_proj < 0.0f) ||
-          fabsf(slip_proj) > wheel_slip_thresh) {
-        wheel_slip_active = true;
-      }
-    }
-    if (rot_slip) {
-      wheel_slip_active = true;
-    }
-
-    self->is_slipping[i] = wheel_slip_active;
-  }
+  self->is_slipping = geom_slip || rot_slip;
 }
 
-void TCS_ApplyIntervention(TractionControl* self, float target_wheel_vel[4],
+void TCS_ApplyIntervention(TractionControl* self, float* vx, float* vy,
                            float dt) {
   if (!self->config.enable_tcs || dt <= 0.0f) {
     return;
   }
 
-  float k = self->config.geom_k;
-  float n_sq = 2.0f + 2.0f * k * k;
-  float wheel_slip_thresh = self->config.geom_slip_thresh / sqrtf(n_sq);
+  if (self->is_slipping) {
+    // 幾何残差ベースの超過率
+    float geom_excess = (fabsf(self->geom_residual) - self->config.geom_slip_thresh) /
+                        self->config.geom_slip_thresh;
+    if (geom_excess < 0.0f) geom_excess = 0.0f;
 
-  for (int i = 0; i < 4; i++) {
-    float target_gain = 1.0f;
+    // 旋回残差ベースの超過率
+    float rot_excess = (fabsf(self->rot_residual) - self->config.rot_slip_thresh) /
+                       self->config.rot_slip_thresh;
+    if (rot_excess < 0.0f) rot_excess = 0.0f;
 
-    if (self->is_slipping[i]) {
-      float geom_excess = (fabsf(self->wheel_slip[i]) - wheel_slip_thresh) /
-                          wheel_slip_thresh;
-      if (geom_excess < 0.0f) geom_excess = 0.0f;
+    float total_excess = (geom_excess > rot_excess) ? geom_excess : rot_excess;
 
-      float rot_excess = (fabsf(self->rot_residual) - self->config.rot_slip_thresh) /
-                         self->config.rot_slip_thresh;
-      if (rot_excess < 0.0f) rot_excess = 0.0f;
+    // 目標抑制ゲインの計算 (下限は min_gain = 0.70 などで失速を防止)
+    float target_gain = 1.0f - self->config.slip_gain * total_excess;
+    target_gain = Constrain(target_gain, self->config.min_gain, 1.0f);
 
-      float total_excess = (geom_excess > rot_excess) ? geom_excess : rot_excess;
-
-      target_gain = 1.0f - self->config.slip_gain * total_excess;
-      target_gain = Constrain(target_gain, self->config.min_gain, 1.0f);
-
-      // スリップ検知時は瞬時に抑制 (即時介入)
-      if (target_gain < self->wheel_gain[i]) {
-        self->wheel_gain[i] = target_gain;
-      }
-    } else {
-      // グリップ回復時はランプ関数で滑らかに復帰 (急加速による再スリップ防止)
-      if (self->wheel_gain[i] < 1.0f) {
-        self->wheel_gain[i] += self->config.recovery_rate * dt;
-        if (self->wheel_gain[i] > 1.0f) {
-          self->wheel_gain[i] = 1.0f;
-        }
+    // スリップ検知時は瞬時に抑制 (即時介入)
+    if (target_gain < self->trans_gain) {
+      self->trans_gain = target_gain;
+    }
+  } else {
+    // グリップ回復時はランプ関数で素早く滑らかに復帰 (recovery_rate = 6.0/s)
+    if (self->trans_gain < 1.0f) {
+      self->trans_gain += self->config.recovery_rate * dt;
+      if (self->trans_gain > 1.0f) {
+        self->trans_gain = 1.0f;
       }
     }
-
-    // 指令値に介入ゲインを適用
-    target_wheel_vel[i] *= self->wheel_gain[i];
   }
+
+  // ★ 車輪個別ではなく、機体並進ベクトル (vx, vy) を一括等比スケーリング！
+  // 4輪の推力比率を 100% 維持するため、推力を抑制してもロボットの姿勢や進行方向は一切乱れない
+  *vx *= self->trans_gain;
+  *vy *= self->trans_gain;
 }
 
 void TCS_CompensateVoltage(const TractionControl* self, float wheel_vel[4],

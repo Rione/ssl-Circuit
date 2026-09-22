@@ -24,6 +24,7 @@ typedef struct {
   float slip_gain;        // スリップ検知時の介入抑制ゲイン
   float min_gain;         // 最小抑制ゲイン (出力の下限比率)
   float recovery_rate;    // グリップ回復後のゲイン復帰速度 [1/s]
+  float deadzone_speed;   // 低速デッドゾーン [m/s] (これ未満ではスリップ介入をバイパス)
   float nominal_voltage;  // 基準バッテリー電圧 [V]
 
   bool enable_tcs;        // TCS有効/無効フラグ
@@ -46,12 +47,11 @@ typedef struct {
   // スリップ状態
   float geom_residual;    // 4輪幾何学的拘束残差 [rad/s]
   float rot_residual;     // 旋回残差 (オドメトリ - ジャイロ) [rad/s]
-  float wheel_slip[4];    // 各輪のスリップ推定残差 [rad/s]
-  bool is_slipping[4];    // 各輪のスリップ検知フラグ
-  bool is_any_slipping;   // いずれかの輪がスリップしているか
+  bool is_slipping;       // スリップ検知フラグ
 
-  // 能動介入ゲイン (1.0: 通常, < 1.0: 出力抑制中)
-  float wheel_gain[4];    // 各輪の出力スケーリングゲイン
+  // 能動介入ゲイン (機体並進ベクトル一括スケーリング: 1.0=通常, <1.0=抑制中)
+  // 車輪個別ではなく一括スケーリングすることで、4輪の推力比率を崩さず姿勢を維持する
+  float trans_gain;
 } TractionControl;
 
 // 初期化
@@ -67,10 +67,10 @@ void TCS_SmoothVelocity(TractionControl* self, float target_vx, float target_vy,
 
 // スリップ検知 (4輪幾何拘束 & IMUジャイロ照合)
 void TCS_DetectSlip(TractionControl* self, const float actual_wheel_vel[4],
-                    float gyro_yaw_rate, float dt);
+                    float gyro_yaw_rate, float current_speed_mps, float dt);
 
-// 能動トラクション制御の適用 (スリップに応じた出力抑制と滑らかな復帰)
-void TCS_ApplyIntervention(TractionControl* self, float target_wheel_vel[4],
+// 能動トラクション制御の適用 (並進ベクトル vx, vy を一括等比スケーリング)
+void TCS_ApplyIntervention(TractionControl* self, float* vx, float* vy,
                            float dt);
 
 // 電圧補正 (バッテリー電圧に応じたスケーリング)
