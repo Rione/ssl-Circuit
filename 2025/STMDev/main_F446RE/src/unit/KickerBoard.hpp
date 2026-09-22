@@ -22,14 +22,11 @@ class KickerBoard {
     void resetDoDirect(uint8_t type);
 
     // -- charge, dischargeのコントロール
-    // state: 0: discharge, 1: doCharge  
+    // state: CHARGE(0) / DISCHARGE(1) — Robot.hpp の定数を渡すこと
     void chargeControl(uint8_t state);
 
     void minusCapValEstimate(uint8_t val) {
-        capValEstimate -= val;
-        if (capValEstimate < 0) {
-            capValEstimate = 0;
-        }
+        capValEstimate = (val > capValEstimate) ? 0 : capValEstimate - val;
     }
 
     inline __attribute__((always_inline)) uint8_t getCapValEstimate() {
@@ -39,6 +36,9 @@ class KickerBoard {
     inline __attribute__((always_inline)) void setCapValEstimate(uint8_t val) {
         capValEstimate = val;
     }
+
+    // KickerBoard CAN 0x123 からの充電フィードバック
+    void updateChargeFeedback(uint8_t chargeDone, uint8_t chargeMode);
 
   private:
     CANBus *_canBus;

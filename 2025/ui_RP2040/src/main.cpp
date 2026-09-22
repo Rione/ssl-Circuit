@@ -1,23 +1,23 @@
 #include <Arduino.h>
 
-#include "UI/ui_kit.hpp"
+#include "AppManager/ui_kit.hpp"
 UiKit ui;
 MediaExecutor media;
 
-#include "Mode/mainMode.hpp"
-#include "Mode/home.hpp"
-MainMode mainMode('M', "Main", &ui, &media);
-Home home('H', "Home", &ui, &media);
+#include "Mode/sensorMode.hpp"
+#include "Mode/testMode.hpp"
 
-Mode *modes[] = {&mainMode};
-Mode *currentMode; // 初期モードをmainModeに設定
+SensorMode sensorMode('S', "Sensor", &ui, &media);
+TestMode testMode('T', "Test", &ui, &media);
+
+Mode *modes[] = {&sensorMode, &testMode};
+Mode *currentMode; // 初期モードをsensorModeに設定
 
 void modeSwitch() {
     if (ui.changeFlag_overMode) {
         Serial.println("modeSwitch");
-        if (ui.homeFlag) {
-            currentMode = &home;
-        } else {
+        // モード番号に従って切り替え (0: Sensor, 1: Test)
+        if (ui.info.modeStatus.mode < 2) {
             currentMode = modes[ui.info.modeStatus.mode];
             ui.info.modePrev = ui.info.modeStatus.mode;
         }
@@ -28,6 +28,9 @@ void setup() {
     Serial.begin(115200);
 
     ui.init();
+
+    media.init();
+    media.playFuncBuzzer(playType::START);
 
     currentMode =  modes[ui.info.modeStatus.mode];
     currentMode->displaySet();
@@ -41,7 +44,7 @@ void loop() {
     ui.touchUpdate();
 
     currentMode->determine();
-    ui.homeScreenGesture();
+    ui.sidebarTouchUpdate();
 
     modeSwitch();
     currentMode->displaySet();
@@ -55,11 +58,12 @@ void loop() {
     // Serial.println(interval);
 }
 
+// ブザー再生はcore1で回す。
+// core0のloop()内でexecute()すると、setBuzzerType()が毎ループ同じ値を
+// 再セットするためエッジ検出(playFuncBuzzer)が働かず、doDirectKick中に
+// 一度しか鳴らなくなる。core1で高速ループさせることで、間にNONEを挟んだ
+// エッジが繰り返し立ち、「ピコピコ」と鳴り続ける。
 void setup1() {
-    media.init();
-    media.playFuncBuzzer(playType::START);
-    delay(300);
-    media.playFuncBuzzer(playType::STOP);
 }
 void loop1() {
     media.execute();

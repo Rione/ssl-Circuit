@@ -19,6 +19,7 @@ class BufferedSerial {
     void init(bool dma = false);
     bool available();
     uint8_t read();
+    void flush();
 
     void write(uint8_t data) {
         HAL_UART_Transmit(_huart, &data, 1, 100);
@@ -32,12 +33,19 @@ class BufferedSerial {
         return read();
     }
 
+    void onRxError();
+    bool matchesUart(UART_HandleTypeDef *huart) const;
+
   private:
+    void startRxDma();
+    void restartRxDma();
+
     UART_HandleTypeDef *_huart;
     uint8_t *_rxBuf;
     uint16_t rxTop, rxBtm;
     uint16_t _rxBufSize;
     bool _useDMA;
+    volatile bool _rxErrorPending;
 };
 
 #endif

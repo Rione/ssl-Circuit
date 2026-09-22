@@ -1,10 +1,10 @@
 #include "app.h"
 
-#include "Robot.hpp"
-#include "mainMode.hpp"
+#include "FLASH_EEPROM.hpp"
 #include "MPU6500.hpp"
 #include "MadgwickAHRS.h"
-#include "FLASH_EEPROM.hpp"
+#include "Robot.hpp"
+#include "mainMode.hpp"
 
 Robot robot;
 CANBus::CANData canRecvData;
@@ -22,149 +22,160 @@ Madgwick filter;
 float frontDeg = 0;
 
 void mpuget() {
-    if (mpu.isCalibrated() == true) {
-        mpu.getAccGyro(&acc, &gyro, false);
-        filter.updateIMU(gyro.x, gyro.y, gyro.z, acc.x, acc.y, acc.z);
-        att.z = (float)MyMath::gapDegrees180(filter.getYaw(), frontDeg);
-    }
+  if (mpu.isCalibrated() == true) {
+    mpu.getAccGyro(&acc, &gyro, false);
+    filter.updateIMU(gyro.x, gyro.y, gyro.z, acc.x, acc.y, acc.z);
+    att.z = (float)MyMath::gapDegrees180(filter.getYaw(), frontDeg);
+  }
 }
 
 void TimInterrupt1khz() {
-    robot.heartBeat();
-    robot.swImu.update();
-    robot.swDischarge.update();
+  robot.heartBeat();
+  robot.swImu.update();
+  robot.swDischarge.update();
 }
 
 void TimInterrupt4khz() {
-    mpuget();
+  mpuget();
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-    if (robot.can.getHcan() == hcan) {
-        robot.can.recv(canRecvData);
-        switch (canRecvData.stdId) {
-        // KickerBoard Commands
-        case CHARGE_START: // 16: charge Enable
-            robot.led2 = true;
-            break;
-        case DISCHARGE_START: // 17: charge Disable
-            robot.minusCapChargeCertitude(100);
-            robot.led2 = false;
-            break;
-        case KICK_STRAIGHT: // 18: kick
-            robot.minusCapChargeCertitude(canRecvData.data[0]);
-            break;
-        case KICK_CHIP: // 19: chip kick
-            robot.minusCapChargeCertitude(canRecvData.data[0]);
-            break;
-        // case DRIBBLE: // 20: dribbler run
-        //     break;
-        // case DRIBLE_STOP: // 21: dribbler stop
-        //     break;
-        case KICKER_BOARD_PACKET: // フォトセンサの値・充電完了信号の受信
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
+  if (robot.can.getHcan() == hcan) {
+    robot.can.recv(canRecvData);
+    switch (canRecvData.stdId) {
+      // KickerBoard Commands
+      case CHARGE_START:  // 16: charge Enable
+        robot.led2 = true;
+        break;
+      case DISCHARGE_START:  // 17: charge Disable
+        robot.minusCapChargeCertitude(100);
+        robot.led2 = false;
+        break;
+      case KICK_STRAIGHT:  // 18: kick
+        robot.minusCapChargeCertitude(canRecvData.data[0]);
+        break;
+      case KICK_CHIP:  // 19: chip kick
+        robot.minusCapChargeCertitude(canRecvData.data[0]);
+        break;
+      // case DRIBBLE: // 20: dribbler run
+      //     break;
+      // case DRIBLE_STOP: // 21: dribbler stop
+      //     break;
+      case KICKER_BOARD_PACKET:  // フォトセンサの値・充電完了信号の受信
 
-            robot.setPhotoSensorValue((uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8);
-            robot.setChageDoneSignal(canRecvData.data[2]);       // 充電完了信号の処理
-            robot.setKickerBoardChargeMode(canRecvData.data[3]); // 充電モード信号の処理
-            robot.setKickerBoardDoDirectMode(canRecvData.data[4]);
-            // uint16_t photoSensorThreshold = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;
-            robot.led0 = !robot.led0;
-            break;
-        default:
-            break;
-        }
+        robot.setPhotoSensorValue((uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8);
+        robot.setChageDoneSignal(canRecvData.data[2]);        // 充電完了信号の処理
+        robot.setKickerBoardChargeMode(canRecvData.data[3]);  // 充電モード信号の処理
+        robot.setKickerBoardDoDirectMode(canRecvData.data[4]);
+        // uint16_t photoSensorThreshold = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;
+        robot.led0 = !robot.led0;
+        break;
+      case MD0_RECV:
+        robot.info.mdStatus.motorAngularVelocity[0] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+        break;
+      case MD1_RECV:
+        robot.info.mdStatus.motorAngularVelocity[1] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+        break;
+      case MD2_RECV:
+        robot.info.mdStatus.motorAngularVelocity[2] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+        break;
+      case MD3_RECV:
+        robot.info.mdStatus.motorAngularVelocity[3] = (uint8_t)(canRecvData.data[0]) | (uint8_t)(canRecvData.data[1]) << 8;
+        break;
+      default:
+        break;
     }
+  }
 }
 
 void setup() {
-    // while (mpu.init() == 0) {
-    //     robot.led0 = !robot.led0;
-    //     printf("MPU6500 init failed\n");
-    // }
+  // while (mpu.init() == 0) {
+  //     robot.led0 = !robot.led0;
+  //     printf("MPU6500 init failed\n");
+  // }
 
-    typedef struct {
-        MPU6500::acc_t acc;
-        MPU6500::gyro_t gyro;
-    } imuOffsets_t;
+  typedef struct {
+    MPU6500::acc_t acc;
+    MPU6500::gyro_t gyro;
+  } imuOffsets_t;
 
-    imuOffsets_t imuOffsets;
+  imuOffsets_t imuOffsets;
 
-    if (robot.swImu.read() == false) {
-        // set flash
-        printf("IMU calibrating\n");
-        HAL_Delay(1000);
-        mpu.calibrateAccGyro();
-        mpu.getOffset(&imuOffsets.acc, &imuOffsets.gyro);
-        flash.writeFlash(FLASH_START_ADDRESS, (uint8_t *)&imuOffsets, sizeof(imuOffsets_t));
-        HAL_Delay(1000);
-        flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&imuOffsets, sizeof(imuOffsets_t));
-        printf("ACC offset saved %.6f, %.6f, %.6f\n", imuOffsets.acc.x, imuOffsets.acc.y, imuOffsets.acc.z);
-        printf("GYR offset saved %.6f, %.6f, %.6f\n", imuOffsets.gyro.x, imuOffsets.gyro.y, imuOffsets.gyro.z);
-    } else {
-        // load flash オフセット値をFlashから読み出す(初回起動時はimu resetスイッチを押して起動すること)
-        flash.loadFlash(FLASH_START_ADDRESS, (uint8_t *)&imuOffsets, sizeof(imuOffsets_t));
-        mpu.setOffset(&imuOffsets.acc, &imuOffsets.gyro);
-        printf("ACC offset loaded %.6f, %.6f, %.6f\n", imuOffsets.acc.x, imuOffsets.acc.y, imuOffsets.acc.z);
-        printf("GYR offset loaded %.6f, %.6f, %.6f\n", imuOffsets.gyro.x, imuOffsets.gyro.y, imuOffsets.gyro.z);
-        HAL_Delay(1000);
-    }
-
-    filter.begin(33000); // 4000のはずなんだけど、何故か8.25倍しないとmain_appで使い物にならなかった...
-    robot.hardwareInit();
-
-    robot.dribble(0);
-
+  if (robot.swImu.read() == false) {
+    // set flash
+    printf("IMU calibrating\n");
     HAL_Delay(1000);
+    mpu.calibrateAccGyro();
+    mpu.getOffset(&imuOffsets.acc, &imuOffsets.gyro);
+    flash.writeFlash(FLASH_START_ADDRESS, (uint8_t*)&imuOffsets, sizeof(imuOffsets_t));
+    HAL_Delay(1000);
+    flash.loadFlash(FLASH_START_ADDRESS, (uint8_t*)&imuOffsets, sizeof(imuOffsets_t));
+    printf("ACC offset saved %.6f, %.6f, %.6f\n", imuOffsets.acc.x, imuOffsets.acc.y, imuOffsets.acc.z);
+    printf("GYR offset saved %.6f, %.6f, %.6f\n", imuOffsets.gyro.x, imuOffsets.gyro.y, imuOffsets.gyro.z);
+  } else {
+    // load flash オフセット値をFlashから読み出す(初回起動時はimu resetスイッチを押して起動すること)
+    flash.loadFlash(FLASH_START_ADDRESS, (uint8_t*)&imuOffsets, sizeof(imuOffsets_t));
+    mpu.setOffset(&imuOffsets.acc, &imuOffsets.gyro);
+    printf("ACC offset loaded %.6f, %.6f, %.6f\n", imuOffsets.acc.x, imuOffsets.acc.y, imuOffsets.acc.z);
+    printf("GYR offset loaded %.6f, %.6f, %.6f\n", imuOffsets.gyro.x, imuOffsets.gyro.y, imuOffsets.gyro.z);
+    HAL_Delay(1000);
+  }
 
-    uint16_t thr = PHOTOSENSOR_THRESHOLD;
-    CANBus::CANData data = {
-        .stdId = 0x09,
-        .data = {
-            (uint8_t)(thr & 0xFF),
-            (uint8_t)((thr >> 8) & 0xFF),
-        },
-    };
-    robot.can.send(data);
+  filter.begin(33000);  // 4000のはずなんだけど、何故か8.25倍しないとmain_appで使い物にならなかった...
+  robot.hardwareInit();
+
+  robot.dribble(0);
+
+  HAL_Delay(1000);
+
+  uint16_t thr = PHOTOSENSOR_THRESHOLD;
+  CANBus::CANData data = {
+      .stdId = 0x09,
+      .data = {
+          (uint8_t)(thr & 0xFF),
+          (uint8_t)((thr >> 8) & 0xFF),
+      },
+  };
+  robot.can.send(data);
 }
 
 void ballMoving() {
-    uint8_t state = 0;
-    Timer stateSwitchTimer;
-    uint16_t velX = 0;
-    uint16_t time;
-    while (1) {
-        time = stateSwitchTimer.read_ms();
+  uint8_t state = 0;
+  Timer stateSwitchTimer;
+  uint16_t velX = 0;
+  uint16_t time;
+  while (1) {
+    time = stateSwitchTimer.read_ms();
 
-        switch (state) {
-        case 0:
-            velX = 1500 * MyMath::sinDeg(time * 0.18 * 0.5); // 加速のためにタイマーを使った sinの加速をしてる
-            robot.motorDriver.setVelocityFF(velX, 0, 0);     // 前進
-            robot.dribble(100);                              // ドリブラー100%
-            if (time > 2000) {
-                state = 1;
-                stateSwitchTimer.reset(); // 2秒経ったら状態遷移
-            }
-            printf("0\n");
-            break;
-        case 1:
-            robot.motorDriver.setVelocityFF(600, -600, 3600); // 斜め前に進みながら回転(CMDragonsのTDPより)
-            robot.dribble(100);
-            if (time > 500) {
-                state = 0;
-                stateSwitchTimer.reset();
-            }
-            printf("1\n");
-            break;
+    switch (state) {
+      case 0:
+        velX = 1500 * MyMath::sinDeg(time * 0.18 * 0.5);  // 加速のためにタイマーを使った sinの加速をしてる
+        robot.motorDriver.setVelocityFF(velX, 0, 0);      // 前進
+        robot.dribble(100);                               // ドリブラー100%
+        if (time > 2000) {
+          state = 1;
+          stateSwitchTimer.reset();  // 2秒経ったら状態遷移
         }
-        HAL_Delay(20);
+        printf("0\n");
+        break;
+      case 1:
+        robot.motorDriver.setVelocityFF(600, -600, 3600);  // 斜め前に進みながら回転(CMDragonsのTDPより)
+        robot.dribble(100);
+        if (time > 500) {
+          state = 0;
+          stateSwitchTimer.reset();
+        }
+        printf("1\n");
+        break;
     }
+    HAL_Delay(20);
+  }
 }
 
-
 void main_app() {
-    frontDeg = att.z;
-    // ballMoving();
-    while (1) {
-        mainMode.loop();
-    }
+  frontDeg = att.z;
+  // ballMoving();
+  while (1) {
+    mainMode.loop();
+  }
 }

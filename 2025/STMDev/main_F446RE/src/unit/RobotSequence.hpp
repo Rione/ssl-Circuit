@@ -1,5 +1,5 @@
-#ifndef __ RobotSequence__
-#define __ RobotSequence__
+#ifndef __RobotSequence__
+#define __RobotSequence__
 
 #include "main.h"
 #include "config.h"

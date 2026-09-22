@@ -4,14 +4,14 @@ Robot::Robot() {
 }
 
 void Robot::hardwareInit() {
-    //   led1 = bno.check();
-    //   bno.setUnit(1, 1, 1, 0);
-    //   bno.setPowerMode();
-    //   // bno.setOperaitonMode(OPERATION_MODE_AMG);
-    //   bno.setOperaitonMode(OPERATION_MODE_NDOF);
-    //   // bno.accConfig();
-    //   bno.init();
-    //   // bno.getCalibration();
+      //   led1 = bno.check();
+      //   bno.setUnit(1, 1, 1, 0);
+      //   bno.setPowerMode();
+      //   // bno.setOperaitonMode(OPERATION_MODE_AMG);
+      //   bno.setOperaitonMode(OPERATION_MODE_NDOF);
+      //   // bno.accConfig();
+      //   bno.init();
+      //   // bno.getCalibration();
 
       can.init();
 
@@ -32,7 +32,7 @@ void Robot::hardwareInit() {
       // bno.setAttitudeZero();
       HAL_Delay(1000);
 
-    //   bnoCalibrate();
+      //   bnoCalibrate();
 }
 
 void Robot::rasRecvSerial(RobotInfo_t &info) {
@@ -41,10 +41,21 @@ void Robot::rasRecvSerial(RobotInfo_t &info) {
       static bool headerReceived = false;   // ヘッダを受信したかどうか
       static uint8_t index = 0;             // 受信したデータのインデックスカウンター
       static uint8_t data[dataSize] = {0};  // 受信したデータ
+      static Timer timeoutTimer;            // 最後にバイトを受信してからの経過時間
+
+      if (!serial5.available() && timeoutTimer.read_ms() > 1000) {
+            // 1秒間受信がない場合は受信状態とバッファをリセットする
+            serial5.flush();
+            headerReceived = false;
+            index = 0;
+            timeoutTimer.reset();
+            return;
+      }
 
       while (serial5.available()) {
             // 1バイト読み込み
             uint8_t receivedByte = serial5.read();
+            timeoutTimer.reset();
             // printf("received %d\n ", receivedByte);
 
             if (!headerReceived) {
@@ -96,8 +107,7 @@ void Robot::rasRecvSerial(RobotInfo_t &info) {
 }
 
 void Robot::rasSendSerial(RobotInfo_t &info, uint16_t interval) {
-      static const uint8_t dataSize = 3;  // データのサイズ
-      static const uint8_t startBytes[4] = {0xFF, 0, 0xFF, 0};
+      static const uint8_t packetSize = 13;
       static Timer timer;
 
       if (timer.read_ms() < interval) {
@@ -106,13 +116,26 @@ void Robot::rasSendSerial(RobotInfo_t &info, uint16_t interval) {
 
       info.dribbleStatus.isNewDrib = true;  // 新機体
 
-      uint8_t buffer[dataSize] = {
-          info.batteryVoltage,
-          info.dribbleStatus.data,
-          info.capValEstimate,
+      const int16_t *motor = info.mdStatus.motorAngularVelocity;
+      const int16_t wheel_scaled[4] = {
+          MotorDriver::motorToWheelScaled(motor[3]),  // FL (M3, -55°)
+          MotorDriver::motorToWheelScaled(motor[1]),  // BL (M1, 135°)
+          MotorDriver::motorToWheelScaled(motor[2]),  // BR (M2, -135°)
+          MotorDriver::motorToWheelScaled(motor[0]),  // FR (M0, 55°)
       };
-      serial5.write(startBytes, 4);
-      serial5.write(buffer, dataSize);
+
+      uint8_t buffer[packetSize];
+      buffer[0] = 0xFF;
+      buffer[1] = info.batteryVoltage;
+      buffer[2] = info.dribbleStatus.data;
+      buffer[3] = info.capValEstimate;
+      for (int i = 0; i < 4; i++) {
+            buffer[4 + i * 2] = (uint8_t)(wheel_scaled[i] & 0xFF);
+            buffer[5 + i * 2] = (uint8_t)((wheel_scaled[i] >> 8) & 0xFF);
+      }
+      buffer[12] = 0xAA;
+
+      serial5.write(buffer, packetSize);
       timer.reset();
 }
 
@@ -130,43 +153,63 @@ void Robot::getSensors(RobotInfo_t *info) {
       }
       info->isUnderVoltage = (underVoltageCount == 0);
       info->capValEstimate = kickerBoard.getCapValEstimate();
+
+#if DRIBBLER_VERSION == DRIBBLER_OLD
+      // 旧基板はドリブラーからのフィードバックがないため、フォトセンサのみでボール保持/検知を判定する
+      bool isBallDetected = (medianPhotoValue.calc(info->photoSensorValue) < PHOTOSENSOR_THRESHOLD);
+      info->dribbleStatus.isDetectedBall = isBallDetected;
+      info->dribbleStatus.isHoldBall = isBallDetected;
+#endif
 }
 
 void Robot::sendDribble(uint8_t power, bool forceSend) {
       static Timer timer;
-      static uint8_t dribblePowerPrev = power;
+      static uint8_t dribblePowerPrev = 255;  // 処理されるために255に初期化
       if (timer.read_ms() > 10000) timer.set_ms(10000);
       if (power == dribblePowerPrev && forceSend == false) {
             if (timer.read_ms() < 100)  // パワーが変わっていない場合は送信しない。 forceSendがtrueの場合は100msごとに送信する
                   return;
       }
+#if DRIBBLER_VERSION == DRIBBLER_OLD
+      CANBus::CANData canData = {
+          .stdId = DRIBBLE,
+          .data = {power, 0, 0, 0, 0, 0, 0, 0},
+      };
+#else
       power = (power != 0) ? 100 : 0;
       CANBus::CANData canData = {
           .stdId = DRIBBLE_SEND,
           .data = {power, 0, 0, 0, 0, 0, 0, 0},
       };
+#endif
       can.send(canData);
       timer.reset();
       dribblePowerPrev = power;
 }
 
 void Robot::sendKicker(RobotInfo_t &info) {
-      // キックの処理
-      // ストレートを優先してキック
+      // --- doDirectの解除を最優先で判定する ---
+      // キッカーボードは一度doDirectを武装すると、data[1]!=0xFFのコマンドを受けるまで
+      // 解除されない。従来は「straight/chipのパワーが両方0のとき(else分岐)」でしか
+      // resetDoDirectを送っていなかったため、Piが解除(doDirectKick=0)にしてもキック
+      // パワーを送り続けるとelse分岐に入らず、ボードが武装したまま「戻らない」状態に
+      // なっていた。ここでPiの指令(解除)とボードの自認(武装中)が食い違う場合は、
+      // パワーの有無に関わらず確実に解除を送る。解除サイクルでは通常キックを打たない
+      // よう早期returnする。
+      if (!info.status.doDirectKick && info.kickerBoardDoDirectStatus.straight) {
+            kickerBoard.resetDoDirect(STRAIGHT);
+            return;
+      }
+      if (!info.status.doDirectChipKick && info.kickerBoardDoDirectStatus.chip) {
+            kickerBoard.resetDoDirect(CHIP);
+            return;
+      }
+
+      // キックの処理（ストレートを優先してキック）
       if (info.kicker.straight > 0) {
             kickerBoard.kick(STRAIGHT, info.kicker.straight, info.status.doDirectKick);
       } else if (info.kicker.chip > 0) {
             kickerBoard.kick(CHIP, info.kicker.chip, info.status.doDirectChipKick);
-      } else {
-            // どっちも0の場合はキックしない
-            if (info.status.doDirectKick != info.kickerBoardDoDirectStatus.straight && info.kickerBoardDoDirectStatus.straight) {
-                  // kickStraight(0, false); // パワー0のキックを投げてdoDirectをリセットする
-                  kickerBoard.resetDoDirect(STRAIGHT);
-            }
-            if (info.status.doDirectChipKick != info.kickerBoardDoDirectStatus.chip && info.kickerBoardDoDirectStatus.chip) {
-                  // kickChip(0, false); // パワー0のキックを投げてdoDirectをリセットする
-                  kickerBoard.resetDoDirect(CHIP);
-            }
       }
 }
 
@@ -202,7 +245,7 @@ void Robot::checkRobotRest(RobotInfo_t &info) {
 void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
       // UIにデータを送信する
       static const uint8_t HEADER = 0xFF;  // ヘッダ
-      static const uint8_t dataSize = 3;   // データのサイズ
+      static const uint8_t dataSize = 21;  // 新UIに合わせて21バイトに変更
       static Timer timer;
 
       if (timer.read_ms() < interval) {
@@ -212,14 +255,29 @@ void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
       info.capaData.chargeState = info.isKickerChargeMode;
       info.capaData.chargeVal = info.capValEstimate;
 
-      uint8_t buffer[dataSize] = {
-          info.batteryVoltage,
-          info.capaData.data,
-          (uint8_t)info.buzzer,
-      };
+      uint8_t buffer[dataSize] = {0};
+      buffer[0] = info.batteryVoltage;
+      buffer[1] = info.capaData.data;
+      buffer[2] = (uint8_t)info.buzzer;
+      buffer[3] = info.dribbleStatus.isDetectedBall ? 1 : 0; // ボールセンサ
+
+      // モーター速度 (float 4bytes x 4)
+      float motorVel[4];
+      for (int i = 0; i < 4; i++) {
+          motorVel[i] = (float)info.mdStatus.motorAngularVelocity[i];
+      }
+      memcpy(&buffer[4], &motorVel[0], 4);
+      memcpy(&buffer[8], &motorVel[1], 4);
+      memcpy(&buffer[12], &motorVel[2], 4);
+      memcpy(&buffer[16], &motorVel[3], 4);
+
+      // モーターステータス (bitmask)
+      // エラー検知がSTM側にない場合は、とりあえず全て正常(0x0F)とする
+      buffer[20] = 0x0F;
+
       serial4.write(HEADER);
       serial4.write(buffer, dataSize);
-      printf("send %d %d %d\n", buffer[0], info.capaData.chargeState, info.capaData.chargeVal);
+      // printf("send ui: bat=%d cap=%d buzzer=%d\n", buffer[0], info.capaData.chargeVal, buffer[2]);
 
       timer.reset();
 }
@@ -227,7 +285,7 @@ void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
 void Robot::uiRecvSerial(RobotInfo_t &info) {
       // UIにデータを送信する
       static const uint8_t HEADER = 0xFF;   // ヘッダ
-      static const uint8_t dataSize = 1;    // データのサイズ
+      static const uint8_t dataSize = 2;    // データのサイズ (modeStatusとtestCommandの2バイト)
       static bool headerReceived = false;   // ヘッダを受信したかどうか
       static uint8_t index = 0;             // 受信したデータのインデックスカウンター
       static uint8_t data[dataSize] = {0};  // 受信したデータ
@@ -240,11 +298,12 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
             } else {
                   data[index] = receivedByte;
                   index++;
-                  if (index == dataSize) {
-                        info.uiStatus.data = data[0];
-                        headerReceived = false;
-                        index = 0;
-                  }
+                    if (index == dataSize) {
+                          info.uiStatus.data = data[0];
+                          info.testCommand = data[1];
+                          headerReceived = false;
+                          index = 0;
+                    }
             }
       }
 }

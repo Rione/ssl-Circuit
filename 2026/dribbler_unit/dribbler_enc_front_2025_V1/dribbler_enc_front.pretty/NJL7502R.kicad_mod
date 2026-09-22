@@ -1,0 +1,107 @@
+(footprint "NJL7502R"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 1.45 -1.1 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "11c0ff97-b262-41a4-88da-8955ca7493cd")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "NJL7502R"
+		(at 0 1 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "a013581a-ed6a-4d22-b36e-35432c0a75ae")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" "NJL7502R"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "c90f6519-373a-4bb3-90bc-ac6a6b663ce7")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "827d0f50-0f37-43a9-8d46-a8e783b98489")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "c7138512-278b-4f53-9833-ed4531f61bf9")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_rect
+		(start -0.65 -0.85)
+		(end 0.65 0.95)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill none)
+		(layer "F.CrtYd")
+		(uuid "353652d1-efa9-4ea8-b869-b4a29bcb9ffc")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 2.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "91bfa03d-8731-404a-8aef-f8d9b919d5dd")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" smd rect
+		(at 0 0.5)
+		(size 1.15 0.65)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(thermal_bridge_angle 45)
+		(uuid "db013d22-5b3f-47f5-ae18-87815077ee11")
+	)
+	(pad "2" smd rect
+		(at 0 -0.45)
+		(size 1.15 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(thermal_bridge_angle 45)
+		(uuid "e351157a-59f4-498d-9843-3d238a5767e0")
+	)
+)

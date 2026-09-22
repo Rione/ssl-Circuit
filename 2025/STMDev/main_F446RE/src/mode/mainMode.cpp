@@ -7,37 +7,61 @@ void MainMode::after() {
 }
 
 void MainMode::loop() {
-      timer.reset();
-      robot->getSensors(&robot->info);
-      // robot->bnoGet(robot->info);  // BNO055からセンサデータを取得
-      robot->rasSendSerial(robot->info, 8);
-      robot->rasRecvSerial(robot->info);   // sync
-      robot->checkRobotRest(robot->info);  // ロボットが停止しているか確認
+  timer.reset();
+  robot->getSensors(&robot->info);
+  // robot->bnoGet(robot->info);  // BNO055からセンサデータを取得
+  robot->rasSendSerial(robot->info, 8);
+  robot->rasRecvSerial(robot->info);   // sync
+  robot->checkRobotRest(robot->info);  // ロボットが停止しているか確認
 
-      buzzerControl(robot->info);  // ブザーの制御
+  robot->uiRecvSerial(robot->info);    // UIからデータ受信
+  uiKickControl(robot->info);          // UIからのキック・チャージ制御
+  swKickControl(robot->info);          // 物理スイッチからのキック・チャージ制御
 
-      robot->uiSendSerial(robot->info, 100);  // UIにデータを送信する
-      robot->uiRecvSerial(robot->info);       // UIからデータを受信する
+  buzzerControl(robot->info);  // ブザーの制御
 
-      uiKickControl(robot->info);  // UIからの充電制御
-      swKickControl(robot->info);  // スイッチからの充電制御
+  robot->uiSendSerial(robot->info, 100);  // UIにデータを送信する
 
-      robot->motorDriver.getVelocity(&robot->info.mdStatus.velX, &robot->info.mdStatus.velY, robot->info.mdStatus.motorAngularVelocity);  // モータードライバからロボットの速度を取得
+  robot->motorDriver.getVelocity(&robot->info.mdStatus.velX, &robot->info.mdStatus.velY, robot->info.mdStatus.motorAngularVelocity);  // モータードライバからロボットの速度を取得
 
-      if (!robot->info.status.emergencyStop && robot->info.status.isSignalReceived) {
-            // Robot is Running
-            robot->sendDribble(robot->info.dribblePower);
-            robot->sendKicker(robot->info);
-            robot->kickerBoard.chargeControl(robot->info.status.doCharge);
-            robot->sendMotor(robot->info, 5);  // 5msごとに送信
-      } else {
-            // Robot is Stop or Emergency Stop
-            stopRobot(500);
-            // printfDMA("Robot is Stop\n");
-      }
+  bool isTestingMotor = robot->info.isMotorTesting && (robot->info.motorTestTimer.read_ms() < 3000);
+  bool isTestingDribbler = robot->info.isDribblerTesting;
 
-      robot->led1 = robot->info.dribbleStatus.isDetectedBall;
-      // printfDMA("Ball:%d Batt:%d Cap:%d doDirect:%d doDirectChip:%d directSt:%d directCh:%d Str:%d Chip:%d\n", robot->info.photoSensorValue, robot->info.batteryVoltage, robot->getcapChargeEstimate(), robot->info.status.doDirectKick, robot->info.status.doDirectChipKick, robot->info.kickerBoardDoDirectStatus.straight, robot->info.kickerBoardDoDirectStatus.chip, robot->info.kicker.straight, robot->info.kicker.chip);
-      // printfDMA("Ball:%d, Photo:%d, NewDrib:%d, DribbleStatus:%d\n", robot->info.dribbleStatus.isHoldBall, robot->info.dribbleStatus.isDetectedBall, robot->info.dribbleStatus.isNewDrib, robot->info.dribbleStatus.data);
-      while (timer.read_us() < 1000);  // 1ms time control
+  if (robot->info.isMotorTesting && robot->info.motorTestTimer.read_ms() >= 3000) {
+    robot->info.isMotorTesting = false;
+  }
+
+  if (isTestingMotor || isTestingDribbler) {
+    // === UIテスト中（2026の仕様に合わせ、安全裁定をバイパス） ===
+    if (isTestingMotor) {
+      robot->motorDriver.setVelocityFF(100, 0, 0); // モーターテスト: 100 mm/s 前進
+    } else {
+      robot->motorDriver.setVelocityFF(0, 0, 0);
+    }
+    
+    if (isTestingDribbler) {
+      robot->sendDribble(100); // テスト時パワー100 (新旧ドリブラー仕様に準拠)
+    } else {
+      robot->sendDribble(0);
+    }
+    
+    robot->sendKicker(robot->info);
+  } else if (robot->info.status.emergencyStop) {
+    stopRobot(500);
+  } else if (robot->info.status.isSignalReceived) {
+    // === 通常の試合中 (RasPiからの信号あり) ===
+    robot->sendDribble(robot->info.dribblePower);
+    robot->sendKicker(robot->info);
+    // UI/スイッチ操作後15秒間はPiの充放電指令を無視する
+    if (robot->manageByUserCounter.read_ms() >= 15000) {
+      robot->kickerBoard.chargeControl(robot->info.status.doCharge ? CHARGE : DISCHARGE);
+    }
+    robot->sendMotor(robot->info, 10);
+  } else {
+    // === 待機状態 ===
+    stopRobot(500);
+  }
+
+  robot->led1 = robot->info.dribbleStatus.isDetectedBall;
+  while (timer.read_us() < 1000);  // 1ms time control
 }
