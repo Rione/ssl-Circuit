@@ -28,6 +28,7 @@ bool is_voltage_out_of_range;
 bool is_overheated;
 
 float target_angular_speed, target_torque;
+float target_voltage;
 
 uint8_t mode = 0;
 
@@ -76,9 +77,13 @@ static void RecvSerial() {
         if (cmd == 1) {
           mode = 1;
           target_angular_speed = value * 0.01f;
+        } else if (cmd == 2) {
+          mode = 2;
+          target_voltage = value * 0.01f;
         } else {
           mode = 0;
           target_angular_speed = 0;
+          target_voltage = 0;
         }
         Timer_Reset(&serial_recv_timer);
         DigitalOut_Write(&led1, 1);
@@ -273,6 +278,9 @@ void MainApp() {
         BLDC_Stop();
       } else if (mode == 1) {
         BLDC_AngularSpeedControl(target_angular_speed);
+        PwmOut_Write(&ledr, Abs(BLDC_GetAmpVolt() * 0.1));
+      } else if (mode == 2) {
+        BLDC_VoltageControl(Constrain(target_voltage, -MAX_AMP_VOLT, MAX_AMP_VOLT));
         PwmOut_Write(&ledr, Abs(BLDC_GetAmpVolt() * 0.1));
       }
       BLDC_SensoredVectorControlDrive(encoder_val, supply_volt);
