@@ -28,7 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "imu_test.h"
+#include "app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,11 +116,8 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  // IMU(LSM6DSO32XTR)動作確認用。通常運用に戻す際はこの2行をコメントアウトし、
-  // Setup();MainApp(); を有効にする。
-  ImuTest_Run();
-  // Setup();
-  // MainApp();
+  Setup();
+  MainApp();
   while (1) {
     /* USER CODE END WHILE */
 

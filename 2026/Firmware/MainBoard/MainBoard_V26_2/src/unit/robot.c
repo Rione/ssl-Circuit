@@ -11,14 +11,22 @@ uint16_t adc_val[1];
 #define ADC2VOLT 0.008862304688f
 #define BATTERY_VOLTAGE_OFFSET 2.0f  // 実測とのズレを補正するオフセット
 
-// フレーム構成: [ヘッダ0xFF][ペイロード18byte][フッタ0xAA] = 20byte
-// Rock5A マスターは 1 トランザクション 20byte。スレーブも 20byte で同期させる。
-// 再同期用に直近 2 フレーム分(40byte)のスライディングウィンドウを保持する。
+// フレーム構成: [ヘッダ0xFF][ペイロード19byte][フッタ0xAA] = 21byte
+// Rock5A マスターは 1 トランザクション 21byte。スレーブも 21byte で同期させる。
+// 再同期用に直近 2 フレーム分(42byte)のスライディングウィンドウを保持する。
 #define ROCK_SPI_HEADER 0xFFU
 #define ROCK_SPI_FOOTER 0xAAU
-#define ROCK_SPI_PAYLOAD_SIZE 18U
-#define ROCK_SPI_FRAME_SIZE (ROCK_SPI_PAYLOAD_SIZE + 2U)  // ヘッダ+ペイロード+フッタ=20
+#define ROCK_SPI_PAYLOAD_SIZE 19U
+#define ROCK_SPI_FRAME_SIZE (ROCK_SPI_PAYLOAD_SIZE + 2U)  // ヘッダ+ペイロード+フッタ=21
 #define ROCK_SPI_RX_WINDOW_SIZE (ROCK_SPI_FRAME_SIZE * 2U)
+
+// STM32 → Rock5A 送信ペイロード中のIMUデータのスケール
+// (float実数値をint16に変換する際の倍率。Rock5A側では逆数を掛けて復元する)
+#define ROCK_SPI_ACCEL_SCALE 1000.0f      // [g]     -> int16 (1LSB = 1mg)
+// ジャイロFS(±2000dps=約±34.9rad/s、imu.c参照)がint16(最大±32767)に収まるよう900に設定
+// (1000だと最大レンジで約±34907となりint16をオーバーフローするため)
+#define ROCK_SPI_YAW_RATE_SCALE 900.0f    // [rad/s] -> int16 (1LSB ≈ 0.00111rad/s)
+#define ROCK_SPI_YAW_SCALE 10000.0f       // [rad]   -> int16 (1LSB = 0.0001rad)
 // SPI がこの時間(ms)完了もエラーもせず BUSY のまま固まったら強制リセットする。
 // ソフト NSS のスレーブはビットずれで「完了もエラーもしない BUSY ハング」に
 // 陥ることがあり、リセットしないと復帰しない。そのストール検出用。
@@ -40,6 +48,11 @@ static volatile uint32_t rock_spi_progress_tick = 0;
 
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst);
 static uint8_t* Robot_RockTxStaging(void);
+
+static inline void Robot_RockPackInt16(uint8_t* dst, int16_t val) {
+  dst[0] = (uint8_t)(val & 0xFF);
+  dst[1] = (uint8_t)((val >> 8) & 0xFF);
+}
 
 static void Robot_RockArm(void) {
   rock_spi_progress_tick = HAL_GetTick();
@@ -139,6 +152,10 @@ void Robot_Initialize(Robot* self) {
   Kicker_Init(&self->kicker, &self->can);
   Dribbler_Init(&self->dribbler, &self->can);
   UI_Init(&self->ui, &self->serial4);
+  Imu_Init(&self->imu);
+#if IMU_CALIBRATE_ON_BOOT
+  Imu_Calibrate(&self->imu);
+#endif
 
   rock_spi_tx_arm_idx = 0;
   Robot_RockBuildTxPacket(self, &self->info, rock_spi_tx_buf[0]);
@@ -150,6 +167,7 @@ void Robot_Initialize(Robot* self) {
 
 void Robot_UpdateSensor(Robot* self) {
   self->info.battery_voltage = adc_val[0] * ADC2VOLT + BATTERY_VOLTAGE_OFFSET;
+  Imu_Update(&self->imu);
 }
 
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst) {
@@ -163,12 +181,15 @@ static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst) 
       self->omni_drive.vel_wheel_angular[2] * 100,
       self->omni_drive.vel_wheel_angular[3] * 100};
   for (int i = 0; i < 4; i++) {
-    dst[4 + i * 2] = (uint8_t)(wheel_scaled[i] & 0xFF);
-    dst[5 + i * 2] = (uint8_t)((wheel_scaled[i] >> 8) & 0xFF);
+    Robot_RockPackInt16(&dst[4 + i * 2], wheel_scaled[i]);
   }
-  for (uint16_t i = 12; i < ROCK_SPI_FRAME_SIZE - 1; i++) {
-    dst[i] = 0x00;
-  }
+
+  // IMU: 加速度(xy)[g]・角速度(yaw)[rad/s]・Madgwickフィルタによる姿勢(yaw)[rad]
+  Robot_RockPackInt16(&dst[12], (int16_t)(self->imu.accel_x * ROCK_SPI_ACCEL_SCALE));
+  Robot_RockPackInt16(&dst[14], (int16_t)(self->imu.accel_y * ROCK_SPI_ACCEL_SCALE));
+  Robot_RockPackInt16(&dst[16], (int16_t)(self->imu.yaw_rate * ROCK_SPI_YAW_RATE_SCALE));
+  Robot_RockPackInt16(&dst[18], (int16_t)(self->imu.yaw_rad * ROCK_SPI_YAW_SCALE));
+
   dst[ROCK_SPI_FRAME_SIZE - 1] = ROCK_SPI_FOOTER;
 }
 
@@ -186,7 +207,10 @@ void Robot_RockUpdateSPI(Robot* self, RobotInfo* info) {
     Robot_RockArm();
   } else if ((HAL_GetTick() - rock_spi_progress_tick) > ROCK_SPI_STALL_TIMEOUT_MS) {
     // 完了もエラーもせず BUSY のまま固まった（ソフト NSS スレーブの
-    // ビットずれによるハング）。強制的に Abort して再 Arm し復帰させる。
+    // ビットずれによるハング、または Rock5A 未接続でマスタークロックが
+    // 全く来ていない場合も同様に検出される）。強制的に Abort して再 Arm し復帰させる。
+    printf("Rock SPI stall detected (no master clock for %ums), re-arming\n",
+           ROCK_SPI_STALL_TIMEOUT_MS);
     HAL_SPI_Abort(&hspi2);
     Robot_RockArm();
   }

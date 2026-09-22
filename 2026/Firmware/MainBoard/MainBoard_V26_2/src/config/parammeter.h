@@ -22,4 +22,12 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define ROBOT_STOP_DISCHARGE_SPEED_MMPS \
   ((int16_t)100)  // 停止時にこの速度[mm/s]を超えていたら強制放電
 
+// IMU
+#define IMU_MADGWICK_BETA 0.1f  // Madgwickフィルタのゲイン(加速度補正の強さ)
+
+// 1にすると起動時(Robot_Initialize)にジャイロの静止バイアスを測定し、以降のIMU姿勢推定
+// (yaw_rate/yaw_rad)に適用する。測定はブロッキングで数秒かかり、その間機体を静止させる
+// 必要がある。電源を切ると測定値は失われるため毎回起動時に測定し直す仕組み。
+#define IMU_CALIBRATE_ON_BOOT 1
+
 #endif  // __PARAMMETER_H_

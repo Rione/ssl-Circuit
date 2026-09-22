@@ -7,6 +7,7 @@
 #include "can_bus.h"
 #include "digitalinout.h"
 #include "dribbler.h"
+#include "imu.h"
 #include "kicker.h"
 #include "main.h"
 #include "omni_drive.h"
@@ -116,6 +117,7 @@ typedef struct Robot {
   Kicker kicker;
   Dribbler dribbler;
   UI ui;
+  Imu imu;
 } Robot;
 
 void Robot_Initialize(Robot* self);

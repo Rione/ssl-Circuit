@@ -10,7 +10,7 @@
 ## 1. システム全体像
 
 ```
-                 SPI (Slave, 20byteフレーム, ヘッダ0xFF/フッタ0xAA)
+                 SPI (Slave, 21byteフレーム, ヘッダ0xFF/フッタ0xAA)
   Rock5A(上位機) <───────────────────────────────► MainBoard (このボード)
   (画像処理・経路計画)                                  │
                                                         │ CAN (100kbps)
@@ -27,7 +27,7 @@
 - **PowerBoard**: バッテリー電圧監視、キッカー用コンデンサの昇圧・放電。CANで指示を受け、CANで状態を返す。
 - **Dribbler基板**: ドリブラーモーターの駆動とボール検知センサー。CANで指示/状態をやり取り。
 - **WheelUnit**: オムニホイール4個それぞれに1枚。UARTで角速度指令を受け、エンコーダから実角速度を返す(`../../WheelUnit/`)。
-- **CommonLib-C** (`../../CommonLib-C/`): 複数ボード共通の薄いラッパー群(CAN, UART, タイマー, PWM, GPIO, 移動平均フィルタ, 数学関数)。**このディレクトリを変更すると他ボードのファームウェアにも影響するので注意。**
+- **CommonLib-C** (`../../CommonLib-C/`): 複数ボード共通の薄いラッパー群(CAN, UART, タイマー, PWM, GPIO, 移動平均フィルタ, 数学関数, IMU(LSM6DSO32)ドライバ, Madgwick姿勢推定フィルタ)。**このディレクトリを変更すると他ボードのファームウェアにも影響するので注意。**
 
 ---
 
@@ -38,7 +38,7 @@
 | `src/app` | エントリポイント (`Setup()` / `MainApp()`)、CAN受信割り込みハンドラ | 低 |
 | `src/mode` | メインループ本体 (`MainMode_Loop`)。1周期ごとの処理順序を管理 | 中 |
 | `src/control` | ローカル制御 (`LocalController`)。信号ロスト時の停止処理など | 中 |
-| `src/unit` | 各アクチュエータ/センサーのドライバ層 (`robot`, `omni_drive`, `kicker`, `dribbler`, `ui`) | **高** |
+| `src/unit` | 各アクチュエータ/センサーのドライバ層 (`robot`, `omni_drive`, `kicker`, `dribbler`, `ui`, `imu`) | **高** |
 | `src/config` | CAN ID定義、機体パラメータ | 中 (パラメータ調整で頻繁に開く) |
 | `Core/`, `Drivers/` | STM32CubeMXの自動生成コード・HALライブラリ | **基本的に直接編集しない** |
 | `docs/` | このファイルなど |
@@ -79,7 +79,7 @@ void MainApp(void) {
 
 `MainMode_Loop`(`src/mode/main_mode.c`)が心臓部で、**1ms周期**(`ROBOT_CONTROL_LOOP_DT_US`, `src/config/parammeter.h`)で以下を繰り返します。周期はループ末尾のビジーウェイトで維持しています(RTOS不使用、ベアメタル)。
 
-1. `Robot_UpdateSensor` : バッテリー電圧をADCから取得
+1. `Robot_UpdateSensor` : バッテリー電圧をADCから取得、IMU(加速度・ジャイロ・姿勢)を更新
 2. `Robot_UpdateFromUi` : UI基板からのボタン入力を受信、UI基板へ電圧等を返送(100周期に1回)
 3. `Robot_RockUpdateSPI` : Rock5AとのSPI通信を進める(詳細は5.1)
 4. `OmniDrive_Recv` : 各WheelUnitからのUART受信をパース
@@ -97,14 +97,14 @@ void MainApp(void) {
 ### 5.1 Rock5A ⇔ MainBoard (SPI2, Slave)
 
 - Rock5Aがマスター、MainBoardはスレーブ(`SPI2.Mode=SPI_MODE_SLAVE`)。**マスター側が周期的にクロックを出さないと通信が進まない**ため、MainBoard側から能動的に送ることはできず、割り込み(`HAL_SPI_TxRxCpltCallback`)駆動で受動的にやり取りします。
-- 1フレーム20byte固定: `[0xFF][ペイロード18byte][0xAA]`。送信・受信とも同じフレームサイズで同期させています。
+- 1フレーム21byte固定: `[0xFF][ペイロード19byte][0xAA]`。送信・受信とも同じフレームサイズで同期させています。バイト単位の詳細な内訳は [`docs/SPI_PROTOCOL.md`](SPI_PROTOCOL.md) を参照してください。
 - ソフトウェアNSS(チップセレクトをソフトで見るタイプ)のスレーブは、ビットずれが起きると「完了もエラーもせずBUSYのまま固まる」ことがあるため、`robot.c` では
-  - 直近2フレーム分(40byte)のスライディングウィンドウで受信データから正しいフレーム位置を毎回探し直す(`Robot_RockFindFrame`)、再同期の仕組み
+  - 直近2フレーム分(42byte)のスライディングウィンドウで受信データから正しいフレーム位置を毎回探し直す(`Robot_RockFindFrame`)、再同期の仕組み
   - 750ms(`ROCK_SPI_STALL_TIMEOUT_MS`)進捗が無ければ強制Abort→再Armするストール検出
   - TXは2面バッファ(ISRがArm中のバッファとmainが更新するバッファを分離)
   
   という対策が入っています。**SPI周りが不安定になったら、まずこの3つの仕組み(再同期ウィンドウ/ストールタイムアウト/ダブルバッファ)がどう動いているかを`robot.c`の`Robot_RockUpdateSPI`から追うとよいです。**
-- 受信ペイロードの中身(速度指令・キック・ドリブル・座標・カメラ座標・statusビット)は `Robot_RockApplyRecvPacket` を、送信ペイロード(バッテリー電圧・ドリブル状態・キッカー電圧・ホイール角速度)は `Robot_RockBuildTxPacket` を参照してください。
+- 受信ペイロードの中身(速度指令・キック・ドリブル・座標・カメラ座標・statusビット)は `Robot_RockApplyRecvPacket` を、送信ペイロード(バッテリー電圧・ドリブル状態・キッカー電圧・ホイール角速度・IMU)は `Robot_RockBuildTxPacket` を参照してください。
 
 ### 5.2 MainBoard ⇔ WheelUnit ×4 (UART, 250kbps)
 
@@ -146,6 +146,7 @@ CAN受信はポーリングではなく割り込み(`HAL_CAN_RxFifo0MsgPendingCa
 - **`kicker.h/.c`**: キック・充電・放電のCAN送信。連射防止のタイマー付き(`ROBOT_KICK_INTERVAL_MS` など)。
 - **`dribbler.h/.c`**: 現状パワーは0か最大かの2値制御。値変化時 or 一定間隔で再送。
 - **`ui.h/.c`**: UI基板との4byteプロトコル送受信。
+- **`imu.h/.c`**: LSM6DSO32XTR(SPI1)から加速度・ジャイロを取得し、`CommonLib-C/ahrs/madgwick.h` のMadgwickフィルタで姿勢(yaw)を推定。`Robot_UpdateSensor` から毎周期呼ばれ、結果は `Robot_RockBuildTxPacket` でSPI送信ペイロードに詰められる(詳細は [`docs/SPI_PROTOCOL.md`](SPI_PROTOCOL.md))。
 - **`main_mode.h/.c`**: 1周期分の処理順序をまとめた「司令塔」。
 - **`local_controller.h/.c`**: 信号ロスト・緊急停止時の安全停止処理。`LocalController_TestMove`/`TestMoveForwardBack` は動作確認用のテストルーチンで、`main_mode.c` 内でコメントアウトされています(足回り単体の動作確認時に有効化して使う)。
 - **`parammeter.h/.c`**: 機体形状・制御周期・タイマー間隔など調整用定数はここに集約。**マジックナンバーを直書きせずここに足すのが慣習**です。
