@@ -176,7 +176,16 @@ void Robot_Initialize(Robot* self) {
   UI_Init(&self->ui, &self->serial4);
   Imu_Init(&self->imu);
 #if IMU_CALIBRATE_ON_BOOT
-  Imu_Calibrate(&self->imu);
+  if (Imu_Calibrate(&self->imu)) {
+    Imu_SaveCalibration(&self->imu);
+  } else if (Imu_LoadCalibration(&self->imu)) {
+    printf("IMU: robot was moving during calibration, using stored calibration\n");
+  }
+#else
+  if (!Imu_LoadCalibration(&self->imu)) {
+    printf("IMU: no stored calibration, calibrating now\n");
+    Imu_Calibrate(&self->imu);
+  }
 #endif
 
   rock_spi_tx_arm_idx = 0;

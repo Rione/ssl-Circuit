@@ -60,6 +60,16 @@ static inline void Serial_Write(Serial* self, const uint8_t* data, uint16_t len)
   HAL_UART_Transmit_DMA(self->huart, (uint8_t*)data, len);
 }
 
+// 受信だけを止めて再開する (Serial_Reset と違い送信DMAは止めない)。
+// 受信エラーや受信の途絶からの復帰用。DMAの書き込み位置が先頭に戻るので rxBtm も戻す
+static inline void Serial_RestartRx(Serial* self) {
+  HAL_UART_AbortReceive(self->huart);
+  __HAL_UART_CLEAR_OREFLAG(self->huart);
+  self->huart->ErrorCode = HAL_UART_ERROR_NONE;
+  HAL_UART_Receive_DMA(self->huart, self->rxBuf, self->rxBufSize);
+  self->rxBtm = 0;
+}
+
 static inline void Serial_Reset(Serial* self) {
   HAL_UART_AbortReceive(self->huart);
   HAL_UART_DMAStop(self->huart);

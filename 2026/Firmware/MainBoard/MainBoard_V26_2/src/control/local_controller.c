@@ -233,3 +233,101 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   }
 }
 
+// WheelUnitのID・回転方向・受信チャンネル確認用テスト (機体を浮かせて実施):
+// 1. 電源投入後5秒待機 (LED0が0.5s周期で点滅)
+// 2. ID1→ID4の順に1輪ずつ、+8rad/s (2秒) → -8rad/s (2秒) → 停止 (1秒) を繰り返す (回転中はLED0点灯)
+//    - 逆運動学 v = -vx·sinθ + vy·cosθ + R·ω より、+指令は上から見て機体をCCWに回す向き
+//      (ID1=左前55°, ID2=左後135°, ID3=右後-135°, ID4=右前-55°)
+//    - TCS・S字は通さず、車輪角速度指令を直接送る
+// 3. 100ms周期で指令・実測車輪速度・状態バイト・受信フレーム数・IMUをCSVでprintf出力 (USART1)
+//    - f0〜f3 は直近100msの受信フレーム数 (WheelUnitの送信周期500µsなので約200が正常)
+void LocalController_TestWheelSpin(LocalController* self, Robot* robot) {
+  (void)self;
+  static uint32_t start_tick = 0;
+  static bool is_header_printed = false;
+  static uint32_t last_log_ms = 0;
+  static uint16_t prev_frame_count[4] = {0};
+
+  const uint32_t kStartupWaitMs = 5000;   // 起動後待機時間 [ms]
+  const uint32_t kSpinMs = 2000;          // 1方向あたりの回転時間 [ms]
+  const uint32_t kStopMs = 1000;          // 輪ごとの停止時間 [ms]
+  const uint32_t kWheelPeriodMs = kSpinMs * 2 + kStopMs;
+  const int16_t kSpinSpeed_x100 = 800;    // 8rad/s (WheelUnitへの指令は ×0.01 rad/s)
+  const uint32_t kLogIntervalMs = 100;    // ログ出力周期 [ms]
+
+  // 1. 安全確保: テスト中はキック・ドリブルを明示的にクリアし、放電状態を維持
+  robot->info.kicker.straight = 0;
+  robot->info.kicker.chip = 0;
+  robot->info.status.do_direct_straight = 0;
+  robot->info.status.do_direct_chip = 0;
+  Robot_SendDribble(robot, 0, 0);
+  Kicker_Discharge(&robot->kicker);
+
+  if (start_tick == 0) {
+    start_tick = HAL_GetTick();
+    if (start_tick == 0) start_tick = 1;
+  }
+  uint32_t elapsed_ms = HAL_GetTick() - start_tick;
+
+  // 2. 現在の区間から、回す輪と指令を決める
+  int8_t wheel = -1;  // 回す輪のインデックス (-1: 全輪停止)
+  int16_t cmd = 0;
+  if (elapsed_ms >= kStartupWaitMs) {
+    uint32_t cycle_ms = (elapsed_ms - kStartupWaitMs) % (kWheelPeriodMs * 4);
+    uint32_t phase_ms = cycle_ms % kWheelPeriodMs;
+    if (phase_ms < kSpinMs) {
+      cmd = kSpinSpeed_x100;
+    } else if (phase_ms < kSpinMs * 2) {
+      cmd = -kSpinSpeed_x100;
+    }
+    if (cmd != 0) wheel = (int8_t)(cycle_ms / kWheelPeriodMs);
+  }
+
+  if (wheel >= 0) {
+    int16_t m[4] = {0, 0, 0, 0};
+    m[wheel] = cmd;
+    OmniDrive_Send(&robot->omni_drive, m, 1);  // command: 1 (速度モード)
+    DigitalOut_Write(&robot->led0, 1);
+  } else {
+    OmniDrive_SetFree(&robot->omni_drive);
+    if (elapsed_ms < kStartupWaitMs && (elapsed_ms / 500) % 2 == 0) {
+      DigitalOut_Write(&robot->led0, 1);
+    } else {
+      DigitalOut_Write(&robot->led0, 0);
+    }
+  }
+
+  // 3. 100ms周期でログ出力
+  const OmniDrive* od = &robot->omni_drive;
+  if (!is_header_printed) {
+    fputs("t_ms,wheel_id,cmd_x100,w0_x100,w1_x100,w2_x100,w3_x100,s0,s1,s2,s3,f0,f1,f2,f3,",
+          stdout);
+    fflush(stdout);
+    fputs("e0,e1,e2,e3,gyro_mrad,yaw_mrad,ax_cm,ay_cm\n", stdout);
+    is_header_printed = true;
+    for (int i = 0; i < 4; i++) prev_frame_count[i] = od->wheel_frame_count[i];
+    last_log_ms = elapsed_ms;
+    return;
+  }
+  if (elapsed_ms - last_log_ms < kLogIntervalMs) return;
+  last_log_ms = elapsed_ms;
+
+  uint16_t frames[4];
+  for (int i = 0; i < 4; i++) {
+    frames[i] = (uint16_t)(od->wheel_frame_count[i] - prev_frame_count[i]);
+    prev_frame_count[i] = od->wheel_frame_count[i];
+  }
+  // IMU列 (静止中のバイアス残差・ドリフト確認用): 角速度 [mrad/s]、Madgwickヨー角 [mrad]、
+  // 機体座標のバイアス補正済み加速度 [cm/s^2]
+  const Imu* imu = &robot->imu;
+  printf("%u,%d,%d,%d,%d,%d,%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%d,%d,%d,%d\n",
+         (unsigned)elapsed_ms, wheel + 1, cmd, (int)(od->vel_wheel_angular[0] * 100.0f),
+         (int)(od->vel_wheel_angular[1] * 100.0f), (int)(od->vel_wheel_angular[2] * 100.0f),
+         (int)(od->vel_wheel_angular[3] * 100.0f), od->wheel_status[0], od->wheel_status[1],
+         od->wheel_status[2], od->wheel_status[3], frames[0], frames[1], frames[2], frames[3],
+         od->wheel_rx_restart_count[0], od->wheel_rx_restart_count[1],
+         od->wheel_rx_restart_count[2], od->wheel_rx_restart_count[3],
+         (int)(imu->yaw_rate * 1000.0f), (int)(imu->yaw_rad * 1000.0f),
+         (int)(imu->accel_robot_x * 100.0f), (int)(imu->accel_robot_y * 100.0f));
+}
+

@@ -158,6 +158,11 @@ static inline bool Lsm6dso32_DataReady(Lsm6dso32 *self) {
   return (Lsm6dso32_ReadReg(self, LSM6DSO32_REG_STATUS_REG) & 0x03) != 0;
 }
 
+// ジャイロの新規データ有無 (STATUS_REG の GDA ビット)
+static inline bool Lsm6dso32_GyroDataReady(Lsm6dso32 *self) {
+  return (Lsm6dso32_ReadReg(self, LSM6DSO32_REG_STATUS_REG) & 0x02) != 0;
+}
+
 // 温度・ジャイロ・加速度をOUT_TEMP_Lからの連続読み出しで取得し、メンバ変数を更新する
 static inline void Lsm6dso32_Update(Lsm6dso32 *self) {
   uint8_t buf[14];

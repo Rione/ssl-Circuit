@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+static void OmniDrive_MonitorRx(OmniDrive* self);
+
 // 逆運動学 H (4x3, 行 [-sinθi, cosθi, R]) から最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ を求める。
 // 55°/135° 配置は Σsin²θ≠Σcos²θ, Σcosθ≠0 のため、単純な Σ/2 では vx が約17%過大になる
 static void OmniDrive_ComputeForwardKinematics(OmniDrive* self) {
@@ -52,8 +54,14 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   for (int i = 0; i < 4; i++) {
     self->vel_wheel_angular[i] = 0.0f;
     self->target_wheel_angular[i] = 0.0f;
+    self->wheel_status[i] = 0;
+    self->wheel_frame_count[i] = 0;
+    self->wheel_rx_restart_count[i] = 0;
+    self->wheel_last_frame_tick[i] = 0;
+    self->wheel_rx_stalled[i] = false;
     MAF_Init(&self->maf[i], 25);
   }
+  self->rx_monitor_started = false;
   OmniDrive_ComputeForwardKinematics(self);
   TCS_Init(&self->tcs);
 }
@@ -205,6 +213,10 @@ void OmniDrive_Recv(OmniDrive* self) {
         if (recv_byte == 0xAA) {
           self->emg = recv_data[i][0] & 0x01;
           self->ready = (recv_data[i][0] >> 1) & 0x01;
+          self->wheel_status[i] = recv_data[i][0];
+          self->wheel_frame_count[i]++;
+          self->wheel_last_frame_tick[i] = HAL_GetTick();
+          self->wheel_rx_stalled[i] = false;
           float vel = (int16_t)((recv_data[i][1] << 8) | recv_data[i][2]) * 0.01f;
           if (OmniDrive_AcceptWheelVel(self->vel_wheel_angular[i], vel, &pending[i],
                                        &has_pending[i])) {
@@ -217,6 +229,40 @@ void OmniDrive_Recv(OmniDrive* self) {
         index[i]++;
       }
     }
+  }
+
+  OmniDrive_MonitorRx(self);
+}
+
+// 受信監視: 最後の正常フレームから OMNI_RX_TIMEOUT_MS 以上たった輪は受信を再開する。
+// 実機では、MainBoard の動作中に WheelUnit が起動 (24Vの投入・瞬断) すると、
+// 受信エラーのコールバックも呼ばれないまま4輪の受信が止まり、車輪速度が固まった。
+// 原因の特定用に、途絶えるたびに最初の1回だけ USART/DMA の状態を出力する
+// (WheelUnitが電源オフの間は OMNI_RX_TIMEOUT_MS ごとに再開を繰り返す)
+static void OmniDrive_MonitorRx(OmniDrive* self) {
+  uint32_t now = HAL_GetTick();
+  if (!self->rx_monitor_started) {
+    // 起動処理 (IMUキャリブレーション等) の時間を途絶と誤判定しないよう、初回に時刻を揃える
+    for (int i = 0; i < 4; i++) self->wheel_last_frame_tick[i] = now;
+    self->rx_monitor_started = true;
+    return;
+  }
+
+  for (int i = 0; i < 4; i++) {
+    if (now - self->wheel_last_frame_tick[i] < OMNI_RX_TIMEOUT_MS) continue;
+
+    UART_HandleTypeDef* huart = self->serials[i]->huart;
+    if (!self->wheel_rx_stalled[i]) {
+      self->wheel_rx_stalled[i] = true;
+      printf("# rx_stall wheel=%d t=%lu SR=0x%04lX CR3=0x%04lX NDTR=%lu EN=%lu RxState=0x%02X Err=0x%02lX\n",
+             i, (unsigned long)now, (unsigned long)huart->Instance->SR,
+             (unsigned long)huart->Instance->CR3, (unsigned long)huart->hdmarx->Instance->NDTR,
+             (unsigned long)(huart->hdmarx->Instance->CR & DMA_SxCR_EN),
+             (unsigned)huart->RxState, (unsigned long)huart->ErrorCode);
+    }
+    Serial_RestartRx(self->serials[i]);
+    self->wheel_rx_restart_count[i]++;
+    self->wheel_last_frame_tick[i] = now;  // 次の再開は OMNI_RX_TIMEOUT_MS 後
   }
 }
 

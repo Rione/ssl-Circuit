@@ -47,6 +47,8 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // 物理的な車輪角加速度は最大でも約600rad/s² (18m/s² / 0.03m) で1フレームあたり数rad/s。
 // 実測ではフレームずれと思われる130rad/s超の単発異常値があり、スリップ誤検知の原因になっていた
 #define OMNI_WHEEL_MAX_JUMP_RADPS 20.0f
+// WheelUnitからの受信がこの時間 [ms] 途絶えたら受信を再開する (正常時は約0.2msごとに届く)
+#define OMNI_RX_TIMEOUT_MS 20U
 
 #define ROBOT_KICK_INTERVAL_MS ((uint32_t)1000)  // キック間隔[ms]
 #define ROBOT_KICKER_SIGNAL_INTERVAL_MS \
@@ -63,9 +65,13 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define IMU_TO_ROBOT_AY(sx, sy) (sx)     // 機体y方向加速度
 #define IMU_GRAVITY_MPS2 9.80665f        // [g] -> [m/s^2]
 
-// 1にすると起動時(Robot_Initialize)にジャイロの静止バイアスを測定し、以降のIMU姿勢推定
-// (yaw_rate/yaw_rad)に適用する。測定はブロッキングで数秒かかり、その間機体を静止させる
-// 必要がある。電源を切ると測定値は失われるため毎回起動時に測定し直す仕組み。
-#define IMU_CALIBRATE_ON_BOOT 1
+// IMUのバイアス (ジャイロ3軸・加速度xy) の決め方:
+//   1: 起動時 (Robot_Initialize) に測定する。測定中は機体を静止させること (約3秒、動いていれば
+//      最大5回測り直す)。静止と判定できたらフラッシュに保存する (保存時に1〜2秒止まる)。
+//      静止と判定できなければ、保存済みの値があればそれを使う。
+//   0: フラッシュに保存済みの値を使う (起動時に測定しないので、電源投入後すぐ動かしてよい)。
+//      保存が無い場合 (未保存・フラッシュ全消去後) は起動時に測定する。
+// 運用: 1 で書き込み → 静止させて起動し "saved to flash" を確認 → 0 に戻して書き込む
+#define IMU_CALIBRATE_ON_BOOT 0
 
 #endif  // __PARAMMETER_H_

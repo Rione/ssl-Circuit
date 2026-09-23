@@ -12,5 +12,6 @@ void LocalController_Stop(LocalController *self, Robot *robot);
 void LocalController_TestMove(LocalController *self, Robot *robot);
 void LocalController_TestMoveForwardBack(LocalController *self, Robot *robot);
 void LocalController_TestTCSAcceleration(LocalController *self, Robot *robot);
+void LocalController_TestWheelSpin(LocalController *self, Robot *robot);
 
 #endif  // __LOCAL_CONTROLLER_H_

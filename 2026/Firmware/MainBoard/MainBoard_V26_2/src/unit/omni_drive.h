@@ -1,6 +1,7 @@
 #ifndef __OMNI_DRIVE_H_
 #define __OMNI_DRIVE_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "imu.h"
@@ -23,6 +24,14 @@ typedef struct {
   float target_wheel_angular[4];  // 直近に送信した目標車輪角速度 [rad/s] (クランプ前)
   uint8_t emg;
   uint8_t ready;
+  // WheelUnitから受信した状態バイト (bit0: mode≠0, bit1: 電源電圧範囲外, bit2: 過熱)
+  uint8_t wheel_status[4];
+  uint16_t wheel_frame_count[4];  // 正常に受信したフレーム数 (通信確認用、ラップアラウンドあり)
+  // 受信を再開した回数 (app.c の HAL_UART_ErrorCallback と、OmniDrive_Recv の受信監視の合計)
+  uint16_t wheel_rx_restart_count[4];
+  uint32_t wheel_last_frame_tick[4];  // 最後に正常なフレームを受信した時刻 [ms] (受信監視用)
+  bool wheel_rx_stalled[4];           // 受信が途絶えて再開を試みている最中か (診断ログを1回だけ出す用)
+  bool rx_monitor_started;            // 受信監視の開始済みか (初回の OmniDrive_Recv で時刻を初期化する)
   MAF maf[4];
   // 順運動学行列: 逆運動学 H (行 [-sinθi, cosθi, R]) の最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ
   // 車輪線速度 [m/s] に掛けると [vx, vy, ω] が得られる

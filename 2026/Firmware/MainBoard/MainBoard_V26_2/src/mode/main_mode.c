@@ -43,6 +43,9 @@ void MainMode_Loop(MainMode* self) {
 
     // ★ TCS性能検証用テスト (電源投入後10秒待機、2000mm/s最速加速、1.5m前後往復)
     LocalController_TestTCSAcceleration(&self->local_controller, r);
+
+    // ★ WheelUnit ID・回転方向・受信確認用テスト (機体を浮かせて実施)
+    // LocalController_TestWheelSpin(&self->local_controller, r);
   }
 
   Robot_UpdateHeartBeat(r);
