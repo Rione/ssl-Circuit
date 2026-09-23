@@ -152,6 +152,18 @@ void OmniDrive_SetFree(OmniDrive* self) {
   OmniDrive_Send(self, m, 0);  // command: 0 (Free)
 }
 
+// 電圧モード (command 2): 各輪の印加電圧 [V] を送る。WheelUnit側で ±MAX_AMP_VOLT(5V) にクランプされ、
+// 電源電圧での正規化もWheelUnit側で行われる。0V は空転ではなく短絡ブレーキになる。
+// ※ WheelUnitのホイールロック検知は +5.0V ちょうどが1秒続くと出力を切るので、上限張り付きに注意
+void OmniDrive_SetVoltage(OmniDrive* self, const float volt[4]) {
+  int16_t m[4];
+  for (int i = 0; i < 4; i++) {
+    m[i] = (int16_t)(Constrain(volt[i], -5.0f, 5.0f) * 100.0f);
+    self->target_wheel_angular[i] = 0.0f;
+  }
+  OmniDrive_Send(self, m, 2);  // command: 2 (Voltage)
+}
+
 void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
   static Timer timer = {0};
 

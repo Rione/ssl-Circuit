@@ -45,6 +45,8 @@ void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel
 void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle,
                         const Imu* imu);
 void OmniDrive_SetFree(OmniDrive* self);
+// 電圧モードで各輪の印加電圧 [V] を送る (0Vは短絡ブレーキ)
+void OmniDrive_SetVoltage(OmniDrive* self, const float volt[4]);
 void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command);
 void OmniDrive_Recv(OmniDrive* self);
 // 実測車輪速度からの機体速度 vel_x, vel_y [mm/s], vel_angle [mrad/s]

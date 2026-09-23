@@ -233,6 +233,111 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   }
 }
 
+// 電圧モードの単体評価用テスト (機体を浮かせて実施、4輪に同じ電圧をかける):
+// 起動5秒後から下の区間表を1回だけ流し、10ms周期で指令電圧と実測車輪速度をCSVでprintf出力する (USART1)。
+//   1. 定常の階段 (±0.5〜4V) … 逆起電力定数・摩擦電圧・前進後退の対称性
+//   2. ステップ (0→+2V→0→-2V→0) … 応答の時定数、0V (短絡ブレーキ) での減速
+//   3. ゆっくりしたランプ (0→±1.2V を6秒) … 動き出す電圧 (デッドバンド)
+// 最大4Vに抑える (WheelUnitのホイールロック検知は +5.0V ちょうどが1秒続くと出力を切る)
+typedef struct {
+  uint16_t duration_ms;
+  float v_start;  // 区間開始時の電圧 [V]
+  float v_end;    // 区間終了時の電圧 [V] (v_start と同じなら一定、違えば直線で変化)
+} VoltageTestSegment;
+
+static const VoltageTestSegment kVoltageTestSegments[] = {
+    // 1. 定常の階段 (正→負)
+    {1500, 0.5f, 0.5f}, {1500, 1.0f, 1.0f}, {1500, 1.5f, 1.5f},
+    {1500, 2.0f, 2.0f}, {1500, 3.0f, 3.0f}, {1500, 4.0f, 4.0f},
+    {1000, 0.0f, 0.0f},
+    {1500, -0.5f, -0.5f}, {1500, -1.0f, -1.0f}, {1500, -1.5f, -1.5f},
+    {1500, -2.0f, -2.0f}, {1500, -3.0f, -3.0f}, {1500, -4.0f, -4.0f},
+    {1000, 0.0f, 0.0f},
+    // 2. ステップ
+    {1500, 2.0f, 2.0f}, {1500, 0.0f, 0.0f}, {1500, -2.0f, -2.0f}, {1500, 0.0f, 0.0f},
+    // 3. ゆっくりしたランプ
+    {6000, 0.0f, 1.2f}, {1000, 0.0f, 0.0f}, {6000, 0.0f, -1.2f}, {1000, 0.0f, 0.0f},
+};
+
+void LocalController_TestVoltage(LocalController* self, Robot* robot) {
+  (void)self;
+  static uint32_t start_tick = 0;
+  static uint32_t last_log_ms = 0;
+  static bool is_header_printed = false;
+  static bool is_end_printed = false;
+  static uint16_t rx_restart_base = 0;
+
+  const uint32_t kStartupWaitMs = 5000;
+  const uint32_t kLogIntervalMs = 10;
+  const int kNumSegments = sizeof(kVoltageTestSegments) / sizeof(kVoltageTestSegments[0]);
+
+  // 安全確保: テスト中はキック・ドリブルを明示的にクリアし、放電状態を維持
+  robot->info.kicker.straight = 0;
+  robot->info.kicker.chip = 0;
+  robot->info.status.do_direct_straight = 0;
+  robot->info.status.do_direct_chip = 0;
+  Robot_SendDribble(robot, 0, 0);
+  Kicker_Discharge(&robot->kicker);
+
+  if (start_tick == 0) {
+    start_tick = HAL_GetTick();
+    if (start_tick == 0) start_tick = 1;
+  }
+  uint32_t elapsed_ms = HAL_GetTick() - start_tick;
+  OmniDrive* od = &robot->omni_drive;
+
+  if (elapsed_ms < kStartupWaitMs) {
+    OmniDrive_SetFree(od);
+    DigitalOut_Write(&robot->led0, (elapsed_ms / 500) % 2 == 0);
+    return;
+  }
+
+  // 現在の区間と指令電圧を求める
+  uint32_t t_ms = elapsed_ms - kStartupWaitMs;
+  uint32_t seg_start_ms = 0;
+  int seg = 0;
+  while (seg < kNumSegments && t_ms >= seg_start_ms + kVoltageTestSegments[seg].duration_ms) {
+    seg_start_ms += kVoltageTestSegments[seg].duration_ms;
+    seg++;
+  }
+  if (seg >= kNumSegments) {
+    OmniDrive_SetFree(od);
+    DigitalOut_Write(&robot->led0, 0);
+    if (!is_end_printed) {
+      printf("# voltage test end\n");
+      is_end_printed = true;
+    }
+    return;
+  }
+  const VoltageTestSegment* s = &kVoltageTestSegments[seg];
+  float ratio = (float)(t_ms - seg_start_ms) / (float)s->duration_ms;
+  float volt = s->v_start + (s->v_end - s->v_start) * ratio;
+  const float volts[4] = {volt, volt, volt, volt};
+  OmniDrive_SetVoltage(od, volts);
+  DigitalOut_Write(&robot->led0, 1);
+
+  // 10ms周期でログ出力 (s: 4輪の状態バイトを1桁ずつ並べた16進、vbat: 電源電圧 [V]、
+  // rx: テスト開始からの受信再開回数 (4輪合計))
+  uint16_t rx_restart = 0;
+  for (int i = 0; i < 4; i++) rx_restart += od->wheel_rx_restart_count[i];
+  if (!is_header_printed) {
+    printf("t_ms,seg,v_x100,w0_x100,w1_x100,w2_x100,w3_x100,s,vbat,rx\n");
+    is_header_printed = true;
+    rx_restart_base = rx_restart;
+    last_log_ms = t_ms;
+  } else if (t_ms - last_log_ms < kLogIntervalMs) {
+    return;
+  }
+  last_log_ms = t_ms;
+  unsigned status = (od->wheel_status[0] & 0xFU) | ((od->wheel_status[1] & 0xFU) << 4) |
+                    ((od->wheel_status[2] & 0xFU) << 8) | ((od->wheel_status[3] & 0xFU) << 12);
+  printf("%u,%d,%d,%d,%d,%d,%d,%04X,%u,%u\n", (unsigned)t_ms, seg, (int)(volt * 100.0f),
+         (int)(od->vel_wheel_angular[0] * 100.0f), (int)(od->vel_wheel_angular[1] * 100.0f),
+         (int)(od->vel_wheel_angular[2] * 100.0f), (int)(od->vel_wheel_angular[3] * 100.0f),
+         status, (unsigned)robot->info.battery_voltage,
+         (unsigned)(uint16_t)(rx_restart - rx_restart_base));
+}
+
 // WheelUnitのID・回転方向・受信チャンネル確認用テスト (機体を浮かせて実施):
 // 1. 電源投入後5秒待機 (LED0が0.5s周期で点滅)
 // 2. ID1→ID4の順に1輪ずつ、+8rad/s (2秒) → -8rad/s (2秒) → 停止 (1秒) を繰り返す (回転中はLED0点灯)
