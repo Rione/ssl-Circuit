@@ -6,7 +6,7 @@
 typedef struct {
   uint16_t t_ms;         // テスト開始からの時間 [ms]
   uint8_t tcs_on;        // 1: TCS有り, 0: TCS無し
-  uint8_t slip;          // bit0-2: TCS_SLIP_* / bit7: is_slipping
+  uint8_t slip;          // bit0-2: TCS_SLIP_* / bit6: 電圧制御のトルク上限が効いた / bit7: is_slipping
   int16_t target_vx;     // 目標速度X [mm/s]
   int16_t cmd_vx;        // TCS通過後の指令速度X [mm/s]
   int16_t odom_vx;       // オドメトリ速度 [mm/s]
@@ -62,7 +62,8 @@ void TcsLog_Record(uint32_t t_ms, bool tcs_on, int16_t target_vx_mmps, float gyr
   TcsLogSample* s = &samples[sample_count++];
   s->t_ms = (uint16_t)t_ms;
   s->tcs_on = tcs_on ? 1 : 0;
-  s->slip = (uint8_t)(tcs->slip_flags | (tcs->is_slipping ? 0x80U : 0x00U));
+  s->slip = (uint8_t)(tcs->slip_flags | (tcs->is_slipping ? 0x80U : 0x00U) |
+                      (omni_drive->volt_traction_limited ? 0x40U : 0x00U));
   s->target_vx = target_vx_mmps;
   s->cmd_vx = ToI16(tcs->current_vx * 1000.0f);
   s->odom_vx = ToI16(tcs->odom_vx * 1000.0f);

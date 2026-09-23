@@ -68,6 +68,8 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   self->use_voltage_control = false;
   for (int k = 0; k < 3; k++) self->vel_fb_integral[k] = 0.0f;
   self->volt_saturated = false;
+  self->volt_pi_saturated = false;
+  self->volt_traction_limited = false;
 #if OMNI_TX_AVOID_HEADER_BYTE
   // 応急処置が入ったFWであることをログで確認できるようにする (引き継ぎ文書 5.4)
   printf("# WORKAROUND: OMNI_TX_AVOID_HEADER_BYTE=1 (avoid 0xAA in WheelUnit TX data)\n");
@@ -147,10 +149,14 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     const TractionControl* tcs = &self->tcs;
     float meas_omega = (imu != NULL) ? imu->yaw_rate : in.odom_omega;
     float err[3] = {cmd_vx - in.odom_vx, cmd_vy - in.odom_vy, cmd_omega - meas_omega};
-    // スリップ中 (オドメトリが当てにならない) と電圧が上限に張り付いている間は積分を止める
-    if (!tcs->is_slipping && !self->volt_saturated) {
+    // 積分: スリップ中 (オドメトリが当てにならない) は全軸止める。出力を縮めている間は並進を止める
+    // (目標が実機より先に行って誤差が溜まり、加速の終わりで行き過ぎるのを防ぐ)。回転は、PIの分まで
+    // 縮めたときだけ止める (向きを直す力を残しつつ、効かない間に溜まって後で振れるのを防ぐ)
+    if (!tcs->is_slipping) {
       const float ki[3] = {VEL_FB_KI_LIN, VEL_FB_KI_LIN, VEL_FB_KI_ANG};
       for (int k = 0; k < 3; k++) {
+        if (k < 2 && self->volt_saturated) continue;
+        if (k == 2 && self->volt_pi_saturated) continue;
         self->vel_fb_integral[k] = Constrain(self->vel_fb_integral[k] + ki[k] * err[k] * dt,
                                              -VEL_FB_I_MAX_V, VEL_FB_I_MAX_V);
       }
@@ -160,21 +166,68 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     float uy = VEL_FB_KP_LIN * err[1] + self->vel_fb_integral[1];
     float uw = VEL_FB_KP_ANG * err[2] + self->vel_fb_integral[2];
 
-    int16_t mv[4];
-    bool saturated = false;
+    // 出力の整形: 各輪の電圧を「今の速度で転がり続けるための電圧 (center)」と、それを超える分
+    // (加減速のトルクに当たる) に分ける。超える分はさらに FF の分 (目標の加減速) と PI の分 (向き・横ずれ・
+    // 速度の誤差を直す) に分け、上限を超えそうなら **先に FF の分を** 4輪同じ比率で縮める。
+    // それでも収まらないときだけ PI の分も同じ比率で縮める。
+    //  - 上限は2つ: 電圧上限 (±WHEEL_VOLT_MAX) と、トルク上限 (±VOLT_TRACTION_LIMIT_V。滑らずに出せる
+    //    加速ぶんの電圧。TCS の accel_gain は掛けない)
+    //  - 輪ごとに切り詰めると、その輪だけトルクが減って機体を回す力が生まれる (3.0m/s で逆転側の輪が
+    //    電圧上限に張り付き、機体が半回転した)。同じ比率で縮めれば機体に掛かる力の向きは変わらない
+    //  - PI も一緒に縮めていたときは、加速中ほぼずっと向き・横ずれの補正が弱まり、前後左右にぶれた
+    //  - center は各輪の実際の回転数から出す (超える分＝モータトルクの上限になる)。
+    //    IMUが無いとき (浮かせた確認) は center=0 とし、電圧上限だけで縮める
+    bool use_traction_limit = (imu != NULL);
+
+    float center[4], ff_excess[4], pi_excess[4], allowed[4];
     for (int i = 0; i < 4; i++) {
       float sin_t = SinDeg(ROBOT_MOTOR_DEGREE[i]);
       float cos_t = CosDeg(ROBOT_MOTOR_DEGREE[i]);
       float alpha_wheel = (-tcs->current_ax * sin_t + tcs->current_ay * cos_t +
                            ROBOT_WHEEL_BASE_RADIUS * tcs->current_alpha) /
                           ROBOT_WHEEL_RADIUS;
-      float volt = WheelVoltage_Feedforward(i, target_wheel_angular[i], alpha_wheel) +
-                   (-ux * sin_t + uy * cos_t + uw);
-      if (volt > WHEEL_VOLT_MAX || volt < -WHEEL_VOLT_MAX) saturated = true;
+      // center は各輪の実際の回転数で転がり続ける電圧。超える分がそのままモータのトルク (電流) になる。
+      // 以前は推定した対地速度から出していたが、減速中のスリップ判定の間は推定 (IMU積分のみ) が
+      // 実速度より0.6m/sほど高いまま残り、ブレーキ側のトルクがほとんど出せず行き過ぎた
+      center[i] = 0.0f;
+      if (use_traction_limit) {
+        center[i] = WheelVoltage_Feedforward(i, self->vel_wheel_angular[i], 0.0f);
+      }
+      ff_excess[i] = WheelVoltage_Feedforward(i, target_wheel_angular[i], alpha_wheel) - center[i];
+      pi_excess[i] = -ux * sin_t + uy * cos_t + uw;
+      // 超える分に許す大きさ (電圧上限までの余裕と、トルク上限の小さい方)
+      allowed[i] = fmaxf(WHEEL_VOLT_MAX - fabsf(center[i]), 0.0f);
+      if (use_traction_limit) allowed[i] = fminf(allowed[i], VOLT_TRACTION_LIMIT_V);
+    }
+
+    // 1) PI の分だけで上限を超える輪があれば、PI の分を縮める (このとき FF の分は0)
+    float pi_scale = 1.0f;
+    for (int i = 0; i < 4; i++) {
+      float mag = fabsf(pi_excess[i]);
+      if (mag > allowed[i]) pi_scale = fminf(pi_scale, allowed[i] / mag);
+    }
+    // 2) PI の分を残したうえで入れられる FF の分の最大の比率。|s·f + p| ≤ a を満たす s の上限
+    //    (|p| ≤ a なので s=0 は必ず満たす)
+    float ff_scale = 1.0f;
+    for (int i = 0; i < 4; i++) {
+      float f = ff_excess[i];
+      if (fabsf(f) < 1e-6f) continue;
+      float p = pi_scale * pi_excess[i];
+      float hi = (f > 0.0f) ? (allowed[i] - p) / f : (-allowed[i] - p) / f;
+      ff_scale = fminf(ff_scale, hi);
+    }
+    ff_scale = fmaxf(ff_scale, 0.0f);
+
+    int16_t mv[4];
+    for (int i = 0; i < 4; i++) {
+      float volt = center[i] + ff_scale * ff_excess[i] + pi_scale * pi_excess[i];
       self->cmd_voltage[i] = Constrain(volt, -WHEEL_VOLT_MAX, WHEEL_VOLT_MAX);
       mv[i] = (int16_t)(self->cmd_voltage[i] * 100.0f);
     }
-    self->volt_saturated = saturated;
+    // 縮めている間は積分を止める (次の周期で参照。並進は FF か PI を縮めたとき、回転は PI を縮めたとき)
+    self->volt_saturated = (ff_scale < 0.999f) || (pi_scale < 0.999f);
+    self->volt_pi_saturated = (pi_scale < 0.999f);
+    self->volt_traction_limited = self->volt_saturated;
     OmniDrive_Send(self, mv, 2);  // command: 2 (Voltage)
     return;
   }
@@ -202,6 +255,8 @@ void OmniDrive_SetFree(OmniDrive* self) {
   }
   for (int k = 0; k < 3; k++) self->vel_fb_integral[k] = 0.0f;
   self->volt_saturated = false;
+  self->volt_pi_saturated = false;
+  self->volt_traction_limited = false;
   int16_t m[4] = {0, 0, 0, 0};
   OmniDrive_Send(self, m, 0);  // command: 0 (Free)
 }

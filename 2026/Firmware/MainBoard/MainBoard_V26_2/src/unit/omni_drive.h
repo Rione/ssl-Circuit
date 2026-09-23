@@ -39,6 +39,8 @@ typedef struct {
   // 電圧制御の機体速度PIの積分項 [V] (x, y: 並進、w: 回転。OmniDrive_SetFree で0に戻す)
   float vel_fb_integral[3];
   bool volt_saturated;                // 前周期にどれかの輪の電圧が上限に張り付いたか (積分を止める)
+  bool volt_pi_saturated;             // 前周期に PI の分まで縮めたか (回転の積分も止める)
+  bool volt_traction_limited;         // 前周期に出力を縮めたか (電圧上限・トルク上限。ログ用)
   MAF maf[4];
   // 順運動学行列: 逆運動学 H (行 [-sinθi, cosθi, R]) の最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ
   // 車輪線速度 [m/s] に掛けると [vx, vy, ω] が得られる

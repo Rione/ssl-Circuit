@@ -84,6 +84,8 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   static float heading_yaw_rad = 0.0f; // 走行開始を基準0とする純ジャイロ積分ヘディング [rad]
   static uint8_t log_divider = 0;
   static bool is_log_dumped = false;
+  static bool is_aborted = false;      // 安全停止した (以後は終了時と同じくブレーキして記録を出力)
+  static uint32_t abort_elapsed_ms = 0;
 
   const uint32_t kStartupWaitMs = 10000;   // 起動後待機時間 [ms] (10秒)
   const uint32_t kTestDurationMs = 10000;  // テスト走行時間 [ms] (10秒)
@@ -118,11 +120,12 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
     return;
   }
 
-  // 4. テスト開始から10秒経過 (起動後20秒以降): 完全自動停止
-  if (elapsed_ms >= kTotalTestTimeMs) {
+  // 4. テスト開始から10秒経過 (起動後20秒以降) または安全停止: 完全自動停止
+  if (elapsed_ms >= kTotalTestTimeMs || is_aborted) {
     OmniDrive_SetFree(&robot->omni_drive);
 
-    uint32_t dump_wait_elapsed_ms = elapsed_ms - kTotalTestTimeMs;
+    uint32_t end_ms = is_aborted ? abort_elapsed_ms : kTotalTestTimeMs;
+    uint32_t dump_wait_elapsed_ms = elapsed_ms - end_ms;
     if (dump_wait_elapsed_ms < kDumpDelayMs) {
       // CSV出力開始までの待機中: シリアルターミナルの準備時間として0.5秒周期で点滅
       if ((dump_wait_elapsed_ms / 500) % 2 == 0) {
@@ -183,25 +186,35 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   // odom_vxとground_vx(IMU融合の対地速度)の両方が到達を示すまで待つことで、
   // 急反転時の車輪スリップにより片方だけが早期に「到達した」と示しても反転しない
   // ようにする(多少反転が遅れる方向にのみ誤差が出る、行き過ぎ防止)
-  float fwd_progress_m = (x_pos_odom_m < x_pos_ground_m) ? x_pos_odom_m : x_pos_ground_m;
-  float bwd_progress_m = (x_pos_odom_m > x_pos_ground_m) ? x_pos_odom_m : x_pos_ground_m;
-  const float kTargetDistance_m = 1.5f;
-  if (direction == 1 && fwd_progress_m >= kTargetDistance_m) {
-    direction = -1;  // 前進限界到達 -> 後退へ反転
-    // 誤差の蓄積を防ぐため、区間の境界値に位置をスナップしてから次区間を開始する
-    x_pos_odom_m = kTargetDistance_m;
-    x_pos_ground_m = kTargetDistance_m;
-  } else if (direction == -1 && bwd_progress_m <= 0.0f) {
-    direction = 1;  // 原点帰還到達 -> 前進へ反転
-    x_pos_odom_m = 0.0f;
-    x_pos_ground_m = 0.0f;
+  // 反転 (減速開始) の位置は、今の速度から止まるのに要る距離 v²/(2×TEST_TCS_BRAKE_DECEL) だけ手前にする。
+  // 区間の端で反転すると、3m/s では止まるまでに約1m行き過ぎた。行き過ぎを防ぐ向きに判定するため、
+  // 前進はオドメトリと対地速度推定の位置の大きい方、後退は小さい方を使う。
+  // 位置は区間の境界にスナップしない (手前で反転するので、スナップすると実際の位置からずれる)
+  // 止まるのに要る距離は、その向きに進んでいるときだけ使う。以前は速度の大きさで計算していたため、
+  // 後退へ切り替えた直後 (まだ前へ進んでいる) に後退側の判定も成り立って前進へ戻り、1msごとに
+  // 前進と後退が入れ替わって減速が始まらず、行き過ぎていた
+  float vx = robot->omni_drive.tcs.odom_vx;
+  float stop_fwd_m = (vx > 0.0f) ? vx * vx / (2.0f * TEST_TCS_BRAKE_DECEL) : 0.0f;
+  float stop_bwd_m = (vx < 0.0f) ? vx * vx / (2.0f * TEST_TCS_BRAKE_DECEL) : 0.0f;
+  float fwd_progress_m = (x_pos_odom_m > x_pos_ground_m) ? x_pos_odom_m : x_pos_ground_m;
+  float bwd_progress_m = (x_pos_odom_m < x_pos_ground_m) ? x_pos_odom_m : x_pos_ground_m;
+  const float kTargetDistance_m = TEST_TCS_DISTANCE_M;
+  if (direction == 1 && fwd_progress_m + stop_fwd_m >= kTargetDistance_m) {
+    direction = -1;  // 前進側の端の手前 -> 後退へ反転
+  } else if (direction == -1 && bwd_progress_m - stop_bwd_m <= 0.0f) {
+    direction = 1;  // 原点の手前 -> 前進へ反転
   }
 
-  // 8. TCSは前後どちらの区間でも常時有効 (ON/OFF比較はやめ、TCS自体の改善に集中する)
-  robot->omni_drive.tcs.config.enable_tcs = true;
+  // 8. TCSの介入 (accel_gain でS字の加速度上限を下げる、対地速度への指令の引き戻し) は速度モードのときだけ。
+  //    電圧制御では輪ごとのトルク上限がトラクション制御を担うので、TCSは対地速度推定とスリップ判定だけ行う
+  //    (介入を残すと、スリップ判定のたびに加速度上限が下がり、加速・減速が1.5m/s²程度しか出なかった)
+  robot->omni_drive.tcs.config.enable_tcs = !TEST_TCS_USE_VOLTAGE_CONTROL;
   robot->omni_drive.tcs.config.enable_s_curve = true;
-  // 出力を電圧制御 (フィードフォワードのみ) にするか (parammeter.h の TEST_TCS_USE_VOLTAGE_CONTROL)
+  // 出力を電圧制御にするか (parammeter.h の TEST_TCS_USE_VOLTAGE_CONTROL)。電圧制御のときは
+  // S字の加速度上限を実際に出せる値に合わせる (目標が実機より先へ行きすぎないように)
   robot->omni_drive.use_voltage_control = TEST_TCS_USE_VOLTAGE_CONTROL;
+  robot->omni_drive.tcs.config.max_accel =
+      TEST_TCS_USE_VOLTAGE_CONTROL ? VOLT_MODE_MAX_ACCEL : TCS_MAX_ACCEL;
 
   // 9. LED0 表示: テスト走行中は常時点灯
   DigitalOut_Write(&robot->led0, 1);
@@ -221,8 +234,23 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   target_omega_rad = Constrain(target_omega_rad, -3.0f, 3.0f);
   int16_t target_omega = (int16_t)(target_omega_rad * 1000.0f);
 
+  // 安全停止: 向きが大きくずれた、または走行範囲を大きくはみ出したら、その場でブレーキして終了する
+  // (電圧制御で機体が半回転して走り去ったことがあったため。記録は終了時と同じく後で出力する)
+  if (fabsf(heading_yaw_rad) > TEST_TCS_ABORT_HEADING_RAD ||
+      x_pos_odom_m > kTargetDistance_m + TEST_TCS_ABORT_OVERRUN_M ||
+      x_pos_odom_m < -TEST_TCS_ABORT_OVERRUN_M) {
+    is_aborted = true;
+    abort_elapsed_ms = elapsed_ms;
+    OmniDrive_SetFree(&robot->omni_drive);
+    TcsLog_Record(elapsed_ms - kStartupWaitMs, true, 0, robot->imu.yaw_rate, &robot->omni_drive);
+    printf("# TCS test aborted: t=%u heading=%d mrad x_odom=%d mm\n",
+           (unsigned)(elapsed_ms - kStartupWaitMs), (int)(heading_yaw_rad * 1000.0f),
+           (int)(x_pos_odom_m * 1000.0f));
+    return;
+  }
+
   // 11. 2000mm/s 加速指令
-  const int16_t kMaxSpeed_mmps = 2000;
+  const int16_t kMaxSpeed_mmps = TEST_TCS_SPEED_MMPS;
   int16_t target_vx = kMaxSpeed_mmps * direction;
 
   OmniDrive_SetVelEx(&robot->omni_drive, target_vx, 0, target_omega, &robot->imu);

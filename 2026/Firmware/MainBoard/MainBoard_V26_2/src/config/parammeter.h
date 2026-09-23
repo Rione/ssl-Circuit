@@ -57,8 +57,9 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define OMNI_TX_AVOID_HEADER_BYTE 1
 
 // 電圧制御のフィードフォワード (src/control/wheel_voltage.c)
-// 加速に使う電圧 [V/(rad/s^2)]。床のデータでは 0.0005〜0.008 とばらついた (引き継ぎ文書 5.6) ので小さめ
-#define WHEEL_VOLT_KA 0.004f
+// 加減速に使う電圧 [V/(rad/s^2)]。3.0m/sテストの加速区間で、機体1m/s²あたり1輪約0.45V (車輪の角加速度に
+// 直すと約0.016) 要っていた。0.004 では減速が約2m/s²しか出ず、行き過ぎた
+#define WHEEL_VOLT_KA 0.015f
 // 床の上の負荷分の電圧 (輪ごとの値は wheel_voltage.c) を足すか。浮かせて試すときは 0 にする
 #define WHEEL_VOLT_USE_LOAD_FF 1
 #define WHEEL_VOLT_MAX 4.9f        // 印加電圧の上限 [V] (WheelUnitは +5.0V ちょうどが1秒続くと出力を切る)
@@ -70,9 +71,29 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define VEL_FB_KP_ANG 0.1f   // 回転 P [V/(rad/s)] (4輪に同じ電圧を足すと約13.6(rad/s)/V で回る)
 #define VEL_FB_KI_ANG 0.4f   // 回転 I [V/(rad/s·s)]
 #define VEL_FB_I_MAX_V 2.0f  // 積分項の上限 [V] (ワインドアップ防止)
+
+// 電圧制御のトルク上限 (トラクション制御): 各輪の電圧を、その輪の実際の回転数で転がり続ける電圧
+// ± VOLT_TRACTION_LIMIT_V に抑える (＝モータトルクの上限。超えるときは4輪を同じ比率で縮め、
+// 向き・横ずれを直すPIの分を優先して残す)。電圧制御ではTCSの accel_gain による介入は使わない
+// (TCSテストで enable_tcs=false)。
+// 1.3V では車輪はほぼ滑らず (実測と対地速度の回転数の差は中央値 −2%)、加減速は約2.5m/s²しか出なかった
+// ので 2.0V に上げて様子を見る (3.0m/s テスト、引き継ぎ文書 5.8)
+#define VOLT_TRACTION_LIMIT_V 2.0f
+// 電圧制御のときのS字加減速の加速度上限 [m/s^2] (速度モードの TCS_MAX_ACCEL=18 は実機で出ない)。
+// 目標が実機より先へ行きすぎないよう、出せる加速度に近い値にする
+#define VOLT_MODE_MAX_ACCEL 4.0f
+
 // TCSテスト (LocalController_TestTCSAcceleration) の出力を電圧制御にするか (1: 電圧, 0: 速度モード)。
 // 試合の経路 (Robot_SendOmniDrive) には影響しない (OmniDrive.use_voltage_control の既定は false)
 #define TEST_TCS_USE_VOLTAGE_CONTROL 1
+#define TEST_TCS_SPEED_MMPS 3000   // TCSテストの目標速度 [mm/s]
+#define TEST_TCS_DISTANCE_M 2.0f   // TCSテストの往復距離 [m] (前後に約0.5mの空きが要る)
+// TCSテストで減速を始める位置を決める想定の減速度 [m/s^2]。残りの距離 ≤ v²/(2×これ) で反転を指令する
+// (区間の端で反転すると、3m/s では止まるまでに約1m行き過ぎる。4.0 ではまだ約0.6m行き過ぎた。
+//  トルク上限2.0Vでの実際の減速は約2.4〜2.9m/s²だったので2.5にする)
+#define TEST_TCS_BRAKE_DECEL 2.5f
+#define TEST_TCS_ABORT_HEADING_RAD 0.785f  // TCSテストの安全停止: ヘディングのずれ [rad] (45°)
+#define TEST_TCS_ABORT_OVERRUN_M 0.5f      // TCSテストの安全停止: 往復区間からのはみ出し [m] (前後の空きに合わせる)
 
 #define ROBOT_KICK_INTERVAL_MS ((uint32_t)1000)  // キック間隔[ms]
 #define ROBOT_KICKER_SIGNAL_INTERVAL_MS \
