@@ -81,6 +81,22 @@
   - **現在は `0`。保存値: GyroBias X +0.495、Y −0.976、Z −0.551 [dps]、AccelBias X −0.0147、Y −0.0112 [g]。**
 - 修正後: 測定中の標準偏差は0.03dps（浮かせた機体で車輪が1輪回っている中でも0.11dps）。バイアスZは2回とも −0.551〜−0.552dps。ヨー角のずれは保存値でも約0.4°/分以下。
 
+### 4.2 新FW・IMU修正後の速度モード基準データ（手順3、2026-09-23、`docs/data/tcs_speed_baseline_20260923.csv`）
+TCSテスト（2m/s、1.5m往復、TCS常時有効）を1回。10秒間で7回反転し、997サンプル。区間は `cmd_vx` で分けた（巡航 = |cmd_vx| ≥ 1.99m/s）。
+- **車輪が目標より速く回る問題は、新FWでも残っている**（`w/t` の平均）:
+
+  | 区間 | w0 | w1 | w2 | w3 | 旧FW（4章） |
+  |---|---|---|---|---|---|
+  | 前進巡航 | 1.08 | 1.23 | 1.16 | 1.09 | +7〜17% |
+  | 後退巡航 | 1.18 | 1.07 | 1.05 | 1.27 | w0・w3 が +30〜50% |
+
+  - オドメトリの機体速度も、巡航中に +2.26 / −2.31m/s（指令±2.0）。機体全体が約13〜15%速い。4輪そろって速いので、WheelUnit速度モードのFF（`K_SPEED_FF=0.052`）が実際の逆起電力定数より大きい可能性がある → 手順4で測る。
+- **ヨー**: 最大3.09rad/s（反転時）。後退巡航中の平均が −0.67rad/s（ヘディング保持の指令は平均 −0.48rad/s で、追いついていない）。ジャイロ積分のヘディングは走行中に最大 −48° ずれた（終了時は −5°）。
+- **スリップ判定**: `is_slipping` が前進巡航の65%、後退巡航の91%で立っている（主に幾何残差。巡航中の平均13〜18rad/s、閾値15）。`accel_gain` の平均は約0.5で、0.25まで下がる。旧FWと同じく、4輪の押し合いを「スリップ」と誤判定し続けている。
+- `ground_vy` は ±0.8m/s（後退では −1.3m/s）まで振れる。平均はほぼ0。`odom_vy` は ±0.5m/s。
+- **受信の途絶え**: 走行中（ST-Link を外していた）は0回。走行後に ST-Link を挿してからは約1.8回/秒（→5.2）。
+- まとめ: IMUを直し、新FWにしても、**速度モードの4輪独立制御による押し合い（速度のずれ → ヨー → スリップ誤判定 → 加速度制限の張り付き）は変わらない。** 電圧制御へ移行する理由がそのまま残っている。
+
 ## 5. WheelUnit 最新FW（`origin/FW/WheelDriver_V26.3` @ `422560b8`）の仕様と注意点
 - **通信**（UART 250kbps 8N1）:
   - MainBoard→WheelUnit: `0xAA, cmd, m0H, m0L, m1H, m1L, m2H, m2L, m3H, m3L, 0xFF`（11byte）
@@ -128,19 +144,22 @@
 - **対策: ソフトウェアの受信監視**（`OmniDrive_MonitorRx`、`omni_drive.c`）。最後の正常フレームから20ms（`OMNI_RX_TIMEOUT_MS`）たった輪は、`Serial_RestartRx`（`CommonLib-C/serial/serial.h`、送信DMAは止めない）で受信を再開する。途絶えるたびに1回だけ `# rx_stall wheel=… SR=… CR3=… NDTR=… EN=… RxState=… Err=…` を出す。再開回数は `wheel_rx_restart_count[4]`。`app.c` の `HAL_UART_ErrorCallback`（DMAエラー用）も同じ関数で再開する。
   - 24Vを切って入れ直す試験で、WheelUnit の起動と同時に4輪とも受信が戻ることを確認した。戻った直後の約0.5秒は状態バイト3（電源電圧範囲外）、その後は通常どおり。
 - ⚠ **未解決: 普段の運転中にも、数秒に1回、どれかの輪の受信が20msほど途絶える**（その100msの受信数が約497→320〜460）。受信監視ですぐ戻る。途絶えたときのUSARTはノイズフラグ（NF）あり、DMAは受信中で正常。24Vを入れ直した直後の42秒間は1回も起きず、MainBoard をリセットした後に再び起きるようになった。WheelUnit 側（MainBoard が止まっている間の受信タイムアウトで `Serial_Reset` が送信DMAも止める、など）の関与が疑わしいが未確認。途絶えている間の車輪速度は古い値のままなので、電圧制御では `wheel_rx_stalled[i]` を見て扱うこと。
+  - 受信バッファを128→1024byte（`ROBOT_SERIAL_BUF_SIZE`）にしても減らなかった（あふれは原因ではなかった）。
+  - **TCSテスト（4.2）では、ST-Link を外していた走行中の10秒間は0回。挿した後は停車中もCSV出力中も約1.8回/秒。** ST-Link（PCのUSB）をつないだことによるノイズ、または停車中（mode 0 のブレーキ）の何かが疑わしい。試合中（ST-Link なし・走行中）は起きていない可能性が高いが、未確認。
 
 ## 6. テスト・ログ環境（MainBoard）
 - テスト: `LocalController_TestTCSAcceleration`。Rock5Aから未受信のとき `main_mode.c` から呼ばれる。
   - 0〜10s 静止待機（LED0 0.5s点滅）
   - 10〜20s 2000mm/sで1.5m前後往復（TCS常時有効、ジャイロ積分ヘディングのPD保持 Kp=2.5, Kd=0.2）
-  - 20s以降停止。さらに40s後にCSVを出力する。
+  - 20s以降停止。さらに60s後（電源投入の約80s後）にCSVを出力する。走行中は ST-Link を外し、止まってから挿してログを取る。
   - ⚠ Rock5A接続中に信号が途切れても、このテストが動く経路のまま。試合前に `LocalController_Stop` に戻すこと。
   - テスト側の分岐に入る条件は、Rock5A パケットの status バイト（bit0=emergency_stop、bit5=is_signal_received）だけで決まる。Rock5Aを付けたままでも、上位の指令が来ていなければテストが動く（LED2消灯で判別）。emergency_stop=1 のときもテストは動くので、必ず機体を浮かせる。
   - ⚠ MainBoard には Rock5A 受信のタイムアウトが無い（`rock_last_recv_tick` は記録だけで未使用）。is_signal_received=1 を送った後で Rock5A が止まると、最後の指令が残る。
 - `LocalController_TestWheelSpin`: 起動5秒後から、ID1→4の順に1輪ずつ +8rad/s（2s）→ −8rad/s（2s）→ 停止（1s）を繰り返す。100msごとに `t_ms,wheel_id,cmd_x100,w0..w3_x100,s0..s3,f0..f3,e0..e3,gyro_mrad,yaw_mrad,ax_cm,ay_cm` を出す（s=状態バイト、f=直近100msの受信フレーム数、e=受信を再開した累計回数、残りはIMUの角速度・ヨー角・機体座標の加速度）。`main_mode.c` ではコメントアウトして残してある。
 - ST-Link の仮想COMポート（COM3）が MainBoard の USART1 につながっていて、MainBoard は ST-Link の3.3Vで動く（24Vが切れていても動く）。起動ログを取りたいときは、ロガーを起動してから `STM32_Programmer_CLI -c port=SWD -hardRst` でリセットすれば、機体に触らずに取れる。動作中の変数は `arm-none-eabi-gdb -batch -ex "print &robot.imu.yaw_rad" build/MainBoard_V26_2.elf` でアドレスを調べ、`STM32_Programmer_CLI -c port=SWD mode=HOTPLUG -r32 <addr> 1` で読める。
 - CSV: USART1（PA9/PA10, **250000bps 8N1**）。10ms周期・最大1000サンプル。
-  - 列: `t_ms,tcs_on,slip,target_vx,cmd_vx,odom_vx,odom_vy,ground_vx,ground_vy,a_odom_x_cm,a_imu_x_cm,accel_res_cm,geom_res_x10,rot_res_mrad,accel_gain_x1000,w0..w3_x100,cmd_vy,cmd_w_mrad,gyro_mrad,t0..t3_x100`
+  - 列: `t_ms,tcs_on,slip,target_vx,cmd_vx,odom_vx,odom_vy,ground_vx,ground_vy,a_odom_x_cm,a_imu_x_cm,accel_res_cm,geom_res_x10,rot_res_mrad,accel_gain_x1000,w0..w3_x100,cmd_vy,cmd_w_mrad,gyro_mrad,t0..t3_x100,rx_stall,rx_restart`
+    - `rx_stall`: bit i = 輪 i の受信が途絶えている最中（その間の `w*` は古い値）。`rx_restart`: 記録開始からの受信再開回数（4輪合計）。
   - `slip`: bit0=幾何、bit1=旋回、bit2=加速度、bit7=is_slipping
   - `_write` は送信タイムアウト10msなので、250kbpsでは1回の送信は約250文字まで。長いヘッダは `fputs` と `fflush` で分割している。
 - ログ取得: USB-UART の RX を PA9、GND 同士をつなぎ、`powershell -ExecutionPolicy Bypass -File tools\serial_log.ps1 -Port COM3 -Seconds 60`（`-List` でポート一覧、`-Out` で保存先指定。省略時は `logs/serial_日時.csv`、`logs/` は git 対象外）。ポートを開く前にドライバに溜まっていた古い行が先頭に混ざることがある。
@@ -150,9 +169,8 @@
 ## 7. 次にやること（推奨順）
 1. ~~**WheelUnit最新FWをpullして4輪に書き込む**~~ → **完了（2026-09-23、結果は5.1・5.2）。**
 2. ~~**IMUのキャリブレーション状態を確認する**~~ → **完了（2026-09-23、結果は4.1）。起動時の測定を修正し、フラッシュ保存に対応。**
-3. 速度モードのまま今のTCSテストを1回走らせ、`w*` と `t*` を比べて、新FWでの基準データにする。`main_mode.c` は TCS テストに戻してある。
-   - IMUと受信監視を直した後の最初のTCSテストなので、4章の現象（横ずれ、`ground_vy` のずれ、`accel_gain` の張り付き）が残るかも見る。
-   - 手順4の前に、5.2の「普段の受信の途絶え」を調べる（WheelUnit側の送信間隔が仕様どおりでない件も合わせて）。
+3. ~~速度モードのまま今のTCSテストを1回走らせ、新FWでの基準データにする~~ → **完了（2026-09-23、結果は4.2）。押し合いの問題は変わらず。**
+   - 手順4の前後で、5.2の「普段の受信の途絶え」を調べる。ST-Link あり/なし、停車/走行で比べる。WheelUnit側の送信間隔が仕様どおりでない件も合わせて。
 4. **車輪を浮かせて電圧モードを単体評価する。** MainBoardにテストモード（`cmd=2`）を追加し、各輪にステップ電圧・ランプ電圧をかけて回転数を記録する。
    - 前進・後退の対称性
    - 逆起電力定数（0.052の妥当性）

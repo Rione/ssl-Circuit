@@ -16,7 +16,10 @@
 #include "timer.h"
 #include "ui.h"
 
-#define ROBOT_SERIAL_BUF_SIZE 128
+// UART受信のDMAリングバッファ [byte]。WheelUnitは通信路を使い切って送る (約25kB/s) ため、
+// 128byteでは約5ms分しか溜められず、printf 1行 (約5ms止まる) の間にあふれて受信が途絶えていた。
+// 1024byteで約40ms分
+#define ROBOT_SERIAL_BUF_SIZE 1024
 
 typedef struct {
   // Rock5A → STM32 受信データ --------------------------

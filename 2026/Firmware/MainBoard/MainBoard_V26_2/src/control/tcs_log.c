@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-// int16 固定小数で保持 (1サンプル50byte x 1000 = 約50KB)
+// int16 固定小数で保持 (1サンプル54byte x 1000 = 約54KB)
 typedef struct {
   uint16_t t_ms;         // テスト開始からの時間 [ms]
   uint8_t tcs_on;        // 1: TCS有り, 0: TCS無し
@@ -25,11 +25,21 @@ typedef struct {
   int16_t cmd_w;         // TCS通過後の指令角速度 (ヘディング制御の出力) [mrad/s]
   int16_t gyro_w;        // IMUヨーレート [mrad/s]
   int16_t target_wheel[4];  // 目標車輪角速度 [0.01rad/s] (wheel[] と直接比較できる)
+  // WheelUnitからの受信の健全性 (途絶えている間の wheel[] は古い値のまま)
+  uint8_t rx_stall;      // bit i: 輪 i の受信が途絶えて再開を試みている最中
+  uint16_t rx_restart;   // 記録開始からの受信再開回数 (4輪合計)
 } TcsLogSample;
 
 static TcsLogSample samples[TCS_LOG_MAX_SAMPLES];
 static uint16_t sample_count = 0;
 static uint16_t dump_index = 0;
+static uint16_t rx_restart_base = 0;  // 記録開始時の受信再開回数 (4輪合計)
+
+static uint16_t SumRxRestart(const OmniDrive* omni_drive) {
+  uint16_t sum = 0;
+  for (int i = 0; i < 4; i++) sum += omni_drive->wheel_rx_restart_count[i];
+  return sum;
+}
 
 static int16_t ToI16(float v) {
   if (v > 32767.0f) return 32767;
@@ -47,6 +57,7 @@ void TcsLog_Record(uint32_t t_ms, bool tcs_on, int16_t target_vx_mmps, float gyr
   if (sample_count >= TCS_LOG_MAX_SAMPLES) return;
 
   const TractionControl* tcs = &omni_drive->tcs;
+  if (sample_count == 0) rx_restart_base = SumRxRestart(omni_drive);
   TcsLogSample* s = &samples[sample_count++];
   s->t_ms = (uint16_t)t_ms;
   s->tcs_on = tcs_on ? 1 : 0;
@@ -72,6 +83,11 @@ void TcsLog_Record(uint32_t t_ms, bool tcs_on, int16_t target_vx_mmps, float gyr
   for (int i = 0; i < 4; i++) {
     s->target_wheel[i] = ToI16(omni_drive->target_wheel_angular[i] * 100.0f);
   }
+  s->rx_stall = 0;
+  for (int i = 0; i < 4; i++) {
+    if (omni_drive->wheel_rx_stalled[i]) s->rx_stall |= (uint8_t)(1U << i);
+  }
+  s->rx_restart = (uint16_t)(SumRxRestart(omni_drive) - rx_restart_base);
 }
 
 bool TcsLog_DumpStep(void) {
@@ -93,15 +109,15 @@ bool TcsLog_DumpStep(void) {
     fflush(stdout);
     fputs("w0_x100,w1_x100,w2_x100,w3_x100,cmd_vy,cmd_w_mrad,gyro_mrad,", stdout);
     fflush(stdout);
-    fputs("t0_x100,t1_x100,t2_x100,t3_x100\n", stdout);
+    fputs("t0_x100,t1_x100,t2_x100,t3_x100,rx_stall,rx_restart\n", stdout);
   } else if (dump_index - 2 < sample_count) {
     const TcsLogSample* s = &samples[dump_index - 2];
-    printf("%u,%u,%u,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+    printf("%u,%u,%u,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%u,%u\n",
            s->t_ms, s->tcs_on, s->slip, s->target_vx, s->cmd_vx, s->odom_vx, s->odom_vy,
            s->ground_vx, s->ground_vy, s->a_odom_x, s->a_imu_x, s->accel_res, s->geom_res,
            s->rot_res, s->accel_gain, s->wheel[0], s->wheel[1], s->wheel[2], s->wheel[3],
            s->cmd_vy, s->cmd_w, s->gyro_w, s->target_wheel[0], s->target_wheel[1],
-           s->target_wheel[2], s->target_wheel[3]);
+           s->target_wheel[2], s->target_wheel[3], s->rx_stall, s->rx_restart);
   } else {
     printf("# TCS log end\n");
     return true;

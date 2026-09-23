@@ -73,7 +73,7 @@ void LocalController_TestMoveForwardBack(LocalController* self, Robot* robot) {
 // 2. 10秒経過後テスト開始: 2000mm/sへの最速加減速で1.5m前後往復 (前後ともTCS常時有効)
 //    - 10ms周期でTCS内部状態をRAMに記録
 // 3. テスト開始から10秒経過 (起動後20秒以降) で完全自動停止 (LED0消灯)
-//    - 停止中に記録をCSVでprintf出力 (USART1)
+//    - さらに60秒待って (ST-Linkを挿す時間) から記録をCSVでprintf出力 (USART1)
 void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   (void)self;
   static uint32_t start_tick = 0;
@@ -88,7 +88,7 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   const uint32_t kStartupWaitMs = 10000;   // 起動後待機時間 [ms] (10秒)
   const uint32_t kTestDurationMs = 10000;  // テスト走行時間 [ms] (10秒)
   const uint32_t kTotalTestTimeMs = kStartupWaitMs + kTestDurationMs; // 合計時間 [ms] (20秒)
-  const uint32_t kDumpDelayMs = 40000;     // テスト終了からCSV出力開始までの待機時間 [ms] (40秒)
+  const uint32_t kDumpDelayMs = 60000;     // テスト終了からCSV出力開始までの待機時間 [ms] (60秒)
 
   // 1. 安全確保: テスト中はキック・ドリブルを明示的にクリアし、放電状態を維持
   robot->info.kicker.straight = 0;
