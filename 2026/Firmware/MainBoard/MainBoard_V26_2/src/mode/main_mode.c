@@ -42,7 +42,8 @@ void MainMode_Loop(MainMode* self) {
     // LocalController_TestMoveForwardBack(&self->local_controller, r);
 
     // ★ TCS性能検証用テスト (電源投入後10秒待機、2000mm/s最速加速、1.5m前後往復)
-    // LocalController_TestTCSAcceleration(&self->local_controller, r);
+    // (出力を電圧制御にするかは parammeter.h の TEST_TCS_USE_VOLTAGE_CONTROL)
+    LocalController_TestTCSAcceleration(&self->local_controller, r);
 
     // ★ WheelUnit ID・回転方向・受信確認用テスト (機体を浮かせて実施)
     // LocalController_TestWheelSpin(&self->local_controller, r);
@@ -51,7 +52,7 @@ void MainMode_Loop(MainMode* self) {
     // LocalController_TestVoltage(&self->local_controller, r);
 
     // ★ 電圧制御 (フィードフォワードのみ) の確認用テスト (機体を浮かせて実施。前後±2m/s・左右・旋回)
-    LocalController_TestVoltageFF(&self->local_controller, r);
+    // LocalController_TestVoltageFF(&self->local_controller, r);
   }
 
   Robot_UpdateHeartBeat(r);
