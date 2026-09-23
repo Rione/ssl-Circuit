@@ -44,7 +44,7 @@ static float WheelVoltage_Lookup(const float* table, float omega_abs) {
   return 0.0f;  // 到達しない
 }
 
-float WheelVoltage_Feedforward(int wheel, float omega_ref, float alpha_ref) {
+float WheelVoltage_Feedforward(int wheel, float omega_ref) {
   bool is_pos = omega_ref >= 0.0f;
   const float* table = is_pos ? kTableOmegaPos[wheel] : kTableOmegaNeg[wheel];
   float volt = WheelVoltage_Lookup(table, is_pos ? omega_ref : -omega_ref);
@@ -52,6 +52,5 @@ float WheelVoltage_Feedforward(int wheel, float omega_ref, float alpha_ref) {
 #if WHEEL_VOLT_USE_LOAD_FF
   volt += kLoadVolt[wheel] * Constrain(omega_ref / WHEEL_VOLT_LOAD_SIGN_WIDTH, -1.0f, 1.0f);
 #endif
-  volt += WHEEL_VOLT_KA * alpha_ref;
   return Constrain(volt, -WHEEL_VOLT_MAX, WHEEL_VOLT_MAX);
 }

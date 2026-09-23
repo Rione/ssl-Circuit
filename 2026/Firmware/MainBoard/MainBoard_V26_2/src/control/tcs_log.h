@@ -14,7 +14,8 @@
 
 void TcsLog_Reset(void);
 // omni_drive の直近の TCS 状態を1サンプル記録する (満杯なら何もしない)
-void TcsLog_Record(uint32_t t_ms, bool tcs_on, int16_t target_vx_mmps, float gyro_yaw_rate,
+// tag はCSVの tcs_on 列にそのまま入る (TCSテストは1、動作パターンのテストは区間の番号)
+void TcsLog_Record(uint32_t t_ms, uint8_t tag, int16_t target_vx_mmps, float gyro_yaw_rate,
                    const OmniDrive* omni_drive);
 // CSV を1行出力する。全行出力し終えたら true を返す
 bool TcsLog_DumpStep(void);

@@ -1,5 +1,6 @@
 #include "local_controller.h"
 
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -208,13 +209,10 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   // 8. TCSの介入 (accel_gain でS字の加速度上限を下げる、対地速度への指令の引き戻し) は速度モードのときだけ。
   //    電圧制御では輪ごとのトルク上限がトラクション制御を担うので、TCSは対地速度推定とスリップ判定だけ行う
   //    (介入を残すと、スリップ判定のたびに加速度上限が下がり、加速・減速が1.5m/s²程度しか出なかった)
-  robot->omni_drive.tcs.config.enable_tcs = !TEST_TCS_USE_VOLTAGE_CONTROL;
   robot->omni_drive.tcs.config.enable_s_curve = true;
-  // 出力を電圧制御にするか (parammeter.h の TEST_TCS_USE_VOLTAGE_CONTROL)。電圧制御のときは
-  // S字の加速度上限を実際に出せる値に合わせる (目標が実機より先へ行きすぎないように)
-  robot->omni_drive.use_voltage_control = TEST_TCS_USE_VOLTAGE_CONTROL;
-  robot->omni_drive.tcs.config.max_accel =
-      TEST_TCS_USE_VOLTAGE_CONTROL ? VOLT_MODE_MAX_ACCEL : TCS_MAX_ACCEL;
+  // 出力を電圧制御にするか (parammeter.h の TEST_TCS_USE_VOLTAGE_CONTROL)。TCSの介入の有無と
+  // S字の加速度上限もモードに合わせて切り替わる
+  OmniDrive_SetControlMode(&robot->omni_drive, TEST_TCS_USE_VOLTAGE_CONTROL);
 
   // 9. LED0 表示: テスト走行中は常時点灯
   DigitalOut_Write(&robot->led0, 1);
@@ -260,6 +258,191 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
     log_divider = 0;
     TcsLog_Record(elapsed_ms - kStartupWaitMs, true, target_vx, robot->imu.yaw_rate,
                   &robot->omni_drive);
+  }
+}
+
+// 動作パターンのテスト (床で実施、電圧制御): 前後・左右・斜め・その場旋回・旋回しながらの並進を順に行う。
+// スタート位置を原点、スタート時の前方を +x、左を +y とする床の座標で、各区間の移動量 (dx, dy) と
+// 向きの変化 (dθ) を目標にして動く (位置は車輪オドメトリ、向きはジャイロの積分)。
+// 目標への速度は min(上限, √(2×減速度×残り距離), P×残り距離) で決め、床の座標から機体の座標に直して
+// OmniDrive_SetVelEx に渡す (旋回しながらでも床に対してまっすぐ進む)。
+// 区間の終わり (残り3cm以内・向き3°以内) で0.3秒止まり、次の区間へ。
+// 移動量は TEST_PATTERN_SCALE 倍する (1.0 で前後・左右1m)。
+// 安全停止: 動く範囲 (x: -0.5〜倍率+0.5m, y: ±(倍率+0.5)m) を出た、向きのずれが大きい、区間が6秒で終わらない。
+// 30ms周期で RAM に記録し (tcs_on 列 = 区間の番号)、終了60秒後に CSV を出力する (TCSテストと同じ形式)
+typedef struct {
+  float dx_m, dy_m;   // 床の座標での移動量 [m]
+  float dtheta_rad;   // 向きの変化 [rad]
+} MotionSegment;
+
+static const MotionSegment kMotionSegments[] = {
+    {+1.0f, 0.0f, 0.0f},  {-1.0f, 0.0f, 0.0f},                        // 前後
+    {0.0f, +1.0f, 0.0f},  {0.0f, -2.0f, 0.0f}, {0.0f, +1.0f, 0.0f},   // 左右
+    {+0.7f, +0.7f, 0.0f}, {-0.7f, -0.7f, 0.0f},                       // 斜め (左前)
+    {+0.7f, -0.7f, 0.0f}, {-0.7f, +0.7f, 0.0f},                       // 斜め (右前)
+    {0.0f, 0.0f, +PI},    {0.0f, 0.0f, -PI},                          // その場旋回
+    {+1.0f, 0.0f, +PI},   {-1.0f, 0.0f, -PI},                         // 旋回しながら前後
+};
+
+void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
+  (void)self;
+  static uint32_t start_tick = 0;
+  static bool is_started = false;
+  static bool is_finished = false;
+  static bool is_log_dumped = false;
+  static uint32_t end_elapsed_ms = 0;
+  static int seg = 0;
+  static uint32_t seg_start_ms = 0;
+  static uint32_t settled_ms = 0;          // 区間の終わりの条件を満たし始めた時刻 (0: 満たしていない)
+  static float pos_x = 0.0f, pos_y = 0.0f, heading = 0.0f;  // 床の座標での位置 [m] と向き [rad]
+  static float target_x = 0.0f, target_y = 0.0f, target_heading = 0.0f;
+  static uint8_t log_divider = 0;
+  static Timer dt_timer = {0};
+
+  const uint32_t kStartupWaitMs = 10000;
+  const uint32_t kDumpDelayMs = 60000;
+  // 0.3秒 → 0.15秒。区間の切り替わりを詰める (速度そのものには関係ない)
+  const uint32_t kSettleMs = 150;
+  const uint32_t kSegmentTimeoutMs = 6000;
+  // 位置・向きの目標への近づき方。P だけの範囲 (残り距離 < 2a/Kp²) が広いと最後がゆっくりになる
+  // (Kp=3, a=2 では残り約0.44mから先で約0.9秒かかった)。
+  // kBrakeAccel はトルク上限引き上げ (2.0→2.4→3.2→2.8V) に合わせて 3.0→3.5→5.0→4.5 にした。
+  // 3.2V (kBrakeAccel=5.0) ではスリップが50〜87%まで増えたため、2.8Vに落ち着けた
+  const float kBrakeAccel = 4.5f;      // 位置の目標へ減速するときの想定減速度 [m/s^2]
+  const float kPosKp = 8.0f;           // [1/s]
+  const float kMaxAngVel = TEST_PATTERN_ANG_VEL_RADPS;   // [rad/s]
+  const float kBrakeAngAccel = TEST_PATTERN_ANG_BRAKE;  // [rad/s^2]
+  const float kHeadingKp = 10.0f;      // [1/s]
+  const float kHeadingKd = 0.5f;       // 角速度による減衰 [s] (オーバーシュート対策)
+  const int kNumSegments = sizeof(kMotionSegments) / sizeof(kMotionSegments[0]);
+
+  robot->info.kicker.straight = 0;
+  robot->info.kicker.chip = 0;
+  robot->info.status.do_direct_straight = 0;
+  robot->info.status.do_direct_chip = 0;
+  Robot_SendDribble(robot, 0, 0);
+  Kicker_Discharge(&robot->kicker);
+
+  if (start_tick == 0) {
+    start_tick = HAL_GetTick();
+    if (start_tick == 0) start_tick = 1;
+  }
+  uint32_t elapsed_ms = HAL_GetTick() - start_tick;
+  OmniDrive* od = &robot->omni_drive;
+
+  if (elapsed_ms < kStartupWaitMs) {
+    OmniDrive_SetFree(od);
+    DigitalOut_Write(&robot->led0, (elapsed_ms / 500) % 2 == 0);
+    return;
+  }
+
+  // 終了 (全区間を終えた、または安全停止) 後はブレーキし、60秒後に記録を出力する
+  if (is_finished) {
+    OmniDrive_SetFree(od);
+    uint32_t wait_ms = elapsed_ms - end_elapsed_ms;
+    if (wait_ms < kDumpDelayMs) {
+      DigitalOut_Write(&robot->led0, (wait_ms / 500) % 2 == 0);
+      return;
+    }
+    DigitalOut_Write(&robot->led0, 0);
+    if (!is_log_dumped) is_log_dumped = TcsLog_DumpStep();
+    return;
+  }
+
+  if (!is_started) {
+    is_started = true;
+    TCS_Reset(&od->tcs);
+    TcsLog_Reset();
+    Timer_Init(&dt_timer);
+    Timer_Reset(&dt_timer);
+    seg = 0;
+    seg_start_ms = elapsed_ms;
+    target_x = kMotionSegments[0].dx_m * TEST_PATTERN_SCALE;
+    target_y = kMotionSegments[0].dy_m * TEST_PATTERN_SCALE;
+    target_heading = kMotionSegments[0].dtheta_rad;
+  }
+
+  float dt = Timer_Read(&dt_timer);
+  Timer_Reset(&dt_timer);
+  if (dt <= 0.0f || dt > 0.05f) dt = (float)ROBOT_CONTROL_LOOP_DT_US * 1e-6f;
+
+  // 位置と向きの推定 (機体座標のオドメトリ速度を床の座標に直して積分)
+  heading += robot->imu.yaw_rate * dt;
+  float c = cosf(heading), s = sinf(heading);
+  float vx_body = od->tcs.odom_vx, vy_body = od->tcs.odom_vy;
+  pos_x += (vx_body * c - vy_body * s) * dt;
+  pos_y += (vx_body * s + vy_body * c) * dt;
+
+  // 目標への速度指令 (床の座標)
+  float ex = target_x - pos_x, ey = target_y - pos_y;
+  float dist = sqrtf(ex * ex + ey * ey);
+  float speed = fminf(TEST_PATTERN_SPEED_MPS, fminf(sqrtf(2.0f * kBrakeAccel * dist), kPosKp * dist));
+  float vx_world = (dist > 1e-3f) ? ex / dist * speed : 0.0f;
+  float vy_world = (dist > 1e-3f) ? ey / dist * speed : 0.0f;
+  // 向きの目標への近づき方は P (残り角度に比例) だけでなく、実際の角速度 (ジャイロ) で減衰させる
+  // D項も入れる (LocalController_TestTCSAcceleration のヘディング保持と同じ形)。P だけだと、
+  // 「この速さなら間に合う」という想定 (kBrakeAngAccel) と実際に減速できる速さがずれたときに
+  // 行きすぎては戻る振動になる (3.2Vのテストで±37°のリンギングが出た)。D項は誤差の大小に関わらず
+  // 常に効くので、想定と実際がずれていても行きすぎを抑えられる
+  float eh = target_heading - heading;
+  float ang_speed =
+      fminf(kMaxAngVel, fminf(sqrtf(2.0f * kBrakeAngAccel * fabsf(eh)), kHeadingKp * fabsf(eh)));
+  float omega = (eh >= 0.0f) ? ang_speed : -ang_speed;
+  omega -= kHeadingKd * robot->imu.yaw_rate;
+  omega = Constrain(omega, -kMaxAngVel, kMaxAngVel);
+  // 床の座標から機体の座標へ
+  float vx_cmd = vx_world * c + vy_world * s;
+  float vy_cmd = -vx_world * s + vy_world * c;
+
+  // 安全停止
+  const MotionSegment* ms = &kMotionSegments[seg];
+  const float kReach = TEST_PATTERN_SCALE;  // 区間の最大の移動量 (前・左右) [m]
+  bool out_of_area =
+      pos_x < -0.5f || pos_x > kReach + 0.5f || pos_y < -(kReach + 0.5f) || pos_y > kReach + 0.5f;
+  bool heading_off = fabsf(eh) > fabsf(ms->dtheta_rad) + 0.8f;
+  bool timeout = (elapsed_ms - seg_start_ms) > kSegmentTimeoutMs;
+  if (out_of_area || heading_off || timeout) {
+    OmniDrive_SetFree(od);
+    TcsLog_Record(elapsed_ms - kStartupWaitMs, (uint8_t)(seg + 1), 0, robot->imu.yaw_rate, od);
+    printf("# motion test aborted: seg=%d area=%d heading=%d timeout=%d x=%d y=%d mm th=%d mrad\n",
+           seg + 1, out_of_area, heading_off, timeout, (int)(pos_x * 1000.0f),
+           (int)(pos_y * 1000.0f), (int)(heading * 1000.0f));
+    is_finished = true;
+    end_elapsed_ms = elapsed_ms;
+    return;
+  }
+
+  OmniDrive_SetControlMode(od, true);
+  od->tcs.config.enable_s_curve = true;
+  OmniDrive_SetVelEx(od, (int16_t)(vx_cmd * 1000.0f), (int16_t)(vy_cmd * 1000.0f),
+                     (int16_t)(omega * 1000.0f), &robot->imu);
+  DigitalOut_Write(&robot->led0, 1);
+
+  if (++log_divider >= 30) {  // 30ms周期 (1000サンプルで30秒分。全区間で約25秒かかる)
+    log_divider = 0;
+    TcsLog_Record(elapsed_ms - kStartupWaitMs, (uint8_t)(seg + 1), (int16_t)(vx_cmd * 1000.0f),
+                  robot->imu.yaw_rate, od);
+  }
+
+  // 区間の終わり: 残り3cm以内・向き3°以内で0.3秒保ったら次の区間へ
+  if (dist < 0.03f && fabsf(eh) < 0.05f) {
+    if (settled_ms == 0) settled_ms = elapsed_ms;
+    if (elapsed_ms - settled_ms >= kSettleMs) {
+      settled_ms = 0;
+      seg++;
+      if (seg >= kNumSegments) {
+        is_finished = true;
+        end_elapsed_ms = elapsed_ms;
+        printf("# motion test finished\n");
+        return;
+      }
+      seg_start_ms = elapsed_ms;
+      target_x += kMotionSegments[seg].dx_m * TEST_PATTERN_SCALE;
+      target_y += kMotionSegments[seg].dy_m * TEST_PATTERN_SCALE;
+      target_heading += kMotionSegments[seg].dtheta_rad;
+    }
+  } else {
+    settled_ms = 0;
   }
 }
 

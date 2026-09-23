@@ -325,6 +325,8 @@ void Robot_SendKicker(Robot* self, RobotInfo* info) {
 
 void Robot_SendOmniDrive(Robot* self, RobotInfo* info, uint8_t interval) {
   (void)interval;
+  // Rock5A からの指令 (試合) を電圧制御で走らせるか (parammeter.h の ROBOT_USE_VOLTAGE_CONTROL)
+  OmniDrive_SetControlMode(&self->omni_drive, ROBOT_USE_VOLTAGE_CONTROL);
   OmniDrive_SetVelEx(&self->omni_drive, info->vel_x.vel, info->vel_y.vel,
                      info->vel_angular.vel, &self->imu);
 }

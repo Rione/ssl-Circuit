@@ -15,5 +15,6 @@ void LocalController_TestTCSAcceleration(LocalController *self, Robot *robot);
 void LocalController_TestWheelSpin(LocalController *self, Robot *robot);
 void LocalController_TestVoltage(LocalController *self, Robot *robot);
 void LocalController_TestVoltageFF(LocalController *self, Robot *robot);
+void LocalController_TestMotionPattern(LocalController *self, Robot *robot);
 
 #endif  // __LOCAL_CONTROLLER_H_

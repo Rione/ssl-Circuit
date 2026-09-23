@@ -45,6 +45,18 @@ static void OmniDrive_ComputeForwardKinematics(OmniDrive* self) {
       self->fk[r][i] = sum / det;
     }
   }
+
+  // 電圧制御の加減速ぶんとPIの補正を4輪に配る行列 (力の配分)。fkᵀ = H(HᵀH)⁻¹ は、機体の力と
+  // モーメントを最小の力で4輪に配る。並進の列は Σsin²θ 倍して前後の列を従来の −sinθ と同じにする
+  // (左右の列は約0.914 になり、従来の cosθ=0.574/0.707 の1.3〜1.6倍。55°/135°配置では左右の方が
+  // 1輪あたり大きな力が要るため)。回転の列は 4R 倍して、従来の「4輪に同じだけ」と同じ大きさにする
+  float sum_sin2 = 0.0f;
+  for (int i = 0; i < 4; i++) sum_sin2 += h[i][0] * h[i][0];
+  for (int i = 0; i < 4; i++) {
+    self->force_alloc[i][0] = self->fk[0][i] * sum_sin2;
+    self->force_alloc[i][1] = self->fk[1][i] * sum_sin2;
+    self->force_alloc[i][2] = self->fk[2][i] * 4.0f * ROBOT_WHEEL_BASE_RADIUS;
+  }
 }
 
 void OmniDrive_Init(OmniDrive* self, Serial* serials) {
@@ -75,6 +87,12 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   printf("# WORKAROUND: OMNI_TX_AVOID_HEADER_BYTE=1 (avoid 0xAA in WheelUnit TX data)\n");
 #endif
   OmniDrive_ComputeForwardKinematics(self);
+  printf("# force_alloc [x,y,w] x1000:");
+  for (int i = 0; i < 4; i++) {
+    printf(" [%d,%d,%d]", (int)(self->force_alloc[i][0] * 1000.0f),
+           (int)(self->force_alloc[i][1] * 1000.0f), (int)(self->force_alloc[i][2] * 1000.0f));
+  }
+  printf("\n");
   TCS_Init(&self->tcs);
 }
 
@@ -161,7 +179,7 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
                                              -VEL_FB_I_MAX_V, VEL_FB_I_MAX_V);
       }
     }
-    // 機体座標の補正電圧 [V]: ux, uy は各輪の駆動方向成分として、uw は4輪に同じだけ配る
+    // 機体座標の補正電圧 [V]: force_alloc で4輪に配る (前後は −sinθ、左右は約0.914、回転は約1)
     float ux = VEL_FB_KP_LIN * err[0] + self->vel_fb_integral[0];
     float uy = VEL_FB_KP_LIN * err[1] + self->vel_fb_integral[1];
     float uw = VEL_FB_KP_ANG * err[2] + self->vel_fb_integral[2];
@@ -181,20 +199,22 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
 
     float center[4], ff_excess[4], pi_excess[4], allowed[4];
     for (int i = 0; i < 4; i++) {
-      float sin_t = SinDeg(ROBOT_MOTOR_DEGREE[i]);
-      float cos_t = CosDeg(ROBOT_MOTOR_DEGREE[i]);
-      float alpha_wheel = (-tcs->current_ax * sin_t + tcs->current_ay * cos_t +
-                           ROBOT_WHEEL_BASE_RADIUS * tcs->current_alpha) /
-                          ROBOT_WHEEL_RADIUS;
+      // 加減速ぶんとPIの補正は、機体の加速度・補正を「力の配分」(force_alloc) で4輪に配る。
+      // 以前は車輪の角加速度 (運動学) で配っていたため、左右は前後と同じ係数になり、1輪あたり約1.4倍の
+      // 力が要る左右の加速が遅かった (前進1.5mで1.0m/sに241ms、左は421ms)。旋回も並進とは別の係数
+      // (並進の係数を使うと回り始めに1輪約2Vかかり、指令の約1.8倍の速さで回った)
+      const float* a = self->force_alloc[i];
+      float accel_volt = WHEEL_VOLT_KA_LIN_BODY * (a[0] * tcs->current_ax + a[1] * tcs->current_ay) +
+                         WHEEL_VOLT_KA_ANG_BODY * a[2] * tcs->current_alpha;
       // center は各輪の実際の回転数で転がり続ける電圧。超える分がそのままモータのトルク (電流) になる。
       // 以前は推定した対地速度から出していたが、減速中のスリップ判定の間は推定 (IMU積分のみ) が
       // 実速度より0.6m/sほど高いまま残り、ブレーキ側のトルクがほとんど出せず行き過ぎた
       center[i] = 0.0f;
       if (use_traction_limit) {
-        center[i] = WheelVoltage_Feedforward(i, self->vel_wheel_angular[i], 0.0f);
+        center[i] = WheelVoltage_Feedforward(i, self->vel_wheel_angular[i]);
       }
-      ff_excess[i] = WheelVoltage_Feedforward(i, target_wheel_angular[i], alpha_wheel) - center[i];
-      pi_excess[i] = -ux * sin_t + uy * cos_t + uw;
+      ff_excess[i] = WheelVoltage_Feedforward(i, target_wheel_angular[i]) + accel_volt - center[i];
+      pi_excess[i] = a[0] * ux + a[1] * uy + a[2] * uw;
       // 超える分に許す大きさ (電圧上限までの余裕と、トルク上限の小さい方)
       allowed[i] = fmaxf(WHEEL_VOLT_MAX - fabsf(center[i]), 0.0f);
       if (use_traction_limit) allowed[i] = fminf(allowed[i], VOLT_TRACTION_LIMIT_V);
@@ -245,6 +265,24 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
   }
 
   OmniDrive_Send(self, m, 1);  // command: 1 (Drive)
+}
+
+// 出力を電圧制御にするか速度モードにするかと、それに合わせたTCSの設定をまとめて切り替える。
+//  - 電圧制御: TCSの介入 (accel_gain による加速度上限の引き下げ・対地速度への引き戻し) は使わない
+//    (輪ごとのトルク上限がトラクション制御を担う)。S字の加速度上限は VOLT_MODE_MAX_ACCEL
+//  - 速度モード: 従来どおり (TCS_ENABLE, TCS_MAX_ACCEL)
+// 切り替わったときは速度PIの積分を0に戻す
+void OmniDrive_SetControlMode(OmniDrive* self, bool use_voltage_control) {
+  if (use_voltage_control != self->use_voltage_control) {
+    for (int k = 0; k < 3; k++) self->vel_fb_integral[k] = 0.0f;
+    self->volt_saturated = false;
+    self->volt_pi_saturated = false;
+  }
+  self->use_voltage_control = use_voltage_control;
+  self->tcs.config.enable_tcs = use_voltage_control ? false : (TCS_ENABLE != 0);
+  self->tcs.config.max_accel = use_voltage_control ? VOLT_MODE_MAX_ACCEL : TCS_MAX_ACCEL;
+  self->tcs.config.max_ang_accel =
+      use_voltage_control ? VOLT_MODE_MAX_ANG_ACCEL : TCS_MAX_ANG_ACCEL;
 }
 
 void OmniDrive_SetFree(OmniDrive* self) {

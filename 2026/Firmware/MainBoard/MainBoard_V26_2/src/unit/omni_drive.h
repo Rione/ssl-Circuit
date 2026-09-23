@@ -45,6 +45,8 @@ typedef struct {
   // 順運動学行列: 逆運動学 H (行 [-sinθi, cosθi, R]) の最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ
   // 車輪線速度 [m/s] に掛けると [vx, vy, ω] が得られる
   float fk[3][4];
+  // 電圧制御の加減速ぶんとPIの補正を4輪に配る行列 [輪][x, y, ω] (fkᵀ を正規化した力の配分)
+  float force_alloc[4][3];
   TractionControl tcs;  // トラクションコントロールシステム
 } OmniDrive;
 
@@ -54,6 +56,8 @@ void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel
 void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle,
                         const Imu* imu);
 void OmniDrive_SetFree(OmniDrive* self);
+// 出力を電圧制御 (true) か速度モード (false) にし、それに合わせたTCSの設定をまとめて切り替える
+void OmniDrive_SetControlMode(OmniDrive* self, bool use_voltage_control);
 // 電圧モードで各輪の印加電圧 [V] を送る (0Vは短絡ブレーキ)
 void OmniDrive_SetVoltage(OmniDrive* self, const float volt[4]);
 void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command);

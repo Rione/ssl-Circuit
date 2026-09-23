@@ -5,7 +5,7 @@
 // int16 固定小数で保持 (1サンプル62byte x 1000 = 約62KB)
 typedef struct {
   uint16_t t_ms;         // テスト開始からの時間 [ms]
-  uint8_t tcs_on;        // 1: TCS有り, 0: TCS無し
+  uint8_t tcs_on;        // 記録時の tag (TCSテストは1、動作パターンのテストは区間の番号)
   uint8_t slip;          // bit0-2: TCS_SLIP_* / bit6: 電圧制御のトルク上限が効いた / bit7: is_slipping
   int16_t target_vx;     // 目標速度X [mm/s]
   int16_t cmd_vx;        // TCS通過後の指令速度X [mm/s]
@@ -53,7 +53,7 @@ void TcsLog_Reset(void) {
   dump_index = 0;
 }
 
-void TcsLog_Record(uint32_t t_ms, bool tcs_on, int16_t target_vx_mmps, float gyro_yaw_rate,
+void TcsLog_Record(uint32_t t_ms, uint8_t tag, int16_t target_vx_mmps, float gyro_yaw_rate,
                    const OmniDrive* omni_drive) {
   if (sample_count >= TCS_LOG_MAX_SAMPLES) return;
 
@@ -61,7 +61,7 @@ void TcsLog_Record(uint32_t t_ms, bool tcs_on, int16_t target_vx_mmps, float gyr
   if (sample_count == 0) rx_restart_base = SumRxRestart(omni_drive);
   TcsLogSample* s = &samples[sample_count++];
   s->t_ms = (uint16_t)t_ms;
-  s->tcs_on = tcs_on ? 1 : 0;
+  s->tcs_on = tag;
   s->slip = (uint8_t)(tcs->slip_flags | (tcs->is_slipping ? 0x80U : 0x00U) |
                       (omni_drive->volt_traction_limited ? 0x40U : 0x00U));
   s->target_vx = target_vx_mmps;

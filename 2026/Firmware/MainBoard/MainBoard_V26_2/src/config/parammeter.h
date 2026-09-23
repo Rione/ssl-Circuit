@@ -57,9 +57,13 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define OMNI_TX_AVOID_HEADER_BYTE 1
 
 // 電圧制御のフィードフォワード (src/control/wheel_voltage.c)
-// 加減速に使う電圧 [V/(rad/s^2)]。3.0m/sテストの加速区間で、機体1m/s²あたり1輪約0.45V (車輪の角加速度に
-// 直すと約0.016) 要っていた。0.004 では減速が約2m/s²しか出ず、行き過ぎた
-#define WHEEL_VOLT_KA 0.015f
+// 加減速に使う電圧。機体の加速度を力の配分 (OmniDrive.force_alloc) で4輪に配るときの係数。
+//  並進 [V/(m/s^2)]: 前後の効き方を従来 (車輪の角加速度あたり 0.015V、= 0.015/r) と同じにした値。
+//    3.0m/sテストの加速区間で機体1m/s²あたり1輪約0.45V要っていた。左右は配分により約1.3〜1.6倍になる
+//  回転 [V/(rad/s^2)]: 従来の車輪の角加速度あたり 0.007V (= 0.007×R/r)。並進と同じ係数だと
+//    回り始めに1輪約2Vかかり、指令の約1.8倍の速さで回った
+#define WHEEL_VOLT_KA_LIN_BODY 0.5f
+#define WHEEL_VOLT_KA_ANG_BODY 0.0175f
 // 床の上の負荷分の電圧 (輪ごとの値は wheel_voltage.c) を足すか。浮かせて試すときは 0 にする
 #define WHEEL_VOLT_USE_LOAD_FF 1
 #define WHEEL_VOLT_MAX 4.9f        // 印加電圧の上限 [V] (WheelUnitは +5.0V ちょうどが1秒続くと出力を切る)
@@ -68,8 +72,9 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // (4輪が互いに逆らう成分は出ない)。並進はオドメトリ、回転はジャイロの速度を使う
 #define VEL_FB_KP_LIN 1.5f   // 並進 P [V/(m/s)] (無負荷で約1(m/s)/V)
 #define VEL_FB_KI_LIN 5.0f   // 並進 I [V/(m/s·s)]
-#define VEL_FB_KP_ANG 0.1f   // 回転 P [V/(rad/s)] (4輪に同じ電圧を足すと約13.6(rad/s)/V で回る)
-#define VEL_FB_KI_ANG 0.4f   // 回転 I [V/(rad/s·s)]
+#define VEL_FB_KP_ANG 0.2f   // 回転 P [V/(rad/s)] (4輪に同じ電圧を足すと約13.6(rad/s)/V で回る)
+// 回転 I [V/(rad/s·s)]。0.4 では旋回の最後の3°を詰めるのに約2秒かかった (小さな指令だと摩擦を超えない)
+#define VEL_FB_KI_ANG 1.5f
 #define VEL_FB_I_MAX_V 2.0f  // 積分項の上限 [V] (ワインドアップ防止)
 
 // 電圧制御のトルク上限 (トラクション制御): 各輪の電圧を、その輪の実際の回転数で転がり続ける電圧
@@ -77,22 +82,41 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // 向き・横ずれを直すPIの分を優先して残す)。電圧制御ではTCSの accel_gain による介入は使わない
 // (TCSテストで enable_tcs=false)。
 // 1.3V では車輪はほぼ滑らず (実測と対地速度の回転数の差は中央値 −2%)、加減速は約2.5m/s²しか出なかった
-// ので 2.0V に上げて様子を見る (3.0m/s テスト、引き継ぎ文書 5.8)
-#define VOLT_TRACTION_LIMIT_V 2.0f
+// ので 2.0V に上げて様子を見た (3.0m/s テスト、引き継ぎ文書 5.8)。力の配分を入れた動作パターンの
+// テストで 2.4V→3.2V と上げ、3.2V ではスリップが50〜87%まで増えた (セグメントによっては動いている
+// 時間の大半が空転)。速さと安定感のバランスを取り、間の 2.8V に落ち着けた
+#define VOLT_TRACTION_LIMIT_V 2.8f
 // 電圧制御のときのS字加減速の加速度上限 [m/s^2] (速度モードの TCS_MAX_ACCEL=18 は実機で出ない)。
-// 目標が実機より先へ行きすぎないよう、出せる加速度に近い値にする
-#define VOLT_MODE_MAX_ACCEL 4.0f
+// 目標が実機より先へ行きすぎないよう、出せる加速度に近い値にする。トルク上限 2.8V に合わせる
+#define VOLT_MODE_MAX_ACCEL 5.0f
+// 電圧制御のときのS字の角加速度上限 [rad/s^2] (速度モードの TCS_MAX_ANG_ACCEL=60 では回りすぎた)
+#define VOLT_MODE_MAX_ANG_ACCEL 38.0f
 
-// TCSテスト (LocalController_TestTCSAcceleration) の出力を電圧制御にするか (1: 電圧, 0: 速度モード)。
-// 試合の経路 (Robot_SendOmniDrive) には影響しない (OmniDrive.use_voltage_control の既定は false)
+// 試合の経路 (Rock5A からの指令、Robot_SendOmniDrive) の出力を電圧制御にするか (1: 電圧, 0: 速度モード)。
+// 床のテスト (前後・左右・斜め・旋回、動作パターンのテスト) で確かめてから 1 にした。
+// Robot_SendOmniDrive は OmniDrive_SetControlMode と IMU 付きで OmniDrive_SetVelEx を呼んでおり、
+// 動作パターンのテストと同じ経路 (electric制御・トルク上限・PI) を通る。
+// ⚠ 実際に Rock5A (SPI) から指令を受けて走らせる確認はまだ行っていない。低速から確かめること
+#define ROBOT_USE_VOLTAGE_CONTROL 1
+
+// TCSテスト (LocalController_TestTCSAcceleration) の出力を電圧制御にするか (1: 電圧, 0: 速度モード)
 #define TEST_TCS_USE_VOLTAGE_CONTROL 1
 #define TEST_TCS_SPEED_MMPS 3000   // TCSテストの目標速度 [mm/s]
 #define TEST_TCS_DISTANCE_M 2.0f   // TCSテストの往復距離 [m] (前後に約0.5mの空きが要る)
 // TCSテストで減速を始める位置を決める想定の減速度 [m/s^2]。残りの距離 ≤ v²/(2×これ) で反転を指令する
 // (区間の端で反転すると、3m/s では止まるまでに約1m行き過ぎる。4.0 ではまだ約0.6m行き過ぎた。
-//  トルク上限2.0Vでの実際の減速は約2.4〜2.9m/s²だったので2.5にする)
-#define TEST_TCS_BRAKE_DECEL 2.5f
+//  トルク上限2.0Vでの実際の減速は約2.4〜2.9m/s²だったので2.5にした。2.8Vへの引き上げに合わせて4.0に上げる。
+//  実際の減速が足りなければ安全停止 (はみ出し0.5m) が掛かるので、床でもう一度確かめること)
+#define TEST_TCS_BRAKE_DECEL 4.0f
 #define TEST_TCS_ABORT_HEADING_RAD 0.785f  // TCSテストの安全停止: ヘディングのずれ [rad] (45°)
+// 動作パターンのテストの速度上限 [m/s] (2.5 で右へ3mの区間が上限に届いた。トルク上限引き上げに合わせて
+// 3.5 に上げる。ROBOT_MAX_VEL=3.0 を超えるのはテスト専用の値のため)
+#define TEST_PATTERN_SPEED_MPS 3.5f
+// 動作パターンのテストの移動量の倍率 (1.0 で前後・左右1m)。安全停止の範囲も同じ倍率で広がる。
+// 1.5 のとき、スタート位置から前に約2.0m、後ろに約0.5m、左右に約2.0mの空きが要る
+#define TEST_PATTERN_SCALE 1.5f
+#define TEST_PATTERN_ANG_VEL_RADPS 11.0f  // 動作パターンのテストの旋回の上限 [rad/s] (12 で上限近くまで出ていた)
+#define TEST_PATTERN_ANG_BRAKE 25.0f      // 動作パターンのテストで向きの目標へ減速する想定の角減速度 [rad/s^2]
 #define TEST_TCS_ABORT_OVERRUN_M 0.5f      // TCSテストの安全停止: 往復区間からのはみ出し [m] (前後の空きに合わせる)
 
 #define ROBOT_KICK_INTERVAL_MS ((uint32_t)1000)  // キック間隔[ms]

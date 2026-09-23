@@ -37,13 +37,18 @@ void MainMode_Loop(MainMode* self) {
     Robot_SendOmniDrive(r, &r->info, 1);  // 1ms ごとに送信
   } else {
     // Robot is Stop or Emergency Stop
-    // LocalController_Stop(&self->local_controller, r);
+    LocalController_Stop(&self->local_controller, r);
     // LocalController_TestMove(&self->local_controller, r);
     // LocalController_TestMoveForwardBack(&self->local_controller, r);
 
     // ★ TCS性能検証用テスト (電源投入後10秒待機、2000mm/s最速加速、1.5m前後往復)
     // (出力を電圧制御にするかは parammeter.h の TEST_TCS_USE_VOLTAGE_CONTROL)
-    LocalController_TestTCSAcceleration(&self->local_controller, r);
+    // LocalController_TestTCSAcceleration(&self->local_controller, r);
+
+    // ★ 動作パターンのテスト (床で実施、電圧制御。前後・左右・斜め・旋回。原点から x: -0.5〜1.5m, y: ±1.5m)
+    // ⚠ Rock5A接続中に信号が途切れてもこのテストが動く。試すときだけ上のLocalController_Stopをコメントアウトし、
+    //    このテストのコメントを外すこと (このコミットではLocalController_Stopが有効)
+    // LocalController_TestMotionPattern(&self->local_controller, r);
 
     // ★ WheelUnit ID・回転方向・受信確認用テスト (機体を浮かせて実施)
     // LocalController_TestWheelSpin(&self->local_controller, r);
