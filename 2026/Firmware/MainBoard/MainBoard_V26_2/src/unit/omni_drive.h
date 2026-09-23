@@ -32,6 +32,10 @@ typedef struct {
   uint32_t wheel_last_frame_tick[4];  // 最後に正常なフレームを受信した時刻 [ms] (受信監視用)
   bool wheel_rx_stalled[4];           // 受信が途絶えて再開を試みている最中か (診断ログを1回だけ出す用)
   bool rx_monitor_started;            // 受信監視の開始済みか (初回の OmniDrive_Recv で時刻を初期化する)
+  // true: OmniDrive_SetVelEx を電圧制御 (フィードフォワードのみ、WheelUnitへ cmd 2) で出力する。
+  // false (既定): 従来どおり WheelUnit の速度モード (cmd 1)。試合の経路は検証が済むまで false のまま
+  bool use_voltage_control;
+  float cmd_voltage[4];               // 直近に送った印加電圧 [V] (ログ用。速度モード中は0)
   MAF maf[4];
   // 順運動学行列: 逆運動学 H (行 [-sinθi, cosθi, R]) の最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ
   // 車輪線速度 [m/s] に掛けると [vx, vy, ω] が得られる

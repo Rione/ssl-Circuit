@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "wheel_voltage.h"
+
 static void OmniDrive_MonitorRx(OmniDrive* self);
 
 // 逆運動学 H (4x3, 行 [-sinθi, cosθi, R]) から最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ を求める。
@@ -59,9 +61,15 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
     self->wheel_rx_restart_count[i] = 0;
     self->wheel_last_frame_tick[i] = 0;
     self->wheel_rx_stalled[i] = false;
+    self->cmd_voltage[i] = 0.0f;
     MAF_Init(&self->maf[i], 25);
   }
   self->rx_monitor_started = false;
+  self->use_voltage_control = false;
+#if OMNI_TX_AVOID_HEADER_BYTE
+  // 応急処置が入ったFWであることをログで確認できるようにする (引き継ぎ文書 5.4)
+  printf("# WORKAROUND: OMNI_TX_AVOID_HEADER_BYTE=1 (avoid 0xAA in WheelUnit TX data)\n");
+#endif
   OmniDrive_ComputeForwardKinematics(self);
   TCS_Init(&self->tcs);
 }
@@ -129,6 +137,24 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     self->target_wheel_angular[i] = target_wheel_angular[i];  // ログ用 (クランプ前)
   }
 
+  // 3a. 電圧制御 (フィードフォワードのみ): 各輪の目標角速度と、S字加減速の目標加速度を
+  //     逆運動学で直した目標角加速度から、印加電圧を決める。機体速度のフィードバックはまだ無い
+  if (self->use_voltage_control) {
+    const TractionControl* tcs = &self->tcs;
+    int16_t mv[4];
+    for (int i = 0; i < 4; i++) {
+      float alpha_wheel = (-tcs->current_ax * SinDeg(ROBOT_MOTOR_DEGREE[i]) +
+                           tcs->current_ay * CosDeg(ROBOT_MOTOR_DEGREE[i]) +
+                           ROBOT_WHEEL_BASE_RADIUS * tcs->current_alpha) /
+                          ROBOT_WHEEL_RADIUS;
+      self->cmd_voltage[i] = WheelVoltage_Feedforward(i, target_wheel_angular[i], alpha_wheel);
+      mv[i] = (int16_t)(self->cmd_voltage[i] * 100.0f);
+    }
+    OmniDrive_Send(self, mv, 2);  // command: 2 (Voltage)
+    return;
+  }
+  for (int i = 0; i < 4; i++) self->cmd_voltage[i] = 0.0f;
+
   // 3. 出力整形・最大角速度クランプ
   int16_t m[4];
   for (int i = 0; i < 4; i++) {
@@ -147,6 +173,7 @@ void OmniDrive_SetFree(OmniDrive* self) {
   TCS_Reset(&self->tcs);
   for (int i = 0; i < 4; i++) {
     self->target_wheel_angular[i] = 0.0f;
+    self->cmd_voltage[i] = 0.0f;
   }
   int16_t m[4] = {0, 0, 0, 0};
   OmniDrive_Send(self, m, 0);  // command: 0 (Free)
@@ -158,7 +185,8 @@ void OmniDrive_SetFree(OmniDrive* self) {
 void OmniDrive_SetVoltage(OmniDrive* self, const float volt[4]) {
   int16_t m[4];
   for (int i = 0; i < 4; i++) {
-    m[i] = (int16_t)(Constrain(volt[i], -5.0f, 5.0f) * 100.0f);
+    self->cmd_voltage[i] = Constrain(volt[i], -5.0f, 5.0f);
+    m[i] = (int16_t)(self->cmd_voltage[i] * 100.0f);
     self->target_wheel_angular[i] = 0.0f;
   }
   OmniDrive_Send(self, m, 2);  // command: 2 (Voltage)
@@ -170,6 +198,18 @@ void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
   // 1ms 経過するまで送信しない
   if (Timer_ReadMs(&timer) < 1) return;
   Timer_Reset(&timer);
+
+#if OMNI_TX_AVOID_HEADER_BYTE
+  // 【応急処置】データ中にヘッダと同じ 0xAA を出さない。WheelUnit の受信処理は 0xAA をヘッダとして
+  // 同期するだけでチェックサムが無いため、1byte取りこぼした後にデータ中の 0xAA へ同期すると、同じ値が
+  // 送られ続ける間は毎フレーム捨て続け、2秒の受信タイムアウトで mode 0 (短絡ブレーキ) に落ちていた
+  // (実測: 電圧 +1.70V = 0x00AA を送り続けた区間で、1〜2輪が約0.75秒停止)。
+  // 下位バイトが 0xAA の値は1LSB (0.01V / 0.01rad/s) ずらす。上位バイトが 0xAA になる値は使わない範囲。
+  // WheelUnit側で対策されたら parammeter.h の OMNI_TX_AVOID_HEADER_BYTE を 0 にして外す
+  for (int i = 0; i < 4; i++) {
+    if ((m[i] & 0xFF) == 0xAA) m[i] = (int16_t)(m[i] + 1);
+  }
+#endif
 
   static uint8_t send_data[11];
   send_data[0] = 0xAA;

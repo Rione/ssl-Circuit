@@ -200,6 +200,8 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   // 8. TCSは前後どちらの区間でも常時有効 (ON/OFF比較はやめ、TCS自体の改善に集中する)
   robot->omni_drive.tcs.config.enable_tcs = true;
   robot->omni_drive.tcs.config.enable_s_curve = true;
+  // 出力を電圧制御 (フィードフォワードのみ) にするか (parammeter.h の TEST_TCS_USE_VOLTAGE_CONTROL)
+  robot->omni_drive.use_voltage_control = TEST_TCS_USE_VOLTAGE_CONTROL;
 
   // 9. LED0 表示: テスト走行中は常時点灯
   DigitalOut_Write(&robot->led0, 1);
@@ -336,6 +338,102 @@ void LocalController_TestVoltage(LocalController* self, Robot* robot) {
          (int)(od->vel_wheel_angular[2] * 100.0f), (int)(od->vel_wheel_angular[3] * 100.0f),
          status, (unsigned)robot->info.battery_voltage,
          (unsigned)(uint16_t)(rx_restart - rx_restart_base));
+}
+
+// 電圧制御 (フィードフォワードのみ) を浮かせて確かめるテスト:
+// 起動5秒後から、機体速度で前後・左右・旋回を順に指令し (OmniDrive_SetVelEx を電圧制御で出力)、
+// 10ms周期で目標車輪角速度・実測・印加電圧をCSVでprintf出力する (USART1)。
+// 無負荷なので、Ke・Vf の表と逆運動学が正しければ実測は目標にほぼ一致する
+typedef struct {
+  uint16_t duration_ms;
+  int16_t vx_mmps, vy_mmps, omega_mradps;
+} VelocityTestSegment;
+
+static const VelocityTestSegment kVoltageFFTestSegments[] = {
+    {3000, 2000, 0, 0},   {1000, 0, 0, 0}, {3000, -2000, 0, 0}, {1000, 0, 0, 0},
+    {3000, 0, 1500, 0},   {1000, 0, 0, 0}, {3000, 0, -1500, 0}, {1000, 0, 0, 0},
+    {3000, 0, 0, 10000},  {1000, 0, 0, 0}, {3000, 0, 0, -10000}, {1000, 0, 0, 0},
+};
+
+void LocalController_TestVoltageFF(LocalController* self, Robot* robot) {
+  (void)self;
+  static uint32_t start_tick = 0;
+  static uint32_t last_log_ms = 0;
+  static bool is_header_printed = false;
+  static bool is_end_printed = false;
+
+  const uint32_t kStartupWaitMs = 5000;
+  const uint32_t kLogIntervalMs = 10;
+  const int kNumSegments = sizeof(kVoltageFFTestSegments) / sizeof(kVoltageFFTestSegments[0]);
+
+  robot->info.kicker.straight = 0;
+  robot->info.kicker.chip = 0;
+  robot->info.status.do_direct_straight = 0;
+  robot->info.status.do_direct_chip = 0;
+  Robot_SendDribble(robot, 0, 0);
+  Kicker_Discharge(&robot->kicker);
+
+  if (start_tick == 0) {
+    start_tick = HAL_GetTick();
+    if (start_tick == 0) start_tick = 1;
+  }
+  uint32_t elapsed_ms = HAL_GetTick() - start_tick;
+  OmniDrive* od = &robot->omni_drive;
+
+  if (elapsed_ms < kStartupWaitMs) {
+    OmniDrive_SetFree(od);
+    DigitalOut_Write(&robot->led0, (elapsed_ms / 500) % 2 == 0);
+    return;
+  }
+
+  uint32_t t_ms = elapsed_ms - kStartupWaitMs;
+  uint32_t seg_start_ms = 0;
+  int seg = 0;
+  while (seg < kNumSegments && t_ms >= seg_start_ms + kVoltageFFTestSegments[seg].duration_ms) {
+    seg_start_ms += kVoltageFFTestSegments[seg].duration_ms;
+    seg++;
+  }
+  if (seg >= kNumSegments) {
+    od->use_voltage_control = false;
+    OmniDrive_SetFree(od);
+    DigitalOut_Write(&robot->led0, 0);
+    if (!is_end_printed) {
+      printf("# voltage FF test end\n");
+      is_end_printed = true;
+    }
+    return;
+  }
+
+  // IMU は渡さない (浮かせているので対地速度推定・スリップ検知は使わず、S字加減速だけ)
+  const VelocityTestSegment* s = &kVoltageFFTestSegments[seg];
+  od->use_voltage_control = true;
+  OmniDrive_SetVelEx(od, s->vx_mmps, s->vy_mmps, s->omega_mradps, NULL);
+  DigitalOut_Write(&robot->led0, 1);
+
+  if (!is_header_printed) {
+    fputs("t_ms,seg,t0_x100,t1_x100,t2_x100,t3_x100,w0_x100,w1_x100,w2_x100,w3_x100,", stdout);
+    fflush(stdout);
+    fputs("v0_x100,v1_x100,v2_x100,v3_x100,s,rx\n", stdout);
+    is_header_printed = true;
+    last_log_ms = t_ms;
+  } else if (t_ms - last_log_ms < kLogIntervalMs) {
+    return;
+  }
+  last_log_ms = t_ms;
+  // s: 4輪の状態バイトを1桁ずつ並べた16進 (bit0: mode≠0, bit1: 電源電圧範囲外, bit2: 過熱)
+  // rx: 受信再開回数 (4輪合計、起動から)
+  unsigned status = (od->wheel_status[0] & 0xFU) | ((od->wheel_status[1] & 0xFU) << 4) |
+                    ((od->wheel_status[2] & 0xFU) << 8) | ((od->wheel_status[3] & 0xFU) << 12);
+  unsigned rx_restart = 0;
+  for (int i = 0; i < 4; i++) rx_restart += od->wheel_rx_restart_count[i];
+  printf("%u,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%04X,%u\n", (unsigned)t_ms, seg,
+         (int)(od->target_wheel_angular[0] * 100.0f), (int)(od->target_wheel_angular[1] * 100.0f),
+         (int)(od->target_wheel_angular[2] * 100.0f), (int)(od->target_wheel_angular[3] * 100.0f),
+         (int)(od->vel_wheel_angular[0] * 100.0f), (int)(od->vel_wheel_angular[1] * 100.0f),
+         (int)(od->vel_wheel_angular[2] * 100.0f), (int)(od->vel_wheel_angular[3] * 100.0f),
+         (int)(od->cmd_voltage[0] * 100.0f), (int)(od->cmd_voltage[1] * 100.0f),
+         (int)(od->cmd_voltage[2] * 100.0f), (int)(od->cmd_voltage[3] * 100.0f), status,
+         rx_restart);
 }
 
 // WheelUnitのID・回転方向・受信チャンネル確認用テスト (機体を浮かせて実施):

@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-// int16 固定小数で保持 (1サンプル54byte x 1000 = 約54KB)
+// int16 固定小数で保持 (1サンプル62byte x 1000 = 約62KB)
 typedef struct {
   uint16_t t_ms;         // テスト開始からの時間 [ms]
   uint8_t tcs_on;        // 1: TCS有り, 0: TCS無し
@@ -28,6 +28,7 @@ typedef struct {
   // WheelUnitからの受信の健全性 (途絶えている間の wheel[] は古い値のまま)
   uint8_t rx_stall;      // bit i: 輪 i の受信が途絶えて再開を試みている最中
   uint16_t rx_restart;   // 記録開始からの受信再開回数 (4輪合計)
+  int16_t volt[4];       // 印加電圧 [0.01V] (電圧制御中のみ。速度モード中は0)
 } TcsLogSample;
 
 static TcsLogSample samples[TCS_LOG_MAX_SAMPLES];
@@ -88,6 +89,9 @@ void TcsLog_Record(uint32_t t_ms, bool tcs_on, int16_t target_vx_mmps, float gyr
     if (omni_drive->wheel_rx_stalled[i]) s->rx_stall |= (uint8_t)(1U << i);
   }
   s->rx_restart = (uint16_t)(SumRxRestart(omni_drive) - rx_restart_base);
+  for (int i = 0; i < 4; i++) {
+    s->volt[i] = ToI16(omni_drive->cmd_voltage[i] * 100.0f);
+  }
 }
 
 bool TcsLog_DumpStep(void) {
@@ -109,15 +113,18 @@ bool TcsLog_DumpStep(void) {
     fflush(stdout);
     fputs("w0_x100,w1_x100,w2_x100,w3_x100,cmd_vy,cmd_w_mrad,gyro_mrad,", stdout);
     fflush(stdout);
-    fputs("t0_x100,t1_x100,t2_x100,t3_x100,rx_stall,rx_restart\n", stdout);
+    fputs("t0_x100,t1_x100,t2_x100,t3_x100,rx_stall,rx_restart,v0_x100,v1_x100,v2_x100,v3_x100\n",
+          stdout);
   } else if (dump_index - 2 < sample_count) {
     const TcsLogSample* s = &samples[dump_index - 2];
-    printf("%u,%u,%u,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%u,%u\n",
+    printf("%u,%u,%u,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%u,%u,"
+           "%d,%d,%d,%d\n",
            s->t_ms, s->tcs_on, s->slip, s->target_vx, s->cmd_vx, s->odom_vx, s->odom_vy,
            s->ground_vx, s->ground_vy, s->a_odom_x, s->a_imu_x, s->accel_res, s->geom_res,
            s->rot_res, s->accel_gain, s->wheel[0], s->wheel[1], s->wheel[2], s->wheel[3],
            s->cmd_vy, s->cmd_w, s->gyro_w, s->target_wheel[0], s->target_wheel[1],
-           s->target_wheel[2], s->target_wheel[3], s->rx_stall, s->rx_restart);
+           s->target_wheel[2], s->target_wheel[3], s->rx_stall, s->rx_restart, s->volt[0],
+           s->volt[1], s->volt[2], s->volt[3]);
   } else {
     printf("# TCS log end\n");
     return true;

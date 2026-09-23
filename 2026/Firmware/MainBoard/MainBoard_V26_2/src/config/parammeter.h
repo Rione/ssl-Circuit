@@ -50,6 +50,19 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // WheelUnitからの受信がこの時間 [ms] 途絶えたら受信を再開する (正常時は約0.2msごとに届く)
 #define OMNI_RX_TIMEOUT_MS 20U
 
+// 【応急処置】WheelUnitへの送信データにヘッダと同じ 0xAA を出さない (下位バイトが 0xAA の値を1LSBずらす)。
+// WheelUnitの受信処理にチェックサムが無く、データ中の 0xAA に同期すると同じ値を送り続ける間は受信できず、
+// 2秒の受信タイムアウトで mode 0 (短絡ブレーキ) に落ちていたため (引き継ぎ文書 5.4)。
+// WheelUnit側でチェックサム等の対策が入ったら 0 にしてよい。1 の間は起動時に "# WORKAROUND:" を出力する
+#define OMNI_TX_AVOID_HEADER_BYTE 1
+
+// 電圧制御のフィードフォワード (src/control/wheel_voltage.c)
+#define WHEEL_VOLT_KA 0.0f          // 加速に使う電圧 [V/(rad/s^2)] (床で走らせたデータから決める。まず0)
+#define WHEEL_VOLT_MAX 4.9f        // 印加電圧の上限 [V] (WheelUnitは +5.0V ちょうどが1秒続くと出力を切る)
+// TCSテスト (LocalController_TestTCSAcceleration) の出力を電圧制御にするか (1: 電圧, 0: 速度モード)。
+// 試合の経路 (Robot_SendOmniDrive) には影響しない (OmniDrive.use_voltage_control の既定は false)
+#define TEST_TCS_USE_VOLTAGE_CONTROL 1
+
 #define ROBOT_KICK_INTERVAL_MS ((uint32_t)1000)  // キック間隔[ms]
 #define ROBOT_KICKER_SIGNAL_INTERVAL_MS \
   ((uint32_t)100)  // チャージ/放電信号の最小送信周期[ms]

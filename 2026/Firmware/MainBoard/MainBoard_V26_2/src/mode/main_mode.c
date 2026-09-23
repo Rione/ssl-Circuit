@@ -48,7 +48,10 @@ void MainMode_Loop(MainMode* self) {
     // LocalController_TestWheelSpin(&self->local_controller, r);
 
     // ★ 電圧モードの単体評価用テスト (機体を浮かせて実施。4輪に最大4V)
-    LocalController_TestVoltage(&self->local_controller, r);
+    // LocalController_TestVoltage(&self->local_controller, r);
+
+    // ★ 電圧制御 (フィードフォワードのみ) の確認用テスト (機体を浮かせて実施。前後±2m/s・左右・旋回)
+    LocalController_TestVoltageFF(&self->local_controller, r);
   }
 
   Robot_UpdateHeartBeat(r);
