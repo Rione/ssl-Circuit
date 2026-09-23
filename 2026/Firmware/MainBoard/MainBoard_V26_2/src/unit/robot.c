@@ -148,7 +148,7 @@ void Robot_Initialize(Robot* self) {
   DigitalOut_Init(&self->led1, LED1_GPIO_Port, LED1_Pin);
   DigitalOut_Init(&self->led2, LED2_GPIO_Port, LED2_Pin);
 
-  PwmOut_Init(&self->heart_beat, &htim1, TIM_CHANNEL_1);
+  PwmOut_Init(&self->heart_beat, &htim2, TIM_CHANNEL_2);
 
   DigitalOut_Write(&self->led0, 1);
   HAL_Delay(100);
