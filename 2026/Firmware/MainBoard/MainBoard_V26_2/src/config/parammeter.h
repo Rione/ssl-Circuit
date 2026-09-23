@@ -57,8 +57,19 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define OMNI_TX_AVOID_HEADER_BYTE 1
 
 // 電圧制御のフィードフォワード (src/control/wheel_voltage.c)
-#define WHEEL_VOLT_KA 0.0f          // 加速に使う電圧 [V/(rad/s^2)] (床で走らせたデータから決める。まず0)
+// 加速に使う電圧 [V/(rad/s^2)]。床のデータでは 0.0005〜0.008 とばらついた (引き継ぎ文書 5.6) ので小さめ
+#define WHEEL_VOLT_KA 0.004f
+// 床の上の負荷分の電圧 (輪ごとの値は wheel_voltage.c) を足すか。浮かせて試すときは 0 にする
+#define WHEEL_VOLT_USE_LOAD_FF 1
 #define WHEEL_VOLT_MAX 4.9f        // 印加電圧の上限 [V] (WheelUnitは +5.0V ちょうどが1秒続くと出力を切る)
+
+// 電圧制御の機体速度フィードバック (PI)。機体の3自由度で誤差を計算し、逆運動学で4輪に配る
+// (4輪が互いに逆らう成分は出ない)。並進はオドメトリ、回転はジャイロの速度を使う
+#define VEL_FB_KP_LIN 1.5f   // 並進 P [V/(m/s)] (無負荷で約1(m/s)/V)
+#define VEL_FB_KI_LIN 5.0f   // 並進 I [V/(m/s·s)]
+#define VEL_FB_KP_ANG 0.1f   // 回転 P [V/(rad/s)] (4輪に同じ電圧を足すと約13.6(rad/s)/V で回る)
+#define VEL_FB_KI_ANG 0.4f   // 回転 I [V/(rad/s·s)]
+#define VEL_FB_I_MAX_V 2.0f  // 積分項の上限 [V] (ワインドアップ防止)
 // TCSテスト (LocalController_TestTCSAcceleration) の出力を電圧制御にするか (1: 電圧, 0: 速度モード)。
 // 試合の経路 (Robot_SendOmniDrive) には影響しない (OmniDrive.use_voltage_control の既定は false)
 #define TEST_TCS_USE_VOLTAGE_CONTROL 1

@@ -66,6 +66,8 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   }
   self->rx_monitor_started = false;
   self->use_voltage_control = false;
+  for (int k = 0; k < 3; k++) self->vel_fb_integral[k] = 0.0f;
+  self->volt_saturated = false;
 #if OMNI_TX_AVOID_HEADER_BYTE
   // 応急処置が入ったFWであることをログで確認できるようにする (引き継ぎ文書 5.4)
   printf("# WORKAROUND: OMNI_TX_AVOID_HEADER_BYTE=1 (avoid 0xAA in WheelUnit TX data)\n");
@@ -137,19 +139,42 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     self->target_wheel_angular[i] = target_wheel_angular[i];  // ログ用 (クランプ前)
   }
 
-  // 3a. 電圧制御 (フィードフォワードのみ): 各輪の目標角速度と、S字加減速の目標加速度を
-  //     逆運動学で直した目標角加速度から、印加電圧を決める。機体速度のフィードバックはまだ無い
+  // 3a. 電圧制御: フィードフォワード (各輪の目標角速度・目標角加速度から) ＋ 機体速度のPI。
+  //     PIは機体の3自由度 (vx, vy, ω) で誤差を取り、逆運動学と同じ向きで4輪に配るので、
+  //     4輪が互いに逆らう成分 (押し合い) は出ない。並進の実速度はオドメトリなので、車輪が空転すると
+  //     実速度が上がって電圧が下がる (そのままトラクション制御として働く)
   if (self->use_voltage_control) {
     const TractionControl* tcs = &self->tcs;
+    float meas_omega = (imu != NULL) ? imu->yaw_rate : in.odom_omega;
+    float err[3] = {cmd_vx - in.odom_vx, cmd_vy - in.odom_vy, cmd_omega - meas_omega};
+    // スリップ中 (オドメトリが当てにならない) と電圧が上限に張り付いている間は積分を止める
+    if (!tcs->is_slipping && !self->volt_saturated) {
+      const float ki[3] = {VEL_FB_KI_LIN, VEL_FB_KI_LIN, VEL_FB_KI_ANG};
+      for (int k = 0; k < 3; k++) {
+        self->vel_fb_integral[k] = Constrain(self->vel_fb_integral[k] + ki[k] * err[k] * dt,
+                                             -VEL_FB_I_MAX_V, VEL_FB_I_MAX_V);
+      }
+    }
+    // 機体座標の補正電圧 [V]: ux, uy は各輪の駆動方向成分として、uw は4輪に同じだけ配る
+    float ux = VEL_FB_KP_LIN * err[0] + self->vel_fb_integral[0];
+    float uy = VEL_FB_KP_LIN * err[1] + self->vel_fb_integral[1];
+    float uw = VEL_FB_KP_ANG * err[2] + self->vel_fb_integral[2];
+
     int16_t mv[4];
+    bool saturated = false;
     for (int i = 0; i < 4; i++) {
-      float alpha_wheel = (-tcs->current_ax * SinDeg(ROBOT_MOTOR_DEGREE[i]) +
-                           tcs->current_ay * CosDeg(ROBOT_MOTOR_DEGREE[i]) +
+      float sin_t = SinDeg(ROBOT_MOTOR_DEGREE[i]);
+      float cos_t = CosDeg(ROBOT_MOTOR_DEGREE[i]);
+      float alpha_wheel = (-tcs->current_ax * sin_t + tcs->current_ay * cos_t +
                            ROBOT_WHEEL_BASE_RADIUS * tcs->current_alpha) /
                           ROBOT_WHEEL_RADIUS;
-      self->cmd_voltage[i] = WheelVoltage_Feedforward(i, target_wheel_angular[i], alpha_wheel);
+      float volt = WheelVoltage_Feedforward(i, target_wheel_angular[i], alpha_wheel) +
+                   (-ux * sin_t + uy * cos_t + uw);
+      if (volt > WHEEL_VOLT_MAX || volt < -WHEEL_VOLT_MAX) saturated = true;
+      self->cmd_voltage[i] = Constrain(volt, -WHEEL_VOLT_MAX, WHEEL_VOLT_MAX);
       mv[i] = (int16_t)(self->cmd_voltage[i] * 100.0f);
     }
+    self->volt_saturated = saturated;
     OmniDrive_Send(self, mv, 2);  // command: 2 (Voltage)
     return;
   }
@@ -175,6 +200,8 @@ void OmniDrive_SetFree(OmniDrive* self) {
     self->target_wheel_angular[i] = 0.0f;
     self->cmd_voltage[i] = 0.0f;
   }
+  for (int k = 0; k < 3; k++) self->vel_fb_integral[k] = 0.0f;
+  self->volt_saturated = false;
   int16_t m[4] = {0, 0, 0, 0};
   OmniDrive_Send(self, m, 0);  // command: 0 (Free)
 }

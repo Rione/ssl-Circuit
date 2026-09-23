@@ -36,6 +36,9 @@ typedef struct {
   // false (既定): 従来どおり WheelUnit の速度モード (cmd 1)。試合の経路は検証が済むまで false のまま
   bool use_voltage_control;
   float cmd_voltage[4];               // 直近に送った印加電圧 [V] (ログ用。速度モード中は0)
+  // 電圧制御の機体速度PIの積分項 [V] (x, y: 並進、w: 回転。OmniDrive_SetFree で0に戻す)
+  float vel_fb_integral[3];
+  bool volt_saturated;                // 前周期にどれかの輪の電圧が上限に張り付いたか (積分を止める)
   MAF maf[4];
   // 順運動学行列: 逆運動学 H (行 [-sinθi, cosθi, R]) の最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ
   // 車輪線速度 [m/s] に掛けると [vx, vy, ω] が得られる

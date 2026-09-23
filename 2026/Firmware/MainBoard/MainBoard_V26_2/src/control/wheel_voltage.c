@@ -25,6 +25,11 @@ static const float kTableOmegaNeg[4][WHEEL_VOLT_TABLE_N] = {
     {15.38f, 31.36f, 47.05f, 62.40f, 92.76f, 121.96f},
 };
 
+// 床の上の負荷分 [V] (浮かせた表に対して床で足りなかった分)。2026-09-23 の床のTCSテスト
+// (docs/data/tcs_voltage_ff_20260923.csv) に V − V_ss(ω) = Ka·α + Vd·sign(ω) を当てはめた Vd
+static const float kLoadVolt[4] = {0.48f, 0.53f, 0.34f, 0.52f};
+#define WHEEL_VOLT_LOAD_SIGN_WIDTH 2.0f  // 負荷分の符号を滑らかにする幅 [rad/s] (0付近のばたつき防止)
+
 // 回転数の大きさ omega_abs を出すのに要る電圧の大きさ (原点と表の点を直線でつなぐ。表の外は最後の傾きで延長)
 static float WheelVoltage_Lookup(const float* table, float omega_abs) {
   float prev_omega = 0.0f, prev_volt = 0.0f;
@@ -44,6 +49,9 @@ float WheelVoltage_Feedforward(int wheel, float omega_ref, float alpha_ref) {
   const float* table = is_pos ? kTableOmegaPos[wheel] : kTableOmegaNeg[wheel];
   float volt = WheelVoltage_Lookup(table, is_pos ? omega_ref : -omega_ref);
   if (!is_pos) volt = -volt;
+#if WHEEL_VOLT_USE_LOAD_FF
+  volt += kLoadVolt[wheel] * Constrain(omega_ref / WHEEL_VOLT_LOAD_SIGN_WIDTH, -1.0f, 1.0f);
+#endif
   volt += WHEEL_VOLT_KA * alpha_ref;
   return Constrain(volt, -WHEEL_VOLT_MAX, WHEEL_VOLT_MAX);
 }
