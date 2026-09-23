@@ -22,11 +22,11 @@ volatile uint16_t adc_val[1];
 
 // STM32 → Rock5A 送信ペイロード中のIMUデータのスケール
 // (float実数値をint16に変換する際の倍率。Rock5A側では逆数を掛けて復元する)
-#define ROCK_SPI_ACCEL_SCALE 1000.0f      // [g]     -> int16 (1LSB = 1mg)
+#define ROCK_SPI_ACCEL_SCALE 1000.0f  // [g]     -> int16 (1LSB = 1mg)
 // ジャイロFS(±2000dps=約±34.9rad/s、imu.c参照)がint16(最大±32767)に収まるよう900に設定
 // (1000だと最大レンジで約±34907となりint16をオーバーフローするため)
-#define ROCK_SPI_YAW_RATE_SCALE 900.0f    // [rad/s] -> int16 (1LSB ≈ 0.00111rad/s)
-#define ROCK_SPI_YAW_SCALE 10000.0f       // [rad]   -> int16 (1LSB = 0.0001rad)
+#define ROCK_SPI_YAW_RATE_SCALE 900.0f  // [rad/s] -> int16 (1LSB ≈ 0.00111rad/s)
+#define ROCK_SPI_YAW_SCALE 10000.0f     // [rad]   -> int16 (1LSB = 0.0001rad)
 // SPI がこの時間(ms)完了もエラーもせず BUSY のまま固まったら強制リセットする。
 // ソフト NSS のスレーブはビットずれで「完了もエラーもしない BUSY ハング」に
 // 陥ることがあり、リセットしないと復帰しない。そのストール検出用。
@@ -52,6 +52,9 @@ static uint32_t rock_last_recv_tick = 0;
 // 直近に SPI トランザクションが進捗（Arm / 完了）した時刻。
 // これが長時間更新されなければ BUSY ハングとみなす。
 static volatile uint32_t rock_spi_progress_tick = 0;
+
+// HAL_UART_ErrorCallbackからSerialを引くためのインスタンス
+static Robot* robot_instance = NULL;
 
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst);
 static uint8_t* Robot_RockTxStaging(void);
@@ -79,6 +82,22 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef* hspi) {
   rock_rx_ready = 1;
   rock_spi_tx_arm_idx = 1U - rock_spi_tx_arm_idx;
   Robot_RockArm();
+}
+
+// USART割り込み有効時、DMA受信中にFE/NE/ORE等が起きるとHALが受信DMAを停止するため、
+// 該当するSerialの受信をリセットして再開する(MDからのフィードバック/UI受信が止まるのを防ぐ)
+void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
+  if (robot_instance == NULL) return;
+  if (huart == robot_instance->serial4.huart) {
+    Serial_Reset(&robot_instance->serial4);
+    return;
+  }
+  for (int i = 0; i < 4; i++) {
+    if (huart == robot_instance->md_serials[i].huart) {
+      Serial_Reset(&robot_instance->md_serials[i]);
+      return;
+    }
+  }
 }
 
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef* hspi) {
@@ -160,6 +179,7 @@ void Robot_Initialize(Robot* self) {
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_val, 1);
   HAL_Delay(10);
 
+  robot_instance = self;
   UART_HandleTypeDef* md_uarts[4] = {&huart5, &huart6, &huart2, &huart3};
   Serial_Init(&self->serial4, &huart4, ROBOT_SERIAL_BUF_SIZE);
   for (int i = 0; i < 4; i++) {
@@ -192,7 +212,7 @@ void Robot_UpdateSensor(Robot* self) {
 
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst) {
   dst[0] = ROCK_SPI_HEADER;
-  dst[1] = info->battery_voltage * 10;
+  dst[1] = info->battery_voltage * 5;
   dst[2] = info->dribble_status.data;
   dst[3] = info->kicker_status.cap_val;
   int16_t wheel_scaled[4] = {
