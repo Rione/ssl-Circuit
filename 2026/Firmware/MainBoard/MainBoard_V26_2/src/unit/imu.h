@@ -20,8 +20,10 @@ typedef struct {
   uint8_t is_ready;    // WHO_AM_I確認済みか
 
   float gyro_bias_x, gyro_bias_y, gyro_bias_z;  // [dps] Imu_Calibrateで測定した静止バイアス
+  float accel_bias_x, accel_bias_y;             // [g] Imu_Calibrateで測定した静止バイアス(センサ座標)
 
-  float accel_x, accel_y;  // [g]
+  float accel_x, accel_y;  // [g] センサ座標・バイアス未補正 (Rock5A送信用)
+  float accel_robot_x, accel_robot_y;  // [m/s^2] 機体座標(x:前, y:左)・バイアス補正済み (TCS用)
   float yaw_rate;          // [rad/s] (ジャイロZ、機体旋回方向の角速度、バイアス補正済み)
   float yaw_rad;            // [rad] Madgwickフィルタによる姿勢推定 (-π~π、起動時を基準とした相対角)
 } Imu;

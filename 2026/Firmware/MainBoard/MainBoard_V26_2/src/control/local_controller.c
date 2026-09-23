@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "mymath.h"
+#include "tcs_log.h"
 
 void LocalController_Init(LocalController* self) {
   (void)self;
@@ -67,23 +68,27 @@ void LocalController_TestMoveForwardBack(LocalController* self, Robot* robot) {
   OmniDrive_SetVel(&robot->omni_drive, is_forward ? kTestVel : -kTestVel, 0, 0);
 }
 
-// TCS性能検証用テスト: 
+// TCS性能検証用テスト:
 // 1. 電源投入後10秒待機 (LED0が0.5s周期で点滅)
-// 2. 10秒経過後テスト開始: 2000mm/sへの最速加減速で1.5m前後往復
-//    - 1.5m反転ごとに TCS 有り(ON: LED0常時点灯) と TCS 無し(OFF: LED0高速点滅) を交互に切り替え
+// 2. 10秒経過後テスト開始: 2000mm/sへの最速加減速で1.5m前後往復 (前後ともTCS常時有効)
+//    - 10ms周期でTCS内部状態をRAMに記録
 // 3. テスト開始から10秒経過 (起動後20秒以降) で完全自動停止 (LED0消灯)
+//    - 停止中に記録をCSVでprintf出力 (USART1)
 void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   (void)self;
   static uint32_t start_tick = 0;
   static bool is_test_started = false;
-  static bool is_tcs_enabled = true;   // true: TCS有り, false: TCS無し
   static int8_t direction = 1;         // +1: 前進(+x), -1: 後退(-x)
-  static float x_pos_mm = 0.0f;        // スタート位置を原点とする絶対位置 [mm]
-  static float initial_yaw_rad = 0.0f; // 走行開始時の基準姿勢角 [rad]
+  static float x_pos_odom_m = 0.0f;    // 車輪オドメトリ由来の絶対位置 [m] (スタート位置=0)
+  static float x_pos_ground_m = 0.0f;  // IMU融合の対地速度由来の絶対位置 [m] (スタート位置=0)
+  static float heading_yaw_rad = 0.0f; // 走行開始を基準0とする純ジャイロ積分ヘディング [rad]
+  static uint8_t log_divider = 0;
+  static bool is_log_dumped = false;
 
   const uint32_t kStartupWaitMs = 10000;   // 起動後待機時間 [ms] (10秒)
   const uint32_t kTestDurationMs = 10000;  // テスト走行時間 [ms] (10秒)
   const uint32_t kTotalTestTimeMs = kStartupWaitMs + kTestDurationMs; // 合計時間 [ms] (20秒)
+  const uint32_t kDumpDelayMs = 40000;     // テスト終了からCSV出力開始までの待機時間 [ms] (40秒)
 
   // 1. 安全確保: テスト中はキック・ドリブルを明示的にクリアし、放電状態を維持
   robot->info.kicker.straight = 0;
@@ -116,53 +121,101 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   // 4. テスト開始から10秒経過 (起動後20秒以降): 完全自動停止
   if (elapsed_ms >= kTotalTestTimeMs) {
     OmniDrive_SetFree(&robot->omni_drive);
-    DigitalOut_Write(&robot->led0, 0);  // テスト完了により消灯
+
+    uint32_t dump_wait_elapsed_ms = elapsed_ms - kTotalTestTimeMs;
+    if (dump_wait_elapsed_ms < kDumpDelayMs) {
+      // CSV出力開始までの待機中: シリアルターミナルの準備時間として0.5秒周期で点滅
+      if ((dump_wait_elapsed_ms / 500) % 2 == 0) {
+        DigitalOut_Write(&robot->led0, 1);
+      } else {
+        DigitalOut_Write(&robot->led0, 0);
+      }
+      return;
+    }
+
+    // 停止後に記録を1ループ1行ずつ出力 (1行≈3ms。SetFreeは毎ループ送り続ける)
+    DigitalOut_Write(&robot->led0, 0);  // 出力中は消灯
+    if (!is_log_dumped) {
+      is_log_dumped = TcsLog_DumpStep();
+    }
     return;
   }
 
   // 5. テスト初回開始時の初期化
   if (!is_test_started) {
     is_test_started = true;
-    x_pos_mm = 0.0f;
+    x_pos_odom_m = 0.0f;
+    x_pos_ground_m = 0.0f;
     direction = 1;
-    is_tcs_enabled = true;  // 最初はTCS有りでスタート
-    initial_yaw_rad = robot->imu.yaw_rad;
+    heading_yaw_rad = 0.0f;
     TCS_Reset(&robot->omni_drive.tcs);
+    TcsLog_Reset();
   }
 
-  // 6. 実測機体速度を取得し、スタート原点からの絶対位置を積算 (1ms周期)
-  int16_t actual_vx_mmps, actual_vy_mmps, actual_omega;
-  OmniDrive_GetVel(&robot->omni_drive, &actual_vx_mmps, &actual_vy_mmps, &actual_omega);
-
-  const float dt = (float)ROBOT_CONTROL_LOOP_DT_US * 1e-6f;  // 0.001s
-  x_pos_mm += (float)actual_vx_mmps * dt;
-
-  // 7. 基準区間 (0 ~ 1500mm) 反転制御 ＆ TCS 有り/無しの交互切り替え
-  const float kTargetDistance_mm = 1500.0f;
-  if (direction == 1 && x_pos_mm >= kTargetDistance_mm) {
-    direction = -1;                      // 前進限界到達 -> 後退へ反転
-    is_tcs_enabled = !is_tcs_enabled;    // TCS 有り/無し を切り替え
-    TCS_Reset(&robot->omni_drive.tcs);
-  } else if (direction == -1 && x_pos_mm <= 0.0f) {
-    direction = 1;                       // 原点帰還到達 -> 前進へ反転
-    is_tcs_enabled = !is_tcs_enabled;    // TCS 有り/無し を切り替え
-    TCS_Reset(&robot->omni_drive.tcs);
-  }
-
-  // 8. TCSの有効/無効フラグを動的に適用
-  robot->omni_drive.tcs.config.enable_tcs = is_tcs_enabled;
-  robot->omni_drive.tcs.config.enable_s_curve = is_tcs_enabled;
-
-  // 9. LED0 表示: TCS有り時は常時点灯、TCS無し時は高速点滅(0.1s周期)で区別
-  if (is_tcs_enabled) {
-    DigitalOut_Write(&robot->led0, 1);
+  // 6. スタート原点からの絶対位置を積算
+  // 反転判定には車輪オドメトリ(odom_vx)を使う。IMU融合の対地速度(ground_vx)は
+  // is_slipping中は車輪オドメトリの補正を受けずIMU積分のみになる仕様のため、
+  // TCS OFF区間(S字無効=急反転で容易にis_slipping=trueへ張り付く)でIMU較正誤差や
+  // 加速度センサ飽和の影響を受けやすく、反転条件に到達できず後退し続ける不具合があった。
+  // 空転時に距離をやや過大に数える誤差はあるが、反転トリガーとしては十分な精度。
+  // dtは実測 (制御ループは基本1ms周期だが、Rock5A SPIストール検知等のブロッキングで
+  // 稀に周期が乱れる。固定値だと乱れた分だけ位置・ヘディング積分が誤るため)
+  static Timer dt_timer = {0};
+  static bool dt_timer_initialized = false;
+  float dt;
+  if (!dt_timer_initialized) {
+    Timer_Init(&dt_timer);
+    Timer_Reset(&dt_timer);
+    dt_timer_initialized = true;
+    dt = (float)ROBOT_CONTROL_LOOP_DT_US * 1e-6f;
   } else {
-    DigitalOut_Write(&robot->led0, (elapsed_ms / 100) % 2);
+    dt = Timer_Read(&dt_timer);
+    Timer_Reset(&dt_timer);
+    if (dt <= 0.0f) dt = (float)ROBOT_CONTROL_LOOP_DT_US * 1e-6f;
+    if (dt > 0.05f) dt = 0.05f;  // 50ms超のギャップはクランプ (異常時の暴走防止)
   }
+  x_pos_odom_m += robot->omni_drive.tcs.odom_vx * dt;
+  x_pos_ground_m += robot->omni_drive.tcs.ground_vx * dt;
+
+  // 7. 基準区間 (0 ~ 1.5m) 反転制御
+  // ※ ここで TCS_Reset すると平滑化状態が0に戻り、走行中に0指令へステップしてしまうため呼ばない
+  //
+  // odom_vxとground_vx(IMU融合の対地速度)の両方が到達を示すまで待つことで、
+  // 急反転時の車輪スリップにより片方だけが早期に「到達した」と示しても反転しない
+  // ようにする(多少反転が遅れる方向にのみ誤差が出る、行き過ぎ防止)
+  float fwd_progress_m = (x_pos_odom_m < x_pos_ground_m) ? x_pos_odom_m : x_pos_ground_m;
+  float bwd_progress_m = (x_pos_odom_m > x_pos_ground_m) ? x_pos_odom_m : x_pos_ground_m;
+  const float kTargetDistance_m = 1.5f;
+  if (direction == 1 && fwd_progress_m >= kTargetDistance_m) {
+    direction = -1;  // 前進限界到達 -> 後退へ反転
+    // 誤差の蓄積を防ぐため、区間の境界値に位置をスナップしてから次区間を開始する
+    x_pos_odom_m = kTargetDistance_m;
+    x_pos_ground_m = kTargetDistance_m;
+  } else if (direction == -1 && bwd_progress_m <= 0.0f) {
+    direction = 1;  // 原点帰還到達 -> 前進へ反転
+    x_pos_odom_m = 0.0f;
+    x_pos_ground_m = 0.0f;
+  }
+
+  // 8. TCSは前後どちらの区間でも常時有効 (ON/OFF比較はやめ、TCS自体の改善に集中する)
+  robot->omni_drive.tcs.config.enable_tcs = true;
+  robot->omni_drive.tcs.config.enable_s_curve = true;
+
+  // 9. LED0 表示: テスト走行中は常時点灯
+  DigitalOut_Write(&robot->led0, 1);
 
   // 10. IMUヘディングロック (直進性の維持)
-  float yaw_error = GapRadians(robot->imu.yaw_rad, initial_yaw_rad);
-  float target_omega_rad = -2.5f * yaw_error;
+  // imu.yaw_rad (Madgwick, 加速度計で重力方向を補正) は、S字加減速や急反転による
+  // 大きな並進加速度がかかると重力方向の推定ごと乱れ、その誤差がヨー角にも漏れて
+  // 実際には曲がっていないのに操舵してしまい、経路が左右に振れる原因になっていた。
+  // そのためヘディング基準は加速度計の影響を受けない純ジャイロ積分(ヨーレートの
+  // 時間積分)で保持する (10秒程度の短時間試験ではジャイロドリフトは無視できる)。
+  // また比例制御のみだと遅れにより振動しやすいため、角速度フィードバック(D項)で
+  // オーバーシュートを抑える (PD制御)
+  heading_yaw_rad += robot->imu.yaw_rate * dt;
+  const float kHeadingKp = 2.5f;
+  const float kHeadingKd = 0.2f;
+  float target_omega_rad = -kHeadingKp * heading_yaw_rad - kHeadingKd * robot->imu.yaw_rate;
   target_omega_rad = Constrain(target_omega_rad, -3.0f, 3.0f);
   int16_t target_omega = (int16_t)(target_omega_rad * 1000.0f);
 
@@ -170,7 +223,13 @@ void LocalController_TestTCSAcceleration(LocalController* self, Robot* robot) {
   const int16_t kMaxSpeed_mmps = 2000;
   int16_t target_vx = kMaxSpeed_mmps * direction;
 
-  OmniDrive_SetVelEx(&robot->omni_drive, target_vx, 0, target_omega,
-                     robot->imu.yaw_rate, robot->info.battery_voltage);
+  OmniDrive_SetVelEx(&robot->omni_drive, target_vx, 0, target_omega, &robot->imu);
+
+  // 12. 10ms周期でTCS内部状態を記録
+  if (++log_divider >= 10) {
+    log_divider = 0;
+    TcsLog_Record(elapsed_ms - kStartupWaitMs, true, target_vx, robot->imu.yaw_rate,
+                  &robot->omni_drive);
+  }
 }
 

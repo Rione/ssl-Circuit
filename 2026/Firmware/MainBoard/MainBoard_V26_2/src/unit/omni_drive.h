@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "imu.h"
 #include "maf.h"
 #include "mymath.h"
 #include "parammeter.h"
@@ -18,21 +19,28 @@ typedef struct {
 
 typedef struct {
   Serial* serials[4];
-  float vel_wheel_angular[4];
+  float vel_wheel_angular[4];     // WheelUnitから受信した実測車輪角速度 [rad/s]
+  float target_wheel_angular[4];  // 直近に送信した目標車輪角速度 [rad/s] (クランプ前)
   uint8_t emg;
   uint8_t ready;
   MAF maf[4];
+  // 順運動学行列: 逆運動学 H (行 [-sinθi, cosθi, R]) の最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ
+  // 車輪線速度 [m/s] に掛けると [vx, vy, ω] が得られる
+  float fk[3][4];
   TractionControl tcs;  // トラクションコントロールシステム
 } OmniDrive;
 
 void OmniDrive_Init(OmniDrive* self, Serial* serials);
 void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle);
+// vel_x, vel_y [mm/s], vel_angle [mrad/s]。imu が NULL の場合はS字加減速のみ (スリップ検知なし)
 void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle,
-                        float gyro_yaw_rate, float battery_voltage);
+                        const Imu* imu);
 void OmniDrive_SetFree(OmniDrive* self);
 void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command);
 void OmniDrive_Recv(OmniDrive* self);
+// 実測車輪速度からの機体速度 vel_x, vel_y [mm/s], vel_angle [mrad/s]
 void OmniDrive_GetVel(OmniDrive* self, int16_t* vel_x, int16_t* vel_y, int16_t* vel_angle);
+// 実測車輪速度からの機体速度 [m/s], [rad/s]
+void OmniDrive_GetVelF(const OmniDrive* self, float* vx, float* vy, float* omega);
 
 #endif  // __OMNI_DRIVE_H_
-

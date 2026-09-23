@@ -15,6 +15,10 @@ void Imu_Init(Imu* self) {
   self->gyro_bias_x = 0.0f;
   self->gyro_bias_y = 0.0f;
   self->gyro_bias_z = 0.0f;
+  self->accel_bias_x = 0.0f;
+  self->accel_bias_y = 0.0f;
+  self->accel_robot_x = 0.0f;
+  self->accel_robot_y = 0.0f;
 
   // ジャイロは±2000dps(ROBOT_MAX_ANG_VEL=10rad/s≈573dpsに対して十分な余裕を持たせる。
   // ±500dpsだと通常の最大角速度指令だけで飽和し、高速回転時にyawが追従しなくなる)
@@ -49,6 +53,10 @@ void Imu_Update(Imu* self) {
 
   self->accel_x = self->sensor.accelX;
   self->accel_y = self->sensor.accelY;
+  float ax = self->sensor.accelX - self->accel_bias_x;
+  float ay = self->sensor.accelY - self->accel_bias_y;
+  self->accel_robot_x = IMU_TO_ROBOT_AX(ax, ay) * IMU_GRAVITY_MPS2;
+  self->accel_robot_y = IMU_TO_ROBOT_AY(ax, ay) * IMU_GRAVITY_MPS2;
   self->yaw_rate = Radians(gyro_z);
 
   Madgwick_UpdateImu(&self->ahrs, Radians(gyro_x), Radians(gyro_y), self->yaw_rate,
@@ -64,19 +72,27 @@ void Imu_Calibrate(Imu* self) {
   printf("IMU Calibration Start (keep the robot stationary)\n");
 
   float sum_x = 0.0f, sum_y = 0.0f, sum_z = 0.0f;
+  float sum_ax = 0.0f, sum_ay = 0.0f;
   for (uint16_t count = 0; count < IMU_CALIB_SAMPLE_COUNT;) {
     if (!Lsm6dso32_DataReady(&self->sensor)) continue;
     Lsm6dso32_Update(&self->sensor);
     sum_x += self->sensor.gyroX;
     sum_y += self->sensor.gyroY;
     sum_z += self->sensor.gyroZ;
+    sum_ax += self->sensor.accelX;
+    sum_ay += self->sensor.accelY;
     count++;
   }
 
   self->gyro_bias_x = sum_x / IMU_CALIB_SAMPLE_COUNT;
   self->gyro_bias_y = sum_y / IMU_CALIB_SAMPLE_COUNT;
   self->gyro_bias_z = sum_z / IMU_CALIB_SAMPLE_COUNT;
+  // 水平方向の加速度バイアス(基板の傾き・オフセット)。TCSの対地速度推定で積分するため除去する
+  self->accel_bias_x = sum_ax / IMU_CALIB_SAMPLE_COUNT;
+  self->accel_bias_y = sum_ay / IMU_CALIB_SAMPLE_COUNT;
 
   printf("IMU Calibration Done  GyroBias[dps] X:%+.3f Y:%+.3f Z:%+.3f\n",
          self->gyro_bias_x, self->gyro_bias_y, self->gyro_bias_z);
+  printf("                      AccelBias[g]  X:%+.4f Y:%+.4f\n",
+         self->accel_bias_x, self->accel_bias_y);
 }

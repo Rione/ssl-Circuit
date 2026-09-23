@@ -1,7 +1,47 @@
 #include "omni_drive.h"
 
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
+
+// 逆運動学 H (4x3, 行 [-sinθi, cosθi, R]) から最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ を求める。
+// 55°/135° 配置は Σsin²θ≠Σcos²θ, Σcosθ≠0 のため、単純な Σ/2 では vx が約17%過大になる
+static void OmniDrive_ComputeForwardKinematics(OmniDrive* self) {
+  float h[4][3];
+  for (int i = 0; i < 4; i++) {
+    h[i][0] = -SinDeg(ROBOT_MOTOR_DEGREE[i]);
+    h[i][1] = CosDeg(ROBOT_MOTOR_DEGREE[i]);
+    h[i][2] = ROBOT_WHEEL_BASE_RADIUS;
+  }
+
+  float a[3][3] = {{0}};
+  for (int r = 0; r < 3; r++) {
+    for (int c = 0; c < 3; c++) {
+      for (int i = 0; i < 4; i++) a[r][c] += h[i][r] * h[i][c];
+    }
+  }
+
+  // 3x3 逆行列 (余因子展開)
+  float inv[3][3];
+  inv[0][0] = a[1][1] * a[2][2] - a[1][2] * a[2][1];
+  inv[0][1] = a[0][2] * a[2][1] - a[0][1] * a[2][2];
+  inv[0][2] = a[0][1] * a[1][2] - a[0][2] * a[1][1];
+  inv[1][0] = a[1][2] * a[2][0] - a[1][0] * a[2][2];
+  inv[1][1] = a[0][0] * a[2][2] - a[0][2] * a[2][0];
+  inv[1][2] = a[0][2] * a[1][0] - a[0][0] * a[1][2];
+  inv[2][0] = a[1][0] * a[2][1] - a[1][1] * a[2][0];
+  inv[2][1] = a[0][1] * a[2][0] - a[0][0] * a[2][1];
+  inv[2][2] = a[0][0] * a[1][1] - a[0][1] * a[1][0];
+  float det = a[0][0] * inv[0][0] + a[0][1] * inv[1][0] + a[0][2] * inv[2][0];
+
+  for (int r = 0; r < 3; r++) {
+    for (int i = 0; i < 4; i++) {
+      float sum = 0.0f;
+      for (int c = 0; c < 3; c++) sum += inv[r][c] * h[i][c];
+      self->fk[r][i] = sum / det;
+    }
+  }
+}
 
 void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   for (int i = 0; i < 4; i++) {
@@ -10,66 +50,86 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   self->emg = 0;
   self->ready = 0;
   for (int i = 0; i < 4; i++) {
+    self->vel_wheel_angular[i] = 0.0f;
+    self->target_wheel_angular[i] = 0.0f;
     MAF_Init(&self->maf[i], 25);
   }
+  OmniDrive_ComputeForwardKinematics(self);
   TCS_Init(&self->tcs);
 }
 
 void OmniDrive_SetVel(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle) {
-  OmniDrive_SetVelEx(self, vel_x, vel_y, vel_angle, 0.0f, 0.0f);
+  OmniDrive_SetVelEx(self, vel_x, vel_y, vel_angle, NULL);
+}
+
+// 呼び出し間隔の実測dt [s]。制御ループは基本1ms周期だが、他処理のブロッキング
+// (例: Rock5A SPIストール検知時のprintf)で稀に周期が乱れることがある。
+// 固定値dtを使うとTCSの加速度差分計算(オドメトリ速度の微分)がその分だけ実際の
+// 数百倍の値になり、スリップ誤検知や速度平滑化の破綻を招くため、実測して使う。
+static float OmniDrive_MeasureDt(void) {
+  static Timer timer = {0};
+  static bool initialized = false;
+  const float kNominalDt = (float)ROBOT_CONTROL_LOOP_DT_US * 1e-6f;
+  const float kMaxDt = 0.05f;  // 50ms超のギャップはクランプ (異常時の暴走防止)
+
+  if (!initialized) {
+    Timer_Init(&timer);
+    Timer_Reset(&timer);
+    initialized = true;
+    return kNominalDt;
+  }
+
+  float dt = Timer_Read(&timer);
+  Timer_Reset(&timer);
+  if (dt <= 0.0f) dt = kNominalDt;
+  if (dt > kMaxDt) dt = kMaxDt;
+  return dt;
 }
 
 void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t vel_angle,
-                        float gyro_yaw_rate, float battery_voltage) {
+                        const Imu* imu) {
   float vx_m = vel_x / 1000.0f;
   float vy_m = vel_y / 1000.0f;
   float omega_rad = vel_angle * 0.001f;
-  const float dt = (float)ROBOT_CONTROL_LOOP_DT_US * 1e-6f;
+  const float dt = OmniDrive_MeasureDt();
 
-  // 1. S字加減速 (ジャーク・加速度制限) による速度平滑化
-  float smooth_vx = vx_m;
-  float smooth_vy = vy_m;
-  float smooth_omega = omega_rad;
-  TCS_SmoothVelocity(&self->tcs, vx_m, vy_m, omega_rad, &smooth_vx, &smooth_vy,
-                     &smooth_omega, dt);
+  // 1. TCS: 対地速度推定 → スリップ検知 → スリップ量に応じたS字加減速
+  TCSInput in;
+  for (int i = 0; i < 4; i++) {
+    in.wheel_vel[i] = self->vel_wheel_angular[i];
+  }
+  OmniDrive_GetVelF(self, &in.odom_vx, &in.odom_vy, &in.odom_omega);
+  in.has_imu = (imu != NULL);
+  in.gyro_yaw_rate = in.has_imu ? imu->yaw_rate : 0.0f;
+  in.accel_x = in.has_imu ? imu->accel_robot_x : 0.0f;
+  in.accel_y = in.has_imu ? imu->accel_robot_y : 0.0f;
 
-  // 2. スリップ検知 (幾何学的残差拘束 & IMU旋回ジャイロ照合)
-  float current_speed_mps = sqrtf(smooth_vx * smooth_vx + smooth_vy * smooth_vy);
-  TCS_DetectSlip(&self->tcs, self->vel_wheel_angular, gyro_yaw_rate, current_speed_mps, dt);
+  float cmd_vx, cmd_vy, cmd_omega;
+  TCS_Update(&self->tcs, &in, vx_m, vy_m, omega_rad, &cmd_vx, &cmd_vy, &cmd_omega, dt);
 
-  // 3. 能動トラクション介入 (並進ベクトル一括等比スケーリング)
-  // ★ 車輪個別ではなく並進ベクトルを一括でスケールダウンするため、
-  // 4輪の推力比率を 100% 維持し、姿勢や進行方向の崩れを完全に防ぐ！
-  TCS_ApplyIntervention(&self->tcs, &smooth_vx, &smooth_vy, dt);
-
-  // 4. オムニホイール逆運動学: v_w = -vx*sin(θ) + vy*cos(θ) + R*ω
-  // ※ smooth_omega (姿勢制御) はスケーリングせず維持されるため、ヘディングロックが確実に機能する
+  // 2. オムニホイール逆運動学: v_w = -vx*sin(θ) + vy*cos(θ) + R*ω
+  // ※ バッテリー電圧補正は WheelUnit 側 (FOC に電源電圧を渡している) で行われる。
+  //    ここで目標角速度を増やすと速度閉ループのため実速度が指令より速くなってしまう
   float target_wheel_angular[4];
   for (int i = 0; i < 4; i++) {
     float v_wheel_linear =
-        -smooth_vx * SinDeg(ROBOT_MOTOR_DEGREE[i]) +
-        smooth_vy * CosDeg(ROBOT_MOTOR_DEGREE[i]) +
-        ROBOT_WHEEL_BASE_RADIUS * smooth_omega;
+        -cmd_vx * SinDeg(ROBOT_MOTOR_DEGREE[i]) +
+        cmd_vy * CosDeg(ROBOT_MOTOR_DEGREE[i]) +
+        ROBOT_WHEEL_BASE_RADIUS * cmd_omega;
 
     target_wheel_angular[i] = v_wheel_linear / ROBOT_WHEEL_RADIUS;
+    self->target_wheel_angular[i] = target_wheel_angular[i];  // ログ用 (クランプ前)
   }
 
-  // 5. 電圧変動補正 (バッテリー低下時のトルク抜け補償)
-  if (battery_voltage > 0.0f) {
-    TCS_CompensateVoltage(&self->tcs, target_wheel_angular, battery_voltage);
-  }
-
-  // 6. 出力整形式・最大角速度クランプ
+  // 3. 出力整形・最大角速度クランプ
   int16_t m[4];
   for (int i = 0; i < 4; i++) {
     float v_clamped = Constrain(target_wheel_angular[i], -100.0f, 100.0f);
     int16_t raw_m = (int16_t)(v_clamped * 100.0f);
 
-    // S字制限が無効な場合のみ旧MAFフィルタを適用
-    if (!self->tcs.config.enable_s_curve) {
-      raw_m = MAF_Update(&self->maf[i], raw_m);
-    }
-    m[i] = raw_m;
+    // MAFは常に更新しておき (切替直後に古い値が出ないように)、S字制限が無効な場合のみ使う
+    int16_t maf_m = (int16_t)MAF_Update(&self->maf[i], raw_m);
+    m[i] = self->tcs.config.enable_s_curve ? raw_m : maf_m;
   }
 
   OmniDrive_Send(self, m, 1);  // command: 1 (Drive)
@@ -77,6 +137,9 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
 
 void OmniDrive_SetFree(OmniDrive* self) {
   TCS_Reset(&self->tcs);
+  for (int i = 0; i < 4; i++) {
+    self->target_wheel_angular[i] = 0.0f;
+  }
   int16_t m[4] = {0, 0, 0, 0};
   OmniDrive_Send(self, m, 0);  // command: 0 (Free)
 }
@@ -104,9 +167,29 @@ void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
   Serial_Write(self->serials[2], send_data, 11);
 }
 
+// 受信した車輪角速度を受理するか判定する。前回値から OMNI_WHEEL_MAX_JUMP_RADPS を超えて
+// 跳んだ値は保留し、次のフレームも保留値の近くなら本物の変化として受理する
+// (ヘッダ/フッタ判定だけではデータ中の0xFF/0xAAでフレームがずれた誤値を受理しうるため)
+static bool OmniDrive_AcceptWheelVel(float prev, float value, float* pending,
+                                     bool* has_pending) {
+  if (fabsf(value - prev) <= OMNI_WHEEL_MAX_JUMP_RADPS) {
+    *has_pending = false;
+    return true;
+  }
+  if (*has_pending && fabsf(value - *pending) <= OMNI_WHEEL_MAX_JUMP_RADPS) {
+    *has_pending = false;
+    return true;
+  }
+  *pending = value;
+  *has_pending = true;
+  return false;
+}
+
 void OmniDrive_Recv(OmniDrive* self) {
   static uint8_t recv_data[4][3];
   static uint8_t index[4] = {0};
+  static float pending[4];
+  static bool has_pending[4] = {false};
 
   for (int i = 0; i < 4; i++) {
     while (Serial_Available(self->serials[i])) {
@@ -122,8 +205,11 @@ void OmniDrive_Recv(OmniDrive* self) {
         if (recv_byte == 0xAA) {
           self->emg = recv_data[i][0] & 0x01;
           self->ready = (recv_data[i][0] >> 1) & 0x01;
-          self->vel_wheel_angular[i] =
-              (int16_t)((recv_data[i][1] << 8) | recv_data[i][2]) * 0.01;
+          float vel = (int16_t)((recv_data[i][1] << 8) | recv_data[i][2]) * 0.01f;
+          if (OmniDrive_AcceptWheelVel(self->vel_wheel_angular[i], vel, &pending[i],
+                                       &has_pending[i])) {
+            self->vel_wheel_angular[i] = vel;
+          }
         }
         index[i] = 0;
       } else {
@@ -134,20 +220,21 @@ void OmniDrive_Recv(OmniDrive* self) {
   }
 }
 
+void OmniDrive_GetVelF(const OmniDrive* self, float* vx, float* vy, float* omega) {
+  float out[3] = {0.0f, 0.0f, 0.0f};
+  for (int i = 0; i < 4; i++) {
+    float v_wheel_linear = self->vel_wheel_angular[i] * ROBOT_WHEEL_RADIUS;
+    for (int r = 0; r < 3; r++) out[r] += self->fk[r][i] * v_wheel_linear;
+  }
+  *vx = out[0];
+  *vy = out[1];
+  *omega = out[2];
+}
+
 void OmniDrive_GetVel(OmniDrive* self, int16_t* vel_x, int16_t* vel_y, int16_t* vel_angle) {
-  float v_wheel_linear[4];
-  for (int i = 0; i < 4; i++) {
-    v_wheel_linear[i] = self->vel_wheel_angular[i] * ROBOT_WHEEL_RADIUS;
-  }
-
-  float vx_sum = 0.0f, vy_sum = 0.0f, v_sum = 0.0f;
-  for (int i = 0; i < 4; i++) {
-    vx_sum += v_wheel_linear[i] * (-SinDeg(ROBOT_MOTOR_DEGREE[i]));
-    vy_sum += v_wheel_linear[i] * CosDeg(ROBOT_MOTOR_DEGREE[i]);
-    v_sum += v_wheel_linear[i];
-  }
-
-  *vel_x = (int16_t)(vx_sum / 2.0f * 1000.0f);
-  *vel_y = (int16_t)(vy_sum / 2.0f * 1000.0f);
-  *vel_angle = (int16_t)(v_sum / (4.0f * ROBOT_WHEEL_BASE_RADIUS));
+  float vx, vy, omega;
+  OmniDrive_GetVelF(self, &vx, &vy, &omega);
+  *vel_x = (int16_t)(vx * 1000.0f);
+  *vel_y = (int16_t)(vy * 1000.0f);
+  *vel_angle = (int16_t)(omega * 1000.0f);
 }

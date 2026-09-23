@@ -1,6 +1,7 @@
 #include "robot.h"
 
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -122,6 +123,27 @@ static uint8_t* Robot_RockTxStaging(void) {
   return rock_spi_tx_buf[1U - rock_spi_tx_arm_idx];
 }
 
+// SPI2 を待ち時間なしで初期状態に戻す。
+// HAL_SPI_Abort は IT 転送中だと TXE/RXNE 割り込みで abort 用 ISR が走るのを
+// ビジーループで待つが、スレーブでマスタークロックが来ていないとその割り込みは
+// 永久に来ず、TX/RX それぞれ 100ms 相当のタイムアウトまで待ち切る (実測で約225ms
+// 制御ループが停止していた)。RCC でペリフェラルごとリセットすれば送信バッファの
+// 残りやビットずれも含めて確実に初期化でき、待ちも発生しない。
+static void Robot_RockResetSpi(void) {
+  uint32_t primask = __get_PRIMASK();
+  __disable_irq();
+  __HAL_RCC_SPI2_FORCE_RESET();
+  __HAL_RCC_SPI2_RELEASE_RESET();
+  HAL_NVIC_ClearPendingIRQ(SPI2_IRQn);
+  // State が RESET 以外なら HAL_SPI_Init は MspInit(GPIO/NVIC 再設定) を呼ばず、
+  // hspi2.Init の内容でレジスタだけを設定し直す
+  hspi2.State = HAL_SPI_STATE_READY;
+  HAL_SPI_Init(&hspi2);
+  if (primask == 0U) {
+    __enable_irq();
+  }
+}
+
 void Robot_Initialize(Robot* self) {
   printf("Robot Initialize Start\n");
   DigitalOut_Init(&self->led0, LED0_GPIO_Port, LED0_Pin);
@@ -201,17 +223,24 @@ void Robot_RockUpdateSPI(Robot* self, RobotInfo* info) {
     __enable_irq();
   }
 
+  // Rock5A未接続時はストールが ROCK_SPI_STALL_TIMEOUT_MS 周期で繰り返し検出される。
+  // ログが埋もれないよう、同一の切断エピソード中は最初の1回だけ出す(受信成功でリセット)
+  static bool stall_logged = false;
+
   if (rock_rearm_pending) {
     rock_rearm_pending = 0;
-    HAL_SPI_Abort(&hspi2);
+    Robot_RockResetSpi();
     Robot_RockArm();
   } else if ((HAL_GetTick() - rock_spi_progress_tick) > ROCK_SPI_STALL_TIMEOUT_MS) {
     // 完了もエラーもせず BUSY のまま固まった（ソフト NSS スレーブの
     // ビットずれによるハング、または Rock5A 未接続でマスタークロックが
     // 全く来ていない場合も同様に検出される）。強制的に Abort して再 Arm し復帰させる。
-    printf("Rock SPI stall detected (no master clock for %ums), re-arming\n",
-           ROCK_SPI_STALL_TIMEOUT_MS);
-    HAL_SPI_Abort(&hspi2);
+    if (!stall_logged) {
+      stall_logged = true;
+      printf("Rock SPI stall detected (no master clock for %ums), re-arming\n",
+             ROCK_SPI_STALL_TIMEOUT_MS);
+    }
+    Robot_RockResetSpi();
     Robot_RockArm();
   }
 
@@ -221,6 +250,7 @@ void Robot_RockUpdateSPI(Robot* self, RobotInfo* info) {
     int16_t payload_offset = Robot_RockFindFrame(rock_spi_rx_window, ROCK_SPI_RX_WINDOW_SIZE);
     if (payload_offset >= 0) {
       rock_last_recv_tick = HAL_GetTick();
+      stall_logged = false;  // 受信成功したので次の切断時はまた1回だけログを出す
       Robot_RockApplyRecvPacket(info, &rock_spi_rx_window[payload_offset]);
     }
   }
@@ -287,8 +317,7 @@ void Robot_SendKicker(Robot* self, RobotInfo* info) {
 void Robot_SendOmniDrive(Robot* self, RobotInfo* info, uint8_t interval) {
   (void)interval;
   OmniDrive_SetVelEx(&self->omni_drive, info->vel_x.vel, info->vel_y.vel,
-                     info->vel_angular.vel, self->imu.yaw_rate,
-                     info->battery_voltage);
+                     info->vel_angular.vel, &self->imu);
 }
 
 void Robot_UpdateHeartBeat(Robot* self) {
