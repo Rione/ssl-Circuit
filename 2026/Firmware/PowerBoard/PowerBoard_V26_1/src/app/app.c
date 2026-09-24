@@ -95,12 +95,14 @@ void MainApp() {
     Kicker_Update();                            // キックパルスの終了処理(非ブロッキング)
 
     if (Timer_ReadMs(&can_trasmit_interval_timer) > 10) {
+      uint16_t boost_voltage = (uint16_t)GetBoostVoltage();  // 255Vを超えるため2byteで送る
       CanData can_send_data = {
           .stdId = 0x50,
           .data = {
               Kicker_DoneCheck(),
-              GetSupplyVoltage() * 5,  // 電源電圧 [V] * 10
-              GetBoostVoltage(),       // 昇圧電圧 [V]
+              GetSupplyVoltage() * 5,       // 電源電圧 [V] * 5
+              boost_voltage & 0xFF,         // 昇圧電圧 [V] 下位byte
+              (boost_voltage >> 8) & 0xFF,  // 昇圧電圧 [V] 上位byte
           },
       };
       Can_Send(&can_bus, &can_send_data);

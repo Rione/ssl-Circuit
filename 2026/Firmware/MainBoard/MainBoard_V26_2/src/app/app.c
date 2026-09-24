@@ -19,7 +19,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
         robot.info.kicker_status.done_charge = can_data.data[0];
         // battery_voltageはMainBoard自身のローカルADC(Robot_UpdateSensor)を正とするため、
         // ここでは上書きしない
-        robot.info.kicker_status.cap_val = can_data.data[2];
+        // 昇圧電圧[V]は255Vを超えるためリトルエンディアン2byteで届く
+        robot.info.kicker_status.cap_val = can_data.data[2] | (can_data.data[3] << 8);
         break;
       case CAN_ID_RX_DRIBBLER:  // ドリブル情報
         robot.info.dribble_status.data = can_data.data[0];

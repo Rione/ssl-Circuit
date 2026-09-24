@@ -33,7 +33,7 @@ void UI_Send(UI* self, const struct Robot* robot) {
   static uint8_t send_data[4];  // DMA送信中も有効な領域に置く
   send_data[0] = 0xFF;
   send_data[1] = robot->info.battery_voltage;
-  send_data[2] = robot->info.kicker_status.cap_val;
+  send_data[2] = (robot->info.kicker_status.cap_val > 255) ? 255 : robot->info.kicker_status.cap_val;  // 1byteに飽和
   send_data[3] = 0xAA;
 
   Serial_Write(self->serial, send_data, sizeof(send_data));

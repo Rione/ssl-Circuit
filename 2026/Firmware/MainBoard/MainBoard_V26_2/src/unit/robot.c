@@ -214,7 +214,7 @@ static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst) 
   dst[0] = ROCK_SPI_HEADER;
   dst[1] = info->battery_voltage * 5;
   dst[2] = info->dribble_status.data;
-  dst[3] = info->kicker_status.cap_val;
+  dst[3] = (info->kicker_status.cap_val > 255) ? 255 : info->kicker_status.cap_val;  // 1byteに飽和
   int16_t wheel_scaled[4] = {
       (int16_t)Constrain(self->omni_drive.vel_wheel_angular[0] * 100.0f, -32767.0f, 32767.0f),
       (int16_t)Constrain(self->omni_drive.vel_wheel_angular[1] * 100.0f, -32767.0f, 32767.0f),
