@@ -19,6 +19,7 @@ $speedAddr = Get-SymbolAddress $Elf "robot.omni_drive.vel_wheel_angular"    # fl
 $statusAddr = Get-SymbolAddress $Elf "robot.omni_drive.wheel_status"        # uint8[4]
 $framesAddr = Get-SymbolAddress $Elf "robot.omni_drive.wheel_frame_count"   # uint16[4]
 $restartAddr = Get-SymbolAddress $Elf "robot.omni_drive.wheel_rx_restart_count"  # uint16[4]
+$battAddr = Get-SymbolAddress $Elf "robot.info.battery_voltage"  # uint8 [V] (アドレスはビルドごとに変わるので、毎回 elf から引く)
 
 $maxAbs = @(0.0, 0.0, 0.0, 0.0)
 $firstFrames = $null
@@ -43,6 +44,7 @@ for ($n = 0; $n -lt $Count; $n++) {
   Write-Host ("status  : " + (($status | ForEach-Object { "{0,10}" -f $_ }) -join " "))
   Write-Host ("frames  : " + (($frames | ForEach-Object { "{0,10}" -f $_ }) -join " "))
   Write-Host ("restarts: " + (($restarts | ForEach-Object { "{0,10}" -f $_ }) -join " "))
+  if (-not $Fast) { Write-Host ("battery: {0,10} V" -f (Read-RamBytes $battAddr 1)[0]) }
   if ($n -lt $Count - 1) { Start-Sleep -Milliseconds $IntervalMs }
 }
 
