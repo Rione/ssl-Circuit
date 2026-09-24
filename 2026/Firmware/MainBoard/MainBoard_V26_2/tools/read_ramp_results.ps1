@@ -67,49 +67,48 @@ Write-Host ""
 Write-Host "== 1本ごと (加速度の単位: 並進 m/s²、旋回 rad/s²。速度: 並進 m/s、旋回 rad/s)"
 $rows | Format-Table no, 向き, 回, t_s, 加速_ピークV, 加速_ピーク加速度, 加速_滑り始めV, 加速_終わり, 加速_速度, 減速_ピークV, 減速_ピーク加速度, 減速_滑り始めV, 減速_終わり, 状態, 電池V -AutoSize | Out-String -Width 400 | Write-Host
 
-# 向きごと: くり返しの中の最小値を採用する
+# 向きごと: 滑り始め (主な指標) とピーク。どちらも、くり返しの中の最小値を採用する
 Write-Host "== 向きごと (採用はくり返しの最小値。* は3回目を測った向き、! は3回でも差が大きかった向き)"
+Write-Host "   滑り始め = 車輪と IMU の加速度が離れ始めたトルク。ピーク = IMU の加速度が一番大きかったトルク (滑り始めのあとも上げて測る)"
 $perDir = foreach ($d in 0..9) {
   $r = @($rows | Where-Object { $_.dir -eq $d })
   if ($r.Count -eq 0) { continue }
-  $vals = @($r | ForEach-Object { $_.acc.peakV })
-  $accs = @($r | ForEach-Object { $_.acc.peakA })
-  $bvals = @($r | Where-Object { $_.brk.peakV -gt 0 } | ForEach-Object { $_.brk.peakV })
-  $baccs = @($r | Where-Object { $_.brk.peakV -gt 0 } | ForEach-Object { $_.brk.peakA })
-  $noSlip = @($r | Where-Object { $_.acc.onset -eq 0 }).Count
+  $withOnset = @($r | Where-Object { $_.acc.onset -gt 0 })
   $mark = ""
   if ($retry -band (1 -shl $d)) { $mark += "*" }
   if ($unstable -band (1 -shl $d)) { $mark += "!" }
+  $bOn = @($r | Where-Object { $_.brk.onset -gt 0 } | ForEach-Object { $_.brk.onset })
   [pscustomobject]@{
     dir = $d; 向き = $dirNames[$d] + $mark
-    加速ピークV_各回 = ($vals | ForEach-Object { "{0:F2}" -f $_ }) -join " / "
-    加速ピークV_採用 = ($vals | Measure-Object -Minimum).Minimum
-    加速度_採用 = ($accs | Measure-Object -Minimum).Minimum
-    滑らなかった回 = $noSlip
-    減速ピークV_採用 = if ($bvals.Count) { ($bvals | Measure-Object -Minimum).Minimum } else { $null }
-    減速度_採用 = if ($baccs.Count) { ($baccs | Measure-Object -Minimum).Minimum } else { $null }
+    滑り始めV_各回 = ($r | ForEach-Object { if ($_.acc.onset -gt 0) { "{0:F2}" -f $_.acc.onset } else { "なし" } }) -join " / "
+    滑り始めV_採用 = if ($withOnset.Count) { ($withOnset | ForEach-Object { $_.acc.onset } | Measure-Object -Minimum).Minimum } else { $null }
+    滑り始めの加速度 = if ($withOnset.Count) { ($withOnset | ForEach-Object { $_.acc.onsetA } | Measure-Object -Minimum).Minimum } else { $null }
+    ピークV_各回 = ($r | ForEach-Object { "{0:F2}" -f $_.acc.peakV }) -join " / "
+    ピークV_採用 = if ($withOnset.Count) { ($withOnset | ForEach-Object { $_.acc.peakV } | Measure-Object -Minimum).Minimum } else { $null }
+    ピーク加速度 = if ($withOnset.Count) { ($withOnset | ForEach-Object { $_.acc.peakA } | Measure-Object -Minimum).Minimum } else { $null }
+    滑らなかった回 = $r.Count - $withOnset.Count
+    減速_滑り始めV = if ($bOn.Count) { ($bOn | Measure-Object -Minimum).Minimum } else { $null }
   }
 }
-$perDir | Format-Table -AutoSize | Out-String -Width 300 | Write-Host
+$perDir | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
 
-# 採用する値 (全方向共通): 並進8向きの最小、旋回2向きの最小。トルク上限は 3.2V 以下に収める
-$lin = @($perDir | Where-Object { $_.dir -lt 8 })
-$rot = @($perDir | Where-Object { $_.dir -ge 8 })
+# 採用する値の候補 (全方向共通)。並進8向きのうち、滑り始めが見つかった向きの最小。トルク上限は 3.2V 以下
+$lin = @($perDir | Where-Object { $_.dir -lt 8 -and $null -ne $_.滑り始めV_採用 })
 if ($lin.Count -gt 0) {
-  $tl = ($lin | Measure-Object 加速ピークV_採用 -Minimum).Minimum
-  $tlDir = ($lin | Sort-Object 加速ピークV_採用 | Select-Object -First 1).向き
-  $ma = ($lin | Measure-Object 加速度_採用 -Minimum).Minimum
-  $maDir = ($lin | Sort-Object 加速度_採用 | Select-Object -First 1).向き
-  Write-Host ("トルク上限 (採用)     = {0:F2} V  (一番低かった向き: {1}){2}" -f [math]::Min($tl, 3.2), $tlDir, $(if ($tl -gt 3.2) { "  ※ 測った値 {0:F2}V を 3.2V に収めた" -f $tl } else { "" }))
-  Write-Host ("S字の加速度上限 (採用) = {0:F2} m/s²  (一番低かった向き: {1})" -f $ma, $maDir)
+  $on = $lin | Sort-Object 滑り始めV_採用 | Select-Object -First 1
+  $pk = $lin | Sort-Object ピークV_採用 | Select-Object -First 1
+  $onA = ($lin | Measure-Object 滑り始めの加速度 -Minimum).Minimum
+  $pkA = ($lin | Measure-Object ピーク加速度 -Minimum).Minimum
+  Write-Host ("候補1 (滑り始めで決める): トルク上限 {0:F2} V ({1})、加速度上限 {2:F2} m/s²" -f [math]::Min($on.滑り始めV_採用, 3.2), $on.向き, $onA)
+  Write-Host ("候補2 (ピークで決める)  : トルク上限 {0:F2} V ({1})、加速度上限 {2:F2} m/s²" -f [math]::Min($pk.ピークV_採用, 3.2), $pk.向き, $pkA)
+} else {
+  Write-Host "並進で滑り始めが見つかった向きがありません"
 }
-if ($rot.Count -gt 0) {
-  $maa = ($rot | Measure-Object 加速度_採用 -Minimum).Minimum
-  Write-Host ("S字の角加速度上限 (採用) = {0:F1} rad/s²" -f $maa)
+$rotAll = @($perDir | Where-Object { $_.dir -ge 8 })
+if ($rotAll.Count -gt 0 -and @($rotAll | Where-Object { $null -ne $_.滑り始めV_採用 }).Count -eq 0) {
+  Write-Host "旋回: 滑る前に速度の上限か電圧の余裕に達した (角加速度の限界は滑りではない)。角加速度上限は手動の値のまま"
 }
 Write-Host "（参考: 手動調整の値はトルク上限 2.8V、加速度上限 5.0 m/s²、角加速度上限 38 rad/s²）"
-Write-Host "滑らなかった回が多い向きは、ピークが「測れた範囲の最大」で、本当の限界はそれ以上の可能性がある (終わり方を見る)。"
-
 if ($Csv) {
   $Csv = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Csv)
   New-Item -ItemType Directory -Force (Split-Path $Csv -Parent) | Out-Null

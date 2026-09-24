@@ -74,7 +74,9 @@ void MotionSummary_BeginSegment(int seg, float start_x, float start_y, float tar
     acc.dir_x = dx / acc.length;
     acc.dir_y = dy / acc.length;
   }
-  acc.is_rotation = (acc.length < 0.05f) && (fabsf(target_heading - start_heading) > 0.5f);
+  // 向きを大きく変える区間 (その場旋回・旋回しながらの並進) は、向きの行き過ぎを「目標を越えた量」で測る
+  // (目標との差で測ると、旋回そのもの (π) を数えてしまう)
+  acc.is_rotation = fabsf(target_heading - start_heading) > 0.5f;
   acc.batt_min = 99.0f;
 }
 

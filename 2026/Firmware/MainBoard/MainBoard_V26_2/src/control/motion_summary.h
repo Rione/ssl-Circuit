@@ -26,7 +26,7 @@ typedef struct {
   // 正確さ
   int16_t cross_max_mm;       // 進む向きからの外れの最大 [mm] (並進の区間)
   int16_t pos_over_mm;        // 目標を通り過ぎた距離の最大 [mm] (並進の区間、通り過ぎなければ0)
-  int16_t head_over_mrad;     // 向きの行き過ぎの最大 [mrad] (旋回の区間は目標を越えた量、並進は向きのずれの最大)
+  int16_t head_over_mrad;     // 向きの行き過ぎの最大 [mrad] (向きを変える区間は目標を越えた量、並進は向きのずれの最大)
   int16_t end_dist_mm;        // 区間が終わったときの目標までの距離 [mm]
   int16_t end_head_mrad;      // 区間が終わったときの向きの誤差 [mrad]
   // 機体の状態

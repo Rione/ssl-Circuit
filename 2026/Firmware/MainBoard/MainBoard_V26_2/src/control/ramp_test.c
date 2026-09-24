@@ -13,17 +13,27 @@
 RampRunResult ramp_result;
 
 // ---- 試験の定数 ----
-// トルク上限のランプ。3.2V (volt_tune の安全範囲の上限) を超えるのは、この試験の中の一瞬だけ
-// (滑り始めを見つけたらすぐ下げる)。採用する値は今までどおり 3.2V 以下に収める
-#define RAMP_START_V 1.5f
-#define RAMP_MAX_V 3.6f
-#define RAMP_RATE_V_PER_S 10.0f  // 1.5→3.6V を約0.21秒
+// トルク上限のランプ (2026-09-24 の初回の結果で見直し、HANDOFF_AUTOTUNE.md 10.8・10.9)。
+//  - 始めは 1.8V: どの向きも 2.1V より下では滑らなかったので、その手前は急いで通り過ぎる
+//  - 上限は 3.2V (volt_tune の安全範囲の上限と同じ): 採用する値は前後左右 (2.1〜2.5V) で決まる
+//  - 速さは 5V/s (1.8→3.2V を約0.28秒): 初回の 10V/s の半分。ゆっくりすぎると速度が出て、今の回転数で
+//    転がり続ける電圧が増え、電圧上限 (4.9V) までの余裕が足りなくなる (3.2V に着く頃に約1m/s、
+//    斜めでも余裕は約3.3V 残る計算)
+#define RAMP_START_V 1.8f
+#define RAMP_MAX_V 3.2f
+#define RAMP_RATE_V_PER_S 5.0f
+// 滑り始めを見つけたあとも、ピーク (IMU の加速度が一番大きい所) を測るために上げ続ける。
+// 滑り始めからこれだけ上げたか、IMU の加速度がピークの RAMP_PEAK_DROP_RATIO 倍を
+// RAMP_PEAK_DROP_HOLD_S 下回り続けたら、加速をやめる (初回は滑り始めで止めたため、ピークを測れなかった)
+#define RAMP_PAST_ONSET_V 0.4f
+#define RAMP_PEAK_DROP_RATIO 0.8f
+#define RAMP_PEAK_DROP_HOLD_S 0.020f
 // 滑り始め: 進む向きの (車輪の加速度 − IMU の加速度) がこれを超えた状態が RAMP_SLIP_HOLD_S 続いた
 #define RAMP_SLIP_THRESH_LIN 1.5f   // [m/s^2]
 #define RAMP_SLIP_THRESH_ANG 20.0f  // [rad/s^2] (車輪の位置で 1.5m/s² ≒ 20rad/s² × 0.075m)
 #define RAMP_SLIP_HOLD_S 0.020f
 #define RAMP_DETECT_DELAY_S 0.030f  // ランプを始めてから判定を始めるまで (LPF が落ち着くまで)
-#define RAMP_ONSET_HOLD_S 0.030f    // 滑り始めを見つけてから、IMU のピークを拾うためにトルクを保つ時間
+#define RAMP_ONSET_HOLD_S 0.030f    // ブレーキ: 滑り始めを見つけてから、トルクを保ってピークを拾う時間
 #define RAMP_BRAKE_START_RATIO 0.7f // ブレーキのランプは、加速で見つけた値のこの割合から始める
 #define RAMP_AFTER_SLIP_RATIO 0.7f  // 滑り始めを見つけたら、トルク上限をこの割合まで下げる
 // 加速の目標 (高くして、FF の要求が常にトルク上限を超える状態にする。上限の値 = 実際のトルク)
@@ -41,9 +51,10 @@ RampRunResult ramp_result;
 #define RAMP_SETTLE_S 0.3f
 #define RAMP_RETURN_TIMEOUT_S 4.0f
 #define RAMP_PHASE_TIMEOUT_S 3.0f
-// 3回目を測るかの判定: 2回のピークの差がこれ以上 (どちらか)
-#define RAMP_RETRY_DIFF_V 0.20f
-#define RAMP_RETRY_DIFF_RATIO 0.10f
+// 3回目を測るかの判定: 2回の滑り始めの差がこれ以上 (どちらか)。初回の 0.2V/10% は厳しすぎて、
+// 10向き中9向きで3回目に入った
+#define RAMP_RETRY_DIFF_V 0.30f
+#define RAMP_RETRY_DIFF_RATIO 0.15f
 // 安全停止の範囲 [m] (後ろの空きは約0.5m)
 #define RAMP_AREA_X_MIN (-0.4f)
 #define RAMP_AREA_X_MAX 1.6f
@@ -79,6 +90,8 @@ typedef struct {
   float onset_L, onset_acc;
   float after_onset_t;
   float peak_acc, peak_L;
+  bool past_onset;        // 加速: 滑り始めのあとも上げ続けてピークを測る (ブレーキは false)
+  float drop_t;           // IMU の加速度がピークから落ちている時間 [s]
 } Detect;
 
 static struct {
@@ -125,12 +138,13 @@ static int16_t I16(float v) {
 static int CurrentDir(void) { return rt.pairs[rt.pair_pos] * 2 + rt.member; }
 static bool IsRotation(int dir) { return dir >= RAMP_DIR_ROT_CCW; }
 
-static void ResetDetect(float L_start) {
+static void ResetDetect(float L_start, bool past_onset) {
   Detect zero = {0};
   rt.det = zero;
   rt.det.L = L_start;
   rt.det.L_f = L_start;
   rt.det.ramping = true;
+  rt.det.past_onset = past_onset;
 }
 
 // 電圧上限までの余裕 (4輪の中で一番小さいもの) [V]
@@ -151,12 +165,16 @@ static void DetectStep(float dt, float a_imu, float a_odom, float thresh, bool v
   const float tau = 1.0f / (2.0f * (float)PI * TCS_ACCEL_LPF_HZ);
   d->L_f += dt / (tau + dt) * (d->L - d->L_f);
   if (d->onset_found) {
-    // 見つけた後も少しの間はピークを拾う (IMU の加速度は LPF で少し遅れる)。
+    // 見つけた後もピークを拾う (加速は上げ続けながら、ブレーキは保つ間だけ)。
     // 保つ時間は valid に関係なく進める (止まらずにトルクを下げられるように)
     d->after_onset_t += dt;
-    if (valid && d->after_onset_t <= RAMP_ONSET_HOLD_S && a_imu > d->peak_acc) {
+    bool track = d->past_onset || d->after_onset_t <= RAMP_ONSET_HOLD_S;
+    if (valid && track && a_imu > d->peak_acc) {
       d->peak_acc = a_imu;
       d->peak_L = d->L_f;
+    }
+    if (d->past_onset && valid) {
+      d->drop_t = (a_imu < RAMP_PEAK_DROP_RATIO * d->peak_acc) ? d->drop_t + dt : 0.0f;
     }
     return;
   }
@@ -178,7 +196,8 @@ static void DetectStep(float dt, float a_imu, float a_odom, float thresh, bool v
       d->onset_found = true;
       d->onset_L = d->cand_L;
       d->onset_acc = d->cand_acc;
-      d->ramping = false;
+      // 加速は、滑り始めのあともランプを続ける (ピークを測るため)。ブレーキは止めて、保つ・下げるに移る
+      if (!d->past_onset) d->ramping = false;
     }
   } else {
     d->slip_t = 0.0f;
@@ -187,8 +206,8 @@ static void DetectStep(float dt, float a_imu, float a_odom, float thresh, bool v
 
 static void AdvanceRamp(float dt) {
   Detect* d = &rt.det;
-  if (d->onset_found) {
-    // 滑り始めを見つけたら、ピークを拾う間だけ保ち、その後は下げて空転を止める
+  if (d->onset_found && !d->past_onset) {
+    // ブレーキ: 滑り始めを見つけたら、ピークを拾う間だけ保ち、その後は下げてロックを止める
     if (d->after_onset_t >= RAMP_ONSET_HOLD_S) d->L = RAMP_AFTER_SLIP_RATIO * d->onset_L;
     return;
   }
@@ -248,10 +267,13 @@ static void SeedCommand(OmniDrive* od, const Robot* robot) {
   od->tcs.current_alpha = 0.0f;
 }
 
-static float PeakVOf(int dir, int set) {
+// 向き dir の set 回目の加速の滑り始め [V] (見つからなかったとき・記録が無いときは −1)
+static float OnsetVOf(int dir, int set) {
   for (int i = 0; i < ramp_result.stroke_count; i++) {
     const RampStrokeResult* s = &ramp_result.stroke[i];
-    if (s->dir == dir && s->set == set + 1) return s->accel.peak_v_x100 * 0.01f;
+    if (s->dir == dir && s->set == set + 1) {
+      return (s->accel.onset_v_x100 > 0) ? s->accel.onset_v_x100 * 0.01f : -1.0f;
+    }
   }
   return -1.0f;
 }
@@ -262,14 +284,14 @@ static bool IsFar(float a, float b) {
   return diff >= RAMP_RETRY_DIFF_V || diff >= RAMP_RETRY_DIFF_RATIO * fmaxf(a, b);
 }
 
-// 1回目と2回目の差が大きい向きの組を選ぶ。無ければ false
+// 1回目と2回目の滑り始めの差が大きい向きの組を選ぶ (滑り始めが見つからなかった回は比べない)。無ければ false
 static bool PlanRetry(void) {
   rt.pair_count = 0;
   for (int p = 0; p < RAMP_PAIR_COUNT; p++) {
     bool far = false;
     for (int m = 0; m < 2; m++) {
       int dir = p * 2 + m;
-      if (IsFar(PeakVOf(dir, 0), PeakVOf(dir, 1))) far = true;
+      if (IsFar(OnsetVOf(dir, 0), OnsetVOf(dir, 1))) far = true;
     }
     if (far) {
       rt.pairs[rt.pair_count++] = (uint8_t)p;
@@ -285,7 +307,7 @@ static void MarkUnstable(void) {
     if (!(ramp_result.retry_mask & (1U << dir))) continue;
     float lo = 1e9f, hi = -1e9f;
     for (int set = 0; set < RAMP_SET_MAX; set++) {
-      float v = PeakVOf(dir, set);
+      float v = OnsetVOf(dir, set);
       if (v < 0.0f) continue;
       lo = fminf(lo, v);
       hi = fmaxf(hi, v);
@@ -319,7 +341,7 @@ static void BeginStroke(OmniDrive* od, const Robot* robot, uint32_t elapsed_ms) 
   }
   for (int k = 0; k < 3; k++) od->vel_fb_integral[k] = 0.0f;
   SeedCommand(od, robot);
-  ResetDetect(RAMP_START_V);
+  ResetDetect(RAMP_START_V, true);
   float odom_vx, odom_vy, odom_w;
   OmniDrive_GetVelF(od, &odom_vx, &odom_vy, &odom_w);
   rt.prev_gyro = robot->imu.yaw_rate;
@@ -438,14 +460,16 @@ RampTestStatus RampTest_Step(Robot* robot) {
 
       RampEndReason reason = RAMP_END_NONE;
       float cap = IsRotation(dir) ? RAMP_ANG_SPEED_CAP : RAMP_SPEED_CAP;
-      if (rt.det.onset_found && rt.det.after_onset_t >= RAMP_ONSET_HOLD_S) {
+      // 滑り始めのあと RAMP_PAST_ONSET_V 上げたか、IMU の加速度がピークから落ちたらやめる。
+      // それより先に上限・速度・電圧の余裕に達したら、その理由でやめる (滑り始めは記録されていればよい)
+      if (rt.det.onset_found && (rt.det.L_f >= rt.det.onset_L + RAMP_PAST_ONSET_V ||
+                                 rt.det.drop_t >= RAMP_PEAK_DROP_HOLD_S)) {
         reason = RAMP_END_ONSET;
       } else if (rt.det.at_max_t >= RAMP_MAX_V_DWELL_S) {
         reason = RAMP_END_MAX_V;
       } else if (speed > cap) {
         reason = RAMP_END_SPEED;
-      } else if (!rt.det.onset_found && rt.det.t > RAMP_DETECT_DELAY_S &&
-                 MinHeadroom(od) < rt.det.L) {
+      } else if (rt.det.t > RAMP_DETECT_DELAY_S && MinHeadroom(od) < rt.det.L) {
         reason = RAMP_END_HEADROOM;
       }
       if (reason != RAMP_END_NONE) {
@@ -453,7 +477,7 @@ RampTestStatus RampTest_Step(Robot* robot) {
         float found = rt.det.onset_found ? rt.det.onset_L : rt.det.peak_L;
         float L0 = fmaxf(1.0f, RAMP_BRAKE_START_RATIO * found);
         SeedCommand(od, robot);
-        ResetDetect(L0);
+        ResetDetect(L0, false);
         rt.phase = PH_BRAKE;
         rt.phase_t = 0.0f;
       }
