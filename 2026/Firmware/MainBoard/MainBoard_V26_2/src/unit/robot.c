@@ -301,6 +301,21 @@ void Robot_RockUpdateSPI(Robot* self, RobotInfo* info) {
   if ((HAL_GetTick() - rock_last_recv_tick) > ROCK_SPI_SIGNAL_TIMEOUT_MS) {
     info->status.is_signal_received = 0;
   }
+
+  // ★【一時的な診断ログ】Rock5Aから実際に何を受信できているかを確認するためのもの。
+  // 確認が終わったら削除すること。400msごとに1行、USART1へ出力する
+  // (tools/serial_log.ps1 で見られる)。
+  {
+    static uint32_t last_debug_tick = 0;
+    if ((HAL_GetTick() - last_debug_tick) >= 400U) {
+      last_debug_tick = HAL_GetTick();
+      printf(
+          "# rock_debug: estop=%u sig=%u vel=(%d,%d,%d) last_valid_ms_ago=%lu\n",
+          info->status.emergency_stop, info->status.is_signal_received, info->vel_x.vel,
+          info->vel_y.vel, info->vel_angular.vel,
+          (unsigned long)(HAL_GetTick() - rock_last_recv_tick));
+    }
+  }
 }
 
 void Robot_UpdateFromUi(Robot* self) {
