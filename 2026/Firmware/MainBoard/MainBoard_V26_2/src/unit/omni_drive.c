@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "volt_tune.h"
 #include "wheel_voltage.h"
 // BugFixブランチの OmniDrive_ComputeInverseKinematics (ik_vx/vy/omega) は、狙いが同じ
 // (車輪速度→機体速度の最小二乗疑似逆行列) だったため、下の fk/force_alloc に一本化した
@@ -88,6 +89,7 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   // 応急処置が入ったFWであることをログで確認できるようにする (引き継ぎ文書 5.4)
   printf("# WORKAROUND: OMNI_TX_AVOID_HEADER_BYTE=1 (avoid 0xAA in WheelUnit TX data)\n");
 #endif
+  if (VoltTune_Sanitize(&volt_tune)) printf("# volt_tune: out of range, corrected\n");
   OmniDrive_ComputeForwardKinematics(self);
   printf("# force_alloc [x,y,w] x1000:");
   for (int i = 0; i < 4; i++) {
@@ -167,30 +169,31 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
   //     実速度が上がって電圧が下がる (そのままトラクション制御として働く)
   if (self->use_voltage_control) {
     const TractionControl* tcs = &self->tcs;
+    const VoltTuneParams* vt = &volt_tune;  // 調整できる値 (volt_tune.h。既定値は parammeter.h)
     float meas_omega = (imu != NULL) ? imu->yaw_rate : in.odom_omega;
     float err[3] = {cmd_vx - in.odom_vx, cmd_vy - in.odom_vy, cmd_omega - meas_omega};
     // 積分: スリップ中 (オドメトリが当てにならない) は全軸止める。出力を縮めている間は並進を止める
     // (目標が実機より先に行って誤差が溜まり、加速の終わりで行き過ぎるのを防ぐ)。回転は、PIの分まで
     // 縮めたときだけ止める (向きを直す力を残しつつ、効かない間に溜まって後で振れるのを防ぐ)
     if (!tcs->is_slipping) {
-      const float ki[3] = {VEL_FB_KI_LIN, VEL_FB_KI_LIN, VEL_FB_KI_ANG};
+      const float ki[3] = {vt->ki_lin, vt->ki_lin, vt->ki_ang};
       for (int k = 0; k < 3; k++) {
         if (k < 2 && self->volt_saturated) continue;
         if (k == 2 && self->volt_pi_saturated) continue;
         self->vel_fb_integral[k] = Constrain(self->vel_fb_integral[k] + ki[k] * err[k] * dt,
-                                             -VEL_FB_I_MAX_V, VEL_FB_I_MAX_V);
+                                             -vt->i_max_v, vt->i_max_v);
       }
     }
     // 機体座標の補正電圧 [V]: force_alloc で4輪に配る (前後は −sinθ、左右は約0.914、回転は約1)
-    float ux = VEL_FB_KP_LIN * err[0] + self->vel_fb_integral[0];
-    float uy = VEL_FB_KP_LIN * err[1] + self->vel_fb_integral[1];
-    float uw = VEL_FB_KP_ANG * err[2] + self->vel_fb_integral[2];
+    float ux = vt->kp_lin * err[0] + self->vel_fb_integral[0];
+    float uy = vt->kp_lin * err[1] + self->vel_fb_integral[1];
+    float uw = vt->kp_ang * err[2] + self->vel_fb_integral[2];
 
     // 出力の整形: 各輪の電圧を「今の速度で転がり続けるための電圧 (center)」と、それを超える分
     // (加減速のトルクに当たる) に分ける。超える分はさらに FF の分 (目標の加減速) と PI の分 (向き・横ずれ・
     // 速度の誤差を直す) に分け、上限を超えそうなら **先に FF の分を** 4輪同じ比率で縮める。
     // それでも収まらないときだけ PI の分も同じ比率で縮める。
-    //  - 上限は2つ: 電圧上限 (±WHEEL_VOLT_MAX) と、トルク上限 (±VOLT_TRACTION_LIMIT_V。滑らずに出せる
+    //  - 上限は2つ: 電圧上限 (±WHEEL_VOLT_MAX) と、トルク上限 (±traction_limit_v。滑らずに出せる
     //    加速ぶんの電圧。TCS の accel_gain は掛けない)
     //  - 輪ごとに切り詰めると、その輪だけトルクが減って機体を回す力が生まれる (3.0m/s で逆転側の輪が
     //    電圧上限に張り付き、機体が半回転した)。同じ比率で縮めれば機体に掛かる力の向きは変わらない
@@ -206,8 +209,8 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
       // 力が要る左右の加速が遅かった (前進1.5mで1.0m/sに241ms、左は421ms)。旋回も並進とは別の係数
       // (並進の係数を使うと回り始めに1輪約2Vかかり、指令の約1.8倍の速さで回った)
       const float* a = self->force_alloc[i];
-      float accel_volt = WHEEL_VOLT_KA_LIN_BODY * (a[0] * tcs->current_ax + a[1] * tcs->current_ay) +
-                         WHEEL_VOLT_KA_ANG_BODY * a[2] * tcs->current_alpha;
+      float accel_volt = vt->ka_lin * (a[0] * tcs->current_ax + a[1] * tcs->current_ay) +
+                         vt->ka_ang * a[2] * tcs->current_alpha;
       // center は各輪の実際の回転数で転がり続ける電圧。超える分がそのままモータのトルク (電流) になる。
       // 以前は推定した対地速度から出していたが、減速中のスリップ判定の間は推定 (IMU積分のみ) が
       // 実速度より0.6m/sほど高いまま残り、ブレーキ側のトルクがほとんど出せず行き過ぎた
@@ -219,7 +222,7 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
       pi_excess[i] = a[0] * ux + a[1] * uy + a[2] * uw;
       // 超える分に許す大きさ (電圧上限までの余裕と、トルク上限の小さい方)
       allowed[i] = fmaxf(WHEEL_VOLT_MAX - fabsf(center[i]), 0.0f);
-      if (use_traction_limit) allowed[i] = fminf(allowed[i], VOLT_TRACTION_LIMIT_V);
+      if (use_traction_limit) allowed[i] = fminf(allowed[i], vt->traction_limit_v);
     }
 
     // 1) PI の分だけで上限を超える輪があれば、PI の分を縮める (このとき FF の分は0)
@@ -271,8 +274,9 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
 
 // 出力を電圧制御にするか速度モードにするかと、それに合わせたTCSの設定をまとめて切り替える。
 //  - 電圧制御: TCSの介入 (accel_gain による加速度上限の引き下げ・対地速度への引き戻し) は使わない
-//    (輪ごとのトルク上限がトラクション制御を担う)。S字の加速度上限は VOLT_MODE_MAX_ACCEL
-//  - 速度モード: 従来どおり (TCS_ENABLE, TCS_MAX_ACCEL)
+//    (輪ごとのトルク上限がトラクション制御を担う)。S字の上限 (加速度・ジャーク) は volt_tune の値
+//    (実行中に書き換えられる。既定値は VOLT_MODE_MAX_ACCEL など)
+//  - 速度モード: 従来どおり (TCS_ENABLE, TCS_MAX_ACCEL, TCS_MAX_JERK)
 // 切り替わったときは速度PIの積分を0に戻す
 void OmniDrive_SetControlMode(OmniDrive* self, bool use_voltage_control) {
   if (use_voltage_control != self->use_voltage_control) {
@@ -281,10 +285,19 @@ void OmniDrive_SetControlMode(OmniDrive* self, bool use_voltage_control) {
     self->volt_pi_saturated = false;
   }
   self->use_voltage_control = use_voltage_control;
-  self->tcs.config.enable_tcs = use_voltage_control ? false : (TCS_ENABLE != 0);
-  self->tcs.config.max_accel = use_voltage_control ? VOLT_MODE_MAX_ACCEL : TCS_MAX_ACCEL;
-  self->tcs.config.max_ang_accel =
-      use_voltage_control ? VOLT_MODE_MAX_ANG_ACCEL : TCS_MAX_ANG_ACCEL;
+  TCSConfig* cfg = &self->tcs.config;
+  cfg->enable_tcs = use_voltage_control ? false : (TCS_ENABLE != 0);
+  if (use_voltage_control) {
+    cfg->max_accel = volt_tune.max_accel;
+    cfg->max_ang_accel = volt_tune.max_ang_accel;
+    cfg->max_jerk = volt_tune.max_jerk;
+    cfg->max_ang_jerk = volt_tune.max_ang_jerk;
+  } else {
+    cfg->max_accel = TCS_MAX_ACCEL;
+    cfg->max_ang_accel = TCS_MAX_ANG_ACCEL;
+    cfg->max_jerk = TCS_MAX_JERK;
+    cfg->max_ang_jerk = TCS_MAX_ANG_JERK;
+  }
 }
 
 void OmniDrive_SetFree(OmniDrive* self) {

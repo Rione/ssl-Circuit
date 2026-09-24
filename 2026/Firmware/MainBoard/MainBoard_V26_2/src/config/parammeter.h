@@ -56,6 +56,9 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // WheelUnit側でチェックサム等の対策が入ったら 0 にしてよい。1 の間は起動時に "# WORKAROUND:" を出力する
 #define OMNI_TX_AVOID_HEADER_BYTE 1
 
+// ※ 以下の WHEEL_VOLT_KA_*_BODY, VEL_FB_*, VOLT_TRACTION_LIMIT_V, VOLT_MODE_MAX_*、および電圧制御のときの
+//    TCS_MAX_JERK / TCS_MAX_ANG_JERK は「既定値」。実際に使うのは volt_tune (src/config/volt_tune.h) の値で、
+//    自動チューニングや ST-Link で実行中に書き換えられる (安全範囲は volt_tune.c)
 // 電圧制御のフィードフォワード (src/control/wheel_voltage.c)
 // 加減速に使う電圧。機体の加速度を力の配分 (OmniDrive.force_alloc) で4輪に配るときの係数。
 //  並進 [V/(m/s^2)]: 前後の効き方を従来 (車輪の角加速度あたり 0.015V、= 0.015/r) と同じにした値。
@@ -98,6 +101,13 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // 動作パターンのテストと同じ経路 (electric制御・トルク上限・PI) を通る。
 // ⚠ 実際に Rock5A (SPI) から指令を受けて走らせる確認はまだ行っていない。低速から確かめること
 #define ROBOT_USE_VOLTAGE_CONTROL 1
+
+// 1: Rock5A からの指令 (走行・キック・ドリブル) を受け付けない。自動チューニングが完成するまでの間、
+//    Rock5A を付けたままでも ST-Link から指示したテスト (auto_tune.c) が取り消されないようにする。
+//    Rock5A の緊急停止は、信号を受信していて emergency_stop=1 のときだけ、テストを取り消して止まる安全のために見続ける
+//    (信号が来ていない間は emergency_stop が常に1なので、それは見ない)。
+//    ⚠ 1 の間は Rock5A から機体を動かせない。試合・Rock5A での走行確認の前に 0 に戻すこと
+#define AUTOTUNE_IGNORE_ROCK_COMMANDS 1
 
 // TCSテスト (LocalController_TestTCSAcceleration) の出力を電圧制御にするか (1: 電圧, 0: 速度モード)
 #define TEST_TCS_USE_VOLTAGE_CONTROL 1

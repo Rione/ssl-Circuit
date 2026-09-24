@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+#include "auto_tune.h"
 #include "iwdg.h"
 
 Timer main_control_timer;
@@ -10,6 +11,9 @@ void MainMode_Init(MainMode* self, Robot* robot) {
   self->robot = robot;
   LocalController_Init(&self->local_controller);
   Timer_Init(&main_control_timer);
+#if AUTOTUNE_IGNORE_ROCK_COMMANDS
+  printf("# WORKAROUND: AUTOTUNE_IGNORE_ROCK_COMMANDS=1 (Rock5A commands are ignored)\n");
+#endif
 
   Kicker_Discharge(&self->robot->kicker);
 }
@@ -26,7 +30,11 @@ void MainMode_Loop(MainMode* self) {
 
   OmniDrive_Recv(&r->omni_drive);
 
-  if (!r->info.status.emergency_stop && r->info.status.is_signal_received) {
+  // 自動チューニングの開発中は、Rock5A の指令を受け付けない (AUTOTUNE_IGNORE_ROCK_COMMANDS)。
+  // Rock5A を付けたままでも、ST-Link から指示したテストを邪魔されない
+  const bool rock_commands_enabled = (AUTOTUNE_IGNORE_ROCK_COMMANDS == 0);
+  if (rock_commands_enabled && !r->info.status.emergency_stop &&
+      r->info.status.is_signal_received) {
     // Robot is Running
     Robot_SendDribble(r, r->info.dribble_power, 0);
     Robot_SendKicker(r, &r->info);
@@ -37,9 +45,19 @@ void MainMode_Loop(MainMode* self) {
       Kicker_Discharge(&r->kicker);
     }
     Robot_SendOmniDrive(r, &r->info, 1);  // 1ms ごとに送信
+    AutoTune_Cancel();  // Rock5A の指令を受けたら、ST-Link から指示したテストは取り消す
   } else {
     // Robot is Stop or Emergency Stop
-    LocalController_Stop(&self->local_controller, r);
+    // ST-Link から開始を指示したときだけテストを走らせる (src/control/auto_tune.h、tools/autotune_start.ps1)。
+    // 指示が無ければ止まる。Rock5A から緊急停止を受けているときは指示を取り消して止まる。
+    // ただし Rock5A の信号が来ていない間は emergency_stop が常に1になっていて、テストが始まる前に
+    // 取り消されたため、信号を受信していて緊急停止が1のときだけ取り消す (実際の緊急停止は見続ける)
+    if (r->info.status.emergency_stop && r->info.status.is_signal_received) {
+      AutoTune_Cancel();
+      LocalController_Stop(&self->local_controller, r);
+    } else if (!AutoTune_Poll(&self->local_controller, r)) {
+      LocalController_Stop(&self->local_controller, r);
+    }
     // LocalController_TestMove(&self->local_controller, r);
     // LocalController_TestMoveForwardBack(&self->local_controller, r);
 

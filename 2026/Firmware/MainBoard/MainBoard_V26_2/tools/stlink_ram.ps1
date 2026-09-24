@@ -53,7 +53,8 @@ function Read-Ram16([uint32]$Address) {
 
 # $Address から $Size byte を読んでバイト配列で返す
 function Read-RamBytes([uint32]$Address, [int]$Size) {
-  $tmp = [System.IO.Path]::GetTempFileName()
+  # STM32_Programmer_CLI の -u は、拡張子が .bin 以外の保存先を受け付けない (引数が足りないと言われる)
+  $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("stlink_" + [Guid]::NewGuid().ToString("N") + ".bin")
   try {
     Invoke-StlinkCli @("-u", ("0x{0:X8}" -f $Address), $Size, $tmp) | Out-Null
     $bytes = [System.IO.File]::ReadAllBytes($tmp)
