@@ -36,8 +36,9 @@
 #define RAMP_SPEED_DIAG_2_0 0x20U  // 斜め 2.0 m/s
 // ブレーキのみ (加速のランプ無し): v0 まで巡航してから、直接ブレーキ。停止距離と減速度のピークを測る。
 // ブレーキは 1.0V から上げ、IMU の減速度がピークを過ぎて落ち始めたら、そのトルクで保つ (ロック判定は当てにならない)
-#define RAMP_SPEED_BRAKE_2_0 0x40U  // 前後左右 2.0 m/s (ブレーキのみ)
-#define RAMP_SPEED_BRAKE_2_5 0x100U // 前後左右 2.5 m/s (ブレーキのみ。長辺 3.5m のエリアでは、予測が範囲不足になりやすい)
+#define RAMP_SPEED_BRAKE_2_0 0x40U  // 前後 2.0 m/s (ブレーキのみ)
+#define RAMP_SPEED_BRAKE_2_5 0x100U // 前後 2.5 m/s (ブレーキのみ。長辺 3.5m のエリアでは、予測が範囲不足になりやすい)
+#define RAMP_SPEED_BRAKE_2_0L 0x200U // 左右 2.0 m/s (ブレーキのみ。左右は助走が長く、3.5×2.5m のエリアでは走らせられない)
 // 速度別の測定を1回終えたら、機体が自分で範囲の真ん中へ移動し、右へ 90° 回って、もう一度繰り返す (2回目)。
 // 2回目の範囲は、長方形の縦と横を入れ替えて、1回目から自動で求める (1回目の範囲は、長方形から各端 0.2m 内側で、
 // 原点は範囲の x の中心、y は左右の真ん中、を前提にする)。低速 (v0=0) は繰り返さない。
@@ -75,7 +76,7 @@ typedef enum {
   RAMP_ABORTED = 2,
 } RampTestStatus;
 
-// 1回の加速かブレーキの結果 (すべて2byte)。加速度の単位は、並進は [0.01 m/s²]、旋回は [0.1 rad/s²]
+// 1回の加速かブレーキの結果 (すべて2byte、14byte)。加速度の単位は、並進は [0.01 m/s²]、旋回は [0.1 rad/s²]
 typedef struct {
   uint16_t onset_v_x100;  // 滑り始めのトルク上限 [0.01V] (0: 見つからなかった)
   uint16_t peak_v_x100;   // IMU の加速度が一番大きかったときのトルク上限 [0.01V]
@@ -83,6 +84,7 @@ typedef struct {
   int16_t onset_acc;      // 滑り始めのときの IMU の加速度 (大きさ)
   int16_t speed;          // 終わったときの速度 [mm/s] (旋回は [mrad/s])
   uint16_t end_reason;    // RampEndReason
+  int16_t avg_acc;        // ピークを更新したときの、直近 100ms の IMU の加速度の平均 (継続する加速度の目安)
 } RampPhaseResult;
 
 typedef struct {

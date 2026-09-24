@@ -12,7 +12,7 @@ param(
   [double]$MaxAccel = 0,       # S字の加速度上限 [m/s^2]
   [double]$MaxAngAccel = 0,    # S字の角加速度上限 [rad/s^2]
   # ランプ試験 (-TestId 2) の速度の段。例: -Speeds 0,1,1.5,2 (0: 止まった状態から、1: 前後左右 1.0m/s、1.5: 斜め、2: 前後左右 2.0m/s、
-  #  2d: 斜め 2.0m/s、3: 前後左右 3.0m/s、b2: 前後左右 2.0m/s のブレーキのみ、b2.5: 同 2.5m/s)。省略 = 0 だけ (従来どおり)。3 は左右を先に走らせてから。空きは前3.5m・後ろ1.0m・左右2.5m
+  #  2d: 斜め 2.0m/s、3: 前後左右 3.0m/s、b2: 前後 2.0m/s のブレーキのみ、b2.5: 前後 2.5m/s、b2l: 左右 2.0m/s (3.5x2.5m のエリアでは走らせられない))。省略 = 0 だけ (従来どおり)。3 は左右を先に走らせてから。空きは前3.5m・後ろ1.0m・左右2.5m
   [string[]]$Speeds = @(),
   # 速度別の測定の範囲 [m] (原点=スタート位置。省略 = 前3.5・後ろ1.0・左右2.5)。例: -XMin -0.5 -XMax 2.0 -YAbs 1.5
   [double]$XMin = 0,     # 後ろ (負の値)
@@ -56,16 +56,16 @@ if ($rectValues.Count -eq 2) {
 } elseif ($rectValues.Count -ne 0) { Write-Error "-Rect は 長辺,短辺 の2つの数 [m] (例: -Rect 3.5,2.5)"; exit 1 }
 
 # 速度の段 → ビットの組み合わせ (ramp_test.h の RAMP_SPEED_*)
-$speedBits = @{ "0" = 0x01; "1" = 0x02; "1.5" = 0x04; "2" = 0x08; "3" = 0x10; "2d" = 0x20; "b2" = 0x40; "b2.5" = 0x100 }
+$speedBits = @{ "0" = 0x01; "1" = 0x02; "1.5" = 0x04; "2" = 0x08; "3" = 0x10; "2d" = 0x20; "b2" = 0x40; "b2.5" = 0x100; "b2l" = 0x200 }
 [uint32]$speedMask = 0
 foreach ($sp in ($Speeds | ForEach-Object { $_ -split "," } | Where-Object { $_ -ne "" })) {
   $key = $sp.Trim().ToLower().Replace("1.0", "1").Replace("2.0", "2").Replace("3.0", "3")
-  if (-not $speedBits.ContainsKey($key)) { Write-Error "-Speeds に使えない値: $sp (0, 1, 1.5, 2, 2d, 3, b2, b2.5)"; exit 1 }
+  if (-not $speedBits.ContainsKey($key)) { Write-Error "-Speeds に使えない値: $sp (0, 1, 1.5, 2, 2d, 3, b2, b2.5, b2l)"; exit 1 }
   $speedMask = $speedMask -bor [uint32]$speedBits[$key]
 }
 if ($Rotate) { $speedMask = $speedMask -bor 0x80 }
 if ($TestId -ne 2 -and $speedMask -ne 0) { Write-Error "-Speeds は -TestId 2 (ランプ試験) のときだけ使えます"; exit 1 }
-if ($speedMask -band 0x1FE) {
+if ($speedMask -band 0x3FE) {
   if ($XMax -ne 0) {
     Write-Host ("速度別の測定: 範囲 x[{0},{1}] y±{2} m (mask=0x{3}{4})。この範囲に何も無いことを確かめてください" -f $XMin, $XMax, $YAbs, $speedMask.ToString("X2"), $(if ($Rotate) { "、1回目のあと機体が90°回って繰り返す" } else { "" })) -ForegroundColor Yellow
   } else {

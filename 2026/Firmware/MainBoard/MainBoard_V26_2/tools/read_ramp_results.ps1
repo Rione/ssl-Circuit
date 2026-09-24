@@ -14,7 +14,7 @@ $ErrorActionPreference = "Stop"
 if (-not $Elf) { $Elf = $script:StlinkDefaultElf }
 
 $kHeader = 20
-$kStroke = 40
+$kStroke = 44
 $kMaxStrokes = 56
 $kSize = $kHeader + $kStroke * $kMaxStrokes
 $gdbSize = Get-GdbValue $Elf "sizeof(ramp_result)"
@@ -46,6 +46,7 @@ function Get-Phase([int]$o, [bool]$rot) {
     onsetA = [BitConverter]::ToInt16($b, $o + 6) / $scale
     speed = [BitConverter]::ToInt16($b, $o + 8) / 1000.0
     reason = [int][BitConverter]::ToUInt16($b, $o + 10)
+    avgA = [BitConverter]::ToInt16($b, $o + 12) / $scale
   }
 }
 
@@ -55,16 +56,17 @@ for ($i = 0; $i -lt [math]::Min($n, $kMaxStrokes); $i++) {
   $dir = [int]$b[$o]
   $rot = $dir -ge 8
   $acc = Get-Phase ($o + 8) $rot
-  $brk = Get-Phase ($o + 20) $rot
+  $brk = Get-Phase ($o + 22) $rot
   $v0 = [BitConverter]::ToUInt16($b, $o + 6) / 100.0
-  $vb = [BitConverter]::ToUInt16($b, $o + 32) / 1000.0
-  $bd = [BitConverter]::ToUInt16($b, $o + 34) / 1000.0
+  $vb = [BitConverter]::ToUInt16($b, $o + 36) / 1000.0
+  $bd = [BitConverter]::ToUInt16($b, $o + 38) / 1000.0
   $rows.Add([pscustomobject]@{
       no = $i + 1; dir = $dir; 向き = $dirNames[$dir]; 回 = [int]$b[$o + 1]; t_s = [BitConverter]::ToUInt16($b, $o + 4) / 1000.0; v0 = $v0
       加速_ピークV = $acc.peakV; 加速_ピーク加速度 = $acc.peakA; 加速_滑り始めV = $acc.onset; 加速_終わり = $reasonNames[$acc.reason]; 加速_速度 = $acc.speed
       減速_ピークV = $brk.peakV; 減速_ピーク加速度 = $brk.peakA; 減速_滑り始めV = $brk.onset; 減速_終わり = $reasonNames[$brk.reason]
       ブレーキ開始速度 = $vb; 停止距離 = $bd; 平均減速度 = $(if ($bd -gt 0.05 -and $vb -gt 0.3) { [math]::Round($vb * $vb / (2 * $bd), 2) } else { $null })
-      加速距離 = [BitConverter]::ToUInt16($b, $o + 36) / 1000.0; 助走距離 = [BitConverter]::ToUInt16($b, $o + 38) / 1000.0
+      加速距離 = [BitConverter]::ToUInt16($b, $o + 40) / 1000.0; 助走距離 = [BitConverter]::ToUInt16($b, $o + 42) / 1000.0
+      加速_平均加速度 = $acc.avgA; 減速_平均加速度 = $brk.avgA
       状態 = [int]$b[$o + 2]; 電池V = [int]$b[$o + 3]
       acc = $acc; brk = $brk
     })
@@ -123,17 +125,22 @@ if ($spd.Count -gt 0) {
     $x | Add-Member -NotePropertyName メモ -NotePropertyValue $note -Force
   }
   Write-Host "   回 = 速度別の何回目か (1: 1回目、2: 機体を 90° 回した2回目。向きは機体から見た向き)"
-  $spd | Format-Table no, 回, 向き, v0, 加速_滑り始めV, 加速_ピークV, 加速_ピーク加速度, 加速_終わり, 加速_速度, 加速距離, 減速_滑り始めV, 減速_終わり, ブレーキ開始速度, 停止距離, 平均減速度, 助走距離, 電池V, メモ -AutoSize | Out-String -Width 400 | Write-Host
+  $spd | Format-Table no, 回, 向き, v0, 加速_滑り始めV, 加速_ピークV, 加速_ピーク加速度, 加速_平均加速度, 加速_終わり, 加速_速度, 加速距離, 減速_滑り始めV, 減速_終わり, ブレーキ開始速度, 停止距離, 平均減速度, 助走距離, 電池V, メモ -AutoSize | Out-String -Width 400 | Write-Host
 
   Write-Host "== ブレーキの停止距離表 (速度 v0 と向きごと。ブレーキは弱い所から上げていくので、停止距離は最短ではなく上限側の値)"
   $spd | Where-Object { $_.acc.reason -ne 7 -and $_.停止距離 -gt 0 } | Sort-Object v0, dir |
-    Format-Table 回, 向き, v0, ブレーキ開始速度, 停止距離, 平均減速度, 減速_ピーク加速度, 減速_ピークV, 減速_滑り始めV, 減速_終わり, メモ -AutoSize | Out-String -Width 300 | Write-Host
+    Format-Table 回, 向き, v0, ブレーキ開始速度, 停止距離, 平均減速度, 減速_ピーク加速度, 減速_平均加速度, 減速_ピークV, 減速_滑り始めV, 減速_終わり, メモ -AutoSize | Out-String -Width 300 | Write-Host
 
   # 加速とブレーキの IMU ピーク (機体が実際に出した加速度) の比較
   $both = @($spd | Where-Object { $_.acc.reason -ne 7 -and $_.acc.reason -ne 0 -and $_.加速_ピーク加速度 -gt 0 -and $_.減速_ピーク加速度 -gt 0 })
   if ($both.Count -gt 0) {
     $ma = ($both | Measure-Object 加速_ピーク加速度 -Average).Average; $mb = ($both | Measure-Object 減速_ピーク加速度 -Average).Average
-    Write-Host ("== 加速と減速の IMU ピーク (加速+ブレーキの {0} 本の平均): 加速 {1:F2} m/s²、減速 {2:F2} m/s²" -f $both.Count, $ma, $mb)
+    $mav = ($both | Measure-Object 加速_平均加速度 -Average).Average; $mbv = ($both | Measure-Object 減速_平均加速度 -Average).Average
+    Write-Host ("== 加速と減速の IMU (加速+ブレーキの {0} 本の平均): ピーク 加速 {1:F2} / 減速 {2:F2} m/s²、ピーク前 100ms の平均 加速 {3:F2} / 減速 {4:F2} m/s² (ピークはばたつきで大きく出る。継続する力は平均のほうが近い)" -f $both.Count, $ma, $mb, $mav, $mbv)
+  }
+  $bo = @($spd | Where-Object { $_.acc.reason -eq 0 -and $_.停止距離 -gt 0 })
+  if ($bo.Count -gt 0) {
+    Write-Host ("== ブレーキのみ {0} 本: ピーク {1:F2}、平均 {2:F2} m/s²、平均の減速度 (停止距離から) {3:F2} m/s²" -f $bo.Count, (($bo | Measure-Object 減速_ピーク加速度 -Average).Average), (($bo | Measure-Object 減速_平均加速度 -Average).Average), (($bo | Measure-Object 平均減速度 -Average).Average))
   }
   Write-Host "== 加速側の限界の速度依存 (滑り始めのトルク [V] と、IMU の加速度ピーク [m/s²]。v0 の低い順)"
   foreach ($d in 0..7) {
@@ -145,6 +152,8 @@ if ($spd.Count -gt 0) {
     }
     Write-Host ("  {0,-8}: {1}" -f $dirNames[$d], ($parts -join " | "))
   }
+  $timeouts = @($spd | Where-Object { $_.加速_終わり -eq "時間切れ" -and $_.加速_ピーク加速度 -eq 0 })
+  Write-Host ("速度別 {0} 本のうち: 範囲不足で走らず {1} 本、助走が v0 に届かず時間切れ {2} 本" -f $spd.Count, @($spd | Where-Object { $_.acc.reason -eq 7 }).Count, $timeouts.Count)
   $skipRows = @($spd | Where-Object { $_.acc.reason -eq 7 })
   if ($skipRows.Count -gt 0) {
     Write-Host ""
@@ -155,7 +164,7 @@ if ($spd.Count -gt 0) {
 if ($Csv) {
   $Csv = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Csv)
   New-Item -ItemType Directory -Force (Split-Path $Csv -Parent) | Out-Null
-  $rows | Select-Object no, dir, 向き, 回, t_s, v0, 加速_ピークV, 加速_ピーク加速度, 加速_滑り始めV, 加速_終わり, 加速_速度, 加速距離, 助走距離, 減速_ピークV, 減速_ピーク加速度, 減速_滑り始めV, 減速_終わり, ブレーキ開始速度, 停止距離, 平均減速度, 状態, 電池V |
+  $rows | Select-Object no, dir, 向き, 回, t_s, v0, 加速_ピークV, 加速_ピーク加速度, 加速_平均加速度, 減速_平均加速度, 加速_滑り始めV, 加速_終わり, 加速_速度, 加速距離, 助走距離, 減速_ピークV, 減速_ピーク加速度, 減速_滑り始めV, 減速_終わり, ブレーキ開始速度, 停止距離, 平均減速度, 状態, 電池V |
     Export-Csv -Path $Csv -NoTypeInformation -Encoding UTF8
   Write-Host "CSV を保存しました: $Csv"
 }

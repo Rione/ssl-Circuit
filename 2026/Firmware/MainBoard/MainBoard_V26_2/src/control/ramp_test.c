@@ -55,6 +55,12 @@ RampRunResult ramp_result;
 // 落ち始めたら、そのときのトルクで保つ (ロックで滑らせない。停止距離を短く、減速度のピークを測る)
 #define RAMP_BRAKE_ONLY_MIN_PEAK 1.5f   // ピークがこれ以上になってから、落ち始めを見る [m/s^2]
 #define RAMP_BRAKE_ONLY_DROP_HOLD_S 0.030f
+// 保つ条件は3つ (どれかが成り立ったら、ピークのトルクで保つ): (1) IMU の減速度の落ち始め (上の 20%/30ms)、
+// (2) 滑り始めから RAMP_PAST_ONSET_V 上げた (加速と同じ)、(3) ピークのトルクから RAMP_BRAKE_ONLY_BEYOND_PEAK_V 上げた
+// (2026-09-24 の5回目: (1) だけだと、IMU のばたつきで判定が途切れ、4.5V まで上がった本があった)
+#define RAMP_BRAKE_ONLY_BEYOND_PEAK_V 0.8f
+// ブレーキのみの開始は、通常のブレーキより高く (上がる間の停止距離の延びを減らす。判定は開始から 0.10 秒後)
+#define RAMP_BRAKE_ONLY_START_V 1.6f
 #define RAMP_BRAKE_ONLY_LIMIT_RATIO 0.70f  // 助走の距離の上限 (予測した長さに対する割合。加速がない分、大きく取る)
 #define RAMP_AFTER_SLIP_RATIO 0.9f  // ブレーキで滑り始めを見つけたら、トルク上限をこの割合まで下げる (ロックを止めて、限界の近くで止める)
 // 速度別の加速のランプ: 助走 (トルクの差がほぼ 0) から急に 1.8V を掛けると、車輪だけ先に加速する過渡が出て、
@@ -95,8 +101,11 @@ RampRunResult ramp_result;
 #define RAMP_RANGE_MARGIN 0.3f      // 端から内側へ取る余裕。予測した経路はこの内側に収まるときだけ走らせる
 #define RAMP_HEADING_ABORT 0.8f     // 並進の最中の向きのずれ [rad]
 // 速度別の測定の助走 (v0 まで巡航): 滑らない範囲でゆっくり加速する
-#define RAMP_CRUISE_L 2.0f          // 助走のトルク上限 [V] (左右の滑り始めの近くまで上げない)
+#define RAMP_CRUISE_L 2.0f          // 助走のトルク上限 [V] (前後・斜め。滑り始めの近くまで上げない)
+#define RAMP_CRUISE_L_LATERAL 2.3f  // 左右の助走のトルク上限 [V] (左右は同じ加速度に1.3〜1.6倍の力が要り、2.0V では
+                                    // 1.0m/s まで 0.4〜0.65m かかった (前後は 0.15〜0.19m))。滑っても助走が遅れるだけ
 #define RAMP_CRUISE_ACCEL 2.5f      // 助走の加速度上限 [m/s^2]
+#define RAMP_CRUISE_ACCEL_LATERAL_PRED 1.5f  // 距離の予測の既定 (測定が無いとき) に使う、左右の助走の加速度 [m/s^2]
 #define RAMP_CRUISE_TOL 0.05f       // v0 に最初に着いたと見なす速度の差 [m/s]
 #define RAMP_CRUISE_START_TOL 0.10f // ランプを始めてよいと見なす速度の差 [m/s]
 #define RAMP_CRUISE_A_TOL 1.5f      // ランプを始めてよいと見なす加速度 [m/s^2]
@@ -123,6 +132,7 @@ RampRunResult ramp_result;
 #define RAMP_PAIR_COUNT 5
 #define RAMP_SET_MAX 3
 #define RAMP_SPEED_LIST_MAX 24
+#define RAMP_AVG_N 100  // 加速度の平均の窓 [制御周期 = 1ms]
 
 static const float kDirVec[8][2] = {
     {1.0f, 0.0f},         {-1.0f, 0.0f},       {0.0f, 1.0f},          {0.0f, -1.0f},
@@ -160,6 +170,11 @@ typedef struct {
   float fast_rate, slow_rate;  // ランプの速さ [V/s]
   bool brake_only;        // ブレーキのみの試験 (ピークを過ぎたらトルクを保つ)
   bool holding;           // ブレーキのみ: ピークを過ぎたので、トルクを保っている
+  // 直近 RAMP_AVG_N ms の加速度の平均 (ピークは、ロックのばたつきなどで実際より大きく出るので、平均も残す)
+  float ring[RAMP_AVG_N];
+  float ring_sum;
+  int ring_pos, ring_n;
+  float peak_avg;         // ピークを更新したときの、直近の平均
 } Detect;
 
 typedef struct {
@@ -276,6 +291,11 @@ static void DetectStep(float dt, float a_imu, float a_odom, float thresh, bool v
   d->t += dt;
   const float tau = 1.0f / (2.0f * (float)PI * TCS_ACCEL_LPF_HZ);
   d->L_f += dt / (tau + dt) * (d->L - d->L_f);
+  // 直近の平均 (1ms ごとに1つずつ積む)
+  d->ring_sum += a_imu - d->ring[d->ring_pos];
+  d->ring[d->ring_pos] = a_imu;
+  d->ring_pos = (d->ring_pos + 1) % RAMP_AVG_N;
+  if (d->ring_n < RAMP_AVG_N) d->ring_n++;
   if (d->onset_found) {
     // 見つけた後もピークを拾う (加速は上げ続けながら、ブレーキは保つ間だけ)。
     // 保つ時間は valid に関係なく進める (止まらずにトルクを下げられるように)
@@ -284,6 +304,7 @@ static void DetectStep(float dt, float a_imu, float a_odom, float thresh, bool v
     if (valid && track && a_imu > d->peak_acc) {
       d->peak_acc = a_imu;
       d->peak_L = d->L_f;
+      d->peak_avg = d->ring_sum / (float)d->ring_n;
     }
     if (d->past_onset && valid) {
       d->drop_t = (a_imu < RAMP_PEAK_DROP_RATIO * d->peak_acc) ? d->drop_t + dt : 0.0f;
@@ -297,6 +318,7 @@ static void DetectStep(float dt, float a_imu, float a_odom, float thresh, bool v
   if (a_imu > d->peak_acc) {
     d->peak_acc = a_imu;
     d->peak_L = d->L_f;
+    d->peak_avg = d->ring_sum / (float)d->ring_n;
   }
   if (d->brake_only) {
     d->drop_t = (d->peak_acc > RAMP_BRAKE_ONLY_MIN_PEAK && a_imu < RAMP_PEAK_DROP_RATIO * d->peak_acc)
@@ -343,6 +365,7 @@ static void SaveDetect(RampPhaseResult* r, RampEndReason reason, float speed, fl
   r->peak_v_x100 = U16(d->peak_L * 100.0f);
   r->peak_acc = I16(d->peak_acc * acc_scale);
   r->onset_acc = d->onset_found ? I16(d->onset_acc * acc_scale) : 0;
+  r->avg_acc = I16(d->peak_avg * acc_scale);
   r->speed = I16(speed * 1000.0f);
   r->end_reason = (uint16_t)reason;
 }
@@ -357,10 +380,10 @@ static void SetRampTune(float L) {
   volt_tune.max_ang_jerk = RAMP_CMD_ANG_JERK;
 }
 
-// 助走用: 滑らない範囲でゆっくり加速する
-static void SetCruiseTune(void) {
+// 助走用: 滑らない範囲でゆっくり加速する (左右は、力が多く要るので、トルク上限を少し上げる)
+static void SetCruiseTune(int dir) {
   VoltTune_SetDefaults(&volt_tune);
-  volt_tune.traction_limit_v = RAMP_CRUISE_L;
+  volt_tune.traction_limit_v = (dir == RAMP_DIR_LEFT || dir == RAMP_DIR_RIGHT) ? RAMP_CRUISE_L_LATERAL : RAMP_CRUISE_L;
   volt_tune.max_accel = RAMP_CRUISE_ACCEL;
 }
 
@@ -483,7 +506,8 @@ static float PredictLength(int dir, float v0, bool brake_only) {
     ramp = brake_only ? 0.0f : best->accel_dist_mm * 0.001f * (v0 + 0.2f) / (vm + 0.2f);
     brake = best->brake_dist_mm * 0.001f * (v_b * v_b) / (vbm * vbm);
   } else {
-    cruise = v0 * v0 / (2.0f * RAMP_CRUISE_ACCEL);
+    const bool lateral = (dir == RAMP_DIR_LEFT || dir == RAMP_DIR_RIGHT);
+    cruise = v0 * v0 / (2.0f * (lateral ? RAMP_CRUISE_ACCEL_LATERAL_PRED : RAMP_CRUISE_ACCEL));
     ramp = brake_only ? 0.0f : 0.2f * (v0 + 0.2f);
     brake = v_b * v_b / (2.0f * RAMP_PRED_BRAKE_DECEL);
   }
@@ -494,21 +518,24 @@ static float PredictLength(int dir, float v0, bool brake_only) {
 static void BuildSpeedList(void) {
   static const struct {
     float v0;
-    bool axis;
+    int first;   // 最初の向き (0: 前後左右の前、2: 左右の左、4: 斜め)
+    int count;   // 向きの数
     uint32_t bit;
     bool brake_only;
   } kLevels[] = {
-      {1.0f, true, RAMP_SPEED_AXIS_1_0, false}, {1.5f, false, RAMP_SPEED_DIAG_1_5, false},
-      {2.0f, true, RAMP_SPEED_AXIS_2_0, false}, {2.0f, false, RAMP_SPEED_DIAG_2_0, false},
-      {3.0f, true, RAMP_SPEED_AXIS_3_0, false},
-      // ブレーキのみ (加速のランプ無し)。速度の低い順に (低い方の結果で、高い方の必要な長さを予測する)
-      {2.0f, true, RAMP_SPEED_BRAKE_2_0, true}, {2.5f, true, RAMP_SPEED_BRAKE_2_5, true},
+      {1.0f, 0, 4, RAMP_SPEED_AXIS_1_0, false}, {1.5f, 4, 4, RAMP_SPEED_DIAG_1_5, false},
+      {2.0f, 0, 4, RAMP_SPEED_AXIS_2_0, false}, {2.0f, 4, 4, RAMP_SPEED_DIAG_2_0, false},
+      {3.0f, 0, 4, RAMP_SPEED_AXIS_3_0, false},
+      // ブレーキのみ (加速のランプ無し)。速度の低い順に (低い方の結果で、高い方の必要な長さを予測する)。
+      // 前後 (b2, b2.5) と、左右 (b2l。このエリア 3.5×2.5m では、助走が長く走れない) を別の指定にした
+      {2.0f, 0, 2, RAMP_SPEED_BRAKE_2_0, true}, {2.5f, 0, 2, RAMP_SPEED_BRAKE_2_5, true},
+      {2.0f, 2, 2, RAMP_SPEED_BRAKE_2_0L, true},
   };
   rt.sp_count = 0;
   for (unsigned i = 0; i < sizeof(kLevels) / sizeof(kLevels[0]); i++) {
     if (!(rt.speed_mask & kLevels[i].bit)) continue;
-    int first = kLevels[i].axis ? 0 : 4;
-    for (int k = 0; k < 4 && rt.sp_count < RAMP_SPEED_LIST_MAX; k++) {
+    const int first = kLevels[i].first;
+    for (int k = 0; k < kLevels[i].count && rt.sp_count < RAMP_SPEED_LIST_MAX; k++) {
       rt.sp_list[rt.sp_count].dir = (uint8_t)(first + k);
       rt.sp_list[rt.sp_count].v0 = kLevels[i].v0;
       rt.sp_list[rt.sp_count].brake_only = kLevels[i].brake_only;
@@ -629,7 +656,7 @@ static void BeginBrakeOnly(OmniDrive* od, const Robot* robot, float start_speed)
   for (int k = 0; k < 3; k++) od->vel_fb_integral[k] = 0.0f;
   SeedCommand(od, robot);
   if (rt.cur != NULL) rt.cur->v_brake_start = U16(fmaxf(start_speed, 0.0f) * 1000.0f);
-  ResetDetect(RAMP_BRAKE_START_V, true, RAMP_BRAKE_DETECT_DELAY_S, RAMP_BRAKE_FAST_UNTIL_V,
+  ResetDetect(RAMP_BRAKE_ONLY_START_V, true, RAMP_BRAKE_DETECT_DELAY_S, RAMP_BRAKE_FAST_UNTIL_V,
               RAMP_BRAKE_FAST_RATE, RAMP_BRAKE_SLOW_RATE);
   rt.det.brake_only = true;
   rt.phase = PH_BRAKE;
@@ -781,7 +808,7 @@ RampTestStatus RampTest_Step(Robot* robot) {
 
     case PH_CRUISE: {
       // v0 まで、滑らない範囲でゆっくり加速し、着いたら (速度が v0 で加速度がほぼ 0 を保ったら) ランプへ
-      SetCruiseTune();
+      SetCruiseTune(dir);
       Drive(od, &robot->imu, kDirVec[dir][0] * rt.v0, kDirVec[dir][1] * rt.v0, HeadingHold(robot, 0.0f));
       // 助走の距離は、v0 に最初に着くまで (着いてからの巡航は数えない。距離の予測に使うため)
       rt.cruise_total += fmaxf(speed, 0.0f) * dt;
@@ -878,10 +905,16 @@ RampTestStatus RampTest_Step(Robot* robot) {
       DetectStep(dt, -a_imu, -a_odom, thresh, valid);
       AdvanceRamp(dt);
       // ブレーキのみ: IMU の減速度がピークを過ぎて落ち始めたら、そのトルクで保つ (ロックさせない)
-      if (rt.det.brake_only && !rt.det.holding && rt.det.drop_t >= RAMP_BRAKE_ONLY_DROP_HOLD_S) {
-        rt.det.holding = true;
-        rt.det.ramping = false;
-        rt.det.L = fmaxf(RAMP_BRAKE_START_V, rt.det.peak_L);
+      if (rt.det.brake_only && !rt.det.holding) {
+        const bool dropped = rt.det.drop_t >= RAMP_BRAKE_ONLY_DROP_HOLD_S;
+        const bool past_onset = rt.det.onset_found && rt.det.L_f >= rt.det.onset_L + RAMP_PAST_ONSET_V;
+        const bool beyond_peak = rt.det.peak_acc > RAMP_BRAKE_ONLY_MIN_PEAK &&
+                                 rt.det.L_f >= rt.det.peak_L + RAMP_BRAKE_ONLY_BEYOND_PEAK_V;
+        if (dropped || past_onset || beyond_peak) {
+          rt.det.holding = true;
+          rt.det.ramping = false;
+          rt.det.L = fmaxf(RAMP_BRAKE_START_V, rt.det.peak_L);
+        }
       }
 
       RampEndReason reason = RAMP_END_NONE;
