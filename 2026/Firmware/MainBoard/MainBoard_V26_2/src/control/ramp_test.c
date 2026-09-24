@@ -70,8 +70,11 @@ RampRunResult ramp_result;
 #define RAMP_CRUISE_L 2.2f          // 助走のトルク上限 [V]
 #define RAMP_CRUISE_ACCEL 3.0f      // 助走の加速度上限 [m/s^2]
 #define RAMP_CRUISE_TOL 0.05f       // v0 に着いたと見なす速度の差 [m/s]
-#define RAMP_CRUISE_A_TOL 0.7f      // 着いたと見なす加速度 [m/s^2]
+#define RAMP_CRUISE_A_TOL 1.2f      // 着いたと見なす加速度 [m/s^2] (0.7 では厳しすぎて、v0 に着いたあとも巡航が続いた)
 #define RAMP_CRUISE_HOLD_S 0.05f
+#define RAMP_CRUISE_DWELL_S 0.3f    // 距離の予測に足す、v0 に着いてからランプを始めるまでの巡航の時間
+// ランプ加速の最長 (滑って速度の打ち切りに届かないときの保険)
+#define RAMP_ACCEL_MAX_S 0.6f
 // 始点への移動
 #define RAMP_GOTO_SPEED 0.8f        // [m/s]
 #define RAMP_GOTO_TIMEOUT_S 10.0f
@@ -142,6 +145,9 @@ static struct {
   float settle_ok_t;
   float cruise_ok_t;
   float cruise_dist, accel_dist, brake_dist;  // その相の間に進行方向へ進んだ距離 [m]
+  bool cruise_reached;         // 助走: v0 に最初に着いたか (着くまでの距離を記録する)
+  float v_imu;                 // ランプ・ブレーキの間の機体の速度 = ランプの始めの速度 + IMU の加速度の積分 [m/s]
+                               // (車輪の空転・ロックの影響を受けない。距離もこれで測る)
   // 旋回の角加速度 (ジャイロと車輪の角速度の微分に LPF)
   float prev_gyro, prev_odom_w, alpha_gyro_f, alpha_odom_f;
   // 床の座標での位置と向き (安全停止と始点への移動に使う)
@@ -408,7 +414,7 @@ static float PredictLength(int dir, float v0) {
     ramp = 0.2f * (v0 + 0.2f);
     brake = v_b * v_b / (2.0f * RAMP_PRED_BRAKE_DECEL);
   }
-  return RAMP_PRED_MARGIN * (cruise + ramp + brake);
+  return RAMP_PRED_MARGIN * (cruise + v0 * RAMP_CRUISE_DWELL_S + ramp + brake);
 }
 
 // 速度の指定から、走らせる1本の一覧を作る (速度の低い順)
@@ -509,9 +515,11 @@ static void NewStrokeRecord(uint32_t elapsed_ms, int dir, int set) {
     rt.cur->v0_x100 = U16(rt.v0 * 100.0f);
   }
   rt.cruise_dist = rt.accel_dist = rt.brake_dist = 0.0f;
+  rt.cruise_reached = false;
 }
 
-static void BeginRamp(OmniDrive* od, const Robot* robot) {
+static void BeginRamp(OmniDrive* od, const Robot* robot, float start_speed) {
+  rt.v_imu = fmaxf(start_speed, 0.0f);
   for (int k = 0; k < 3; k++) od->vel_fb_integral[k] = 0.0f;
   SeedCommand(od, robot);
   ResetDetect(RAMP_START_V, true);
@@ -647,7 +655,7 @@ RampTestStatus RampTest_Step(Robot* robot) {
   switch (rt.phase) {
     case PH_START:
       NewStrokeRecord(elapsed_ms, dir, rt.set + 1);
-      BeginRamp(od, robot);
+      BeginRamp(od, robot, 0.0f);
       return RAMP_RUNNING;
 
     case PH_GOTO:
@@ -667,13 +675,17 @@ RampTestStatus RampTest_Step(Robot* robot) {
       // v0 まで、滑らない範囲でゆっくり加速し、着いたら (速度が v0 で加速度がほぼ 0 を保ったら) ランプへ
       SetCruiseTune();
       Drive(od, &robot->imu, kDirVec[dir][0] * rt.v0, kDirVec[dir][1] * rt.v0, HeadingHold(robot, 0.0f));
-      rt.cruise_dist += fmaxf(speed, 0.0f) * dt;
+      // 助走の距離は、v0 に最初に着くまで (着いてからの巡航は数えない。距離の予測に使うため)
+      if (!rt.cruise_reached) {
+        rt.cruise_dist += fmaxf(speed, 0.0f) * dt;
+        if (fabsf(speed - rt.v0) < RAMP_CRUISE_TOL) {
+          rt.cruise_reached = true;
+          if (rt.cur != NULL) rt.cur->cruise_dist_mm = U16(rt.cruise_dist * 1000.0f);
+        }
+      }
       bool at_speed = fabsf(speed - rt.v0) < RAMP_CRUISE_TOL && fabsf(a_imu) < RAMP_CRUISE_A_TOL;
       rt.cruise_ok_t = at_speed ? rt.cruise_ok_t + dt : 0.0f;
-      if (rt.cruise_ok_t >= RAMP_CRUISE_HOLD_S) {
-        if (rt.cur != NULL) rt.cur->cruise_dist_mm = U16(rt.cruise_dist * 1000.0f);
-        BeginRamp(od, robot);
-      }
+      if (rt.cruise_ok_t >= RAMP_CRUISE_HOLD_S) BeginRamp(od, robot, speed);
       break;
     }
 
@@ -686,7 +698,9 @@ RampTestStatus RampTest_Step(Robot* robot) {
         float target = (rt.v0 > 0.05f) ? rt.v0 + RAMP_TARGET_ABOVE : RAMP_TARGET_SPEED;
         Drive(od, &robot->imu, kDirVec[dir][0] * target, kDirVec[dir][1] * target,
               HeadingHold(robot, 0.0f));
-        rt.accel_dist += fmaxf(speed, 0.0f) * dt;
+        // 機体の速度は IMU の加速度の積分 (オドメトリは、空転すると実際より速く見える)
+        rt.v_imu += a_imu * dt;
+        rt.accel_dist += fmaxf(rt.v_imu, 0.0f) * dt;
       }
       DetectStep(dt, a_imu, a_odom, thresh, true);
       AdvanceRamp(dt);
@@ -701,16 +715,18 @@ RampTestStatus RampTest_Step(Robot* robot) {
         reason = RAMP_END_ONSET;
       } else if (rt.det.at_max_t >= RAMP_MAX_V_DWELL_S) {
         reason = RAMP_END_MAX_V;
-      } else if (speed > cap) {
+      } else if ((IsRotation(dir) ? speed : rt.v_imu) > cap) {
         reason = RAMP_END_SPEED;
       } else if (rt.det.t > RAMP_DETECT_DELAY_S && MinHeadroom(od) < rt.det.L) {
         reason = RAMP_END_HEADROOM;
+      } else if (!IsRotation(dir) && rt.det.t > RAMP_ACCEL_MAX_S) {
+        reason = RAMP_END_TIMEOUT;
       }
       if (reason != RAMP_END_NONE) {
         if (rt.cur != NULL) {
-          SaveDetect(&rt.cur->accel, reason, speed, acc_scale);
+          SaveDetect(&rt.cur->accel, reason, IsRotation(dir) ? speed : rt.v_imu, acc_scale);
           rt.cur->accel_dist_mm = U16(rt.accel_dist * 1000.0f);
-          rt.cur->v_brake_start = U16(fmaxf(speed, 0.0f) * 1000.0f);
+          rt.cur->v_brake_start = U16(fmaxf(IsRotation(dir) ? speed : rt.v_imu, 0.0f) * 1000.0f);
         }
         float found = rt.det.onset_found ? rt.det.onset_L : rt.det.peak_L;
         float L0 = fmaxf(1.0f, RAMP_BRAKE_START_RATIO * found);
@@ -728,7 +744,8 @@ RampTestStatus RampTest_Step(Robot* robot) {
         Drive(od, &robot->imu, 0.0f, 0.0f, 0.0f);
       } else {
         Drive(od, &robot->imu, 0.0f, 0.0f, HeadingHold(robot, 0.0f));
-        rt.brake_dist += fmaxf(speed, 0.0f) * dt;
+        rt.v_imu += a_imu * dt;
+        rt.brake_dist += fmaxf(rt.v_imu, 0.0f) * dt;
       }
       // ブレーキは減速の向きを正にする。トルク上限が実際に効いている (出力を縮めた) ときだけ判定する
       float min_speed = IsRotation(dir) ? 1.0f : 0.15f;
@@ -738,7 +755,10 @@ RampTestStatus RampTest_Step(Robot* robot) {
 
       RampEndReason reason = RAMP_END_NONE;
       float stop_speed = IsRotation(dir) ? 0.3f : 0.05f;
-      if (speed < stop_speed) {
+      // 止まったと見なすのは、車輪の速度が止まり、かつ機体の速度 (IMU の積分) も十分に落ちたとき
+      // (車輪がロックすると、機体はまだ滑っているのに車輪の速度は 0 になる)
+      bool body_stopped = IsRotation(dir) || rt.v_imu < 0.4f;
+      if (speed < stop_speed && body_stopped) {
         reason = rt.det.onset_found ? RAMP_END_ONSET : RAMP_END_STOPPED;
       } else if (rt.det.t > RAMP_BRAKE_TIMEOUT_S) {
         reason = RAMP_END_TIMEOUT;
