@@ -20,6 +20,9 @@ typedef enum {
   AUTOTUNE_TEST_NONE = 0,
   AUTOTUNE_TEST_MOTION_PATTERN = 1,  // 動作パターンのテストを1周 (今の値のまま)
   AUTOTUNE_TEST_RAMP = 2,            // ランプ試験 (向きごとの滑り始め・限界を測る、ramp_test.h)
+  AUTOTUNE_TEST_OPTIMIZE = 4,        // 自動最適化 (機体が試験をくり返して、値を更新・検証・保存する、optimizer.h)
+  AUTOTUNE_TEST_CLEAR_SAVED = 5,     // フラッシュに保存された調整値を消す (IMU の較正値は残す)。待たずに実行
+  AUTOTUNE_TEST_BEEP = 6,            // ブザーの確認 (成功の音を鳴らす。走らない)
 } AutoTuneTestId;
 
 typedef enum {
@@ -57,6 +60,9 @@ typedef struct {
   int32_t ramp_y_abs_cm;  // 左右 (片側)
   // 左右の FF 係数 ka_lat の上書き [0.001 V/(m/s^2)] (0: 既定値 = WHEEL_VOLT_KA_LAT_BODY)。FF の較正を、再書き込みなしで試すのに使う
   uint32_t ka_lat_x1000;
+  // 自動最適化 (test_id=4): 最適化するタスク (OPT_TASK_*、0 は FF 係数) と、OPT_FLAG_* (保存の許可・比の基準)
+  uint32_t opt_task_mask;
+  uint32_t opt_flags;
 } AutoTuneCtrl;
 
 extern volatile AutoTuneCtrl autotune_ctrl;

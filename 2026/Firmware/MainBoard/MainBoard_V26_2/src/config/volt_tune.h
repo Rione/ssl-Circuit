@@ -1,6 +1,7 @@
 #ifndef __VOLT_TUNE_H_
 #define __VOLT_TUNE_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 // 電圧制御の調整できる値 (実行中に書き換えられる)。既定値は parammeter.h の同名の #define。
@@ -36,8 +37,21 @@ extern VoltTuneParams volt_tune;
 extern VoltTuneParams volt_tune_base;
 void VoltTune_LoadBase(VoltTuneParams* p);
 
-// 既定値 (parammeter.h) に戻す
+// 既定値 (parammeter.h。フラッシュに保存された調整値があれば、その値で置き換える) に戻す
 void VoltTune_SetDefaults(VoltTuneParams* p);
+
+// ---- 自動最適化 (optimizer.c) が見つけた調整値の、フラッシュへの保存 ----
+// 保存先は CommonLib-C/flash/flash.h のユーザー領域 (セクタ7、書くたびに丸ごと消える)。先頭 0x000 は IMU の較正値
+// (imu.c の ImuCalibData)、0x100 からが調整値のブロック。どちらを書くときも、もう一方を読んで一緒に書き直す。
+#define VOLT_TUNE_FLASH_OFFSET 0x100U
+#define VOLT_TUNE_FLASH_IMAGE_SIZE 0x200U  // 読み書きする大きさ (IMU 0x100 + 調整値 0x100)
+// 起動時に呼ぶ。保存された調整値が有効なら、VoltTune_SetDefaults の既定値に反映する。戻り値: 有効だった
+bool VoltTune_LoadSaved(void);
+// 調整値 (ka_lin, ka_lat) を保存する (停止中だけ。フラッシュの消去で 1〜2 秒止まる)。成功したら、既定値にも反映する
+bool VoltTune_SaveTuned(float ka_lin, float ka_lat);
+// 保存された調整値だけを消す (IMU の較正値は残す)
+bool VoltTune_ClearSaved(void);
+bool VoltTune_HasSaved(void);
 // 各値を安全範囲に収める。magic・版が合わない、または NaN を含むときは既定値に戻す。
 // 戻り値: 何か直したら 1
 int VoltTune_Sanitize(VoltTuneParams* p);

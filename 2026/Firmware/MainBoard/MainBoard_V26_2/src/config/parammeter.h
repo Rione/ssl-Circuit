@@ -70,6 +70,9 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // 左右は、実際に出る加速度が前後の約 0.67 倍で (ランプ試験、HANDOFF_AUTOTUNE.md 10.10)、FF が左右の必要な電圧を
 // 足りなく見積もっている可能性がある。FF 試験 (ramp_test の -Speeds ff) で較正して、この値を決める
 #define WHEEL_VOLT_KA_LAT_BODY 0.5f
+// 1: 起動時に、フラッシュに保存された調整値 (自動最適化 optimizer.c が見つけた ka_lin・ka_lat) を読み込んで、既定値にする。
+// 保存された値は試合でも使われる。無効にするか、ST-Link から消す (autotune_start.ps1 -ClearSaved) ときは注意
+#define AUTOTUNE_LOAD_SAVED 1
 #define WHEEL_VOLT_KA_ANG_BODY 0.0175f
 // 床の上の負荷分の電圧 (輪ごとの値は wheel_voltage.c) を足すか。浮かせて試すときは 0 にする
 #define WHEEL_VOLT_USE_LOAD_FF 1

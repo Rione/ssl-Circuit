@@ -166,6 +166,7 @@ typedef enum {
   PH_CRUISE,     // 速度別の測定: v0 まで巡航
   PH_XFER,       // 1回目が終わったあと、範囲の真ん中へ移動して 90° (右回り) 向きを変える
   PH_FFSTEP,     // FF 試験: PI を切って FF だけで指令の加速度を出す (窓の平均を取る)
+  PH_HOME,       // 速度別の測定の終わり: 原点・向き 0 へ戻る
 } Phase;
 
 // 滑り始め・ピークの検出 (加速とブレーキで共用)
@@ -580,6 +581,20 @@ static void BuildSpeedList(void) {
       rt.sp_count++;
     }
   }
+  // FF 試験の軽量版: 前・後・左・右 × 指令の加速度 2.5m/s² × 2回
+  if (rt.speed_mask & RAMP_SPEED_FF_FAST) {
+    for (int rep = 0; rep < 2; rep++) {
+      for (int dir = 0; dir < 4; dir++) {
+        if (rt.sp_count >= RAMP_SPEED_LIST_MAX) break;
+        SpeedStroke* sp = &rt.sp_list[rt.sp_count++];
+        sp->dir = (uint8_t)dir;
+        sp->v0 = FF_TARGET_SPEED;
+        sp->brake_only = false;
+        sp->ff = true;
+        sp->a_cmd = kFfLevels[1];
+      }
+    }
+  }
   // FF 試験: 前・後・左・右 × 指令の加速度 2段階 × 2回 (前後は比較の基準)
   if (rt.speed_mask & RAMP_SPEED_FF) {
     for (int rep = 0; rep < 2; rep++) {
@@ -830,9 +845,11 @@ RampTestStatus RampTest_Step(Robot* robot) {
                       rt.phase == PH_FFSTEP) &&
                      !IsRotation(dir);
   if (translating && fabsf(rt.heading) > RAMP_HEADING_ABORT) return Abort(od, 2);
-  bool moving_phase = (rt.phase == PH_RETURN || rt.phase == PH_GOTO || rt.phase == PH_XFER);
+  bool moving_phase = (rt.phase == PH_RETURN || rt.phase == PH_GOTO || rt.phase == PH_XFER || rt.phase == PH_HOME);
   if (!moving_phase && rt.phase_t > RAMP_PHASE_TIMEOUT_S) return Abort(od, 3);
-  if ((rt.phase == PH_GOTO || rt.phase == PH_XFER) && rt.phase_t > RAMP_GOTO_TIMEOUT_S) return Abort(od, 3);
+  if ((rt.phase == PH_GOTO || rt.phase == PH_XFER || rt.phase == PH_HOME) && rt.phase_t > RAMP_GOTO_TIMEOUT_S) {
+    return Abort(od, 3);
+  }
   // bit1: 電源電圧範囲外、bit2: 過熱。RAMP_STATUS_DEBOUNCE_CYCLES 続いたときだけ止める。止めたときの状態を残す
   if (st & 0x06U) {
     if (++rt.bad_status_n >= RAMP_STATUS_DEBOUNCE_CYCLES) {
@@ -1112,7 +1129,8 @@ RampTestStatus RampTest_Step(Robot* robot) {
               rt.phase = PH_XFER;
               printf("# ramp test: rotate and repeat (move to x=%d mm)\n", (int)(rt.tx * 1000.0f));
             } else {
-              return Finish(od);
+              rt.phase = PH_HOME;  // 原点へ戻ってから終わる
+              rt.settle_ok_t = 0.0f;
             }
           }
         } else if (rt.member == 0) {
@@ -1125,6 +1143,12 @@ RampTestStatus RampTest_Step(Robot* robot) {
         rt.phase_t = 0.0f;
       }
       break;
+
+    case PH_HOME: {
+      // 原点・向き 0 へ低速で戻る。着いたら (または時間切れで) 終わり。戻れなくても、走行の結果には影響しない
+      if (GotoStep(od, robot, 0.0f, 0.0f, 0.0f, dt, c, s) || rt.phase_t > RAMP_RETURN_TIMEOUT_S) return Finish(od);
+      break;
+    }
 
     case PH_XFER: {
       // 範囲の真ん中へ移動しながら、右へ 90° 向きを変える (機体の左 (+y) が、長方形の長辺の向きになる)

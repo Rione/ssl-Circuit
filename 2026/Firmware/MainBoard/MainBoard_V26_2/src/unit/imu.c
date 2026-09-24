@@ -193,8 +193,13 @@ bool Imu_SaveCalibration(const Imu* self) {
       .accel_bias = {self->accel_bias_x, self->accel_bias_y},
   };
   data.checksum = Imu_CalibChecksum(&data);
-  // F446 はセクタ7 (128KB) を丸ごと消去するため1〜2秒ほど止まる (起動時のみ呼ぶこと)
-  if (Flash_WriteData(FLASH_USER_START_ADDR, &data, sizeof(data)) != HAL_OK) {
+  // F446 はセクタ7 (128KB) を丸ごと消去するため1〜2秒ほど止まる (起動時のみ呼ぶこと)。
+  // 消去で、0x100 からの調整値のブロック (volt_tune.c、自動最適化の結果) も消えるので、512 byte を読んで、
+  // 先頭の IMU の較正値だけ差し替えて、丸ごと書き直す
+  uint8_t image[0x200];
+  Flash_ReadData(FLASH_USER_START_ADDR, image, sizeof(image));
+  for (size_t i = 0; i < sizeof(data); i++) image[i] = ((const uint8_t*)&data)[i];
+  if (Flash_WriteData(FLASH_USER_START_ADDR, image, sizeof(image)) != HAL_OK) {
     printf("IMU Calibration save failed\n");
     return false;
   }

@@ -89,6 +89,13 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   // 応急処置が入ったFWであることをログで確認できるようにする (引き継ぎ文書 5.4)
   printf("# WORKAROUND: OMNI_TX_AVOID_HEADER_BYTE=1 (avoid 0xAA in WheelUnit TX data)\n");
 #endif
+  // フラッシュに保存された調整値 (自動最適化の結果) があれば、既定値にする
+  if (VoltTune_LoadSaved()) {
+    VoltTune_SetDefaults(&volt_tune);
+    VoltTune_SetDefaults(&volt_tune_base);
+    printf("# volt_tune: loaded saved tuning ka_lin=%d ka_lat=%d (x1000)\n", (int)(volt_tune.ka_lin * 1000.0f),
+           (int)(volt_tune.ka_lat * 1000.0f));
+  }
   if (VoltTune_Sanitize(&volt_tune)) printf("# volt_tune: out of range, corrected\n");
   OmniDrive_ComputeForwardKinematics(self);
   printf("# force_alloc [x,y,w] x1000:");
