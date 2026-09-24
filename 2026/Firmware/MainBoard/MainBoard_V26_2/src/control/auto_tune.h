@@ -19,6 +19,7 @@
 typedef enum {
   AUTOTUNE_TEST_NONE = 0,
   AUTOTUNE_TEST_MOTION_PATTERN = 1,  // 動作パターンのテストを1周 (今の値のまま)
+  AUTOTUNE_TEST_RAMP = 2,            // ランプ試験 (向きごとの滑り始め・限界を測る、ramp_test.h)
 } AutoTuneTestId;
 
 typedef enum {
@@ -43,6 +44,11 @@ typedef struct {
   uint32_t test_id;    // AutoTuneTestId
   uint32_t state;      // AutoTuneState (MainBoard が書く)
   uint32_t result;     // AutoTuneResult (MainBoard が書く。直近の1回ぶん)
+  // 開始の指示と一緒に PC が書く、この1回だけの volt_tune の上書き (0: 上書きしない = 既定値)。
+  // 走り終わる (取り消す) と既定値に戻る。範囲は VoltTune_Sanitize が収める。段階2で 2.4/2.8/3.2V を試すのに使う
+  uint32_t traction_x100;       // トルク上限 [0.01V]
+  uint32_t max_accel_x100;      // S字の加速度上限 [0.01 m/s^2]
+  uint32_t max_ang_accel_x100;  // S字の角加速度上限 [0.01 rad/s^2]
 } AutoTuneCtrl;
 
 extern volatile AutoTuneCtrl autotune_ctrl;

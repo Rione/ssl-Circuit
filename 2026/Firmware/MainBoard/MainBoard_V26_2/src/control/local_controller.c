@@ -4,8 +4,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "motion_summary.h"
 #include "mymath.h"
 #include "tcs_log.h"
+#include "volt_tune.h"
 
 void LocalController_Init(LocalController* self) {
   (void)self;
@@ -330,10 +332,13 @@ void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
   // (Kp=3, a=2 では残り約0.44mから先で約0.9秒かかった)。
   // kBrakeAccel はトルク上限引き上げ (2.0→2.4→3.2→2.8V) に合わせて 3.0→3.5→5.0→4.5 にした。
   // 3.2V (kBrakeAccel=5.0) ではスリップが50〜87%まで増えたため、2.8Vに落ち着けた
-  const float kBrakeAccel = 4.5f;      // 位置の目標へ減速するときの想定減速度 [m/s^2]
+  // 想定減速度は volt_tune の加速度上限に比例させる (既定の 5.0 のとき 4.5)。自動チューニングで上限を
+  // 変えたときも、外側ループの想定が実際とずれないようにする (段階2、HANDOFF_AUTOTUNE.md 10.2)
+  const float kBrakeAccel = 0.9f * volt_tune.max_accel;  // 位置の目標へ減速するときの想定減速度 [m/s^2]
   const float kPosKp = 8.0f;           // [1/s]
   const float kMaxAngVel = TEST_PATTERN_ANG_VEL_RADPS;   // [rad/s]
-  const float kBrakeAngAccel = TEST_PATTERN_ANG_BRAKE;  // [rad/s^2]
+  const float kBrakeAngAccel =
+      TEST_PATTERN_ANG_BRAKE * (volt_tune.max_ang_accel / VOLT_MODE_MAX_ANG_ACCEL);  // [rad/s^2]
   const float kHeadingKp = 10.0f;      // [1/s]
   const float kHeadingKd = 0.5f;       // 角速度による減衰 [s] (オーバーシュート対策)
   const int kNumSegments = sizeof(kMotionSegments) / sizeof(kMotionSegments[0]);
@@ -382,6 +387,8 @@ void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
     mp.target_x = kMotionSegments[0].dx_m * TEST_PATTERN_SCALE;
     mp.target_y = kMotionSegments[0].dy_m * TEST_PATTERN_SCALE;
     mp.target_heading = kMotionSegments[0].dtheta_rad;
+    MotionSummary_BeginRun();
+    MotionSummary_BeginSegment(0, 0.0f, 0.0f, mp.target_x, mp.target_y, mp.target_heading, 0.0f);
   }
 
   float dt = Timer_Read(&mp.dt_timer);
@@ -394,6 +401,7 @@ void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
   float vx_body = od->tcs.odom_vx, vy_body = od->tcs.odom_vy;
   mp.pos_x += (vx_body * c - vy_body * s) * dt;
   mp.pos_y += (vx_body * s + vy_body * c) * dt;
+  MotionSummary_Step(dt, robot, mp.pos_x, mp.pos_y, mp.heading);
 
   // 目標への速度指令 (床の座標)
   float ex = mp.target_x - mp.pos_x, ey = mp.target_y - mp.pos_y;
@@ -429,6 +437,8 @@ void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
     printf("# motion test aborted: seg=%d area=%d heading=%d timeout=%d x=%d y=%d mm th=%d mrad\n",
            mp.seg + 1, out_of_area, heading_off, timeout, (int)(mp.pos_x * 1000.0f),
            (int)(mp.pos_y * 1000.0f), (int)(mp.heading * 1000.0f));
+    MotionSummary_EndSegment(mp.pos_x, mp.pos_y, mp.heading, elapsed_ms - mp.seg_start_ms);
+    MotionSummary_EndRun(2, elapsed_ms - mp.startup_wait_ms);
     mp.is_finished = true;
     mp.is_aborted = true;
     mp.end_elapsed_ms = elapsed_ms;
@@ -452,8 +462,10 @@ void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
     if (mp.settled_ms == 0) mp.settled_ms = elapsed_ms;
     if (elapsed_ms - mp.settled_ms >= kSettleMs) {
       mp.settled_ms = 0;
+      MotionSummary_EndSegment(mp.pos_x, mp.pos_y, mp.heading, elapsed_ms - mp.seg_start_ms);
       mp.seg++;
       if (mp.seg >= kNumSegments) {
+        MotionSummary_EndRun(1, elapsed_ms - mp.startup_wait_ms);
         mp.is_finished = true;
         mp.end_elapsed_ms = elapsed_ms;
         printf("# motion test finished\n");
@@ -463,6 +475,8 @@ void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
       mp.target_x += kMotionSegments[mp.seg].dx_m * TEST_PATTERN_SCALE;
       mp.target_y += kMotionSegments[mp.seg].dy_m * TEST_PATTERN_SCALE;
       mp.target_heading += kMotionSegments[mp.seg].dtheta_rad;
+      MotionSummary_BeginSegment(mp.seg, mp.pos_x, mp.pos_y, mp.target_x, mp.target_y,
+                                 mp.target_heading, mp.heading);
     }
   } else {
     mp.settled_ms = 0;
