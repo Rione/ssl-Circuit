@@ -13,6 +13,8 @@
 RampRunResult ramp_result;
 FfStepResult ff_results[FF_RESULT_MAX];
 volatile uint16_t ff_result_count = 0;
+FfDrift ff_drift[FF_RESULT_MAX];
+FfDrift ff_drift_final;
 volatile uint32_t ramp_abort_status = 0;
 volatile uint16_t ramp_abort_batt = 0;
 // WheelUnit の状態バイトの異常 (bit1: 電源電圧範囲外、bit2: 過熱) が、この周期数 (1ms) 続いたら安全停止する。
@@ -247,6 +249,9 @@ static struct {
   float prev_gyro, prev_odom_w, alpha_gyro_f, alpha_odom_f;
   // 床の座標での位置と向き (安全停止と始点への移動に使う)
   float pos_x, pos_y, heading;
+  // 診断: IMU の加速度を積分した位置 (制御には使わない。車輪の位置のずれを調べる)。停止中に速度を 0 に合わせ (ZUPT)、
+  // 停止中の加速度の平均をバイアスとして引く
+  float imu_pos_x, imu_pos_y, imu_vx, imu_vy, imu_bias_x, imu_bias_y, still_t;
   uint8_t log_divider;
   RampStrokeResult* cur;
 } rt;
@@ -506,6 +511,12 @@ static RampTestStatus Abort(OmniDrive* od, uint16_t reason) {
 
 static RampTestStatus Finish(OmniDrive* od) {
   OmniDrive_SetFree(od);
+  ff_drift_final.imu_x_mm = I16(rt.imu_pos_x * 1000.0f);
+  ff_drift_final.imu_y_mm = I16(rt.imu_pos_y * 1000.0f);
+  ff_drift_final.odom_x_mm = I16(rt.pos_x * 1000.0f);
+  ff_drift_final.odom_y_mm = I16(rt.pos_y * 1000.0f);
+  printf("# ramp test: end pos imu=(%d,%d) odom=(%d,%d) mm\n", (int)ff_drift_final.imu_x_mm, (int)ff_drift_final.imu_y_mm,
+         (int)ff_drift_final.odom_x_mm, (int)ff_drift_final.odom_y_mm);
   VoltTune_SetDefaults(&volt_tune);
   ramp_result.result = 1;
   printf("# ramp test finished: strokes=%u retry=0x%03x unstable=0x%03x\n",
@@ -581,9 +592,9 @@ static void BuildSpeedList(void) {
       rt.sp_count++;
     }
   }
-  // FF 試験の軽量版: 前・後・左・右 × 指令の加速度 2.5m/s² × 2回
+  // FF 試験の軽量版: 前・後・左・右 × 指令の加速度 2.5m/s² × 3回 (2回では、平均が ±0.04 ほどばらつく)
   if (rt.speed_mask & RAMP_SPEED_FF_FAST) {
-    for (int rep = 0; rep < 2; rep++) {
+    for (int rep = 0; rep < 3; rep++) {
       for (int dir = 0; dir < 4; dir++) {
         if (rt.sp_count >= RAMP_SPEED_LIST_MAX) break;
         SpeedStroke* sp = &rt.sp_list[rt.sp_count++];
@@ -802,6 +813,9 @@ RampTestStatus RampTest_Step(Robot* robot) {
     ramp_abort_status = 0;
     ramp_abort_batt = 0;
     rt.pos_x = rt.pos_y = rt.heading = 0.0f;
+    rt.imu_pos_x = rt.imu_pos_y = rt.imu_vx = rt.imu_vy = rt.imu_bias_x = rt.imu_bias_y = rt.still_t = 0.0f;
+    for (int i = 0; i < FF_RESULT_MAX; i++) ff_drift[i] = (FfDrift){0, 0, 0, 0};
+    ff_drift_final = (FfDrift){0, 0, 0, 0};
     rt.phase = PH_START;
     rt.phase_t = 0.0f;
     rt.log_divider = 0;
@@ -827,6 +841,23 @@ RampTestStatus RampTest_Step(Robot* robot) {
   float c = cosf(rt.heading), s = sinf(rt.heading);
   rt.pos_x += (od->tcs.odom_vx * c - od->tcs.odom_vy * s) * dt;
   rt.pos_y += (od->tcs.odom_vx * s + od->tcs.odom_vy * c) * dt;
+  {
+    // 診断: IMU の位置。車輪の速度がほぼ 0 の間 (0.3 秒以上) は、速度を 0 にし、加速度の平均をバイアスとして覚える
+    const float odom_speed = sqrtf(od->tcs.odom_vx * od->tcs.odom_vx + od->tcs.odom_vy * od->tcs.odom_vy);
+    rt.still_t = (odom_speed < 0.02f) ? rt.still_t + dt : 0.0f;
+    if (rt.still_t > 0.3f) {
+      const float kb = dt / (0.5f + dt);
+      rt.imu_bias_x += kb * (od->tcs.a_imu_x - rt.imu_bias_x);
+      rt.imu_bias_y += kb * (od->tcs.a_imu_y - rt.imu_bias_y);
+      rt.imu_vx = rt.imu_vy = 0.0f;
+    } else {
+      const float abx = od->tcs.a_imu_x - rt.imu_bias_x, aby = od->tcs.a_imu_y - rt.imu_bias_y;
+      rt.imu_vx += (abx * c - aby * s) * dt;  // 床の座標の速度
+      rt.imu_vy += (abx * s + aby * c) * dt;
+      rt.imu_pos_x += rt.imu_vx * dt;
+      rt.imu_pos_y += rt.imu_vy * dt;
+    }
+  }
 
   // 安全停止
   uint8_t st = od->wheel_status[0] | od->wheel_status[1] | od->wheel_status[2] | od->wheel_status[3];
@@ -1118,6 +1149,13 @@ RampTestStatus RampTest_Step(Robot* robot) {
       VoltTune_LoadBase(&volt_tune);
       Drive(od, &robot->imu, 0.0f, 0.0f, IsRotation(dir) ? 0.0f : HeadingHold(robot, 0.0f));
       if (rt.phase_t >= RAMP_SETTLE_S) {
+        if (rt.ff && ff_result_count > 0 && ff_result_count <= FF_RESULT_MAX) {
+          FfDrift* d = &ff_drift[ff_result_count - 1];  // この本が終わったときの、IMU と車輪の位置 (原点からの累積)
+          d->imu_x_mm = I16(rt.imu_pos_x * 1000.0f);
+          d->imu_y_mm = I16(rt.imu_pos_y * 1000.0f);
+          d->odom_x_mm = I16(rt.pos_x * 1000.0f);
+          d->odom_y_mm = I16(rt.pos_y * 1000.0f);
+        }
         if (rt.in_speed) {
           rt.sp_pos++;
           if (!PrepareNextSpeedStroke(elapsed_ms)) {

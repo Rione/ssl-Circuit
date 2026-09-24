@@ -97,6 +97,19 @@ if ($fb.Count -gt 0) {
 }
 Write-Host "次: 推奨値で試験をもう一度 (autotune_start.ps1 -TestId 2 -Speeds ff -Rect 3.5,2.5 -Rotate -KaLat <推奨値>)。比が 1 に近づけば、parammeter.h の WHEEL_VOLT_KA_LAT_BODY に書く。"
 
+# 診断: 位置のずれ (IMU の加速度の二重積分と、車輪の位置。原点からの累積 [mm])。odom が 0 に戻っていても、imu が 0 でなければ、機体は原点にいない
+try {
+  $da = Get-SymbolAddress $Elf "ff_drift"
+  $dfa = Get-SymbolAddress $Elf "ff_drift_final"
+  $db = Read-RamBytes $da ($n * 8)
+  Write-Host "== 位置の診断: 1本が終わったときの位置 [mm] (前が +x、左が +y)"
+  for ($i = 0; $i -lt $n; $i++) {
+    Write-Host ("  {0,2} {1,-6} imu=({2,5},{3,5}) 車輪=({4,5},{5,5})" -f ($i + 1), $dirNames[[int]$rows[$i].dir], [BitConverter]::ToInt16($db, $i * 8), [BitConverter]::ToInt16($db, $i * 8 + 2), [BitConverter]::ToInt16($db, $i * 8 + 4), [BitConverter]::ToInt16($db, $i * 8 + 6))
+  }
+  $fb = Read-RamBytes $dfa 8
+  Write-Host ("走行の終わり (原点へ戻ったあと): imu=({0},{1}) mm  車輪=({2},{3}) mm  ← 実測のずれと比べる" -f [BitConverter]::ToInt16($fb, 0), [BitConverter]::ToInt16($fb, 2), [BitConverter]::ToInt16($fb, 4), [BitConverter]::ToInt16($fb, 6))
+} catch { Write-Host "(位置の診断は読めませんでした: $_)" }
+
 if ($Csv) {
   $Csv = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Csv)
   New-Item -ItemType Directory -Force (Split-Path $Csv -Parent) | Out-Null

@@ -44,7 +44,7 @@
 // 加速度 (IMU) との比を測る。向き (前・後・左・右) ごと。比が 1 より小さければ、その向きの FF (ka) が足りない。
 // 目標速度 1.5m/s、1本は約 1.0〜1.7m。結果は ff_results (FfStepResult)。tools/read_ff_results.ps1 で読む
 #define RAMP_SPEED_FF        0x400U
-// FF 試験の軽量版 (自動最適化 optimizer.c が使う): 指令の加速度 2.5m/s² だけ、前・後・左・右 × 2回 = 8本 (約50秒)。
+// FF 試験の軽量版 (自動最適化 optimizer.c が使う): 指令の加速度 2.5m/s² だけ、前・後・左・右 × 3回 = 12本 (約40秒)。
 // 3.5×2.5m のエリアの1回目の向きだけで、4方向とも収まる (回転しない)
 #define RAMP_SPEED_FF_FAST   0x1000U
 // 速度別の測定を1回終えたら、機体が自分で範囲の真ん中へ移動し、右へ 90° 回って、もう一度繰り返す (2回目)。
@@ -143,6 +143,14 @@ typedef struct {
 // 輪 i が (ramp_abort_status >> (8*i)) & 0xFF) と電池電圧 [V]。安全停止の原因を調べるための記録
 extern volatile uint32_t ramp_abort_status;
 extern volatile uint16_t ramp_abort_batt;
+
+// 診断: FF の1本が終わったときの位置 [mm] (原点からの累積)。imu = IMU の加速度の二重積分、odom = 車輪。
+// 走行の終わり (原点へ戻ったあと) は ff_drift_final。odom が 0 に戻っていても imu が 0 でなければ、実際の機体は原点にいない
+typedef struct {
+  int16_t imu_x_mm, imu_y_mm, odom_x_mm, odom_y_mm;
+} FfDrift;
+extern FfDrift ff_drift[FF_RESULT_MAX];
+extern FfDrift ff_drift_final;
 
 extern FfStepResult ff_results[FF_RESULT_MAX];
 extern volatile uint16_t ff_result_count;

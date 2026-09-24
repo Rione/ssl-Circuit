@@ -15,8 +15,9 @@ volatile OptResult opt_result;
 #define OPT_HEAT_WAIT_MS 300000U      // 過熱が消えるまで待つ上限 5 分
 #define OPT_MIN_BATTERY_V 21
 #define OPT_END_HOLD_MS 6000U  // 終わりの合図 (LED・ブザー) の時間
-#define OPT_TOL_ITER 0.03f
-#define OPT_TOL_VERIFY 0.05f
+// 1回の走行の平均は ±0.04 ほどばらつく (同じ ka で 0.94〜1.02)。基準をそれより狭くすると、雑音を追いかけて収束しない
+#define OPT_TOL_ITER 0.05f
+#define OPT_TOL_VERIFY 0.07f
 #define OPT_KA_MIN 0.3f
 #define OPT_KA_MAX 1.2f
 #define OPT_STEP_MAX 0.30f  // 1反復の変化の上限 (比率)
@@ -135,7 +136,7 @@ static float Clampf(float v, float lo, float hi) {
 // 次の ka を求める (r ∝ ka^e)。範囲・変化の上限に収める
 static float NextKa(const Axis* a, float r) {
   float e = OPT_ELASTICITY_INIT;
-  if (a->has_prev && a->prev_r > 0.0f && fabsf(logf(a->ka / a->prev_ka)) > 0.02f) {
+  if (a->has_prev && a->prev_r > 0.0f && fabsf(logf(a->ka / a->prev_ka)) > 0.10f) {
     e = Clampf(logf(r / a->prev_r) / logf(a->ka / a->prev_ka), OPT_ELASTICITY_MIN, OPT_ELASTICITY_MAX);
   }
   float factor = powf(1.0f / r, OPT_AIM / e);
