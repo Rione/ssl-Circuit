@@ -8,7 +8,7 @@
 // (引き継ぎ文書 HANDOFF_AUTOTUNE.md)。ST-Link から書き換えてもよいが、使う前に VoltTune_Sanitize で
 // 安全範囲に収める
 #define VOLT_TUNE_MAGIC 0x56545031U  // "VTP1"
-#define VOLT_TUNE_VERSION 1U
+#define VOLT_TUNE_VERSION 2U
 
 typedef struct {
   uint32_t magic;
@@ -18,7 +18,8 @@ typedef struct {
   float max_ang_accel;     // S字の角加速度上限 [rad/s^2] (VOLT_MODE_MAX_ANG_ACCEL)
   float max_jerk;          // S字のジャーク上限 [m/s^3] (TCS_MAX_JERK)
   float max_ang_jerk;      // S字の角ジャーク上限 [rad/s^3] (TCS_MAX_ANG_JERK)
-  float ka_lin;            // 加減速ぶんのFF 並進 [V/(m/s^2)] (WHEEL_VOLT_KA_LIN_BODY)
+  float ka_lin;            // 加減速ぶんのFF 並進 x (前後) [V/(m/s^2)] (WHEEL_VOLT_KA_LIN_BODY)
+  float ka_lat;            // 加減速ぶんのFF 並進 y (左右) [V/(m/s^2)] (WHEEL_VOLT_KA_LAT_BODY)
   float ka_ang;            // 加減速ぶんのFF 回転 [V/(rad/s^2)] (WHEEL_VOLT_KA_ANG_BODY)
   float kp_lin;            // 機体速度PI 並進 P [V/(m/s)] (VEL_FB_KP_LIN)
   float ki_lin;            // 並進 I [V/(m/s·s)] (VEL_FB_KI_LIN)
@@ -29,6 +30,11 @@ typedef struct {
 
 // 今使っている値 (電圧制御の分岐と OmniDrive_SetControlMode が毎周期読む)
 extern VoltTuneParams volt_tune;
+
+// 走行 (試験) ごとの「基準」。既定値に、開始の指示の上書き (autotune_ctrl) を足したもの。試験の途中で値を
+// いじった (ランプ試験のトルク上限など) あと、基準に戻すのに使う (VoltTune_SetDefaults だと上書きも消える)
+extern VoltTuneParams volt_tune_base;
+void VoltTune_LoadBase(VoltTuneParams* p);
 
 // 既定値 (parammeter.h) に戻す
 void VoltTune_SetDefaults(VoltTuneParams* p);

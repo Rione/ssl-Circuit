@@ -11,6 +11,8 @@
 #include "wheel_voltage.h"
 
 RampRunResult ramp_result;
+FfStepResult ff_results[FF_RESULT_MAX];
+volatile uint16_t ff_result_count = 0;
 
 // ---- 試験の定数 ----
 // トルク上限のランプ (2026-09-24 の初回の結果で見直し、HANDOFF_AUTOTUNE.md 10.8・10.9)。
@@ -131,7 +133,16 @@ RampRunResult ramp_result;
 
 #define RAMP_PAIR_COUNT 5
 #define RAMP_SET_MAX 3
-#define RAMP_SPEED_LIST_MAX 24
+#define RAMP_SPEED_LIST_MAX 40
+// FF 試験
+#define FF_TARGET_SPEED 1.5f        // [m/s]
+#define FF_TRACTION_V 3.0f          // FF 試験のトルク上限 [V] (FF の要求より大きく、効かない)
+#define FF_WINDOW_MIN_S 0.20f       // これより短い窓は無効
+#define FF_PLATEAU_HOLD_S 0.15f     // 指令の加速度が立ち上がってから、平均を取り始めるまで
+#define FF_TIMEOUT_S 2.5f
+#define FF_PRED_LATERAL_EFF 0.7f    // 距離の予測: 左右は指令の加速度の約 0.7 倍しか出ない (ランプ試験の結果)
+#define FF_PRED_BRAKE_DECEL 3.0f    // 距離の予測: FF 試験のあとのブレーキ (通常の設定) の減速度 [m/s^2]
+static const float kFfLevels[2] = {1.5f, 2.5f};  // 指令の加速度 [m/s^2]
 #define RAMP_AVG_N 100  // 加速度の平均の窓 [制御周期 = 1ms]
 
 static const float kDirVec[8][2] = {
@@ -148,6 +159,7 @@ typedef enum {
   PH_GOTO,       // 速度別の測定: 次の1本の始点へ移動
   PH_CRUISE,     // 速度別の測定: v0 まで巡航
   PH_XFER,       // 1回目が終わったあと、範囲の真ん中へ移動して 90° (右回り) 向きを変える
+  PH_FFSTEP,     // FF 試験: PI を切って FF だけで指令の加速度を出す (窓の平均を取る)
 } Phase;
 
 // 滑り始め・ピークの検出 (加速とブレーキで共用)
@@ -181,6 +193,8 @@ typedef struct {
   uint8_t dir;
   float v0;
   bool brake_only;         // 巡航のあと、加速せずに直接ブレーキ (停止距離と減速度の測定)
+  bool ff;                 // FF 試験 (PI を切って FF だけで加速、指令と実際の加速度の比を測る)
+  float a_cmd;             // FF 試験の指令の加速度 [m/s^2]
 } SpeedStroke;
 
 static struct {
@@ -200,6 +214,13 @@ static struct {
   int sp_pos;
   float v0;                    // 今の1本の巡航の速度 [m/s] (低速の試験は 0)
   bool brake_only;             // 今の1本は、巡航のあと直接ブレーキ (ブレーキのみの試験)
+  bool ff;                     // 今の1本は FF 試験
+  float ff_a_cmd;              // その指令の加速度 [m/s^2]
+  float ff_t, ff_plateau_t;    // FF 試験: 経過時間、指令の加速度が立ち上がっている時間 [s]
+  bool ff_in_window;
+  double ff_sum_cmd, ff_sum_imu, ff_sum_odom;  // 窓の間の合計 (1ms ごと)
+  int ff_n;
+  float ff_dist;               // FF 試験の間に進行方向へ進んだ距離 [m]
   float tx, ty;                // 始点への移動の目標 [m]
   Phase phase;
   float phase_t;
@@ -370,9 +391,9 @@ static void SaveDetect(RampPhaseResult* r, RampEndReason reason, float speed, fl
   r->end_reason = (uint16_t)reason;
 }
 
-// volt_tune をランプ用にする (トルク上限だけランプの値、S字は十分速く)
+// volt_tune をランプ用にする (トルク上限だけランプの値、S字は十分速く)。基準は、既定値＋開始の指示の上書き
 static void SetRampTune(float L) {
-  VoltTune_SetDefaults(&volt_tune);
+  VoltTune_LoadBase(&volt_tune);
   volt_tune.traction_limit_v = L;  // Sanitize は通さない (試験の中だけ 3.2V を超えてよい)
   volt_tune.max_accel = RAMP_CMD_ACCEL;
   volt_tune.max_jerk = RAMP_CMD_JERK;
@@ -382,7 +403,7 @@ static void SetRampTune(float L) {
 
 // 助走用: 滑らない範囲でゆっくり加速する (左右は、力が多く要るので、トルク上限を少し上げる)
 static void SetCruiseTune(int dir) {
-  VoltTune_SetDefaults(&volt_tune);
+  VoltTune_LoadBase(&volt_tune);
   volt_tune.traction_limit_v = (dir == RAMP_DIR_LEFT || dir == RAMP_DIR_RIGHT) ? RAMP_CRUISE_L_LATERAL : RAMP_CRUISE_L;
   volt_tune.max_accel = RAMP_CRUISE_ACCEL;
 }
@@ -514,6 +535,14 @@ static float PredictLength(int dir, float v0, bool brake_only) {
   return RAMP_PRED_MARGIN * (cruise + v0 * RAMP_CRUISE_DWELL_S + ramp + brake);
 }
 
+// FF 試験の1本に要る長さの予測 [m]: 加速 (v²/(2a)、左右は指令の約 0.7 倍しか出ない) + ブレーキ
+static float PredictFfLength(int dir, float a_cmd) {
+  const bool lateral = (dir == RAMP_DIR_LEFT || dir == RAMP_DIR_RIGHT);
+  const float a_eff = a_cmd * (lateral ? FF_PRED_LATERAL_EFF : 1.0f);
+  const float v = FF_TARGET_SPEED;
+  return RAMP_PRED_MARGIN * (v * v / (2.0f * a_eff) + v * v / (2.0f * FF_PRED_BRAKE_DECEL) + 0.1f);
+}
+
 // 速度の指定から、走らせる1本の一覧を作る (速度の低い順)
 static void BuildSpeedList(void) {
   static const struct {
@@ -539,7 +568,25 @@ static void BuildSpeedList(void) {
       rt.sp_list[rt.sp_count].dir = (uint8_t)(first + k);
       rt.sp_list[rt.sp_count].v0 = kLevels[i].v0;
       rt.sp_list[rt.sp_count].brake_only = kLevels[i].brake_only;
+      rt.sp_list[rt.sp_count].ff = false;
+      rt.sp_list[rt.sp_count].a_cmd = 0.0f;
       rt.sp_count++;
+    }
+  }
+  // FF 試験: 前・後・左・右 × 指令の加速度 2段階 × 2回 (前後は比較の基準)
+  if (rt.speed_mask & RAMP_SPEED_FF) {
+    for (int rep = 0; rep < 2; rep++) {
+      for (int dir = 0; dir < 4; dir++) {
+        for (int lv = 0; lv < 2; lv++) {
+          if (rt.sp_count >= RAMP_SPEED_LIST_MAX) break;
+          SpeedStroke* sp = &rt.sp_list[rt.sp_count++];
+          sp->dir = (uint8_t)dir;
+          sp->v0 = FF_TARGET_SPEED;
+          sp->brake_only = false;
+          sp->ff = true;
+          sp->a_cmd = kFfLevels[lv];
+        }
+      }
     }
   }
 }
@@ -567,11 +614,15 @@ static bool PrepareNextSpeedStroke(uint32_t elapsed_ms) {
     int dir = rt.sp_list[rt.sp_pos].dir;
     float v0 = rt.sp_list[rt.sp_pos].v0;
     bool brake_only = rt.sp_list[rt.sp_pos].brake_only;
-    float length = PredictLength(dir, v0, brake_only);
+    const bool ff = rt.sp_list[rt.sp_pos].ff;
+    const float a_cmd = rt.sp_list[rt.sp_pos].a_cmd;
+    float length = ff ? PredictFfLength(dir, a_cmd) : PredictLength(dir, v0, brake_only);
     float sx, sy;
     if (PlanPath(dir, length, &sx, &sy)) {
       rt.v0 = v0;
       rt.brake_only = brake_only;
+      rt.ff = ff;
+      rt.ff_a_cmd = a_cmd;
       rt.pred_len = length;
       rt.cruise_limit = fmaxf(0.5f, (brake_only ? RAMP_BRAKE_ONLY_LIMIT_RATIO : RAMP_CRUISE_LIMIT_RATIO) * length);
       rt.tx = sx;
@@ -581,7 +632,18 @@ static bool PrepareNextSpeedStroke(uint32_t elapsed_ms) {
       rt.settle_ok_t = 0.0f;
       return true;
     }
-    if (ramp_result.stroke_count < RAMP_MAX_STROKES) {
+    if (ff) {
+      // FF 試験の1本は、走らずに「範囲不足」と記録する
+      if (ff_result_count < FF_RESULT_MAX) {
+        FfStepResult* f = &ff_results[ff_result_count++];
+        FfStepResult zf = {0};
+        *f = zf;
+        f->dir = (uint8_t)dir;
+        f->session = (uint8_t)rt.session;
+        f->a_nom_x100 = U16(a_cmd * 100.0f);
+        f->v_end_mmps = I16(length * 1000.0f);  // 予測した必要な長さ [mm] (走らなかったときだけ)
+      }
+    } else if (ramp_result.stroke_count < RAMP_MAX_STROKES) {
       RampStrokeResult* s = &ramp_result.stroke[ramp_result.stroke_count++];
       RampStrokeResult zero = {0};
       *s = zero;
@@ -666,7 +728,7 @@ static void BeginBrakeOnly(OmniDrive* od, const Robot* robot, float start_speed)
 // 始点 (tx, ty)・向き0へ低速で移動する。着いたら true (オドメトリのずれが積み重ならないようにするため)
 static bool GotoStep(OmniDrive* od, const Robot* robot, float tx, float ty, float target_heading, float dt,
                      float c, float s) {
-  VoltTune_SetDefaults(&volt_tune);
+  VoltTune_LoadBase(&volt_tune);
   float ex = tx - rt.pos_x, ey = ty - rt.pos_y;
   float dist = sqrtf(ex * ex + ey * ey);
   float sp = fminf(RAMP_GOTO_SPEED, fminf(sqrtf(2.0f * 3.0f * dist), 4.0f * dist));
@@ -712,6 +774,8 @@ RampTestStatus RampTest_Step(Robot* robot) {
     rt.member = 0;
     rt.v0 = 0.0f;
     rt.brake_only = false;
+    rt.ff = false;
+    ff_result_count = 0;
     rt.pos_x = rt.pos_y = rt.heading = 0.0f;
     rt.phase = PH_START;
     rt.phase_t = 0.0f;
@@ -752,7 +816,8 @@ RampTestStatus RampTest_Step(Robot* robot) {
   const float y_abs = wide ? area_y_abs : RAMP_AREA_Y_ABS;
   if (rt.pos_x < x_min || rt.pos_x > x_max || fabsf(rt.pos_y) > y_abs) return Abort(od, 1);
   int dir = CurrentDir();
-  bool translating = (rt.phase == PH_ACCEL || rt.phase == PH_BRAKE || rt.phase == PH_CRUISE) &&
+  bool translating = (rt.phase == PH_ACCEL || rt.phase == PH_BRAKE || rt.phase == PH_CRUISE ||
+                      rt.phase == PH_FFSTEP) &&
                      !IsRotation(dir);
   if (translating && fabsf(rt.heading) > RAMP_HEADING_ABORT) return Abort(od, 2);
   bool moving_phase = (rt.phase == PH_RETURN || rt.phase == PH_GOTO || rt.phase == PH_XFER);
@@ -789,22 +854,95 @@ RampTestStatus RampTest_Step(Robot* robot) {
   switch (rt.phase) {
     case PH_START:
       rt.brake_only = false;
+      rt.ff = false;
       NewStrokeRecord(elapsed_ms, dir, rt.set + 1);
       BeginRamp(od, robot, 0.0f);
       return RAMP_RUNNING;
 
     case PH_GOTO:
       if (GotoStep(od, robot, rt.tx, rt.ty, 0.0f, dt, c, s)) {
-        NewStrokeRecord(elapsed_ms, dir, rt.session);
         SeedCommand(od, robot);
         for (int k = 0; k < 3; k++) od->vel_fb_integral[k] = 0.0f;
         rt.cruise_ok_t = 0.0f;
-        rt.phase = PH_CRUISE;
+        if (rt.ff) {
+          // FF 試験: ランプの結果 (ramp_result) には記録しない。ff_results に、窓の平均を記録する
+          rt.cur = NULL;
+          rt.ff_t = rt.ff_plateau_t = 0.0f;
+          rt.ff_in_window = false;
+          rt.ff_sum_cmd = rt.ff_sum_imu = rt.ff_sum_odom = 0.0;
+          rt.ff_n = 0;
+          rt.ff_dist = 0.0f;
+          rt.pred_len = PredictFfLength(dir, rt.ff_a_cmd);
+          rt.phase = PH_FFSTEP;
+        } else {
+          NewStrokeRecord(elapsed_ms, dir, rt.session);
+          rt.phase = PH_CRUISE;
+        }
         rt.phase_t = 0.0f;
       } else if (rt.phase_t > RAMP_GOTO_TIMEOUT_S - 0.5f) {
         return Abort(od, 3);  // 始点に着けなかった (位置が当てにならない)
       }
       break;
+
+    case PH_FFSTEP: {
+      // FF 試験: PI を切って (kp・ki = 0)、FF だけで、指令の加速度 (S字の max_accel) を出す。
+      // 指令の加速度が立ち上がってから 0.15 秒後〜落ち始めるまでの窓で、実際の加速度 (IMU) の平均を取る
+      VoltTune_LoadBase(&volt_tune);
+      volt_tune.traction_limit_v = FF_TRACTION_V;
+      volt_tune.max_accel = rt.ff_a_cmd;
+      volt_tune.kp_lin = 0.0f;
+      volt_tune.ki_lin = 0.0f;
+      const float ux = kDirVec[dir][0], uy = kDirVec[dir][1];
+      Drive(od, &robot->imu, ux * rt.v0, uy * rt.v0, HeadingHold(robot, 0.0f));
+      rt.ff_t += dt;
+      rt.ff_dist += fmaxf(speed, 0.0f) * dt;
+      const float a_cmd_now = od->tcs.current_ax * ux + od->tcs.current_ay * uy;
+      bool finished = false;
+      if (!rt.ff_in_window) {
+        if (a_cmd_now >= 0.95f * rt.ff_a_cmd) {
+          rt.ff_plateau_t += dt;
+          if (rt.ff_plateau_t >= FF_PLATEAU_HOLD_S) rt.ff_in_window = true;
+        } else {
+          rt.ff_plateau_t = 0.0f;
+        }
+      } else if (a_cmd_now < 0.90f * rt.ff_a_cmd) {
+        finished = true;  // 指令の加速度が落ち始めた (目標速度に近づいた)
+      } else {
+        rt.ff_sum_cmd += a_cmd_now;
+        rt.ff_sum_imu += a_imu;
+        rt.ff_sum_odom += a_odom;
+        rt.ff_n++;
+      }
+      if (rt.ff_t > FF_TIMEOUT_S || rt.ff_dist > 0.9f * rt.pred_len) finished = true;  // 届かない・長すぎる
+      if (finished) {
+        if (ff_result_count < FF_RESULT_MAX) {
+          FfStepResult* f = &ff_results[ff_result_count++];
+          FfStepResult zf = {0};
+          *f = zf;
+          f->dir = (uint8_t)dir;
+          f->session = (uint8_t)rt.session;
+          f->a_nom_x100 = U16(rt.ff_a_cmd * 100.0f);
+          if (rt.ff_n > 0) {
+            f->a_cmd_x100 = I16((float)(rt.ff_sum_cmd / rt.ff_n) * 100.0f);
+            f->a_imu_x100 = I16((float)(rt.ff_sum_imu / rt.ff_n) * 100.0f);
+            f->a_odom_x100 = I16((float)(rt.ff_sum_odom / rt.ff_n) * 100.0f);
+          }
+          f->win_ms = (uint16_t)(rt.ff_n > 65535 ? 65535 : rt.ff_n);
+          f->v_end_mmps = I16(speed * 1000.0f);
+          f->status_or = st;
+          f->valid = (rt.ff_n * 0.001f >= FF_WINDOW_MIN_S) ? 1 : 0;
+        }
+        rt.phase = PH_SETTLE;  // 通常の設定でブレーキ (SETTLE は基準の設定で、指令 0 へ)
+        rt.phase_t = 0.0f;
+      }
+      // 波形 (指令の加速度を target_vx 列に [0.01 m/s²] で入れる)
+      if (++rt.log_divider >= 20) {
+        rt.log_divider = 0;
+        TcsLog_Record(elapsed_ms, (uint8_t)(ff_result_count + 1), I16(rt.ff_a_cmd * 100.0f),
+                      robot->imu.yaw_rate, od);
+      }
+      break;
+    }
 
     case PH_CRUISE: {
       // v0 まで、滑らない範囲でゆっくり加速し、着いたら (速度が v0 で加速度がほぼ 0 を保ったら) ランプへ
@@ -932,7 +1070,7 @@ RampTestStatus RampTest_Step(Robot* robot) {
           SaveDetect(&rt.cur->brake, reason, speed, acc_scale);
           rt.cur->brake_dist_mm = U16(rt.brake_dist * 1000.0f);
         }
-        VoltTune_SetDefaults(&volt_tune);
+        VoltTune_LoadBase(&volt_tune);
         rt.phase = PH_SETTLE;
         rt.phase_t = 0.0f;
       }
@@ -940,7 +1078,7 @@ RampTestStatus RampTest_Step(Robot* robot) {
     }
 
     case PH_SETTLE:
-      VoltTune_SetDefaults(&volt_tune);
+      VoltTune_LoadBase(&volt_tune);
       Drive(od, &robot->imu, 0.0f, 0.0f, IsRotation(dir) ? 0.0f : HeadingHold(robot, 0.0f));
       if (rt.phase_t >= RAMP_SETTLE_S) {
         if (rt.in_speed) {

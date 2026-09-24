@@ -66,6 +66,10 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 //  回転 [V/(rad/s^2)]: 従来の車輪の角加速度あたり 0.007V (= 0.007×R/r)。並進と同じ係数だと
 //    回り始めに1輪約2Vかかり、指令の約1.8倍の速さで回った
 #define WHEEL_VOLT_KA_LIN_BODY 0.5f
+// 左右 (機体の y) の加速度ぶんの FF 係数 [V/(m/s^2)]。既定は WHEEL_VOLT_KA_LIN_BODY と同じ。
+// 左右は、実際に出る加速度が前後の約 0.67 倍で (ランプ試験、HANDOFF_AUTOTUNE.md 10.10)、FF が左右の必要な電圧を
+// 足りなく見積もっている可能性がある。FF 試験 (ramp_test の -Speeds ff) で較正して、この値を決める
+#define WHEEL_VOLT_KA_LAT_BODY 0.5f
 #define WHEEL_VOLT_KA_ANG_BODY 0.0175f
 // 床の上の負荷分の電圧 (輪ごとの値は wheel_voltage.c) を足すか。浮かせて試すときは 0 にする
 #define WHEEL_VOLT_USE_LOAD_FF 1

@@ -209,7 +209,8 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
       // 力が要る左右の加速が遅かった (前進1.5mで1.0m/sに241ms、左は421ms)。旋回も並進とは別の係数
       // (並進の係数を使うと回り始めに1輪約2Vかかり、指令の約1.8倍の速さで回った)
       const float* a = self->force_alloc[i];
-      float accel_volt = vt->ka_lin * (a[0] * tcs->current_ax + a[1] * tcs->current_ay) +
+      // x (前後) は ka_lin、y (左右) は ka_lat。斜めは両方の和
+      float accel_volt = vt->ka_lin * a[0] * tcs->current_ax + vt->ka_lat * a[1] * tcs->current_ay +
                          vt->ka_ang * a[2] * tcs->current_alpha;
       // center は各輪の実際の回転数で転がり続ける電圧。超える分がそのままモータのトルク (電流) になる。
       // 以前は推定した対地速度から出していたが、減速中のスリップ判定の間は推定 (IMU積分のみ) が

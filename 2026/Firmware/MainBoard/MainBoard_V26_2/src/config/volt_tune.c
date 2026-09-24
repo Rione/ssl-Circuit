@@ -11,11 +11,17 @@
     .traction_limit_v = VOLT_TRACTION_LIMIT_V, .max_accel = VOLT_MODE_MAX_ACCEL,        \
     .max_ang_accel = VOLT_MODE_MAX_ANG_ACCEL, .max_jerk = TCS_MAX_JERK,                 \
     .max_ang_jerk = TCS_MAX_ANG_JERK, .ka_lin = WHEEL_VOLT_KA_LIN_BODY,                 \
+    .ka_lat = WHEEL_VOLT_KA_LAT_BODY,                                                   \
     .ka_ang = WHEEL_VOLT_KA_ANG_BODY, .kp_lin = VEL_FB_KP_LIN, .ki_lin = VEL_FB_KI_LIN, \
     .kp_ang = VEL_FB_KP_ANG, .ki_ang = VEL_FB_KI_ANG, .i_max_v = VEL_FB_I_MAX_V,        \
   }
 
 VoltTuneParams volt_tune = VOLT_TUNE_DEFAULTS;
+VoltTuneParams volt_tune_base = VOLT_TUNE_DEFAULTS;
+
+void VoltTune_LoadBase(VoltTuneParams* p) {
+  *p = volt_tune_base;
+}
 
 // 安全範囲 [下限, 上限]。自動チューニングで強くしていっても、この外には出さない。
 // トルク上限は手動調整で「滑りすぎ」とされた 3.2V まで (HANDOFF_AUTOTUNE.md 7章の8)
@@ -29,6 +35,7 @@ static const Range kMaxAngAccel = {5.0f, 50.0f};
 static const Range kMaxJerk = {50.0f, 1000.0f};
 static const Range kMaxAngJerk = {100.0f, 2000.0f};
 static const Range kKaLin = {0.0f, 1.5f};
+static const Range kKaLat = {0.0f, 1.5f};
 static const Range kKaAng = {0.0f, 0.05f};
 static const Range kKpLin = {0.0f, 5.0f};
 static const Range kKiLin = {0.0f, 20.0f};
@@ -76,6 +83,7 @@ int VoltTune_Sanitize(VoltTuneParams* p) {
   p->max_jerk = Clamp(p->max_jerk, kMaxJerk, &changed);
   p->max_ang_jerk = Clamp(p->max_ang_jerk, kMaxAngJerk, &changed);
   p->ka_lin = Clamp(p->ka_lin, kKaLin, &changed);
+  p->ka_lat = Clamp(p->ka_lat, kKaLat, &changed);
   p->ka_ang = Clamp(p->ka_ang, kKaAng, &changed);
   p->kp_lin = Clamp(p->kp_lin, kKpLin, &changed);
   p->ki_lin = Clamp(p->ki_lin, kKiLin, &changed);

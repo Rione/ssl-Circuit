@@ -11,8 +11,9 @@ param(
   [double]$TractionV = 0,      # トルク上限 [V] 例: 2.4
   [double]$MaxAccel = 0,       # S字の加速度上限 [m/s^2]
   [double]$MaxAngAccel = 0,    # S字の角加速度上限 [rad/s^2]
+  [double]$KaLat = 0,          # 左右の FF 係数 ka_lat [V/(m/s^2)] (既定 0.5)。FF の較正を、再書き込みなしで試す
   # ランプ試験 (-TestId 2) の速度の段。例: -Speeds 0,1,1.5,2 (0: 止まった状態から、1: 前後左右 1.0m/s、1.5: 斜め、2: 前後左右 2.0m/s、
-  #  2d: 斜め 2.0m/s、3: 前後左右 3.0m/s、b2: 前後 2.0m/s のブレーキのみ、b2.5: 前後 2.5m/s、b2l: 左右 2.0m/s (3.5x2.5m のエリアでは走らせられない))。省略 = 0 だけ (従来どおり)。3 は左右を先に走らせてから。空きは前3.5m・後ろ1.0m・左右2.5m
+  #  2d: 斜め 2.0m/s、3: 前後左右 3.0m/s、b2: 前後 2.0m/s のブレーキのみ、b2.5: 前後 2.5m/s、b2l: 左右 2.0m/s (3.5x2.5m のエリアでは走らせられない)、ff: FF 試験 (PI を切って FF だけで加速し、指令と実際の加速度の比を測る。結果は read_ff_results.ps1))。省略 = 0 だけ (従来どおり)。3 は左右を先に走らせてから。空きは前3.5m・後ろ1.0m・左右2.5m
   [string[]]$Speeds = @(),
   # 速度別の測定の範囲 [m] (原点=スタート位置。省略 = 前3.5・後ろ1.0・左右2.5)。例: -XMin -0.5 -XMax 2.0 -YAbs 1.5
   [double]$XMin = 0,     # 後ろ (負の値)
@@ -35,14 +36,14 @@ $kMagic = [uint32]0x41545331  # "ATS1" (AUTOTUNE_CTRL_MAGIC)
 $stateNames = @{ 0 = "IDLE"; 1 = "WAITING"; 2 = "RUNNING" }
 $resultNames = @{ 0 = "NONE"; 1 = "FINISHED"; 2 = "ABORTED (安全停止)"; 3 = "CANCELLED (Rock5A)"; 4 = "BAD_TEST" }
 
-# AutoTuneCtrl: magic, start_seq, done_seq, test_id, state, result, traction_x100, max_accel_x100, max_ang_accel_x100, ramp_speed_mask, ramp_x_min_cm, ramp_x_max_cm, ramp_y_abs_cm (すべて 32bit。範囲は cm の符号付き)
+# AutoTuneCtrl: magic, start_seq, done_seq, test_id, state, result, traction_x100, max_accel_x100, max_ang_accel_x100, ramp_speed_mask, ramp_x_min_cm, ramp_x_max_cm, ramp_y_abs_cm, ka_lat_x1000 (すべて 32bit。範囲は cm の符号付き)
 $base = Get-SymbolAddress $Elf "autotune_ctrl"
 function Show-Ctrl([uint32[]]$w) {
-  Write-Host ("autotune_ctrl @0x{0:X8}: magic=0x{1:X8} start_seq={2} done_seq={3} test_id={4} state={5} result={6} override(x100)=[traction {7}, accel {8}, ang_accel {9}] speed_mask=0x{10:X2} area(cm)=x[{11},{12}] y+-{13}" -f `
-      $base, $w[0], $w[1], $w[2], $w[3], $stateNames[[int]$w[4]], $resultNames[[int]$w[5]], $w[6], $w[7], $w[8], $w[9], [BitConverter]::ToInt32([BitConverter]::GetBytes([uint32]$w[10]), 0), [BitConverter]::ToInt32([BitConverter]::GetBytes([uint32]$w[11]), 0), [BitConverter]::ToInt32([BitConverter]::GetBytes([uint32]$w[12]), 0))
+  Write-Host ("autotune_ctrl @0x{0:X8}: magic=0x{1:X8} start_seq={2} done_seq={3} test_id={4} state={5} result={6} override(x100)=[traction {7}, accel {8}, ang_accel {9}] speed_mask=0x{10:X2} area(cm)=x[{11},{12}] y+-{13} ka_lat_x1000={14}" -f `
+      $base, $w[0], $w[1], $w[2], $w[3], $stateNames[[int]$w[4]], $resultNames[[int]$w[5]], $w[6], $w[7], $w[8], $w[9], [BitConverter]::ToInt32([BitConverter]::GetBytes([uint32]$w[10]), 0), [BitConverter]::ToInt32([BitConverter]::GetBytes([uint32]$w[11]), 0), [BitConverter]::ToInt32([BitConverter]::GetBytes([uint32]$w[12]), 0), $w[13])
 }
 
-$ctrl = Read-Ram32 $base 13
+$ctrl = Read-Ram32 $base 14
 Show-Ctrl $ctrl
 if ($Status) { return }
 
@@ -56,16 +57,16 @@ if ($rectValues.Count -eq 2) {
 } elseif ($rectValues.Count -ne 0) { Write-Error "-Rect は 長辺,短辺 の2つの数 [m] (例: -Rect 3.5,2.5)"; exit 1 }
 
 # 速度の段 → ビットの組み合わせ (ramp_test.h の RAMP_SPEED_*)
-$speedBits = @{ "0" = 0x01; "1" = 0x02; "1.5" = 0x04; "2" = 0x08; "3" = 0x10; "2d" = 0x20; "b2" = 0x40; "b2.5" = 0x100; "b2l" = 0x200 }
+$speedBits = @{ "0" = 0x01; "1" = 0x02; "1.5" = 0x04; "2" = 0x08; "3" = 0x10; "2d" = 0x20; "b2" = 0x40; "b2.5" = 0x100; "b2l" = 0x200; "ff" = 0x400 }
 [uint32]$speedMask = 0
 foreach ($sp in ($Speeds | ForEach-Object { $_ -split "," } | Where-Object { $_ -ne "" })) {
   $key = $sp.Trim().ToLower().Replace("1.0", "1").Replace("2.0", "2").Replace("3.0", "3")
-  if (-not $speedBits.ContainsKey($key)) { Write-Error "-Speeds に使えない値: $sp (0, 1, 1.5, 2, 2d, 3, b2, b2.5, b2l)"; exit 1 }
+  if (-not $speedBits.ContainsKey($key)) { Write-Error "-Speeds に使えない値: $sp (0, 1, 1.5, 2, 2d, 3, b2, b2.5, b2l, ff)"; exit 1 }
   $speedMask = $speedMask -bor [uint32]$speedBits[$key]
 }
 if ($Rotate) { $speedMask = $speedMask -bor 0x80 }
 if ($TestId -ne 2 -and $speedMask -ne 0) { Write-Error "-Speeds は -TestId 2 (ランプ試験) のときだけ使えます"; exit 1 }
-if ($speedMask -band 0x3FE) {
+if ($speedMask -band 0x7FE) {
   if ($XMax -ne 0) {
     Write-Host ("速度別の測定: 範囲 x[{0},{1}] y±{2} m (mask=0x{3}{4})。この範囲に何も無いことを確かめてください" -f $XMin, $XMax, $YAbs, $speedMask.ToString("X2"), $(if ($Rotate) { "、1回目のあと機体が90°回って繰り返す" } else { "" })) -ForegroundColor Yellow
   } else {
@@ -88,10 +89,11 @@ $writes = @(@(($base + 12), $TestId),
   @(($base + 40), [BitConverter]::ToUInt32([BitConverter]::GetBytes([int32][math]::Round($XMin * 100)), 0)),
   @(($base + 44), [BitConverter]::ToUInt32([BitConverter]::GetBytes([int32][math]::Round($XMax * 100)), 0)),
   @(($base + 48), [BitConverter]::ToUInt32([BitConverter]::GetBytes([int32][math]::Round($YAbs * 100)), 0)),
+  @(($base + 52), [uint32][math]::Round($KaLat * 1000)),
   @($base, $kMagic), @(($base + 4), $seq))
 Write-Ram32 $writes
 
-$ctrl = Read-Ram32 $base 13
+$ctrl = Read-Ram32 $base 14
 Show-Ctrl $ctrl
 if ($ctrl[0] -ne $kMagic -or $ctrl[3] -ne $TestId -or ($ctrl[1] -ne $seq -and $ctrl[2] -ne $seq)) {
   Write-Error "書いた値を読み戻せませんでした。ELF と書き込み済みの FW が同じか確かめてください"

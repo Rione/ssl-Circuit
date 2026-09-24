@@ -55,6 +55,8 @@ typedef struct {
   int32_t ramp_x_min_cm;  // 後ろ (負)
   int32_t ramp_x_max_cm;  // 前
   int32_t ramp_y_abs_cm;  // 左右 (片側)
+  // 左右の FF 係数 ka_lat の上書き [0.001 V/(m/s^2)] (0: 既定値 = WHEEL_VOLT_KA_LAT_BODY)。FF の較正を、再書き込みなしで試すのに使う
+  uint32_t ka_lat_x1000;
 } AutoTuneCtrl;
 
 extern volatile AutoTuneCtrl autotune_ctrl;

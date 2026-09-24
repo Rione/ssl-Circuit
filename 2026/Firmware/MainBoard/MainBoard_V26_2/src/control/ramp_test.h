@@ -39,6 +39,10 @@
 #define RAMP_SPEED_BRAKE_2_0 0x40U  // 前後 2.0 m/s (ブレーキのみ)
 #define RAMP_SPEED_BRAKE_2_5 0x100U // 前後 2.5 m/s (ブレーキのみ。長辺 3.5m のエリアでは、予測が範囲不足になりやすい)
 #define RAMP_SPEED_BRAKE_2_0L 0x200U // 左右 2.0 m/s (ブレーキのみ。左右は助走が長く、3.5×2.5m のエリアでは走らせられない)
+// FF 試験 (HANDOFF_AUTOTUNE.md 10.11): PI を切って FF だけで、指令の加速度 (1.5 と 2.5 m/s²) を出し、実際の
+// 加速度 (IMU) との比を測る。向き (前・後・左・右) ごと。比が 1 より小さければ、その向きの FF (ka) が足りない。
+// 目標速度 1.5m/s、1本は約 1.0〜1.7m。結果は ff_results (FfStepResult)。tools/read_ff_results.ps1 で読む
+#define RAMP_SPEED_FF        0x400U
 // 速度別の測定を1回終えたら、機体が自分で範囲の真ん中へ移動し、右へ 90° 回って、もう一度繰り返す (2回目)。
 // 2回目の範囲は、長方形の縦と横を入れ替えて、1回目から自動で求める (1回目の範囲は、長方形から各端 0.2m 内側で、
 // 原点は範囲の x の中心、y は左右の真ん中、を前提にする)。低速 (v0=0) は繰り返さない。
@@ -115,6 +119,24 @@ typedef struct {
 } RampRunResult;
 
 extern RampRunResult ramp_result;  // 直近の1回ぶん
+
+// FF 試験の1本の結果 (16 byte)。加速度の単位はすべて [0.01 m/s²]
+#define FF_RESULT_MAX 48
+typedef struct {
+  uint8_t dir;            // 向き (RampDir。0: 前、1: 後、2: 左、3: 右。機体から見た向き)
+  uint8_t session;        // 1: 1回目、2: 機体を 90° 回した2回目
+  uint16_t a_nom_x100;    // 指令した加速度の上限 (S字の max_accel) [0.01 m/s²]
+  int16_t a_cmd_x100;     // 窓の間の、S字が実際に出した加速度の平均 (進む向き)
+  int16_t a_imu_x100;     // 窓の間の、IMU の加速度の平均 (進む向き)。実際に出た加速度
+  int16_t a_odom_x100;    // 窓の間の、車輪 (オドメトリ) の加速度の平均。a_imu より大きければ空転
+  uint16_t win_ms;        // 平均を取った窓の長さ [ms] (0: 取れなかった = 範囲不足・届かなかった)
+  int16_t v_end_mmps;     // 窓の終わりの速度 (オドメトリ) [mm/s]
+  uint8_t status_or;      // WheelUnit の状態バイトの OR
+  uint8_t valid;          // 1: 有効、0: 走らなかった (範囲不足) / 窓が短い
+} FfStepResult;
+
+extern FfStepResult ff_results[FF_RESULT_MAX];
+extern volatile uint16_t ff_result_count;
 
 // 速度別の測定の範囲 [m] (原点はスタート位置): x_min (負)〜x_max、y は ±y_abs。常識的な範囲に収まらない値は既定
 // (x: −1.0〜3.5、y: ±2.5) に戻す。各本の経路は、この範囲の端から 0.3m 内側に収まる位置から走る

@@ -20,6 +20,7 @@ static bool AutoTune_IsRequested(void) {
 static void AutoTune_Finish(AutoTuneResult result) {
   // 上書きした値は、走り終わったら (取り消しても) 既定値に戻す。段階4で、合格した値を保存して使う
   VoltTune_SetDefaults(&volt_tune);
+  VoltTune_SetDefaults(&volt_tune_base);
   autotune_ctrl.result = result;
   autotune_ctrl.state = AUTOTUNE_STATE_IDLE;
   autotune_ctrl.done_seq = autotune_ctrl.start_seq;
@@ -43,7 +44,11 @@ bool AutoTune_Poll(LocalController* lc, Robot* robot) {
       if (autotune_ctrl.max_accel_x100 != 0) volt_tune.max_accel = autotune_ctrl.max_accel_x100 * 0.01f;
       if (autotune_ctrl.max_ang_accel_x100 != 0)
         volt_tune.max_ang_accel = autotune_ctrl.max_ang_accel_x100 * 0.01f;
+      if (autotune_ctrl.ka_lat_x1000 != 0) volt_tune.ka_lat = autotune_ctrl.ka_lat_x1000 * 0.001f;
       if (VoltTune_Sanitize(&volt_tune)) printf("# autotune: volt_tune corrected\n");
+      volt_tune_base = volt_tune;  // 試験の途中で値を変えたあと、ここに戻す (既定値 + この1回の上書き)
+      printf("# autotune: ka_lin=%d ka_lat=%d (x1000)\n", (int)(volt_tune.ka_lin * 1000.0f),
+             (int)(volt_tune.ka_lat * 1000.0f));
       printf("# autotune: traction=%d max_accel=%d max_ang_accel=%d (x100)\n",
              (int)(volt_tune.traction_limit_v * 100.0f), (int)(volt_tune.max_accel * 100.0f),
              (int)(volt_tune.max_ang_accel * 100.0f));
