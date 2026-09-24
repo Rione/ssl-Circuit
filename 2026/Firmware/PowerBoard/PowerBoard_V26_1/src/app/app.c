@@ -16,7 +16,7 @@ CanData can_recv_data;
 
 Timer can_trasmit_interval_timer;
 
-uint16_t adc_value[3];
+volatile uint16_t adc_value[3];  // DMAが常時上書きする
 // adc_value[0]: 電源電圧 (PB0/CH11, 分圧 10k/1k)
 // adc_value[1]: 昇圧電圧 (PB1/CH12, 分圧 1M/4.7k)
 // adc_value[2]: 内部温度センサ
@@ -54,7 +54,11 @@ void Setup() {
 
   DigitalIn_Init(&button, BUTTON_GPIO_Port, BUTTON_Pin);
 
+  // ADCは無効状態で校正してから開始する(オフセット誤差の除去)
+  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_value, 3);
+  // 値はバッファを読むだけなので、変換ごとに発生するDMA割り込み(数十万回/秒)を止める
+  __HAL_DMA_DISABLE_IT(hadc1.DMA_Handle, DMA_IT_HT | DMA_IT_TC);
 
   Kicker_Init();
 
