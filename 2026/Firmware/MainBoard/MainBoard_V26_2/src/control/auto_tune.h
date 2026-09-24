@@ -49,6 +49,8 @@ typedef struct {
   uint32_t traction_x100;       // トルク上限 [0.01V]
   uint32_t max_accel_x100;      // S字の加速度上限 [0.01 m/s^2]
   uint32_t max_ang_accel_x100;  // S字の角加速度上限 [0.01 rad/s^2]
+  // ランプ試験 (test_id=2) の速度の段 (RAMP_SPEED_* の組み合わせ。0 は低速だけ = 従来どおり)
+  uint32_t ramp_speed_mask;
 } AutoTuneCtrl;
 
 extern volatile AutoTuneCtrl autotune_ctrl;

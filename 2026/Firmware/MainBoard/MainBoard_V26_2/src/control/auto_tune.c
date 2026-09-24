@@ -61,7 +61,8 @@ bool AutoTune_Poll(LocalController* lc, Robot* robot) {
       DigitalOut_Write(&robot->led0, (waited_ms / 125) % 2 == 0);
       if (waited_ms < AUTOTUNE_START_WAIT_MS) return true;
       if (autotune_ctrl.test_id == AUTOTUNE_TEST_RAMP) {
-        RampTest_Reset();
+        RampTest_Reset(autotune_ctrl.ramp_speed_mask);
+        printf("# autotune: ramp test speed_mask=0x%02lx\n", (unsigned long)autotune_ctrl.ramp_speed_mask);
       } else {
         LocalController_ResetMotionPattern(0, false);
       }

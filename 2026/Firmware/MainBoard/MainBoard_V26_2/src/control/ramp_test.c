@@ -17,14 +17,13 @@ RampRunResult ramp_result;
 //  - 始めは 1.8V: どの向きも 2.1V より下では滑らなかったので、その手前は急いで通り過ぎる
 //  - 上限は 3.2V (volt_tune の安全範囲の上限と同じ): 採用する値は前後左右 (2.1〜2.5V) で決まる
 //  - 速さは 5V/s (1.8→3.2V を約0.28秒): 初回の 10V/s の半分。ゆっくりすぎると速度が出て、今の回転数で
-//    転がり続ける電圧が増え、電圧上限 (4.9V) までの余裕が足りなくなる (3.2V に着く頃に約1m/s、
-//    斜めでも余裕は約3.3V 残る計算)
+//    転がり続ける電圧が増え、電圧上限 (4.9V) までの余裕が足りなくなる
 #define RAMP_START_V 1.8f
 #define RAMP_MAX_V 3.2f
 #define RAMP_RATE_V_PER_S 5.0f
 // 滑り始めを見つけたあとも、ピーク (IMU の加速度が一番大きい所) を測るために上げ続ける。
 // 滑り始めからこれだけ上げたか、IMU の加速度がピークの RAMP_PEAK_DROP_RATIO 倍を
-// RAMP_PEAK_DROP_HOLD_S 下回り続けたら、加速をやめる (初回は滑り始めで止めたため、ピークを測れなかった)
+// RAMP_PEAK_DROP_HOLD_S 下回り続けたら、加速をやめる
 #define RAMP_PAST_ONSET_V 0.4f
 #define RAMP_PEAK_DROP_RATIO 0.8f
 #define RAMP_PEAK_DROP_HOLD_S 0.020f
@@ -35,34 +34,54 @@ RampRunResult ramp_result;
 #define RAMP_DETECT_DELAY_S 0.030f  // ランプを始めてから判定を始めるまで (LPF が落ち着くまで)
 #define RAMP_ONSET_HOLD_S 0.030f    // ブレーキ: 滑り始めを見つけてから、トルクを保ってピークを拾う時間
 #define RAMP_BRAKE_START_RATIO 0.7f // ブレーキのランプは、加速で見つけた値のこの割合から始める
-#define RAMP_AFTER_SLIP_RATIO 0.7f  // 滑り始めを見つけたら、トルク上限をこの割合まで下げる
+#define RAMP_AFTER_SLIP_RATIO 0.7f  // ブレーキで滑り始めを見つけたら、トルク上限をこの割合まで下げる
 // 加速の目標 (高くして、FF の要求が常にトルク上限を超える状態にする。上限の値 = 実際のトルク)
-#define RAMP_TARGET_SPEED 3.0f      // [m/s]
+#define RAMP_TARGET_SPEED 3.0f      // [m/s] (止まった状態から)
+#define RAMP_TARGET_ABOVE 2.0f      // [m/s] (巡航の速度 v0 に足す)
 #define RAMP_TARGET_ANG 25.0f       // [rad/s]
 #define RAMP_CMD_ACCEL 8.0f         // S字の加速度上限 [m/s^2]
 #define RAMP_CMD_JERK 1000.0f
 #define RAMP_CMD_ANG_ACCEL 80.0f
 #define RAMP_CMD_ANG_JERK 2000.0f
 // 打ち切り
-#define RAMP_SPEED_CAP 1.2f         // [m/s]
+#define RAMP_SPEED_CAP 1.2f         // [m/s] (止まった状態から)
+#define RAMP_SPEED_CAP_ABOVE 0.5f   // [m/s] (巡航の速度 v0 に足す)
 #define RAMP_ANG_SPEED_CAP 12.0f    // [rad/s]
 #define RAMP_MAX_V_DWELL_S 0.05f    // 上限に達してから打ち切るまで (ピークを拾う)
-#define RAMP_BRAKE_TIMEOUT_S 1.5f
+#define RAMP_BRAKE_TIMEOUT_S 3.0f
 #define RAMP_SETTLE_S 0.3f
 #define RAMP_RETURN_TIMEOUT_S 4.0f
-#define RAMP_PHASE_TIMEOUT_S 3.0f
+#define RAMP_PHASE_TIMEOUT_S 4.0f
 // 3回目を測るかの判定: 2回の滑り始めの差がこれ以上 (どちらか)。初回の 0.2V/10% は厳しすぎて、
 // 10向き中9向きで3回目に入った
 #define RAMP_RETRY_DIFF_V 0.30f
 #define RAMP_RETRY_DIFF_RATIO 0.15f
-// 安全停止の範囲 [m] (後ろの空きは約0.5m)
+// 安全停止の範囲 [m]。低速 (v0=0) の試験だけのときは、従来の狭い範囲 (後ろの空きは約0.5m)
 #define RAMP_AREA_X_MIN (-0.4f)
 #define RAMP_AREA_X_MAX 1.6f
 #define RAMP_AREA_Y_ABS 1.6f
-#define RAMP_HEADING_ABORT 0.8f  // 並進の最中の向きのずれ [rad]
+// 速度別の測定のときの範囲 (ユーザー決定: 前 3.5m・後ろ 1.0m・左右 2.5m。原点はスタート位置)
+#define RAMP_WIDE_X_MIN (-1.0f)
+#define RAMP_WIDE_X_MAX 3.5f
+#define RAMP_WIDE_Y_ABS 2.5f
+#define RAMP_RANGE_MARGIN 0.3f      // 端から内側へ取る余裕。予測した経路はこの内側に収まるときだけ走らせる
+#define RAMP_HEADING_ABORT 0.8f     // 並進の最中の向きのずれ [rad]
+// 速度別の測定の助走 (v0 まで巡航): 滑らない範囲でゆっくり加速する
+#define RAMP_CRUISE_L 2.2f          // 助走のトルク上限 [V]
+#define RAMP_CRUISE_ACCEL 3.0f      // 助走の加速度上限 [m/s^2]
+#define RAMP_CRUISE_TOL 0.05f       // v0 に着いたと見なす速度の差 [m/s]
+#define RAMP_CRUISE_A_TOL 0.7f      // 着いたと見なす加速度 [m/s^2]
+#define RAMP_CRUISE_HOLD_S 0.05f
+// 始点への移動
+#define RAMP_GOTO_SPEED 0.8f        // [m/s]
+#define RAMP_GOTO_TIMEOUT_S 10.0f
+// 必要な長さの予測 (測った値が無いときの既定。測った値があれば速度の2乗などで伸ばす)
+#define RAMP_PRED_BRAKE_DECEL 2.6f  // [m/s^2] 保守的なブレーキの減速度
+#define RAMP_PRED_MARGIN 1.15f
 
 #define RAMP_PAIR_COUNT 5
 #define RAMP_SET_MAX 3
+#define RAMP_SPEED_LIST_MAX 24
 
 static const float kDirVec[8][2] = {
     {1.0f, 0.0f},         {-1.0f, 0.0f},       {0.0f, 1.0f},          {0.0f, -1.0f},
@@ -70,11 +89,13 @@ static const float kDirVec[8][2] = {
 };
 
 typedef enum {
-  PH_START = 0,  // 次の1本の準備
+  PH_START = 0,  // 次の1本の準備 (低速の試験)
   PH_ACCEL,
   PH_BRAKE,
   PH_SETTLE,
-  PH_RETURN,     // 組の終わりに原点・向き0へ戻る
+  PH_RETURN,     // 低速の試験: 組の終わりに原点・向き0へ戻る
+  PH_GOTO,       // 速度別の測定: 次の1本の始点へ移動
+  PH_CRUISE,     // 速度別の測定: v0 まで巡航
 } Phase;
 
 // 滑り始め・ピークの検出 (加速とブレーキで共用)
@@ -94,29 +115,44 @@ typedef struct {
   float drop_t;           // IMU の加速度がピークから落ちている時間 [s]
 } Detect;
 
+typedef struct {
+  uint8_t dir;
+  float v0;
+} SpeedStroke;
+
 static struct {
   bool started;
   uint32_t start_tick;
   Timer dt_timer;
-  int set;                     // 0, 1, 2
+  uint32_t speed_mask;
+  bool in_speed;               // 速度別の測定の最中か
+  int set;                     // 0, 1, 2 (低速の試験)
   uint8_t pairs[RAMP_PAIR_COUNT];
   int pair_count;
   int pair_pos;
   int member;                  // 組の1本目 (0) か2本目 (1)
+  SpeedStroke sp_list[RAMP_SPEED_LIST_MAX];
+  int sp_count;
+  int sp_pos;
+  float v0;                    // 今の1本の巡航の速度 [m/s] (低速の試験は 0)
+  float tx, ty;                // 始点への移動の目標 [m]
   Phase phase;
   float phase_t;
   Detect det;
   float settle_ok_t;
+  float cruise_ok_t;
+  float cruise_dist, accel_dist, brake_dist;  // その相の間に進行方向へ進んだ距離 [m]
   // 旋回の角加速度 (ジャイロと車輪の角速度の微分に LPF)
   float prev_gyro, prev_odom_w, alpha_gyro_f, alpha_odom_f;
-  // 床の座標での位置と向き (安全停止と原点への戻りに使う)
+  // 床の座標での位置と向き (安全停止と始点への移動に使う)
   float pos_x, pos_y, heading;
   uint8_t log_divider;
   RampStrokeResult* cur;
 } rt;
 
-void RampTest_Reset(void) {
+void RampTest_Reset(uint32_t speed_mask) {
   rt.started = false;
+  rt.speed_mask = (speed_mask == 0) ? RAMP_SPEED_V0 : speed_mask;
 }
 
 void RampTest_Cancel(void) {
@@ -135,7 +171,10 @@ static int16_t I16(float v) {
   return (int16_t)lroundf(v);
 }
 
-static int CurrentDir(void) { return rt.pairs[rt.pair_pos] * 2 + rt.member; }
+static int CurrentDir(void) {
+  if (rt.in_speed) return rt.sp_list[rt.sp_pos].dir;
+  return rt.pairs[rt.pair_pos] * 2 + rt.member;
+}
 static bool IsRotation(int dir) { return dir >= RAMP_DIR_ROT_CCW; }
 
 static void ResetDetect(float L_start, bool past_onset) {
@@ -239,6 +278,13 @@ static void SetRampTune(float L) {
   volt_tune.max_ang_jerk = RAMP_CMD_ANG_JERK;
 }
 
+// 助走用: 滑らない範囲でゆっくり加速する
+static void SetCruiseTune(void) {
+  VoltTune_SetDefaults(&volt_tune);
+  volt_tune.traction_limit_v = RAMP_CRUISE_L;
+  volt_tune.max_accel = RAMP_CRUISE_ACCEL;
+}
+
 static void Drive(OmniDrive* od, const Imu* imu, float vx, float vy, float omega) {
   OmniDrive_SetControlMode(od, true);
   od->tcs.config.enable_s_curve = true;
@@ -267,11 +313,11 @@ static void SeedCommand(OmniDrive* od, const Robot* robot) {
   od->tcs.current_alpha = 0.0f;
 }
 
-// 向き dir の set 回目の加速の滑り始め [V] (見つからなかったとき・記録が無いときは −1)
+// 低速 (v0=0) の向き dir の set 回目の加速の滑り始め [V] (見つからなかったとき・記録が無いときは −1)
 static float OnsetVOf(int dir, int set) {
   for (int i = 0; i < ramp_result.stroke_count; i++) {
     const RampStrokeResult* s = &ramp_result.stroke[i];
-    if (s->dir == dir && s->set == set + 1) {
+    if (s->v0_x100 == 0 && s->dir == dir && s->set == set + 1) {
       return (s->accel.onset_v_x100 > 0) ? s->accel.onset_v_x100 * 0.01f : -1.0f;
     }
   }
@@ -327,18 +373,145 @@ static RampTestStatus Abort(OmniDrive* od, uint16_t reason) {
   return RAMP_ABORTED;
 }
 
-static void BeginStroke(OmniDrive* od, const Robot* robot, uint32_t elapsed_ms) {
-  int dir = CurrentDir();
+static RampTestStatus Finish(OmniDrive* od) {
+  OmniDrive_SetFree(od);
+  VoltTune_SetDefaults(&volt_tune);
+  ramp_result.result = 1;
+  printf("# ramp test finished: strokes=%u retry=0x%03x unstable=0x%03x\n",
+         ramp_result.stroke_count, ramp_result.retry_mask, ramp_result.unstable_mask);
+  return RAMP_FINISHED;
+}
+
+// ---- 速度別の測定 ----
+
+// 向き dir・巡航の速度 v0 の1本 (助走・ランプ・ブレーキ) に要る長さを予測する [m]。
+// 同じ向きで、より低い速度の測定が済んでいれば、その距離を伸ばす (助走とブレーキは速度の2乗、
+// ランプは (v0+0.2) に比例)。無ければ既定の式
+static float PredictLength(int dir, float v0) {
+  const RampStrokeResult* best = NULL;
+  for (int i = 0; i < ramp_result.stroke_count; i++) {
+    const RampStrokeResult* s = &ramp_result.stroke[i];
+    if (s->dir != dir || s->v0_x100 == 0 || s->brake_dist_mm == 0) continue;
+    if (s->v0_x100 * 0.01f >= v0) continue;
+    if (best == NULL || s->v0_x100 > best->v0_x100) best = s;
+  }
+  float cruise, ramp, brake;
+  float v_b = v0 + RAMP_SPEED_CAP_ABOVE;
+  if (best != NULL) {
+    float vm = best->v0_x100 * 0.01f;
+    float vbm = fmaxf(best->v_brake_start * 0.001f, 0.5f);
+    cruise = best->cruise_dist_mm * 0.001f * (v0 * v0) / (vm * vm);
+    ramp = best->accel_dist_mm * 0.001f * (v0 + 0.2f) / (vm + 0.2f);
+    brake = best->brake_dist_mm * 0.001f * (v_b * v_b) / (vbm * vbm);
+  } else {
+    cruise = v0 * v0 / (2.0f * RAMP_CRUISE_ACCEL);
+    ramp = 0.2f * (v0 + 0.2f);
+    brake = v_b * v_b / (2.0f * RAMP_PRED_BRAKE_DECEL);
+  }
+  return RAMP_PRED_MARGIN * (cruise + ramp + brake);
+}
+
+// 速度の指定から、走らせる1本の一覧を作る (速度の低い順)
+static void BuildSpeedList(void) {
+  static const struct {
+    float v0;
+    bool axis;
+    uint32_t bit;
+  } kLevels[] = {
+      {1.0f, true, RAMP_SPEED_AXIS_1_0}, {1.5f, false, RAMP_SPEED_DIAG_1_5},
+      {2.0f, true, RAMP_SPEED_AXIS_2_0}, {2.0f, false, RAMP_SPEED_DIAG_2_0},
+      {3.0f, true, RAMP_SPEED_AXIS_3_0},
+  };
+  rt.sp_count = 0;
+  for (unsigned i = 0; i < sizeof(kLevels) / sizeof(kLevels[0]); i++) {
+    if (!(rt.speed_mask & kLevels[i].bit)) continue;
+    int first = kLevels[i].axis ? 0 : 4;
+    for (int k = 0; k < 4 && rt.sp_count < RAMP_SPEED_LIST_MAX; k++) {
+      rt.sp_list[rt.sp_count].dir = (uint8_t)(first + k);
+      rt.sp_list[rt.sp_count].v0 = kLevels[i].v0;
+      rt.sp_count++;
+    }
+  }
+}
+
+// 予測した長さの経路が、範囲の端から余裕を取った内側に収まるか。収まるなら始点を返す
+// (範囲の中心を、経路の真ん中にする。+向きと −向きの組は、同じ経路を行き来する)
+static bool PlanPath(int dir, float length, float* start_x, float* start_y) {
+  const float cx = 0.5f * (RAMP_WIDE_X_MIN + RAMP_WIDE_X_MAX);
+  const float cy = 0.0f;
+  float ux = kDirVec[dir][0], uy = kDirVec[dir][1];
+  float x0 = cx - ux * 0.5f * length, y0 = cy - uy * 0.5f * length;
+  float x1 = x0 + ux * length, y1 = y0 + uy * length;
+  const float xlo = RAMP_WIDE_X_MIN + RAMP_RANGE_MARGIN, xhi = RAMP_WIDE_X_MAX - RAMP_RANGE_MARGIN;
+  const float ylim = RAMP_WIDE_Y_ABS - RAMP_RANGE_MARGIN;
+  bool ok = x0 >= xlo && x0 <= xhi && x1 >= xlo && x1 <= xhi && fabsf(y0) <= ylim && fabsf(y1) <= ylim;
+  *start_x = x0;
+  *start_y = y0;
+  return ok;
+}
+
+// 速度別の一覧の rt.sp_pos 以降で、走らせられる最初の1本を選んで始点への移動に入る。走らせない1本は
+// 「範囲不足」と記録して飛ばす。もう無ければ false
+static bool PrepareNextSpeedStroke(uint32_t elapsed_ms) {
+  while (rt.sp_pos < rt.sp_count) {
+    int dir = rt.sp_list[rt.sp_pos].dir;
+    float v0 = rt.sp_list[rt.sp_pos].v0;
+    float length = PredictLength(dir, v0);
+    float sx, sy;
+    if (PlanPath(dir, length, &sx, &sy)) {
+      rt.v0 = v0;
+      rt.tx = sx;
+      rt.ty = sy;
+      rt.phase = PH_GOTO;
+      rt.phase_t = 0.0f;
+      rt.settle_ok_t = 0.0f;
+      return true;
+    }
+    if (ramp_result.stroke_count < RAMP_MAX_STROKES) {
+      RampStrokeResult* s = &ramp_result.stroke[ramp_result.stroke_count++];
+      RampStrokeResult zero = {0};
+      *s = zero;
+      s->dir = (uint8_t)dir;
+      s->set = 1;
+      s->batt = 255;
+      s->t_start_ms = (uint16_t)(elapsed_ms > 65535U ? 65535U : elapsed_ms);
+      s->v0_x100 = U16(v0 * 100.0f);
+      s->accel.end_reason = RAMP_END_RANGE;
+      s->cruise_dist_mm = U16(length * 1000.0f);  // 予測した必要な長さ
+    }
+    printf("# ramp test: skipped dir=%d v0=%d (need %d mm, range short)\n", dir, (int)(v0 * 100.0f),
+           (int)(length * 1000.0f));
+    rt.sp_pos++;
+  }
+  return false;
+}
+
+// 速度別の測定を始める。走らせる1本が無ければ false
+static bool BeginSpeedSection(uint32_t elapsed_ms) {
+  BuildSpeedList();
+  rt.in_speed = true;
+  rt.sp_pos = 0;
+  // 波形のログは、速度別の測定のぶんを新しく取る (低速の試験のぶんは結果の表で足りる)
+  TcsLog_Reset();
+  return PrepareNextSpeedStroke(elapsed_ms);
+}
+
+static void NewStrokeRecord(uint32_t elapsed_ms, int dir, int set) {
   rt.cur = NULL;
   if (ramp_result.stroke_count < RAMP_MAX_STROKES) {
     rt.cur = &ramp_result.stroke[ramp_result.stroke_count++];
     RampStrokeResult zero = {0};
     *rt.cur = zero;
     rt.cur->dir = (uint8_t)dir;
-    rt.cur->set = (uint8_t)(rt.set + 1);
+    rt.cur->set = (uint8_t)set;
     rt.cur->batt = 255;
     rt.cur->t_start_ms = (uint16_t)(elapsed_ms > 65535U ? 65535U : elapsed_ms);
+    rt.cur->v0_x100 = U16(rt.v0 * 100.0f);
   }
+  rt.cruise_dist = rt.accel_dist = rt.brake_dist = 0.0f;
+}
+
+static void BeginRamp(OmniDrive* od, const Robot* robot) {
   for (int k = 0; k < 3; k++) od->vel_fb_integral[k] = 0.0f;
   SeedCommand(od, robot);
   ResetDetect(RAMP_START_V, true);
@@ -350,6 +523,23 @@ static void BeginStroke(OmniDrive* od, const Robot* robot, uint32_t elapsed_ms) 
   rt.alpha_odom_f = 0.0f;
   rt.phase = PH_ACCEL;
   rt.phase_t = 0.0f;
+}
+
+// 始点 (tx, ty)・向き0へ低速で移動する。着いたら true (オドメトリのずれが積み重ならないようにするため)
+static bool GotoStep(OmniDrive* od, const Robot* robot, float tx, float ty, float dt, float c, float s) {
+  VoltTune_SetDefaults(&volt_tune);
+  float ex = tx - rt.pos_x, ey = ty - rt.pos_y;
+  float dist = sqrtf(ex * ex + ey * ey);
+  float sp = fminf(RAMP_GOTO_SPEED, fminf(sqrtf(2.0f * 3.0f * dist), 4.0f * dist));
+  float vxw = (dist > 1e-3f) ? ex / dist * sp : 0.0f;
+  float vyw = (dist > 1e-3f) ? ey / dist * sp : 0.0f;
+  Drive(od, &robot->imu, vxw * c + vyw * s, -vxw * s + vyw * c, HeadingHold(robot, 0.0f));
+  if (dist < 0.03f && fabsf(rt.heading) < 0.05f) {
+    rt.settle_ok_t += dt;
+  } else {
+    rt.settle_ok_t = 0.0f;
+  }
+  return rt.settle_ok_t >= 0.15f;
 }
 
 RampTestStatus RampTest_Step(Robot* robot) {
@@ -365,6 +555,7 @@ RampTestStatus RampTest_Step(Robot* robot) {
 
   if (!rt.started) {
     rt.started = true;
+    if (rt.speed_mask == 0) rt.speed_mask = RAMP_SPEED_V0;
     rt.start_tick = HAL_GetTick();
     Timer_Init(&rt.dt_timer);
     Timer_Reset(&rt.dt_timer);
@@ -372,18 +563,26 @@ RampTestStatus RampTest_Step(Robot* robot) {
     RampRunResult zero = {0};
     ramp_result = zero;
     ramp_result.seq = seq;
+    ramp_result.speed_mask = rt.speed_mask;
+    rt.in_speed = false;
     rt.set = 0;
     rt.pair_count = RAMP_PAIR_COUNT;
     for (int p = 0; p < RAMP_PAIR_COUNT; p++) rt.pairs[p] = (uint8_t)p;
     rt.pair_pos = 0;
     rt.member = 0;
+    rt.v0 = 0.0f;
     rt.pos_x = rt.pos_y = rt.heading = 0.0f;
     rt.phase = PH_START;
     rt.phase_t = 0.0f;
     rt.log_divider = 0;
     TCS_Reset(&od->tcs);
     TcsLog_Reset();
-    printf("# ramp test started (seq=%lu)\n", (unsigned long)seq);
+    printf("# ramp test started (seq=%lu speed_mask=0x%02lx)\n", (unsigned long)seq,
+           (unsigned long)rt.speed_mask);
+    // 低速の試験を含まないときは、速度別の測定から始める
+    if (!(rt.speed_mask & RAMP_SPEED_V0)) {
+      if (!BeginSpeedSection(0)) return Finish(od);
+    }
   }
 
   float dt = Timer_Read(&rt.dt_timer);
@@ -405,14 +604,18 @@ RampTestStatus RampTest_Step(Robot* robot) {
     uint8_t batt = robot->info.battery_voltage;
     if (batt > 0 && batt < rt.cur->batt) rt.cur->batt = batt;
   }
-  if (rt.pos_x < RAMP_AREA_X_MIN || rt.pos_x > RAMP_AREA_X_MAX || fabsf(rt.pos_y) > RAMP_AREA_Y_ABS) {
-    return Abort(od, 1);
-  }
+  const bool wide = (rt.speed_mask & ~RAMP_SPEED_V0) != 0U;
+  const float x_min = wide ? RAMP_WIDE_X_MIN : RAMP_AREA_X_MIN;
+  const float x_max = wide ? RAMP_WIDE_X_MAX : RAMP_AREA_X_MAX;
+  const float y_abs = wide ? RAMP_WIDE_Y_ABS : RAMP_AREA_Y_ABS;
+  if (rt.pos_x < x_min || rt.pos_x > x_max || fabsf(rt.pos_y) > y_abs) return Abort(od, 1);
   int dir = CurrentDir();
-  bool translating = (rt.phase == PH_ACCEL || rt.phase == PH_BRAKE) && !IsRotation(dir);
+  bool translating = (rt.phase == PH_ACCEL || rt.phase == PH_BRAKE || rt.phase == PH_CRUISE) &&
+                     !IsRotation(dir);
   if (translating && fabsf(rt.heading) > RAMP_HEADING_ABORT) return Abort(od, 2);
-  float timeout = (rt.phase == PH_RETURN) ? RAMP_RETURN_TIMEOUT_S : RAMP_PHASE_TIMEOUT_S;
-  if (rt.phase != PH_RETURN && rt.phase_t > timeout) return Abort(od, 3);
+  bool moving_phase = (rt.phase == PH_RETURN || rt.phase == PH_GOTO);
+  if (!moving_phase && rt.phase_t > RAMP_PHASE_TIMEOUT_S) return Abort(od, 3);
+  if (rt.phase == PH_GOTO && rt.phase_t > RAMP_GOTO_TIMEOUT_S) return Abort(od, 3);
   if (st & 0x06U) return Abort(od, 4);  // bit1: 電源電圧範囲外、bit2: 過熱
 
   DigitalOut_Write(&robot->led0, 1);
@@ -443,8 +646,36 @@ RampTestStatus RampTest_Step(Robot* robot) {
 
   switch (rt.phase) {
     case PH_START:
-      BeginStroke(od, robot, elapsed_ms);
+      NewStrokeRecord(elapsed_ms, dir, rt.set + 1);
+      BeginRamp(od, robot);
       return RAMP_RUNNING;
+
+    case PH_GOTO:
+      if (GotoStep(od, robot, rt.tx, rt.ty, dt, c, s)) {
+        NewStrokeRecord(elapsed_ms, dir, 1);
+        SeedCommand(od, robot);
+        for (int k = 0; k < 3; k++) od->vel_fb_integral[k] = 0.0f;
+        rt.cruise_ok_t = 0.0f;
+        rt.phase = PH_CRUISE;
+        rt.phase_t = 0.0f;
+      } else if (rt.phase_t > RAMP_GOTO_TIMEOUT_S - 0.5f) {
+        return Abort(od, 3);  // 始点に着けなかった (位置が当てにならない)
+      }
+      break;
+
+    case PH_CRUISE: {
+      // v0 まで、滑らない範囲でゆっくり加速し、着いたら (速度が v0 で加速度がほぼ 0 を保ったら) ランプへ
+      SetCruiseTune();
+      Drive(od, &robot->imu, kDirVec[dir][0] * rt.v0, kDirVec[dir][1] * rt.v0, HeadingHold(robot, 0.0f));
+      rt.cruise_dist += fmaxf(speed, 0.0f) * dt;
+      bool at_speed = fabsf(speed - rt.v0) < RAMP_CRUISE_TOL && fabsf(a_imu) < RAMP_CRUISE_A_TOL;
+      rt.cruise_ok_t = at_speed ? rt.cruise_ok_t + dt : 0.0f;
+      if (rt.cruise_ok_t >= RAMP_CRUISE_HOLD_S) {
+        if (rt.cur != NULL) rt.cur->cruise_dist_mm = U16(rt.cruise_dist * 1000.0f);
+        BeginRamp(od, robot);
+      }
+      break;
+    }
 
     case PH_ACCEL: {
       SetRampTune(rt.det.L);
@@ -452,14 +683,17 @@ RampTestStatus RampTest_Step(Robot* robot) {
         float sgn = (dir == RAMP_DIR_ROT_CCW) ? 1.0f : -1.0f;
         Drive(od, &robot->imu, 0.0f, 0.0f, sgn * RAMP_TARGET_ANG);
       } else {
-        Drive(od, &robot->imu, kDirVec[dir][0] * RAMP_TARGET_SPEED,
-              kDirVec[dir][1] * RAMP_TARGET_SPEED, HeadingHold(robot, 0.0f));
+        float target = (rt.v0 > 0.05f) ? rt.v0 + RAMP_TARGET_ABOVE : RAMP_TARGET_SPEED;
+        Drive(od, &robot->imu, kDirVec[dir][0] * target, kDirVec[dir][1] * target,
+              HeadingHold(robot, 0.0f));
+        rt.accel_dist += fmaxf(speed, 0.0f) * dt;
       }
       DetectStep(dt, a_imu, a_odom, thresh, true);
       AdvanceRamp(dt);
 
       RampEndReason reason = RAMP_END_NONE;
-      float cap = IsRotation(dir) ? RAMP_ANG_SPEED_CAP : RAMP_SPEED_CAP;
+      float cap = IsRotation(dir) ? RAMP_ANG_SPEED_CAP
+                                  : ((rt.v0 > 0.05f) ? rt.v0 + RAMP_SPEED_CAP_ABOVE : RAMP_SPEED_CAP);
       // 滑り始めのあと RAMP_PAST_ONSET_V 上げたか、IMU の加速度がピークから落ちたらやめる。
       // それより先に上限・速度・電圧の余裕に達したら、その理由でやめる (滑り始めは記録されていればよい)
       if (rt.det.onset_found && (rt.det.L_f >= rt.det.onset_L + RAMP_PAST_ONSET_V ||
@@ -473,7 +707,11 @@ RampTestStatus RampTest_Step(Robot* robot) {
         reason = RAMP_END_HEADROOM;
       }
       if (reason != RAMP_END_NONE) {
-        if (rt.cur != NULL) SaveDetect(&rt.cur->accel, reason, speed, acc_scale);
+        if (rt.cur != NULL) {
+          SaveDetect(&rt.cur->accel, reason, speed, acc_scale);
+          rt.cur->accel_dist_mm = U16(rt.accel_dist * 1000.0f);
+          rt.cur->v_brake_start = U16(fmaxf(speed, 0.0f) * 1000.0f);
+        }
         float found = rt.det.onset_found ? rt.det.onset_L : rt.det.peak_L;
         float L0 = fmaxf(1.0f, RAMP_BRAKE_START_RATIO * found);
         SeedCommand(od, robot);
@@ -490,6 +728,7 @@ RampTestStatus RampTest_Step(Robot* robot) {
         Drive(od, &robot->imu, 0.0f, 0.0f, 0.0f);
       } else {
         Drive(od, &robot->imu, 0.0f, 0.0f, HeadingHold(robot, 0.0f));
+        rt.brake_dist += fmaxf(speed, 0.0f) * dt;
       }
       // ブレーキは減速の向きを正にする。トルク上限が実際に効いている (出力を縮めた) ときだけ判定する
       float min_speed = IsRotation(dir) ? 1.0f : 0.15f;
@@ -505,7 +744,10 @@ RampTestStatus RampTest_Step(Robot* robot) {
         reason = RAMP_END_TIMEOUT;
       }
       if (reason != RAMP_END_NONE) {
-        if (rt.cur != NULL) SaveDetect(&rt.cur->brake, reason, speed, acc_scale);
+        if (rt.cur != NULL) {
+          SaveDetect(&rt.cur->brake, reason, speed, acc_scale);
+          rt.cur->brake_dist_mm = U16(rt.brake_dist * 1000.0f);
+        }
         VoltTune_SetDefaults(&volt_tune);
         rt.phase = PH_SETTLE;
         rt.phase_t = 0.0f;
@@ -517,7 +759,10 @@ RampTestStatus RampTest_Step(Robot* robot) {
       VoltTune_SetDefaults(&volt_tune);
       Drive(od, &robot->imu, 0.0f, 0.0f, IsRotation(dir) ? 0.0f : HeadingHold(robot, 0.0f));
       if (rt.phase_t >= RAMP_SETTLE_S) {
-        if (rt.member == 0) {
+        if (rt.in_speed) {
+          rt.sp_pos++;
+          if (!PrepareNextSpeedStroke(elapsed_ms)) return Finish(od);
+        } else if (rt.member == 0) {
           rt.member = 1;
           rt.phase = PH_START;
         } else {
@@ -529,20 +774,9 @@ RampTestStatus RampTest_Step(Robot* robot) {
       break;
 
     case PH_RETURN: {
-      // 低速で原点・向き0へ戻る (オドメトリのずれが次の組に積み重ならないように)
-      VoltTune_SetDefaults(&volt_tune);
-      float ex = -rt.pos_x, ey = -rt.pos_y;
-      float dist = sqrtf(ex * ex + ey * ey);
-      float sp = fminf(0.8f, fminf(sqrtf(2.0f * 3.0f * dist), 4.0f * dist));
-      float vxw = (dist > 1e-3f) ? ex / dist * sp : 0.0f;
-      float vyw = (dist > 1e-3f) ? ey / dist * sp : 0.0f;
-      Drive(od, &robot->imu, vxw * c + vyw * s, -vxw * s + vyw * c, HeadingHold(robot, 0.0f));
-      if (dist < 0.03f && fabsf(rt.heading) < 0.05f) {
-        rt.settle_ok_t += dt;
-      } else {
-        rt.settle_ok_t = 0.0f;
-      }
-      if (rt.settle_ok_t >= 0.15f || rt.phase_t > RAMP_RETURN_TIMEOUT_S) {
+      // 低速の試験: 原点・向き0へ戻る (オドメトリのずれが次の組に積み重ならないように)
+      bool arrived = GotoStep(od, robot, 0.0f, 0.0f, dt, c, s);
+      if (arrived || rt.phase_t > RAMP_RETURN_TIMEOUT_S) {
         rt.member = 0;
         rt.pair_pos++;
         rt.phase = PH_START;
@@ -560,12 +794,11 @@ RampTestStatus RampTest_Step(Robot* robot) {
           }
           if (!more) {
             if (rt.set >= 3) MarkUnstable();
-            OmniDrive_SetFree(od);
-            VoltTune_SetDefaults(&volt_tune);
-            ramp_result.result = 1;
-            printf("# ramp test finished: strokes=%u retry=0x%03x unstable=0x%03x\n",
-                   ramp_result.stroke_count, ramp_result.retry_mask, ramp_result.unstable_mask);
-            return RAMP_FINISHED;
+            // 低速の試験が終わった。速度別の測定を指定していれば続ける
+            if ((rt.speed_mask & ~RAMP_SPEED_V0) != 0U) {
+              if (BeginSpeedSection(elapsed_ms)) break;
+            }
+            return Finish(od);
           }
         }
       }
@@ -573,9 +806,9 @@ RampTestStatus RampTest_Step(Robot* robot) {
     }
   }
 
-  // 波形の記録 (加速・ブレーキの間だけ、10ms 周期)
+  // 波形の記録 (加速・ブレーキの間だけ)。速度別の測定は長いので 20ms 周期
   if (rt.phase == PH_ACCEL || rt.phase == PH_BRAKE) {
-    if (++rt.log_divider >= 10) {
+    if (++rt.log_divider >= (rt.in_speed ? 20 : 10)) {
       rt.log_divider = 0;
       TcsLog_Record(elapsed_ms, (uint8_t)ramp_result.stroke_count,
                     I16(rt.det.L_f * 1000.0f), robot->imu.yaw_rate, od);
