@@ -31,7 +31,7 @@ param(
   # 自動最適化 (optimizer.h)。-Rect などで範囲を指定する (FF_FAST は範囲の中心から前後 約1m、左右 約1.3m)
   [switch]$Optimize,
   [switch]$NoSave,             # 合格しても保存しない
-  [string]$Ref = "wheel",      # 比の基準: wheel (既定) / imu
+  [string]$Ref = "rel",        # 比の基準: rel (既定。前後は車輪、左右は IMU の左右/前後) / imu (IMU の絶対値) / wheel (車輪だけ)
   [switch]$BeepTest,           # ブザーの確認 (test_id 6)
   [switch]$ClearSaved,         # 保存された調整値を消す (test_id 5)
   [string]$Elf,
@@ -48,7 +48,7 @@ $resultNames = @{ 0 = "NONE"; 1 = "FINISHED"; 2 = "ABORTED (安全停止)"; 3 = 
 if ($Optimize) { $TestId = 4 } elseif ($BeepTest) { $TestId = 6 } elseif ($ClearSaved) { $TestId = 5 }
 [uint32]$optFlags = 0
 if ($Optimize -and -not $NoSave) { $optFlags = $optFlags -bor 1 }
-if ($Ref.ToLower() -eq "imu") { $optFlags = $optFlags -bor 2 } elseif ($Ref.ToLower() -ne "wheel") { Write-Error "-Ref は wheel か imu"; exit 1 }
+if ($Ref.ToLower() -eq "imu") { $optFlags = $optFlags -bor 2 } elseif ($Ref.ToLower() -eq "wheel") { $optFlags = $optFlags -bor 4 } elseif ($Ref.ToLower() -ne "rel") { Write-Error "-Ref は rel, imu, wheel のどれか"; exit 1 }
 
 # AutoTuneCtrl: magic, start_seq, done_seq, test_id, state, result, traction_x100, max_accel_x100, max_ang_accel_x100, ramp_speed_mask, ramp_x_min_cm, ramp_x_max_cm, ramp_y_abs_cm, ka_lat_x1000, opt_task_mask, opt_flags (すべて 32bit。範囲は cm の符号付き)
 $base = Get-SymbolAddress $Elf "autotune_ctrl"

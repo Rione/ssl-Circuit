@@ -17,7 +17,10 @@
 
 // opt_flags (autotune_ctrl.opt_flags)
 #define OPT_FLAG_SAVE 0x01U     // 合格したらフラッシュに保存する (無ければ、値は結果に残すだけ)
-#define OPT_FLAG_REF_IMU 0x02U  // 比の基準を IMU にする (既定は車輪。IMU は車輪の約 0.77 倍を示すので、ka が大きくなる)
+// 比の基準 (既定は「相対」): 前後は車輪の加速度 / 指令、左右は「IMU の左右の比 / IMU の前後の比」(左右の実加速度を前後に合わせる。
+// 左右は車輪が空転しやすく、車輪の値が実加速度を表さないため。IMU の絶対値 (車輪の約 0.77 倍) にも依存しない)
+#define OPT_FLAG_REF_IMU 0x02U    // 前後も左右も、IMU の加速度 / 指令 (IMU の絶対値を信じる)
+#define OPT_FLAG_REF_WHEEL 0x04U  // 前後も左右も、車輪の加速度 / 指令
 
 // opt_task_mask
 #define OPT_TASK_FF 0x01U

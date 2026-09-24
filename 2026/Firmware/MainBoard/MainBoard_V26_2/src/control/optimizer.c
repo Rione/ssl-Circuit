@@ -113,14 +113,14 @@ static int Precheck(Robot* robot) {
   return 0;
 }
 
-// r の平均 (向きが d0〜d1 の有効な本)。個数を返す
-static int AverageRatio(int d0, int d1, float* out) {
+// r の平均 (向きが d0〜d1 の有効な本)。use_imu: IMU の加速度 / 指令、でなければ車輪。個数を返す
+static int AverageRatio(int d0, int d1, bool use_imu, float* out) {
   float sum = 0.0f;
   int n = 0;
   for (int i = 0; i < ff_result_count && i < FF_RESULT_MAX; i++) {
     const FfStepResult* f = &ff_results[i];
     if (!f->valid || f->dir < d0 || f->dir > d1 || f->a_cmd_x100 < 30) continue;
-    float a = (flags & OPT_FLAG_REF_IMU) ? f->a_imu_x100 : f->a_odom_x100;
+    float a = use_imu ? f->a_imu_x100 : f->a_odom_x100;
     sum += a / (float)f->a_cmd_x100;
     n++;
   }
@@ -155,8 +155,24 @@ static void StartRun(void) {
 static void Evaluate(void) {
   OptIterLog* lg = CurrentLog();
   float r_fb = 0.0f, r_lat = 0.0f;
-  int n_fb = AverageRatio(0, 1, &r_fb);
-  int n_lat = AverageRatio(2, 3, &r_lat);
+  int n_fb, n_lat;
+  if (flags & OPT_FLAG_REF_IMU) {
+    n_fb = AverageRatio(0, 1, true, &r_fb);
+    n_lat = AverageRatio(2, 3, true, &r_lat);
+  } else if (flags & OPT_FLAG_REF_WHEEL) {
+    n_fb = AverageRatio(0, 1, false, &r_fb);
+    n_lat = AverageRatio(2, 3, false, &r_lat);
+  } else {  // 相対: 前後は車輪、左右は IMU の左右 / 前後
+    float fb_imu = 0.0f;
+    n_fb = AverageRatio(0, 1, false, &r_fb);
+    int n_fb_imu = AverageRatio(0, 1, true, &fb_imu);
+    n_lat = AverageRatio(2, 3, true, &r_lat);
+    if (n_fb_imu > 0 && fb_imu > 0.2f) {
+      r_lat /= fb_imu;
+    } else {
+      n_lat = 0;  // 前後の IMU が測れていない: 無効
+    }
+  }
   lg->kind = verifying ? 1 : 0;
   lg->ramp_result = 1;
   lg->ka_lin_x1000 = X1000(fb.ka);

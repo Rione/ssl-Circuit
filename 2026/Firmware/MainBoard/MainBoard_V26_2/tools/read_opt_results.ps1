@@ -26,7 +26,7 @@ $saved = [BitConverter]::ToUInt16($b, 20)
 $flags = [BitConverter]::ToUInt16($b, 22)
 $s0 = @([BitConverter]::ToUInt16($b, 24), [BitConverter]::ToUInt16($b, 26))
 $f0 = @([BitConverter]::ToUInt16($b, 28), [BitConverter]::ToUInt16($b, 30))
-Write-Host ("opt_result @0x{0:X8}: seq={1} {2} 経過 {3:F1} 秒 走行 {4} 回 (検証 {5} 回) flags=0x{6:X2} ({7}、基準 {8})" -f $addr, $seq, $(if ($state -eq 1) { "走行中" } else { "停止" }), ($elapsed / 1000.0), $runs, $ver, $flags, $(if ($flags -band 1) { "保存許可" } else { "保存なし" }), $(if ($flags -band 2) { "IMU" } else { "車輪" }))
+Write-Host ("opt_result @0x{0:X8}: seq={1} {2} 経過 {3:F1} 秒 走行 {4} 回 (検証 {5} 回) flags=0x{6:X2} ({7}、基準 {8})" -f $addr, $seq, $(if ($state -eq 1) { "走行中" } else { "停止" }), ($elapsed / 1000.0), $runs, $ver, $flags, $(if ($flags -band 1) { "保存許可" } else { "保存なし" }), $(if ($flags -band 2) { "IMU" } elseif ($flags -band 4) { "車輪" } else { "相対 (前後=車輪、左右=IMU 左右/前後)" }))
 if ($seq -eq 0) { Write-Host "最適化はまだ走っていません"; return }
 Write-Host ("結果: {0}" -f $resultNames[[int]$res])
 Write-Host ("ka_lin: {0:F3} → {1:F3}   ka_lat: {2:F3} → {3:F3}   フラッシュに保存: {4}" -f ($s0[0] / 1000.0), ($f0[0] / 1000.0), ($s0[1] / 1000.0), ($f0[1] / 1000.0), $(if ($saved) { "した" } else { "していない" }))
