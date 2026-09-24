@@ -284,22 +284,41 @@ static const MotionSegment kMotionSegments[] = {
     {+1.0f, 0.0f, +PI},   {-1.0f, 0.0f, -PI},                         // 旋回しながら前後
 };
 
+// 動作パターンのテストの状態 (関数内 static だと電源を入れ直すまで2回目を走らせられないため、
+// ここにまとめて LocalController_ResetMotionPattern で初期化できるようにした)
+typedef struct {
+  uint32_t start_tick;        // 最初に呼ばれた時刻 [ms] (0: まだ)
+  uint32_t startup_wait_ms;   // 走り出すまでの待ち時間 [ms]
+  bool dump_log;              // 終了60秒後に記録を UART へ出力するか
+  bool is_started;
+  bool is_finished;
+  bool is_aborted;            // 安全停止で終わった
+  bool is_log_dumped;
+  uint32_t end_elapsed_ms;
+  int seg;
+  uint32_t seg_start_ms;
+  uint32_t settled_ms;        // 区間の終わりの条件を満たし始めた時刻 (0: 満たしていない)
+  float pos_x, pos_y, heading;  // 床の座標での位置 [m] と向き [rad]
+  float target_x, target_y, target_heading;
+  uint8_t log_divider;
+  Timer dt_timer;
+} MotionPatternState;
+
+// main_mode.c から直接呼ぶ使い方 (電源投入後10秒待って走り、60秒後に CSV を出力) を既定にする
+static MotionPatternState mp = {.startup_wait_ms = 10000, .dump_log = true};
+
+void LocalController_ResetMotionPattern(uint32_t startup_wait_ms, bool dump_log) {
+  MotionPatternState init = {.startup_wait_ms = startup_wait_ms, .dump_log = dump_log};
+  mp = init;
+}
+
+MotionPatternStatus LocalController_GetMotionPatternStatus(void) {
+  if (!mp.is_finished) return MOTION_PATTERN_RUNNING;
+  return mp.is_aborted ? MOTION_PATTERN_ABORTED : MOTION_PATTERN_FINISHED;
+}
+
 void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
   (void)self;
-  static uint32_t start_tick = 0;
-  static bool is_started = false;
-  static bool is_finished = false;
-  static bool is_log_dumped = false;
-  static uint32_t end_elapsed_ms = 0;
-  static int seg = 0;
-  static uint32_t seg_start_ms = 0;
-  static uint32_t settled_ms = 0;          // 区間の終わりの条件を満たし始めた時刻 (0: 満たしていない)
-  static float pos_x = 0.0f, pos_y = 0.0f, heading = 0.0f;  // 床の座標での位置 [m] と向き [rad]
-  static float target_x = 0.0f, target_y = 0.0f, target_heading = 0.0f;
-  static uint8_t log_divider = 0;
-  static Timer dt_timer = {0};
-
-  const uint32_t kStartupWaitMs = 10000;
   const uint32_t kDumpDelayMs = 60000;
   // 0.3秒 → 0.15秒。区間の切り替わりを詰める (速度そのものには関係ない)
   const uint32_t kSettleMs = 150;
@@ -323,58 +342,58 @@ void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
   Robot_SendDribble(robot, 0, 0);
   Kicker_Discharge(&robot->kicker);
 
-  if (start_tick == 0) {
-    start_tick = HAL_GetTick();
-    if (start_tick == 0) start_tick = 1;
+  if (mp.start_tick == 0) {
+    mp.start_tick = HAL_GetTick();
+    if (mp.start_tick == 0) mp.start_tick = 1;
   }
-  uint32_t elapsed_ms = HAL_GetTick() - start_tick;
+  uint32_t elapsed_ms = HAL_GetTick() - mp.start_tick;
   OmniDrive* od = &robot->omni_drive;
 
-  if (elapsed_ms < kStartupWaitMs) {
+  if (elapsed_ms < mp.startup_wait_ms) {
     OmniDrive_SetFree(od);
     DigitalOut_Write(&robot->led0, (elapsed_ms / 500) % 2 == 0);
     return;
   }
 
   // 終了 (全区間を終えた、または安全停止) 後はブレーキし、60秒後に記録を出力する
-  if (is_finished) {
+  if (mp.is_finished) {
     OmniDrive_SetFree(od);
-    uint32_t wait_ms = elapsed_ms - end_elapsed_ms;
+    uint32_t wait_ms = elapsed_ms - mp.end_elapsed_ms;
     if (wait_ms < kDumpDelayMs) {
       DigitalOut_Write(&robot->led0, (wait_ms / 500) % 2 == 0);
       return;
     }
     DigitalOut_Write(&robot->led0, 0);
-    if (!is_log_dumped) is_log_dumped = TcsLog_DumpStep();
+    if (mp.dump_log && !mp.is_log_dumped) mp.is_log_dumped = TcsLog_DumpStep();
     return;
   }
 
-  if (!is_started) {
-    is_started = true;
+  if (!mp.is_started) {
+    mp.is_started = true;
     TCS_Reset(&od->tcs);
     TcsLog_Reset();
-    Timer_Init(&dt_timer);
-    Timer_Reset(&dt_timer);
-    seg = 0;
-    seg_start_ms = elapsed_ms;
-    target_x = kMotionSegments[0].dx_m * TEST_PATTERN_SCALE;
-    target_y = kMotionSegments[0].dy_m * TEST_PATTERN_SCALE;
-    target_heading = kMotionSegments[0].dtheta_rad;
+    Timer_Init(&mp.dt_timer);
+    Timer_Reset(&mp.dt_timer);
+    mp.seg = 0;
+    mp.seg_start_ms = elapsed_ms;
+    mp.target_x = kMotionSegments[0].dx_m * TEST_PATTERN_SCALE;
+    mp.target_y = kMotionSegments[0].dy_m * TEST_PATTERN_SCALE;
+    mp.target_heading = kMotionSegments[0].dtheta_rad;
   }
 
-  float dt = Timer_Read(&dt_timer);
-  Timer_Reset(&dt_timer);
+  float dt = Timer_Read(&mp.dt_timer);
+  Timer_Reset(&mp.dt_timer);
   if (dt <= 0.0f || dt > 0.05f) dt = (float)ROBOT_CONTROL_LOOP_DT_US * 1e-6f;
 
   // 位置と向きの推定 (機体座標のオドメトリ速度を床の座標に直して積分)
-  heading += robot->imu.yaw_rate * dt;
-  float c = cosf(heading), s = sinf(heading);
+  mp.heading += robot->imu.yaw_rate * dt;
+  float c = cosf(mp.heading), s = sinf(mp.heading);
   float vx_body = od->tcs.odom_vx, vy_body = od->tcs.odom_vy;
-  pos_x += (vx_body * c - vy_body * s) * dt;
-  pos_y += (vx_body * s + vy_body * c) * dt;
+  mp.pos_x += (vx_body * c - vy_body * s) * dt;
+  mp.pos_y += (vx_body * s + vy_body * c) * dt;
 
   // 目標への速度指令 (床の座標)
-  float ex = target_x - pos_x, ey = target_y - pos_y;
+  float ex = mp.target_x - mp.pos_x, ey = mp.target_y - mp.pos_y;
   float dist = sqrtf(ex * ex + ey * ey);
   float speed = fminf(TEST_PATTERN_SPEED_MPS, fminf(sqrtf(2.0f * kBrakeAccel * dist), kPosKp * dist));
   float vx_world = (dist > 1e-3f) ? ex / dist * speed : 0.0f;
@@ -384,7 +403,7 @@ void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
   // 「この速さなら間に合う」という想定 (kBrakeAngAccel) と実際に減速できる速さがずれたときに
   // 行きすぎては戻る振動になる (3.2Vのテストで±37°のリンギングが出た)。D項は誤差の大小に関わらず
   // 常に効くので、想定と実際がずれていても行きすぎを抑えられる
-  float eh = target_heading - heading;
+  float eh = mp.target_heading - mp.heading;
   float ang_speed =
       fminf(kMaxAngVel, fminf(sqrtf(2.0f * kBrakeAngAccel * fabsf(eh)), kHeadingKp * fabsf(eh)));
   float omega = (eh >= 0.0f) ? ang_speed : -ang_speed;
@@ -395,20 +414,21 @@ void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
   float vy_cmd = -vx_world * s + vy_world * c;
 
   // 安全停止
-  const MotionSegment* ms = &kMotionSegments[seg];
+  const MotionSegment* ms = &kMotionSegments[mp.seg];
   const float kReach = TEST_PATTERN_SCALE;  // 区間の最大の移動量 (前・左右) [m]
-  bool out_of_area =
-      pos_x < -0.5f || pos_x > kReach + 0.5f || pos_y < -(kReach + 0.5f) || pos_y > kReach + 0.5f;
+  bool out_of_area = mp.pos_x < -0.5f || mp.pos_x > kReach + 0.5f || mp.pos_y < -(kReach + 0.5f) ||
+                     mp.pos_y > kReach + 0.5f;
   bool heading_off = fabsf(eh) > fabsf(ms->dtheta_rad) + 0.8f;
-  bool timeout = (elapsed_ms - seg_start_ms) > kSegmentTimeoutMs;
+  bool timeout = (elapsed_ms - mp.seg_start_ms) > kSegmentTimeoutMs;
   if (out_of_area || heading_off || timeout) {
     OmniDrive_SetFree(od);
-    TcsLog_Record(elapsed_ms - kStartupWaitMs, (uint8_t)(seg + 1), 0, robot->imu.yaw_rate, od);
+    TcsLog_Record(elapsed_ms - mp.startup_wait_ms, (uint8_t)(mp.seg + 1), 0, robot->imu.yaw_rate, od);
     printf("# motion test aborted: seg=%d area=%d heading=%d timeout=%d x=%d y=%d mm th=%d mrad\n",
-           seg + 1, out_of_area, heading_off, timeout, (int)(pos_x * 1000.0f),
-           (int)(pos_y * 1000.0f), (int)(heading * 1000.0f));
-    is_finished = true;
-    end_elapsed_ms = elapsed_ms;
+           mp.seg + 1, out_of_area, heading_off, timeout, (int)(mp.pos_x * 1000.0f),
+           (int)(mp.pos_y * 1000.0f), (int)(mp.heading * 1000.0f));
+    mp.is_finished = true;
+    mp.is_aborted = true;
+    mp.end_elapsed_ms = elapsed_ms;
     return;
   }
 
@@ -418,31 +438,31 @@ void LocalController_TestMotionPattern(LocalController* self, Robot* robot) {
                      (int16_t)(omega * 1000.0f), &robot->imu);
   DigitalOut_Write(&robot->led0, 1);
 
-  if (++log_divider >= 30) {  // 30ms周期 (1000サンプルで30秒分。全区間で約25秒かかる)
-    log_divider = 0;
-    TcsLog_Record(elapsed_ms - kStartupWaitMs, (uint8_t)(seg + 1), (int16_t)(vx_cmd * 1000.0f),
+  if (++mp.log_divider >= 30) {  // 30ms周期 (1000サンプルで30秒分。全区間で約25秒かかる)
+    mp.log_divider = 0;
+    TcsLog_Record(elapsed_ms - mp.startup_wait_ms, (uint8_t)(mp.seg + 1), (int16_t)(vx_cmd * 1000.0f),
                   robot->imu.yaw_rate, od);
   }
 
   // 区間の終わり: 残り3cm以内・向き3°以内で0.3秒保ったら次の区間へ
   if (dist < 0.03f && fabsf(eh) < 0.05f) {
-    if (settled_ms == 0) settled_ms = elapsed_ms;
-    if (elapsed_ms - settled_ms >= kSettleMs) {
-      settled_ms = 0;
-      seg++;
-      if (seg >= kNumSegments) {
-        is_finished = true;
-        end_elapsed_ms = elapsed_ms;
+    if (mp.settled_ms == 0) mp.settled_ms = elapsed_ms;
+    if (elapsed_ms - mp.settled_ms >= kSettleMs) {
+      mp.settled_ms = 0;
+      mp.seg++;
+      if (mp.seg >= kNumSegments) {
+        mp.is_finished = true;
+        mp.end_elapsed_ms = elapsed_ms;
         printf("# motion test finished\n");
         return;
       }
-      seg_start_ms = elapsed_ms;
-      target_x += kMotionSegments[seg].dx_m * TEST_PATTERN_SCALE;
-      target_y += kMotionSegments[seg].dy_m * TEST_PATTERN_SCALE;
-      target_heading += kMotionSegments[seg].dtheta_rad;
+      mp.seg_start_ms = elapsed_ms;
+      mp.target_x += kMotionSegments[mp.seg].dx_m * TEST_PATTERN_SCALE;
+      mp.target_y += kMotionSegments[mp.seg].dy_m * TEST_PATTERN_SCALE;
+      mp.target_heading += kMotionSegments[mp.seg].dtheta_rad;
     }
   } else {
-    settled_ms = 0;
+    mp.settled_ms = 0;
   }
 }
 
