@@ -9,7 +9,7 @@
 - **この文書の7章に、案に対する改善点をまとめた。実装の前にユーザーと方針（8章）を決めること。**
 
 ## 2. 現状（ブランチ `FW/MainBoard_V26_2_tc`、コミット `d3ce39ec`、push済み）
-- 試合の経路（Rock5A からの指令）は電圧制御で動く設定（`ROBOT_USE_VOLTAGE_CONTROL=1`）。**ただし Rock5A から実際に指令を受けて走らせる確認はまだしていない。**
+- 試合の経路（Rock5A からの指令）は電圧制御で動く設定（`ROBOT_USE_VOLTAGE_CONTROL=1`）。**Rock5A の指令で車輪が回り機体が動くことは、2026-09-24 に確認した（機体を浮かせた状態。床での走行は未確認）。11章参照。**
 - `main_mode.c` の Rock5A 未接続時の処理は `LocalController_Stop`（止まる）。テストを使うときだけ書き換える。
   - → 段階1（10.3）以後は、動作パターンのテストは ST-Link から開始の指示（`tools/autotune_start.ps1`）を書いたときだけ走る。書き換えは要らない。
 - 処理の流れ（1msごと、`OmniDrive_SetVelEx` の電圧制御の分岐、`src/unit/omni_drive.c`）:
@@ -184,3 +184,29 @@ IDLE ─(ST-Link で start_seq を書く)→ 10秒待つ（抜いて離れる）
 3. ST-Link をつなぎ、`tools\autotune_start.ps1 -Status` で `result=FINISHED` を確かめ、`tools\read_tcs_log.ps1` で記録を読む。
 4. もう一度 `autotune_start.ps1` を実行し、電源を入れ直さずに2回目も走ることを確かめる。
 5. `docs/data/motion_pattern_2.8V_pd_final_20260923.csv` と比べる。13区間が約19.2秒で、区間ごとのスリップの割合が同程度なら、挙動は変わっていない。
+
+## 11. 2026-09-24 の追記（Rock5A 通信の調査で分かったこと。自動調整の実装を続けるチャット向け）
+### 11.1 機体が変わっている（重要）
+- **この文書の値は、機体を変更する前の機体で決めたものです。** 機体を変更したため、次は今の機体で取り直す必要があるかもしれません。
+  - 表（`wheel_voltage.c` の `kTableOmegaPos/Neg`）と床の負荷分（`kLoadVolt`）、トルク上限 2.8V、`S_ref`（10.1）、`WHEEL_VOLT_KA_*`、`VEL_FB_*`。
+  - 「手動調整で確定した 2.8V」は前の機体の結果。今の機体で同じ評価になるかは未確認。
+  - 段階2の「S_ref を決める」走行は、今の機体で行うこと。
+- 4輪の WheelUnit のファームを書き直した（電圧モード対応版 `422560b8` 以降、ブランチ `FW/WheelDriver_V26.3`）。**書き込みでキャリブレーションの保存値が消えたかは未確認**（4輪とも動いたので問題は出ていない）。
+
+### 11.2 電圧モードの確認結果
+- 機体を浮かせて、電圧制御で 4輪が指令どおり回ることをローカルテストで確認した（前進 +300mm/s で符号 `−,−,+,+`、実測 約 ±10〜13rad/s、目標 約8rad/s、無負荷のため速め）。
+- Rock5A からの速度指令でも、車輪が回り、機体が動くことを確認した（浮かせた状態）。**床での走行は未確認。**
+- Rock5A → MainBoard の通信は正常（`estop=0 sig=1`、有効フレームの間隔は常に 8ms 以下）。Rock5A 側は問題なし。
+
+### 11.3 WheelUnit まわりで実際に踏んだこと
+- **WheelUnit の電源（24V）を入れ忘れると、`meas`（実測の車輪速度）が 4輪ともちょうど 0 になる。** 停止中のノイズ（±数十）も出ないので、それで見分けられる。
+- **MainBoard の起動後に WheelUnit の電源を入れると、受信が復帰しないことがある。** MainBoard をリセットすると直る（`STM32_Programmer_CLI -c port=SWD -rst`）。文書 `HANDOFF_VOLTAGE_CONTROL.md` の 5.2 と同じ現象。
+- **WheelUnit 1輪のファームだけ不良のことがある。** 症状: 通信は生きている（受信フレーム数は増え、状態バイト=1）のに、報告する車輪速度だけが常に 0。書き直して直った。**自動調整を走らせる前に、4輪とも `meas` が動くことを確認すること**（1輪でも 0 だと、オドメトリが狂い、他の輪の電圧が不自然になる）。
+- `rx_stall wheel=2`（ID3）は、まだ数秒おきに出る（既知、5.2 の未解決の項目）。回転そのものには支障が出ていない。
+
+### 11.4 作業手順のメモ
+- ビルド: PowerShell で `$env:TMP="$env:LOCALAPPDATA\Temp"; $env:TEMP=$env:TMP; make -j8`（Git Bash の `make` は TEMP がなく失敗する）。
+- 書き込み: `& "C:\ST\STM32CubeCLT_1.21.0\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe" -c port=SWD -w build\MainBoard_V26_2.bin 0x08000000 -v -rst`（機体のリセットも行う）。`No debug probe detected` は ST-Link 未接続。
+- シリアルログ: `powershell -ExecutionPolicy Bypass -File tools\serial_log.ps1 -Port COM3 -Seconds 30`（USART1、250000bps）。保存先は `logs\serial_日時.csv`。ポートを他のプログラムが開いていると使えない。
+- テストのために `main_mode.c` を一時的に書き換えるときは、**必ず元に戻してから書き込む**（戻し忘れると、Rock5A の信号が来ていない間に車輪が勝手に動く）。`git checkout -- src/mode/main_mode.c` で戻せる。
+- この作業ツリーは、複数チャットで同時に触ると、ブランチが detached HEAD になる・コミット漏れが出る、などが起きた。作業の最初に `git status` と現在のブランチを確認すること。
