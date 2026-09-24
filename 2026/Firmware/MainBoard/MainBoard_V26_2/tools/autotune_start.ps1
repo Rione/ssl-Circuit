@@ -18,6 +18,11 @@ param(
   [double]$XMin = 0,     # 後ろ (負の値)
   [double]$XMax = 0,     # 前
   [double]$YAbs = 0,     # 左右 (片側)
+  # 長方形のエリア [m] (長辺, 短辺)。例: -Rect 3.5,2.5。機体の中心を「後ろの短辺の端から 0.5m、長辺の真ん中」に、前を長辺に沿って置く
+  # (範囲は、各端から 0.2m 内側: XMin=-0.3, XMax=長辺-0.7, YAbs=短辺/2-0.2 を自動で入れる。-XMin/-XMax/-YAbs で上書きできる)
+  [double[]]$Rect = @(),
+  # 速度別の測定を1回終えたら、機体が自分で範囲の真ん中へ移動し、右へ 90° 回って、範囲の縦横を入れ替えてもう一度繰り返す
+  [switch]$Rotate,
   [string]$Elf,
   [switch]$Status
 )
@@ -41,6 +46,14 @@ $ctrl = Read-Ram32 $base 13
 Show-Ctrl $ctrl
 if ($Status) { return }
 
+# -Rect から範囲を求める (明示した -XMin/-XMax/-YAbs があればそちらを優先)
+if ($Rect.Count -eq 2) {
+  $long = $Rect[0]; $short = $Rect[1]
+  if ($XMin -eq 0) { $XMin = -0.3 }
+  if ($XMax -eq 0) { $XMax = [math]::Round($long - 0.7, 2) }
+  if ($YAbs -eq 0) { $YAbs = [math]::Round($short / 2 - 0.2, 2) }
+} elseif ($Rect.Count -ne 0) { Write-Error "-Rect は 長辺,短辺 の2つの数 [m] (例: -Rect 3.5,2.5)"; exit 1 }
+
 # 速度の段 → ビットの組み合わせ (ramp_test.h の RAMP_SPEED_*)
 $speedBits = @{ "0" = 0x01; "1" = 0x02; "1.5" = 0x04; "2" = 0x08; "3" = 0x10; "2d" = 0x20 }
 [uint32]$speedMask = 0
@@ -49,10 +62,11 @@ foreach ($sp in ($Speeds | ForEach-Object { $_ -split "," } | Where-Object { $_ 
   if (-not $speedBits.ContainsKey($key)) { Write-Error "-Speeds に使えない値: $sp (0, 1, 1.5, 2, 2d, 3)"; exit 1 }
   $speedMask = $speedMask -bor [uint32]$speedBits[$key]
 }
+if ($Rotate) { $speedMask = $speedMask -bor 0x80 }
 if ($TestId -ne 2 -and $speedMask -ne 0) { Write-Error "-Speeds は -TestId 2 (ランプ試験) のときだけ使えます"; exit 1 }
-if ($speedMask -band 0x3E) {
+if ($speedMask -band 0xBE) {
   if ($XMax -ne 0) {
-    Write-Host ("速度別の測定: 範囲 x[{0},{1}] y±{2} m (mask=0x{3})。この範囲に何も無いことを確かめてください" -f $XMin, $XMax, $YAbs, $speedMask.ToString("X2")) -ForegroundColor Yellow
+    Write-Host ("速度別の測定: 範囲 x[{0},{1}] y±{2} m (mask=0x{3}{4})。この範囲に何も無いことを確かめてください" -f $XMin, $XMax, $YAbs, $speedMask.ToString("X2"), $(if ($Rotate) { "、1回目のあと機体が90°回って繰り返す" } else { "" })) -ForegroundColor Yellow
   } else {
     Write-Host ("速度別の測定: 前3.5m・後ろ1.0m・左右2.5m の空きが要ります (mask=0x{0})" -f $speedMask.ToString("X2")) -ForegroundColor Yellow
   }

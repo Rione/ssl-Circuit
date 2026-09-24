@@ -122,11 +122,12 @@ if ($spd.Count -gt 0) {
     $note = if ($x.acc.reason -eq 7) { "範囲不足: 必要 {0:F2} m と予測" -f $x.助走距離 } else { "" }
     $x | Add-Member -NotePropertyName メモ -NotePropertyValue $note -Force
   }
-  $spd | Format-Table no, 向き, v0, 加速_滑り始めV, 加速_ピークV, 加速_ピーク加速度, 加速_終わり, 加速_速度, 加速距離, 減速_滑り始めV, 減速_終わり, ブレーキ開始速度, 停止距離, 平均減速度, 助走距離, 電池V, メモ -AutoSize | Out-String -Width 400 | Write-Host
+  Write-Host "   回 = 速度別の何回目か (1: 1回目、2: 機体を 90° 回した2回目。向きは機体から見た向き)"
+  $spd | Format-Table no, 回, 向き, v0, 加速_滑り始めV, 加速_ピークV, 加速_ピーク加速度, 加速_終わり, 加速_速度, 加速距離, 減速_滑り始めV, 減速_終わり, ブレーキ開始速度, 停止距離, 平均減速度, 助走距離, 電池V, メモ -AutoSize | Out-String -Width 400 | Write-Host
 
   Write-Host "== ブレーキの停止距離表 (速度 v0 と向きごと。ブレーキは弱い所から上げていくので、停止距離は最短ではなく上限側の値)"
   $spd | Where-Object { $_.acc.reason -ne 7 -and $_.停止距離 -gt 0 } | Sort-Object v0, dir |
-    Format-Table 向き, v0, ブレーキ開始速度, 停止距離, 平均減速度, 減速_滑り始めV, 減速_終わり -AutoSize | Out-String -Width 300 | Write-Host
+    Format-Table 回, 向き, v0, ブレーキ開始速度, 停止距離, 平均減速度, 減速_滑り始めV, 減速_終わり -AutoSize | Out-String -Width 300 | Write-Host
 
   Write-Host "== 加速側の限界の速度依存 (滑り始めのトルク [V] と、IMU の加速度ピーク [m/s²]。v0 の低い順)"
   foreach ($d in 0..7) {
@@ -134,7 +135,7 @@ if ($spd.Count -gt 0) {
     if ($g.Count -eq 0) { continue }
     $parts = $g | ForEach-Object {
       $ons = if ($_.acc.onset -gt 0) { "{0:F2}V" -f $_.acc.onset } else { "なし" }
-      "v0={0:F1}: 滑り{1} ピーク{2:F1}m/s2 ({3})" -f $_.v0, $ons, $_.acc.peakA, $_.加速_終わり
+      "[{4}]v0={0:F1}: 滑り{1} ピーク{2:F1}m/s2 ({3})" -f $_.v0, $ons, $_.acc.peakA, $_.加速_終わり, $_.回
     }
     Write-Host ("  {0,-8}: {1}" -f $dirNames[$d], ($parts -join " | "))
   }

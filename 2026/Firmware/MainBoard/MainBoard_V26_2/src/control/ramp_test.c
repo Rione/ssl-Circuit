@@ -93,6 +93,10 @@ RampRunResult ramp_result;
 #define RAMP_PRED_BRAKE_DECEL 2.6f  // [m/s^2] 保守的なブレーキの減速度
 #define RAMP_PRED_MARGIN 1.15f
 
+// 2回目 (機体を90°回して繰り返す) の範囲を1回目から求めるときの、長方形の端から範囲までの内側の距離 [m]
+// (機体の半径と、安全停止で止まりきれない分)。1回目の範囲 = 長方形から各端 0.2m 内側、を前提にする
+#define RAMP_SESSION_INSET 0.2f
+
 #define RAMP_PAIR_COUNT 5
 #define RAMP_SET_MAX 3
 #define RAMP_SPEED_LIST_MAX 24
@@ -110,6 +114,7 @@ typedef enum {
   PH_RETURN,     // 低速の試験: 組の終わりに原点・向き0へ戻る
   PH_GOTO,       // 速度別の測定: 次の1本の始点へ移動
   PH_CRUISE,     // 速度別の測定: v0 まで巡航
+  PH_XFER,       // 1回目が終わったあと、範囲の真ん中へ移動して 90° (右回り) 向きを変える
 } Phase;
 
 // 滑り始め・ピークの検出 (加速とブレーキで共用)
@@ -142,6 +147,7 @@ static struct {
   Timer dt_timer;
   uint32_t speed_mask;
   bool in_speed;               // 速度別の測定の最中か
+  int session;                 // 1: 1回目、2: 機体を 90° 回した2回目 (RAMP_SPEED_ROTATE)
   int set;                     // 0, 1, 2 (低速の試験)
   uint8_t pairs[RAMP_PAIR_COUNT];
   int pair_count;
@@ -504,7 +510,7 @@ static bool PrepareNextSpeedStroke(uint32_t elapsed_ms) {
       RampStrokeResult zero = {0};
       *s = zero;
       s->dir = (uint8_t)dir;
-      s->set = 1;
+      s->set = (uint8_t)rt.session;
       s->batt = 255;
       s->t_start_ms = (uint16_t)(elapsed_ms > 65535U ? 65535U : elapsed_ms);
       s->v0_x100 = U16(v0 * 100.0f);
@@ -564,15 +570,16 @@ static void BeginRamp(OmniDrive* od, const Robot* robot, float start_speed) {
 }
 
 // 始点 (tx, ty)・向き0へ低速で移動する。着いたら true (オドメトリのずれが積み重ならないようにするため)
-static bool GotoStep(OmniDrive* od, const Robot* robot, float tx, float ty, float dt, float c, float s) {
+static bool GotoStep(OmniDrive* od, const Robot* robot, float tx, float ty, float target_heading, float dt,
+                     float c, float s) {
   VoltTune_SetDefaults(&volt_tune);
   float ex = tx - rt.pos_x, ey = ty - rt.pos_y;
   float dist = sqrtf(ex * ex + ey * ey);
   float sp = fminf(RAMP_GOTO_SPEED, fminf(sqrtf(2.0f * 3.0f * dist), 4.0f * dist));
   float vxw = (dist > 1e-3f) ? ex / dist * sp : 0.0f;
   float vyw = (dist > 1e-3f) ? ey / dist * sp : 0.0f;
-  Drive(od, &robot->imu, vxw * c + vyw * s, -vxw * s + vyw * c, HeadingHold(robot, 0.0f));
-  if (dist < 0.03f && fabsf(rt.heading) < 0.05f) {
+  Drive(od, &robot->imu, vxw * c + vyw * s, -vxw * s + vyw * c, HeadingHold(robot, target_heading));
+  if (dist < 0.03f && fabsf(rt.heading - target_heading) < 0.05f) {
     rt.settle_ok_t += dt;
   } else {
     rt.settle_ok_t = 0.0f;
@@ -603,6 +610,7 @@ RampTestStatus RampTest_Step(Robot* robot) {
     ramp_result.seq = seq;
     ramp_result.speed_mask = rt.speed_mask;
     rt.in_speed = false;
+    rt.session = 1;
     rt.set = 0;
     rt.pair_count = RAMP_PAIR_COUNT;
     for (int p = 0; p < RAMP_PAIR_COUNT; p++) rt.pairs[p] = (uint8_t)p;
@@ -652,9 +660,9 @@ RampTestStatus RampTest_Step(Robot* robot) {
   bool translating = (rt.phase == PH_ACCEL || rt.phase == PH_BRAKE || rt.phase == PH_CRUISE) &&
                      !IsRotation(dir);
   if (translating && fabsf(rt.heading) > RAMP_HEADING_ABORT) return Abort(od, 2);
-  bool moving_phase = (rt.phase == PH_RETURN || rt.phase == PH_GOTO);
+  bool moving_phase = (rt.phase == PH_RETURN || rt.phase == PH_GOTO || rt.phase == PH_XFER);
   if (!moving_phase && rt.phase_t > RAMP_PHASE_TIMEOUT_S) return Abort(od, 3);
-  if (rt.phase == PH_GOTO && rt.phase_t > RAMP_GOTO_TIMEOUT_S) return Abort(od, 3);
+  if ((rt.phase == PH_GOTO || rt.phase == PH_XFER) && rt.phase_t > RAMP_GOTO_TIMEOUT_S) return Abort(od, 3);
   if (st & 0x06U) return Abort(od, 4);  // bit1: 電源電圧範囲外、bit2: 過熱
 
   DigitalOut_Write(&robot->led0, 1);
@@ -690,8 +698,8 @@ RampTestStatus RampTest_Step(Robot* robot) {
       return RAMP_RUNNING;
 
     case PH_GOTO:
-      if (GotoStep(od, robot, rt.tx, rt.ty, dt, c, s)) {
-        NewStrokeRecord(elapsed_ms, dir, 1);
+      if (GotoStep(od, robot, rt.tx, rt.ty, 0.0f, dt, c, s)) {
+        NewStrokeRecord(elapsed_ms, dir, rt.session);
         SeedCommand(od, robot);
         for (int k = 0; k < 3; k++) od->vel_fb_integral[k] = 0.0f;
         rt.cruise_ok_t = 0.0f;
@@ -810,7 +818,18 @@ RampTestStatus RampTest_Step(Robot* robot) {
       if (rt.phase_t >= RAMP_SETTLE_S) {
         if (rt.in_speed) {
           rt.sp_pos++;
-          if (!PrepareNextSpeedStroke(elapsed_ms)) return Finish(od);
+          if (!PrepareNextSpeedStroke(elapsed_ms)) {
+            // 1回目が終わった。機体を 90° 回して繰り返す指定があれば、範囲の真ん中へ移動して回る
+            if (rt.session == 1 && (rt.speed_mask & RAMP_SPEED_ROTATE)) {
+              rt.tx = 0.5f * (area_x_min + area_x_max);  // 長方形の中心 (原点は、範囲の中心の x で、y は左右の真ん中)
+              rt.ty = 0.0f;
+              rt.settle_ok_t = 0.0f;
+              rt.phase = PH_XFER;
+              printf("# ramp test: rotate and repeat (move to x=%d mm)\n", (int)(rt.tx * 1000.0f));
+            } else {
+              return Finish(od);
+            }
+          }
         } else if (rt.member == 0) {
           rt.member = 1;
           rt.phase = PH_START;
@@ -822,9 +841,29 @@ RampTestStatus RampTest_Step(Robot* robot) {
       }
       break;
 
+    case PH_XFER: {
+      // 範囲の真ん中へ移動しながら、右へ 90° 向きを変える (機体の左 (+y) が、長方形の長辺の向きになる)
+      if (GotoStep(od, robot, rt.tx, rt.ty, -(float)HALF_PI, dt, c, s)) {
+        // 新しい座標系: 今の位置を原点、今の向きを 0 とする。範囲は、長方形の縦と横を入れ替えて求める
+        const float L = (area_x_max - area_x_min) + 2.0f * RAMP_SESSION_INSET;
+        const float W = 2.0f * area_y_abs + 2.0f * RAMP_SESSION_INSET;
+        area_x_max = 0.5f * W - RAMP_SESSION_INSET;
+        area_x_min = -area_x_max;
+        area_y_abs = 0.5f * L - RAMP_SESSION_INSET;
+        rt.session = 2;
+        rt.pos_x = rt.pos_y = 0.0f;
+        rt.heading = 0.0f;
+        rt.sp_pos = 0;
+        printf("# ramp test: session 2, area x[%d,%d] y+-%d mm\n", (int)(area_x_min * 1000.0f),
+               (int)(area_x_max * 1000.0f), (int)(area_y_abs * 1000.0f));
+        if (!PrepareNextSpeedStroke(elapsed_ms)) return Finish(od);
+      }
+      break;
+    }
+
     case PH_RETURN: {
       // 低速の試験: 原点・向き0へ戻る (オドメトリのずれが次の組に積み重ならないように)
-      bool arrived = GotoStep(od, robot, 0.0f, 0.0f, dt, c, s);
+      bool arrived = GotoStep(od, robot, 0.0f, 0.0f, 0.0f, dt, c, s);
       if (arrived || rt.phase_t > RAMP_RETURN_TIMEOUT_S) {
         rt.member = 0;
         rt.pair_pos++;
