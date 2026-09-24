@@ -14,6 +14,10 @@ param(
   # ランプ試験 (-TestId 2) の速度の段。例: -Speeds 0,1,1.5,2 (0: 止まった状態から、1: 前後左右 1.0m/s、1.5: 斜め、2: 前後左右 2.0m/s、
   #  2d: 斜め 2.0m/s、3: 前後左右 3.0m/s)。省略 = 0 だけ (従来どおり)。3 は左右を先に走らせてから。空きは前3.5m・後ろ1.0m・左右2.5m
   [string[]]$Speeds = @(),
+  # 速度別の測定の範囲 [m] (原点=スタート位置。省略 = 前3.5・後ろ1.0・左右2.5)。例: -XMin -0.5 -XMax 2.0 -YAbs 1.5
+  [double]$XMin = 0,     # 後ろ (負の値)
+  [double]$XMax = 0,     # 前
+  [double]$YAbs = 0,     # 左右 (片側)
   [string]$Elf,
   [switch]$Status
 )
@@ -26,14 +30,14 @@ $kMagic = [uint32]0x41545331  # "ATS1" (AUTOTUNE_CTRL_MAGIC)
 $stateNames = @{ 0 = "IDLE"; 1 = "WAITING"; 2 = "RUNNING" }
 $resultNames = @{ 0 = "NONE"; 1 = "FINISHED"; 2 = "ABORTED (安全停止)"; 3 = "CANCELLED (Rock5A)"; 4 = "BAD_TEST" }
 
-# AutoTuneCtrl: magic, start_seq, done_seq, test_id, state, result, traction_x100, max_accel_x100, max_ang_accel_x100, ramp_speed_mask (すべて uint32)
+# AutoTuneCtrl: magic, start_seq, done_seq, test_id, state, result, traction_x100, max_accel_x100, max_ang_accel_x100, ramp_speed_mask, ramp_x_min_cm, ramp_x_max_cm, ramp_y_abs_cm (すべて 32bit。範囲は cm の符号付き)
 $base = Get-SymbolAddress $Elf "autotune_ctrl"
 function Show-Ctrl([uint32[]]$w) {
-  Write-Host ("autotune_ctrl @0x{0:X8}: magic=0x{1:X8} start_seq={2} done_seq={3} test_id={4} state={5} result={6} override(x100)=[traction {7}, accel {8}, ang_accel {9}] speed_mask=0x{10:X2}" -f `
-      $base, $w[0], $w[1], $w[2], $w[3], $stateNames[[int]$w[4]], $resultNames[[int]$w[5]], $w[6], $w[7], $w[8], $w[9])
+  Write-Host ("autotune_ctrl @0x{0:X8}: magic=0x{1:X8} start_seq={2} done_seq={3} test_id={4} state={5} result={6} override(x100)=[traction {7}, accel {8}, ang_accel {9}] speed_mask=0x{10:X2} area(cm)=x[{11},{12}] y+-{13}" -f `
+      $base, $w[0], $w[1], $w[2], $w[3], $stateNames[[int]$w[4]], $resultNames[[int]$w[5]], $w[6], $w[7], $w[8], $w[9], [BitConverter]::ToInt32([BitConverter]::GetBytes([uint32]$w[10]), 0), [BitConverter]::ToInt32([BitConverter]::GetBytes([uint32]$w[11]), 0), [BitConverter]::ToInt32([BitConverter]::GetBytes([uint32]$w[12]), 0))
 }
 
-$ctrl = Read-Ram32 $base 10
+$ctrl = Read-Ram32 $base 13
 Show-Ctrl $ctrl
 if ($Status) { return }
 
@@ -46,7 +50,13 @@ foreach ($sp in ($Speeds | ForEach-Object { $_ -split "," } | Where-Object { $_ 
   $speedMask = $speedMask -bor [uint32]$speedBits[$key]
 }
 if ($TestId -ne 2 -and $speedMask -ne 0) { Write-Error "-Speeds は -TestId 2 (ランプ試験) のときだけ使えます"; exit 1 }
-if ($speedMask -band 0x3E) { Write-Host "速度別の測定: 前3.5m・後ろ1.0m・左右2.5m の空きが要ります (mask=0x$($speedMask.ToString('X2')))" -ForegroundColor Yellow }
+if ($speedMask -band 0x3E) {
+  if ($XMax -ne 0) {
+    Write-Host ("速度別の測定: 範囲 x[{0},{1}] y±{2} m (mask=0x{3})。この範囲に何も無いことを確かめてください" -f $XMin, $XMax, $YAbs, $speedMask.ToString("X2")) -ForegroundColor Yellow
+  } else {
+    Write-Host ("速度別の測定: 前3.5m・後ろ1.0m・左右2.5m の空きが要ります (mask=0x{0})" -f $speedMask.ToString("X2")) -ForegroundColor Yellow
+  }
+}
 
 if ($ctrl[4] -ne 0) {
   Write-Error "MainBoard は待機中または走行中です (state=$($stateNames[[int]$ctrl[4]]))。終わってから指示してください"
@@ -60,10 +70,13 @@ $writes = @(@(($base + 12), $TestId),
   @(($base + 28), [uint32][math]::Round($MaxAccel * 100)),
   @(($base + 32), [uint32][math]::Round($MaxAngAccel * 100)),
   @(($base + 36), $speedMask),
+  @(($base + 40), [BitConverter]::ToUInt32([BitConverter]::GetBytes([int32][math]::Round($XMin * 100)), 0)),
+  @(($base + 44), [BitConverter]::ToUInt32([BitConverter]::GetBytes([int32][math]::Round($XMax * 100)), 0)),
+  @(($base + 48), [BitConverter]::ToUInt32([BitConverter]::GetBytes([int32][math]::Round($YAbs * 100)), 0)),
   @($base, $kMagic), @(($base + 4), $seq))
 Write-Ram32 $writes
 
-$ctrl = Read-Ram32 $base 10
+$ctrl = Read-Ram32 $base 13
 Show-Ctrl $ctrl
 if ($ctrl[0] -ne $kMagic -or $ctrl[3] -ne $TestId -or ($ctrl[1] -ne $seq -and $ctrl[2] -ne $seq)) {
   Write-Error "書いた値を読み戻せませんでした。ELF と書き込み済みの FW が同じか確かめてください"

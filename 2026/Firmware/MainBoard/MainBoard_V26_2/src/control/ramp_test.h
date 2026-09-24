@@ -104,6 +104,9 @@ typedef struct {
 
 extern RampRunResult ramp_result;  // 直近の1回ぶん
 
+// 速度別の測定の範囲 [m] (原点はスタート位置): x_min (負)〜x_max、y は ±y_abs。常識的な範囲に収まらない値は既定
+// (x: −1.0〜3.5、y: ±2.5) に戻す。各本の経路は、この範囲の端から 0.3m 内側に収まる位置から走る
+void RampTest_SetArea(float x_min, float x_max, float y_abs);
 // 最初からやり直せるようにする (開始の直前に呼ぶ)。speed_mask: RAMP_SPEED_* の組み合わせ (0 は RAMP_SPEED_V0)
 void RampTest_Reset(uint32_t speed_mask);
 // 制御周期ごとに呼ぶ。終わったら RAMP_FINISHED / RAMP_ABORTED を返す (出力は止めてある)

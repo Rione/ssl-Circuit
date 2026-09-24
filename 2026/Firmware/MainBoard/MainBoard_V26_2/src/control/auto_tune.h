@@ -51,6 +51,10 @@ typedef struct {
   uint32_t max_ang_accel_x100;  // S字の角加速度上限 [0.01 rad/s^2]
   // ランプ試験 (test_id=2) の速度の段 (RAMP_SPEED_* の組み合わせ。0 は低速だけ = 従来どおり)
   uint32_t ramp_speed_mask;
+  // ランプ試験の速度別の測定の範囲 [cm] (原点はスタート位置)。ramp_x_max_cm = 0 なら既定 (前 3.5m・後ろ 1.0m・左右 2.5m)
+  int32_t ramp_x_min_cm;  // 後ろ (負)
+  int32_t ramp_x_max_cm;  // 前
+  int32_t ramp_y_abs_cm;  // 左右 (片側)
 } AutoTuneCtrl;
 
 extern volatile AutoTuneCtrl autotune_ctrl;
