@@ -43,7 +43,8 @@ typedef struct {
   bool volt_traction_limited;         // 前周期に出力を縮めたか (電圧上限・トルク上限。ログ用)
   MAF maf[4];
   // 順運動学行列: 逆運動学 H (行 [-sinθi, cosθi, R]) の最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ
-  // 車輪線速度 [m/s] に掛けると [vx, vy, ω] が得られる
+  // 車輪線速度 [m/s] に掛けると [vx, vy, ω] が得られる (OmniDrive_GetVel/GetVelF共通で使う。
+  // BugFixブランチの ik_vx/vy/omega と同じ目的の値だが、force_alloc とあわせて一本化した)
   float fk[3][4];
   // 電圧制御の加減速ぶんとPIの補正を4輪に配る行列 [輪][x, y, ω] (fkᵀ を正規化した力の配分)
   float force_alloc[4][3];

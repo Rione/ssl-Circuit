@@ -24,7 +24,10 @@ void LocalController_Stop(LocalController* self, Robot* robot) {
 
   Robot_SendDribble(robot, 0, 0);
 
-  // 停止指示中でも慣性で一定速度以上動いている場合は、安全のためキック用コンデンサを放電する
+  // 停止指示中（E-Stop/信号ロスト）は速度条件によらず無条件でキック用コンデンサを放電する
+  Kicker_Discharge(&robot->kicker);
+
+  // 保険的な二重チェック: 停止指示中でも慣性で一定速度以上動いている場合は追加で放電を試みる
 
   int16_t vel_x, vel_y, vel_angular;
   OmniDrive_GetVel(&robot->omni_drive, &vel_x, &vel_y, &vel_angular);

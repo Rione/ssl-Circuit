@@ -30,7 +30,7 @@ void UI_Recv(UI* self, UiStatus* status) {
 }
 
 void UI_Send(UI* self, const struct Robot* robot) {
-  uint8_t send_data[4];
+  static uint8_t send_data[4];  // DMA送信中も有効な領域に置く
   send_data[0] = 0xFF;
   send_data[1] = robot->info.battery_voltage;
   send_data[2] = robot->info.kicker_status.cap_val;

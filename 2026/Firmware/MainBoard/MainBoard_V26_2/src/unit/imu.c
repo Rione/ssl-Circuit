@@ -69,14 +69,24 @@ void Imu_Update(Imu* self) {
 }
 
 // 1回分の測定: ジャイロ3軸と加速度xyをIMU_CALIB_SAMPLE_COUNT回サンプリングして平均する。
+// センサ異常でDRDYが立たない場合に永久ループしないよう、IMU_CALIB_TIMEOUT_MSで打ち切る
+// (打ち切ったときは実際に集まったサンプル数で平均する)。
 // 戻り値はジャイロ3軸の標準偏差の最大値 [dps] (測定中に機体が動いていないかの判定用)
 static float Imu_MeasureBias(Imu* self, float gyro_bias[3], float accel_bias[2]) {
   float sum[3] = {0.0f, 0.0f, 0.0f};
   float sum_sq[3] = {0.0f, 0.0f, 0.0f};
   float sum_a[2] = {0.0f, 0.0f};
-  for (uint16_t count = 0; count < IMU_CALIB_SAMPLE_COUNT;) {
+  uint32_t start_tick = HAL_GetTick();
+  uint16_t count = 0;
+  while (count < IMU_CALIB_SAMPLE_COUNT) {
     // 加速度だけの更新で読むと同じジャイロ値を二重に数えるため、ジャイロの更新を待つ
-    if (!Lsm6dso32_GyroDataReady(&self->sensor)) continue;
+    if (!Lsm6dso32_GyroDataReady(&self->sensor)) {
+      if ((HAL_GetTick() - start_tick) > IMU_CALIB_TIMEOUT_MS) {
+        printf("IMU Calibration Timeout (DRDY not ready), using %u samples\n", count);
+        break;
+      }
+      continue;
+    }
     Lsm6dso32_Update(&self->sensor);
     const float g[3] = {self->sensor.gyroX, self->sensor.gyroY, self->sensor.gyroZ};
     for (int i = 0; i < 3; i++) {
@@ -88,15 +98,21 @@ static float Imu_MeasureBias(Imu* self, float gyro_bias[3], float accel_bias[2])
     count++;
   }
 
+  if (count == 0) {
+    for (int i = 0; i < 3; i++) gyro_bias[i] = 0.0f;
+    for (int i = 0; i < 2; i++) accel_bias[i] = 0.0f;
+    return 999.0f;  // タイムアウトで1件も取れなければ「静止」判定させない大きな値を返す
+  }
+
   float max_std = 0.0f;
   for (int i = 0; i < 3; i++) {
-    gyro_bias[i] = sum[i] / IMU_CALIB_SAMPLE_COUNT;
-    float var = sum_sq[i] / IMU_CALIB_SAMPLE_COUNT - gyro_bias[i] * gyro_bias[i];
+    gyro_bias[i] = sum[i] / count;
+    float var = sum_sq[i] / count - gyro_bias[i] * gyro_bias[i];
     float std = sqrtf(var > 0.0f ? var : 0.0f);
     if (std > max_std) max_std = std;
   }
   for (int i = 0; i < 2; i++) {
-    accel_bias[i] = sum_a[i] / IMU_CALIB_SAMPLE_COUNT;
+    accel_bias[i] = sum_a[i] / count;
   }
   return max_std;
 }

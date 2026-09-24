@@ -5,6 +5,8 @@
 #include <stdio.h>
 
 #include "wheel_voltage.h"
+// BugFixブランチの OmniDrive_ComputeInverseKinematics (ik_vx/vy/omega) は、狙いが同じ
+// (車輪速度→機体速度の最小二乗疑似逆行列) だったため、下の fk/force_alloc に一本化した
 
 static void OmniDrive_MonitorRx(OmniDrive* self);
 
@@ -317,6 +319,10 @@ void OmniDrive_Send(OmniDrive* self, int16_t* m, uint8_t command) {
 
   // 1ms 経過するまで送信しない
   if (Timer_ReadMs(&timer) < 1) return;
+
+  // 前回のDMA送信が完了していない場合は送信できないため、タイマーを進めず
+  // 次ループで再送を試みる
+  if (self->serials[2]->huart->gState == HAL_UART_STATE_BUSY_TX) return;
   Timer_Reset(&timer);
 
 #if OMNI_TX_AVOID_HEADER_BYTE

@@ -14,6 +14,10 @@ void Dribbler_Send(Dribbler* self, uint8_t power, uint8_t force_send) {
     if (Timer_ReadMs(&self->send_timer) < DRIBBLER_SEND_INTERVAL_MS) return;
   }
 
+  // 送信メールボックスに空きがなければ送信できていないため、タイマー・power_prevを
+  // 更新せず次ループで再送を試みる
+  if (HAL_CAN_GetTxMailboxesFreeLevel(Can_GetHandle(self->can)) == 0) return;
+
   // 現状の仕様では0以外は最大出力にする
   uint8_t send_power = (power != 0) ? DRIBBLER_MAX_POWER : 0;
 

@@ -7,7 +7,7 @@
 
 #include "spi.h"
 
-uint16_t adc_val[1];
+volatile uint16_t adc_val[1];
 
 #define ADC2VOLT 0.008862304688f
 #define BATTERY_VOLTAGE_OFFSET 2.0f  // 実測とのズレを補正するオフセット
@@ -23,23 +23,30 @@ uint16_t adc_val[1];
 
 // STM32 → Rock5A 送信ペイロード中のIMUデータのスケール
 // (float実数値をint16に変換する際の倍率。Rock5A側では逆数を掛けて復元する)
-#define ROCK_SPI_ACCEL_SCALE 1000.0f      // [g]     -> int16 (1LSB = 1mg)
+#define ROCK_SPI_ACCEL_SCALE 1000.0f  // [g]     -> int16 (1LSB = 1mg)
 // ジャイロFS(±2000dps=約±34.9rad/s、imu.c参照)がint16(最大±32767)に収まるよう900に設定
 // (1000だと最大レンジで約±34907となりint16をオーバーフローするため)
-#define ROCK_SPI_YAW_RATE_SCALE 900.0f    // [rad/s] -> int16 (1LSB ≈ 0.00111rad/s)
-#define ROCK_SPI_YAW_SCALE 10000.0f       // [rad]   -> int16 (1LSB = 0.0001rad)
+#define ROCK_SPI_YAW_RATE_SCALE 900.0f  // [rad/s] -> int16 (1LSB ≈ 0.00111rad/s)
+#define ROCK_SPI_YAW_SCALE 10000.0f     // [rad]   -> int16 (1LSB = 0.0001rad)
 // SPI がこの時間(ms)完了もエラーもせず BUSY のまま固まったら強制リセットする。
 // ソフト NSS のスレーブはビットずれで「完了もエラーもしない BUSY ハング」に
 // 陥ることがあり、リセットしないと復帰しない。そのストール検出用。
 #define ROCK_SPI_STALL_TIMEOUT_MS 750U
+// この時間(ms)有効フレームを受信できなければ Rock5A との通信断とみなし、
+// is_signal_received を強制的にクリアする(Rock5Aクラッシュ等の検知用)。
+#define ROCK_SPI_SIGNAL_TIMEOUT_MS 300U
 
-// TX: ダブルバッファ (ISR が arm 中のバッファと main が更新する staging を分離)
+// TX/RX共にダブルバッファ (ISR が arm 中のバッファと main が読み書きするバッファを分離)
+// TXとRXは常に同じタイミングでフリップするため、arm indexを共用する。
 static uint8_t rock_spi_tx_buf[2][ROCK_SPI_FRAME_SIZE];
+static uint8_t rock_spi_rx_buf[2][ROCK_SPI_FRAME_SIZE];
 static volatile uint8_t rock_spi_tx_arm_idx = 0;
 
-static uint8_t rock_spi_rx_xfer[ROCK_SPI_FRAME_SIZE];        // 直近 1 トランザクション分
 static uint8_t rock_spi_rx_window[ROCK_SPI_RX_WINDOW_SIZE];  // 再同期用 2 フレーム分
 static volatile uint8_t rock_rx_ready = 0;
+// rock_rx_ready=1 の時点で、完了済みトランザクションのRXデータが入っている
+// rock_spi_rx_buf のインデックス(ISRがarm中でなく安全に読める側)。
+static volatile uint8_t rock_spi_rx_ready_idx = 0;
 static volatile uint8_t rock_rearm_pending = 0;
 
 static uint32_t rock_last_recv_tick = 0;
@@ -58,7 +65,7 @@ static inline void Robot_RockPackInt16(uint8_t* dst, int16_t val) {
 static void Robot_RockArm(void) {
   rock_spi_progress_tick = HAL_GetTick();
   if (HAL_SPI_TransmitReceive_IT(
-          &hspi2, rock_spi_tx_buf[rock_spi_tx_arm_idx], rock_spi_rx_xfer,
+          &hspi2, rock_spi_tx_buf[rock_spi_tx_arm_idx], rock_spi_rx_buf[rock_spi_tx_arm_idx],
           ROCK_SPI_FRAME_SIZE) != HAL_OK) {
     rock_rearm_pending = 1;
   }
@@ -67,10 +74,16 @@ static void Robot_RockArm(void) {
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef* hspi) {
   if (hspi->Instance != SPI2) return;
 
+  // 完了したトランザクションのRXバッファ(このインデックス)は、次のArmでは
+  // 使われなくなるのでメインループが安全に読み出せる。
+  rock_spi_rx_ready_idx = rock_spi_tx_arm_idx;
   rock_rx_ready = 1;
   rock_spi_tx_arm_idx = 1U - rock_spi_tx_arm_idx;
   Robot_RockArm();
 }
+
+// HAL_UART_ErrorCallback は src/app/app.c 側にあり (Serial_RestartRx で受信だけ再開、
+// wheel_rx_restart_count を更新)、ここには置かない (二重定義になるため)
 
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef* hspi) {
   if (hspi->Instance != SPI2) return;
@@ -105,9 +118,13 @@ static void Robot_RockApplyRecvPacket(RobotInfo* info, const uint8_t* data) {
   info->vel_y.h = data[3];
   info->vel_angular.l = data[4];
   info->vel_angular.h = data[5];
-  info->dribble_power = data[6];
-  info->kicker.straight = data[7] * 2.55;
-  info->kicker.chip = data[8] * 2.55;
+  // UIが手動制御中(is_locked)の間は、dribble_power/kicker/do_chargeをSPI受信値で
+  // 上書きしない(Robot_UpdateFromUiで設定したUI側の指示を優先する)
+  if (!info->ui_status.is_locked) {
+    info->dribble_power = data[6];
+    info->kicker.straight = (uint8_t)Constrain(data[7] * 2.55f, 0.0f, 255.0f);
+    info->kicker.chip = (uint8_t)Constrain(data[8] * 2.55f, 0.0f, 255.0f);
+  }
   info->relative_position_x.l = data[9];
   info->relative_position_x.h = data[10];
   info->relative_position_y.l = data[11];
@@ -116,7 +133,13 @@ static void Robot_RockApplyRecvPacket(RobotInfo* info, const uint8_t* data) {
   info->relative_theta.h = data[14];
   info->camera.x = data[15];
   info->camera.y = data[16];
-  info->status.data = data[17];
+  if (info->ui_status.is_locked) {
+    uint8_t do_charge = info->status.do_charge;
+    info->status.data = data[17];
+    info->status.do_charge = do_charge;
+  } else {
+    info->status.data = data[17];
+  }
 }
 
 static uint8_t* Robot_RockTxStaging(void) {
@@ -150,7 +173,7 @@ void Robot_Initialize(Robot* self) {
   DigitalOut_Init(&self->led1, LED1_GPIO_Port, LED1_Pin);
   DigitalOut_Init(&self->led2, LED2_GPIO_Port, LED2_Pin);
 
-  PwmOut_Init(&self->heart_beat, &htim1, TIM_CHANNEL_1);
+  PwmOut_Init(&self->heart_beat, &htim2, TIM_CHANNEL_2);
 
   DigitalOut_Write(&self->led0, 1);
   HAL_Delay(100);
@@ -203,14 +226,14 @@ void Robot_UpdateSensor(Robot* self) {
 
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst) {
   dst[0] = ROCK_SPI_HEADER;
-  dst[1] = info->battery_voltage * 10;
+  dst[1] = info->battery_voltage * 5;
   dst[2] = info->dribble_status.data;
   dst[3] = info->kicker_status.cap_val;
   int16_t wheel_scaled[4] = {
-      self->omni_drive.vel_wheel_angular[0] * 100,
-      self->omni_drive.vel_wheel_angular[1] * 100,
-      self->omni_drive.vel_wheel_angular[2] * 100,
-      self->omni_drive.vel_wheel_angular[3] * 100};
+      (int16_t)Constrain(self->omni_drive.vel_wheel_angular[0] * 100.0f, -32767.0f, 32767.0f),
+      (int16_t)Constrain(self->omni_drive.vel_wheel_angular[1] * 100.0f, -32767.0f, 32767.0f),
+      (int16_t)Constrain(self->omni_drive.vel_wheel_angular[2] * 100.0f, -32767.0f, 32767.0f),
+      (int16_t)Constrain(self->omni_drive.vel_wheel_angular[3] * 100.0f, -32767.0f, 32767.0f)};
   for (int i = 0; i < 4; i++) {
     Robot_RockPackInt16(&dst[4 + i * 2], wheel_scaled[i]);
   }
@@ -253,15 +276,30 @@ void Robot_RockUpdateSPI(Robot* self, RobotInfo* info) {
     Robot_RockArm();
   }
 
-  if (rock_rx_ready) {
-    rock_rx_ready = 0;
-    Robot_RockRxWindowPush(rock_spi_rx_xfer);
+  primask = __get_PRIMASK();
+  __disable_irq();
+  uint8_t rx_ready = rock_rx_ready;
+  uint8_t rx_idx = rock_spi_rx_ready_idx;
+  rock_rx_ready = 0;
+  if (primask == 0U) {
+    __enable_irq();
+  }
+
+  if (rx_ready) {
+    Robot_RockRxWindowPush(rock_spi_rx_buf[rx_idx]);
     int16_t payload_offset = Robot_RockFindFrame(rock_spi_rx_window, ROCK_SPI_RX_WINDOW_SIZE);
     if (payload_offset >= 0) {
       rock_last_recv_tick = HAL_GetTick();
       stall_logged = false;  // 受信成功したので次の切断時はまた1回だけログを出す
       Robot_RockApplyRecvPacket(info, &rock_spi_rx_window[payload_offset]);
     }
+  }
+
+  // Rock5Aクラッシュ等で有効フレームが一定時間来なくなった場合、
+  // 受信データが古いまま残っていても is_signal_received を強制的にクリアし、
+  // main_mode.cの停止判定を確実に発火させる。
+  if ((HAL_GetTick() - rock_last_recv_tick) > ROCK_SPI_SIGNAL_TIMEOUT_MS) {
+    info->status.is_signal_received = 0;
   }
 }
 
@@ -299,28 +337,50 @@ void Robot_SendDribble(Robot* self, uint8_t power, uint8_t force_send) {
 }
 
 static void Robot_KickIfTriggered(Kicker* kicker, uint8_t is_straight, uint8_t power,
-                                  uint8_t do_direct, uint8_t ball_detected_edge) {
+                                  uint8_t do_direct, uint8_t ball_detected_edge,
+                                  uint8_t value_changed) {
   if (power == 0) return;
-  if (do_direct && !ball_detected_edge) return;
+  // do_direct時はボールセンサ反応のエッジで発火、それ以外(即時キック指示)は
+  // 前回受信値からの変化がある場合のみ発火する(値が残ったままの自動再発火を防止)
+  if (do_direct) {
+    if (!ball_detected_edge) return;
+  } else if (!value_changed) {
+    return;
+  }
   Kicker_Kick(kicker, is_straight, power);
 }
 
 void Robot_SendKicker(Robot* self, RobotInfo* info) {
   static uint8_t prev_ball_detected = 0;
+  static uint8_t prev_chip_power = 0;
+  static uint8_t prev_straight_power = 0;
 
   uint8_t ball_detected = info->dribble_status.is_detected_ball;
   uint8_t ball_detected_edge = ball_detected && !prev_ball_detected;
+  uint8_t chip_changed = info->kicker.chip != prev_chip_power;
+  uint8_t straight_changed = info->kicker.straight != prev_straight_power;
 
-  if (!info->status.do_direct_straight && info->kicker.chip > 0) {
-    Robot_KickIfTriggered(&self->kicker, KICKER_CHIP, info->kicker.chip,
-                          info->status.do_direct_chip, ball_detected_edge);
+  // do_direct_straightとdo_direct_chipが同時にセットされるのはプロトコル違反だが、
+  // その場合に両方の分岐が抑制され完全に無反応になるのを避けるため、
+  // ストレートキックを優先する(チップ側は無効化する)
+  uint8_t do_direct_straight = info->status.do_direct_straight;
+  uint8_t do_direct_chip = info->status.do_direct_chip;
+  if (do_direct_straight && do_direct_chip) {
+    do_direct_chip = 0;
   }
-  if (!info->status.do_direct_chip && info->kicker.straight > 0) {
+
+  if (!do_direct_straight && info->kicker.chip > 0) {
+    Robot_KickIfTriggered(&self->kicker, KICKER_CHIP, info->kicker.chip,
+                          do_direct_chip, ball_detected_edge, chip_changed);
+  }
+  if (!do_direct_chip && info->kicker.straight > 0) {
     Robot_KickIfTriggered(&self->kicker, KICKER_STRAIGHT, info->kicker.straight,
-                          info->status.do_direct_straight, ball_detected_edge);
+                          do_direct_straight, ball_detected_edge, straight_changed);
   }
 
   prev_ball_detected = ball_detected;
+  prev_chip_power = info->kicker.chip;
+  prev_straight_power = info->kicker.straight;
 }
 
 void Robot_SendOmniDrive(Robot* self, RobotInfo* info, uint8_t interval) {
