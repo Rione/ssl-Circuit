@@ -35,6 +35,11 @@ $unstable = [BitConverter]::ToUInt16($b, 12)
 $abort = [BitConverter]::ToUInt16($b, 14)
 $mask = [BitConverter]::ToUInt32($b, 16)
 Write-Host ("ramp_result @0x{0:X8}: 走行 {1}、結果 = {2}、本数 = {3}、速度の段 mask = 0x{4:X2}、安全停止の理由 = {5}" -f $addr, $seq, $resultNames[[int]$result], $n, $mask, $abortNames[[int]$abort])
+if ([int]$abort -eq 4) {
+  $ast = (Read-Ram32 (Get-SymbolAddress $Elf "ramp_abort_status") 1)[0]
+  $abt = Read-RamBytes (Get-SymbolAddress $Elf "ramp_abort_batt") 2
+  Write-Host ("WheelUnit の異常で止めたときの状態バイト: ID1={0} ID2={1} ID3={2} ID4={3} (bit1: 電源電圧範囲外、bit2: 過熱)、電池 {4} V" -f ($ast -band 0xFF), (($ast -shr 8) -band 0xFF), (($ast -shr 16) -band 0xFF), (($ast -shr 24) -band 0xFF), [BitConverter]::ToUInt16($abt, 0))
+}
 if ($seq -eq 0 -or $n -eq 0) { Write-Host "記録がありません"; return }
 
 function Get-Phase([int]$o, [bool]$rot) {

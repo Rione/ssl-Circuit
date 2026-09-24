@@ -13,6 +13,12 @@
 RampRunResult ramp_result;
 FfStepResult ff_results[FF_RESULT_MAX];
 volatile uint16_t ff_result_count = 0;
+volatile uint32_t ramp_abort_status = 0;
+volatile uint16_t ramp_abort_batt = 0;
+// WheelUnit の状態バイトの異常 (bit1: 電源電圧範囲外、bit2: 過熱) が、この周期数 (1ms) 続いたら安全停止する。
+// 1フレームだけの異常 (受信の同期ずれで、状態バイトが化ける) で止まらないように (FF 試験の2回目が、原因が分からない
+// まま、始点への移動の最初に「WheelUnit の異常」で止まった)
+#define RAMP_STATUS_DEBOUNCE_CYCLES 20
 
 // ---- 試験の定数 ----
 // トルク上限のランプ (2026-09-24 の初回の結果で見直し、HANDOFF_AUTOTUNE.md 10.8・10.9)。
@@ -214,6 +220,7 @@ static struct {
   int sp_pos;
   float v0;                    // 今の1本の巡航の速度 [m/s] (低速の試験は 0)
   bool brake_only;             // 今の1本は、巡航のあと直接ブレーキ (ブレーキのみの試験)
+  int bad_status_n;            // WheelUnit の状態バイトの異常が続いている周期数
   bool ff;                     // 今の1本は FF 試験
   float ff_a_cmd;              // その指令の加速度 [m/s^2]
   float ff_t, ff_plateau_t;    // FF 試験: 経過時間、指令の加速度が立ち上がっている時間 [s]
@@ -775,7 +782,10 @@ RampTestStatus RampTest_Step(Robot* robot) {
     rt.v0 = 0.0f;
     rt.brake_only = false;
     rt.ff = false;
+    rt.bad_status_n = 0;
     ff_result_count = 0;
+    ramp_abort_status = 0;
+    ramp_abort_batt = 0;
     rt.pos_x = rt.pos_y = rt.heading = 0.0f;
     rt.phase = PH_START;
     rt.phase_t = 0.0f;
@@ -823,7 +833,17 @@ RampTestStatus RampTest_Step(Robot* robot) {
   bool moving_phase = (rt.phase == PH_RETURN || rt.phase == PH_GOTO || rt.phase == PH_XFER);
   if (!moving_phase && rt.phase_t > RAMP_PHASE_TIMEOUT_S) return Abort(od, 3);
   if ((rt.phase == PH_GOTO || rt.phase == PH_XFER) && rt.phase_t > RAMP_GOTO_TIMEOUT_S) return Abort(od, 3);
-  if (st & 0x06U) return Abort(od, 4);  // bit1: 電源電圧範囲外、bit2: 過熱
+  // bit1: 電源電圧範囲外、bit2: 過熱。RAMP_STATUS_DEBOUNCE_CYCLES 続いたときだけ止める。止めたときの状態を残す
+  if (st & 0x06U) {
+    if (++rt.bad_status_n >= RAMP_STATUS_DEBOUNCE_CYCLES) {
+      ramp_abort_status = (uint32_t)od->wheel_status[0] | ((uint32_t)od->wheel_status[1] << 8) |
+                          ((uint32_t)od->wheel_status[2] << 16) | ((uint32_t)od->wheel_status[3] << 24);
+      ramp_abort_batt = robot->info.battery_voltage;
+      return Abort(od, 4);
+    }
+  } else {
+    rt.bad_status_n = 0;
+  }
 
   DigitalOut_Write(&robot->led0, 1);
 

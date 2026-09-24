@@ -135,6 +135,11 @@ typedef struct {
   uint8_t valid;          // 1: 有効、0: 走らなかった (範囲不足) / 窓が短い
 } FfStepResult;
 
+// WheelUnit の異常 (状態バイトの bit1: 電源電圧範囲外、bit2: 過熱) で止めたときの、そのときの状態 (4輪の状態バイト、
+// 輪 i が (ramp_abort_status >> (8*i)) & 0xFF) と電池電圧 [V]。安全停止の原因を調べるための記録
+extern volatile uint32_t ramp_abort_status;
+extern volatile uint16_t ramp_abort_batt;
+
 extern FfStepResult ff_results[FF_RESULT_MAX];
 extern volatile uint16_t ff_result_count;
 

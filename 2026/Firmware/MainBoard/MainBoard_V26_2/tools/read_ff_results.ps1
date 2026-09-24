@@ -26,6 +26,13 @@ $addr = Get-SymbolAddress $Elf "ff_results"
 $countAddr = Get-SymbolAddress $Elf "ff_result_count"
 $n = [int](Read-Ram16 $countAddr)
 Write-Host ("ff_results @0x{0:X8}, 本数 = {1}" -f $addr, $n)
+try {
+  $ast = (Read-Ram32 (Get-SymbolAddress $Elf "ramp_abort_status") 1)[0]
+  if ($ast -ne 0) {
+    $abt = Read-RamBytes (Get-SymbolAddress $Elf "ramp_abort_batt") 2
+    Write-Host ("WheelUnit の異常で止めたときの状態バイト: ID1={0} ID2={1} ID3={2} ID4={3} (bit1: 電源電圧範囲外、bit2: 過熱)、電池 {4} V" -f ($ast -band 0xFF), (($ast -shr 8) -band 0xFF), (($ast -shr 16) -band 0xFF), (($ast -shr 24) -band 0xFF), [BitConverter]::ToUInt16($abt, 0))
+  }
+} catch { }
 if ($n -eq 0) { Write-Host "記録がありません"; return }
 $n = [math]::Min($n, $kMax)
 $b = Read-RamBytes $addr ($n * $kSize)
