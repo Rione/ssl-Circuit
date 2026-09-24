@@ -20,7 +20,7 @@ param(
   [double]$YAbs = 0,     # 左右 (片側)
   # 長方形のエリア [m] (長辺, 短辺)。例: -Rect 3.5,2.5。機体の中心を「エリアのど真ん中 (対角線の交点)」に、前を長辺に沿って置く
   # (範囲は、各端から 0.2m 内側: XMin=-(長辺/2-0.2), XMax=長辺/2-0.2, YAbs=短辺/2-0.2 を自動で入れる。-XMin/-XMax/-YAbs で上書きできる)
-  [double[]]$Rect = @(),
+  [string[]]$Rect = @(),   # powershell -File では "3.5,2.5" が1つの文字列になるので、文字列で受けてカンマで分ける
   # 速度別の測定を1回終えたら、機体が自分で範囲の真ん中へ移動し、右へ 90° 回って、範囲の縦横を入れ替えてもう一度繰り返す
   [switch]$Rotate,
   [string]$Elf,
@@ -47,12 +47,13 @@ Show-Ctrl $ctrl
 if ($Status) { return }
 
 # -Rect から範囲を求める (明示した -XMin/-XMax/-YAbs があればそちらを優先)
-if ($Rect.Count -eq 2) {
-  $long = $Rect[0]; $short = $Rect[1]
+$rectValues = @($Rect | ForEach-Object { $_ -split "," } | Where-Object { $_.Trim() -ne "" } | ForEach-Object { [double]$_.Trim() })
+if ($rectValues.Count -eq 2) {
+  $long = $rectValues[0]; $short = $rectValues[1]
   if ($XMin -eq 0) { $XMin = -[math]::Round($long / 2 - 0.2, 2) }
   if ($XMax -eq 0) { $XMax = [math]::Round($long / 2 - 0.2, 2) }
   if ($YAbs -eq 0) { $YAbs = [math]::Round($short / 2 - 0.2, 2) }
-} elseif ($Rect.Count -ne 0) { Write-Error "-Rect は 長辺,短辺 の2つの数 [m] (例: -Rect 3.5,2.5)"; exit 1 }
+} elseif ($rectValues.Count -ne 0) { Write-Error "-Rect は 長辺,短辺 の2つの数 [m] (例: -Rect 3.5,2.5)"; exit 1 }
 
 # 速度の段 → ビットの組み合わせ (ramp_test.h の RAMP_SPEED_*)
 $speedBits = @{ "0" = 0x01; "1" = 0x02; "1.5" = 0x04; "2" = 0x08; "3" = 0x10; "2d" = 0x20 }
