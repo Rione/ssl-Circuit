@@ -20,6 +20,11 @@ Timer discharge_timer;         // 放電ON/OFFトグルの経過時間計測用
 volatile bool is_kicking;      // キックパルス出力中フラグ
 volatile bool is_discharging;  // 放電中フラグ
 
+// CANで受けたチャージ/放電要求。ISRが後勝ちで上書きし、Kicker_Updateで消費する。
+typedef enum { KICKER_REQ_NONE, KICKER_REQ_CHARGE, KICKER_REQ_DISCHARGE } KickerReq;
+volatile KickerReq kicker_req;
+KickerReq kicker_mode;  // 最後に反映したチャージ/放電指示(キック後はこれに戻す)
+
 float boost_voltage;  // 最新の昇圧電圧 [V](app側からSetで更新)
 
 void Kicker_SetBoostVoltage(float voltage) { boost_voltage = voltage; }
@@ -36,10 +41,13 @@ void Kicker_Init() {
   Timer_Init(&discharge_timer);
   is_kicking = false;
   is_discharging = false;
+  kicker_req = KICKER_REQ_NONE;
+  kicker_mode = KICKER_REQ_NONE;
 }
 
 // ISRから呼ばれる。待たずにパルスを開始するだけ。
 void Kicker_Kick(int kickType, float power) {
+  if (kickType != 1 && kickType != 2) return;
   // 昇圧電圧が十分なときのみキックする(DONEはFAULTと区別できないため電圧で判定)
   if (boost_voltage < KICK_READY_VOLTAGE) return;
 
@@ -56,22 +64,58 @@ void Kicker_Kick(int kickType, float power) {
     case 2:  // チップキック
       PwmOut_Write(&kick2, duty);
       break;
-    default:
-      return;
   }
 
   Timer_Reset(&kick_timer);
   is_kicking = true;
 }
 
-// メインループから毎周期呼ぶ。規定時間が経過したらキック出力をOFFにする。
+// ISRから呼ばれる。要求を記録するだけで、実際の切り替えはKicker_Updateで行う。
+void Kicker_RequestCharge() { kicker_req = KICKER_REQ_CHARGE; }
+void Kicker_RequestDischarge() { kicker_req = KICKER_REQ_DISCHARGE; }
+
+// 充電を開始する。待ちを含むためメインループからのみ呼ぶ。
+static void Kicker_Charge() {
+  printf("Charge\n");
+  DigitalOut_Write(&lt_discharge, 0);
+  WaitUs(1000);
+
+  // CHARGEを一度確実にLowにしてからHighにし、Low->Highのトグルで
+  // LT3751のラッチ(DONE/FAULT)を解除して新しい充電サイクルを開始する。
+  DigitalOut_Write(&lt_charge, 0);
+  WaitUs(CHARGE_RESET_US);
+
+  // 待ちの間にキックが割り込んだ場合は充電を開始しない(キック後に自動で再チャージされる)
+  __disable_irq();
+  if (!is_kicking) DigitalOut_Write(&lt_charge, 1);
+  __enable_irq();
+}
+
+// メインループから毎周期呼ぶ。キックパルスの終了と、チャージ/放電要求の反映を行う。
+// ISR(Kicker_Kick)と出力ピンを取り合わないよう、判定と出力は割り込み禁止区間で行う。
 void Kicker_Update() {
+  KickerReq req = KICKER_REQ_NONE;
+
+  __disable_irq();
   if (is_kicking && Timer_ReadMs(&kick_timer) >= KICK_TIME_MS) {
     is_kicking = false;
-
-    Kicker_Charge();  // キック後は自動で再チャージを開始
+    // キック後はキック前の指示(充電/放電)に戻す(キック中に届いた要求があればそちらを優先)
+    if (kicker_req == KICKER_REQ_NONE) kicker_req = kicker_mode;
   }
-  if (is_kicking == false) {
+  if (!is_kicking) {  // キック中の要求は保留し、キック終了後に反映する
+    req = kicker_req;
+    kicker_req = KICKER_REQ_NONE;
+    if (req != KICKER_REQ_NONE) kicker_mode = req;
+
+    if (req == KICKER_REQ_CHARGE) {
+      is_discharging = false;
+    } else if (req == KICKER_REQ_DISCHARGE) {
+      if (!is_discharging) Timer_Reset(&discharge_timer);  // 放電開始時のみ周期をリセット
+      is_discharging = true;
+      DigitalOut_Write(&lt_charge, 0);
+      DigitalOut_Write(&lt_discharge, 1);
+    }
+
     if (is_discharging) {
       // DISCHARGE_TOGGLE_MSごとにduty ON/OFFを切り替え、ソレノイドを
       // ビヨンビヨンと振動させながら放電する。
@@ -84,28 +128,13 @@ void Kicker_Update() {
       PwmOut_Write(&kick2, 0);
     }
   }
-}
+  __enable_irq();
 
-void Kicker_Charge() {
-  printf("Charge\n");
-  DigitalOut_Write(&lt_discharge, 0);
-  PwmOut_Write(&kick1, 0);
-  PwmOut_Write(&kick2, 0);
-  is_discharging = false;
-  WaitUs(1000);
-
-  // CHARGEを一度確実にLowにしてからHighにし、Low->Highのトグルで
-  // LT3751のラッチ(DONE/FAULT)を解除して新しい充電サイクルを開始する。
-  DigitalOut_Write(&lt_charge, 0);
-  WaitUs(CHARGE_RESET_US);
-  DigitalOut_Write(&lt_charge, 1);
-}
-
-void Kicker_Discharge() {
-  printf("Discharge\n");
-  is_discharging = true;
-  DigitalOut_Write(&lt_charge, 0);
-  DigitalOut_Write(&lt_discharge, 1);
+  if (req == KICKER_REQ_CHARGE) {
+    Kicker_Charge();
+  } else if (req == KICKER_REQ_DISCHARGE) {
+    printf("Discharge\n");
+  }
 }
 
 bool Kicker_DoneCheck() {
