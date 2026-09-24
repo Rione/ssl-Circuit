@@ -13,6 +13,20 @@ volatile AutoTuneCtrl autotune_ctrl;
 #define AUTOTUNE_START_WAIT_MS 10000U
 // ブザーの確認 (test_id=6) の音を聞く時間 [ms]
 #define AUTOTUNE_BEEP_HOLD_MS 3000U
+// 動作パターンの連続走行 (test_id=7): 走行のあいだに止まる時間 [ms]、走行ごとの ka_lat
+#define AUTOTUNE_BATCH_PAUSE_MS 15000U
+static const float kBatchKaLat[] = {0.75f, 0.5f, 0.75f, 0.5f};
+#define BATCH_COUNT (sizeof(kBatchKaLat) / sizeof(kBatchKaLat[0]))
+static uint32_t batch_index = 0;
+static bool batch_pause = false;
+
+static void Batch_StartRun(void) {
+  volt_tune.ka_lat = volt_tune_base.ka_lat = kBatchKaLat[batch_index];
+  printf("# autotune: motion batch run %u/%u ka_lat=%d (x1000)\n", (unsigned)(batch_index + 1), (unsigned)BATCH_COUNT,
+         (int)(kBatchKaLat[batch_index] * 1000.0f));
+  LocalController_ResetMotionPattern(0, false);
+  batch_pause = false;
+}
 
 static uint32_t wait_start_tick = 0;
 
@@ -44,7 +58,8 @@ bool AutoTune_Poll(LocalController* lc, Robot* robot) {
       }
       if (autotune_ctrl.test_id != AUTOTUNE_TEST_MOTION_PATTERN &&
           autotune_ctrl.test_id != AUTOTUNE_TEST_RAMP &&
-          autotune_ctrl.test_id != AUTOTUNE_TEST_OPTIMIZE && autotune_ctrl.test_id != AUTOTUNE_TEST_BEEP) {
+          autotune_ctrl.test_id != AUTOTUNE_TEST_OPTIMIZE && autotune_ctrl.test_id != AUTOTUNE_TEST_BEEP &&
+          autotune_ctrl.test_id != AUTOTUNE_TEST_MOTION_BATCH) {
         printf("# autotune: bad test_id=%lu\n", (unsigned long)autotune_ctrl.test_id);
         AutoTune_Finish(AUTOTUNE_RESULT_BAD_TEST);
         return false;
@@ -95,6 +110,9 @@ bool AutoTune_Poll(LocalController* lc, Robot* robot) {
           RampTest_Reset(autotune_ctrl.ramp_speed_mask);
           printf("# autotune: ramp test speed_mask=0x%02lx\n", (unsigned long)autotune_ctrl.ramp_speed_mask);
         }
+      } else if (autotune_ctrl.test_id == AUTOTUNE_TEST_MOTION_BATCH) {
+        batch_index = 0;
+        Batch_StartRun();
       } else {
         LocalController_ResetMotionPattern(0, false);
       }
@@ -129,8 +147,23 @@ bool AutoTune_Poll(LocalController* lc, Robot* robot) {
         printf("# autotune: done (result=%lu)\n", (unsigned long)autotune_ctrl.result);
         return true;
       }
+      if (autotune_ctrl.test_id == AUTOTUNE_TEST_MOTION_BATCH && batch_pause) {
+        LocalController_Stop(lc, robot);
+        uint32_t paused = HAL_GetTick() - wait_start_tick;
+        DigitalOut_Write(&robot->led0, (paused / 1000) % 2 == 0);
+        if (paused >= AUTOTUNE_BATCH_PAUSE_MS) Batch_StartRun();
+        return true;
+      }
       LocalController_TestMotionPattern(lc, robot);
       MotionPatternStatus status = LocalController_GetMotionPatternStatus();
+      if (autotune_ctrl.test_id == AUTOTUNE_TEST_MOTION_BATCH && status == MOTION_PATTERN_FINISHED) {
+        OmniDrive_SetFree(&robot->omni_drive);
+        if (++batch_index < BATCH_COUNT) {
+          batch_pause = true;
+          wait_start_tick = HAL_GetTick();
+          return true;
+        }
+      }
       if (status == MOTION_PATTERN_RUNNING) return true;
       OmniDrive_SetFree(&robot->omni_drive);
       DigitalOut_Write(&robot->led0, 0);

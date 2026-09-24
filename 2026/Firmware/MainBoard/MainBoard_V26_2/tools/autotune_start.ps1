@@ -32,6 +32,7 @@ param(
   [switch]$Optimize,
   [switch]$NoSave,             # 合格しても保存しない
   [string]$Ref = "rel",        # 比の基準: rel (既定。前後は車輪、左右は IMU の左右/前後) / imu (IMU の絶対値) / wheel (車輪だけ)
+  [switch]$MotionBatch,        # 動作パターンを ka_lat 0.75, 0.5, 0.75, 0.5 で続けて4回 (test_id 7、走行のあいだ 15 秒止まる)
   [switch]$BeepTest,           # ブザーの確認 (test_id 6)
   [switch]$ClearSaved,         # 保存された調整値を消す (test_id 5)
   [string]$Elf,
@@ -45,7 +46,7 @@ if (-not $Elf) { $Elf = $script:StlinkDefaultElf }
 $kMagic = [uint32]0x41545331  # "ATS1" (AUTOTUNE_CTRL_MAGIC)
 $stateNames = @{ 0 = "IDLE"; 1 = "WAITING"; 2 = "RUNNING" }
 $resultNames = @{ 0 = "NONE"; 1 = "FINISHED"; 2 = "ABORTED (安全停止)"; 3 = "CANCELLED (Rock5A)"; 4 = "BAD_TEST" }
-if ($Optimize) { $TestId = 4 } elseif ($BeepTest) { $TestId = 6 } elseif ($ClearSaved) { $TestId = 5 }
+if ($Optimize) { $TestId = 4 } elseif ($BeepTest) { $TestId = 6 } elseif ($MotionBatch) { $TestId = 7 } elseif ($ClearSaved) { $TestId = 5 }
 [uint32]$optFlags = 0
 if ($Optimize -and -not $NoSave) { $optFlags = $optFlags -bor 1 }
 if ($Ref.ToLower() -eq "imu") { $optFlags = $optFlags -bor 2 } elseif ($Ref.ToLower() -eq "wheel") { $optFlags = $optFlags -bor 4 } elseif ($Ref.ToLower() -ne "rel") { Write-Error "-Ref は rel, imu, wheel のどれか"; exit 1 }

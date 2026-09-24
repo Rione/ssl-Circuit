@@ -22,6 +22,7 @@ typedef enum {
   AUTOTUNE_TEST_RAMP = 2,            // ランプ試験 (向きごとの滑り始め・限界を測る、ramp_test.h)
   AUTOTUNE_TEST_OPTIMIZE = 4,        // 自動最適化 (機体が試験をくり返して、値を更新・検証・保存する、optimizer.h)
   AUTOTUNE_TEST_CLEAR_SAVED = 5,     // フラッシュに保存された調整値を消す (IMU の較正値は残す)。待たずに実行
+  AUTOTUNE_TEST_MOTION_BATCH = 7,    // 動作パターンを、ka_lat を変えながら続けて走らせる (0.75, 0.5, 0.75, 0.5。比べるための試験)
   AUTOTUNE_TEST_BEEP = 6,            // ブザーの確認 (成功の音を鳴らす。走らない)
 } AutoTuneTestId;
 
