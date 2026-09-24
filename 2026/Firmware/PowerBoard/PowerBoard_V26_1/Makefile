@@ -84,7 +84,9 @@ Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_can.c \
 Core/Src/adc.c \
 Core/Src/dma.c \
 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c \
-Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c
+Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c \
+Core/Src/iwdg.c \
+Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_iwdg.c
 
 # ASM sources
 ASM_SOURCES =  \

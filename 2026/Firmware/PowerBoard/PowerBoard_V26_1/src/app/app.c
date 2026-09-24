@@ -54,6 +54,9 @@ void Setup() {
 
   DigitalIn_Init(&button, BUTTON_GPIO_Port, BUTTON_Pin);
 
+  if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST)) printf("Reset by IWDG\n");
+  __HAL_RCC_CLEAR_RESET_FLAGS();
+
   // ADCは無効状態で校正してから開始する(オフセット誤差の除去)
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_value, 3);
@@ -95,6 +98,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
 
 void MainApp() {
   while (1) {
+    HAL_IWDG_Refresh(&hiwdg);
+
     Kicker_SetBoostVoltage(GetBoostVoltage());  // 最新の昇圧電圧を渡す
     Kicker_Update();                            // キックパルスの終了処理(非ブロッキング)
 
