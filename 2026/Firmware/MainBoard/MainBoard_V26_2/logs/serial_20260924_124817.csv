@@ -1,0 +1,99 @@
+  try 1: GyroBias[dps] X:+0.283 Y:-0.073 Z:+0.160  std[dps] 0.034
+IMU Calibration Done  GyroBias[dps] X:+0.283 Y:-0.073 Z:+0.160  std[dps] 0.034
+                      AccelBias[g]  X:+0.0070 Y:+0.0167
+Robot Initialize Finish
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=2922
+# path_test vx=300 volt=-10,-9,8,10 tgt=0,0,0,0 meas=0,0,0,0
+# rx_stall wheel=0 t=2944 SR=0x00C0 CR3=0x0041 NDTR=1024 EN=1 RxState=0x22 Err=0x00
+# rx_stall wheel=1 t=2944 SR=0x00C0 CR3=0x0041 NDTR=1024 EN=1 RxState=0x22 Err=0x00
+# rx_stall wheel=2 t=2944 SR=0x00C0 CR3=0x0041 NDTR=1024 EN=1 RxState=0x22 Err=0x00
+# rx_stall wheel=3 t=2944 SR=0x00C0 CR3=0x0041 NDTR=1024 EN=1 RxState=0x22 Err=0x00
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=3322
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+Rock SPI stall detected (no master clock for 750ms), re-arming
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=3722
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=4122
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=4522
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=4922
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=5322
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=5722
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=6122
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=6522
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=6922
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=7322
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=7722
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=300 volt=-10,-9,9,10 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=8122
+# path_test vx=300 volt=-129,-124,104,133 tgt=-819,-707,707,819 meas=0,0,0,0
+# path_test vx=300 volt=-154,-145,125,157 tgt=-819,-707,707,819 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=8522
+# path_test vx=300 volt=-178,-166,146,182 tgt=-819,-707,707,819 meas=0,0,0,0
+# path_test vx=300 volt=-203,-187,167,206 tgt=-819,-707,707,819 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=8922
+# path_test vx=300 volt=-227,-208,188,231 tgt=-819,-707,707,819 meas=0,0,0,0
+# path_test vx=300 volt=-252,-229,210,255 tgt=-819,-707,707,819 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=9322
+# path_test vx=300 volt=-276,-250,230,279 tgt=-819,-707,707,819 meas=0,0,0,0
+# path_test vx=300 volt=-276,-250,230,279 tgt=-819,-707,707,819 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=9722
+# path_test vx=300 volt=-276,-250,230,279 tgt=-819,-707,707,819 meas=0,0,0,0
+# path_test vx=0 volt=-266,-241,221,269 tgt=-818,-706,706,818 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=10122
+# path_test vx=0 volt=-164,-141,141,163 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=-164,-141,141,163 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=10522
+# path_test vx=0 volt=-164,-141,141,163 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=-164,-141,141,163 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=10922
+# path_test vx=-300 volt=-124,-107,107,124 tgt=8,7,-7,-8 meas=0,0,0,0
+# path_test vx=-300 volt=-32,-16,33,27 tgt=819,707,-707,-819 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=11322
+# path_test vx=-300 volt=-7,5,11,3 tgt=819,707,-707,-819 meas=0,0,0,0
+# path_test vx=-300 volt=16,26,-9,-21 tgt=819,707,-707,-819 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=11722
+# path_test vx=-300 volt=41,47,-30,-45 tgt=819,707,-707,-819 meas=0,0,0,0
+# path_test vx=-300 volt=65,68,-51,-70 tgt=819,707,-707,-819 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=12122
+# path_test vx=-300 volt=90,89,-72,-94 tgt=819,707,-707,-819 meas=0,0,0,0
+# path_test vx=-300 volt=114,111,-93,-119 tgt=819,707,-707,-819 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=12522
+# path_test vx=-300 volt=139,132,-115,-143 tgt=819,707,-707,-819 meas=0,0,0,0
+# path_test vx=-300 volt=163,153,-136,-168 tgt=819,707,-707,-819 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=12922
+# path_test vx=0 volt=178,166,-149,-183 tgt=818,706,-706,-818 meas=0,0,0,0
+# path_test vx=0 volt=81,70,-70,-82 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=13322
+# path_test vx=0 volt=81,70,-70,-82 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=0 volt=81,70,-70,-82 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=13722
+# path_test vx=0 volt=81,70,-70,-82 tgt=0,0,0,0 meas=0,0,0,0
+# path_test vx=300 volt=70,61,-61,-71 tgt=0,0,0,0 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=14122
+# path_test vx=300 volt=-50,-55,35,53 tgt=-819,-707,707,819 meas=0,0,0,0
+# path_test vx=300 volt=-75,-77,57,78 tgt=-819,-707,707,819 meas=0,0,0,0
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=14522
+# path_test vx=300 volt=-99,-98,78,102 tgt=-819,-707,707,819 meas=0,0,0,0
+# path_test vx=300 volt=-124,-119,99,127 tgt=-819,-707,707,819 meas=0,0,0,0

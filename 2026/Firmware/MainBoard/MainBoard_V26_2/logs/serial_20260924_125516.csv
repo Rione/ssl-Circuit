@@ -1,0 +1,52 @@
+# path_test vx=300 volt=-9,-10,7,12 tgt=0,0,0,0 meas=-14,0,-16,3
+# rock_debug: estop=1 sig=0 vel=(0,0,0) last_valid_ms_ago=7
+# path_test   try 1: GyroBias[dps] X:+0.269 Y:-0.121 Z:+0.206  std[dps] 0.033
+IMU Calibration Done  GyroBias[dps] X:+0.269 Y:-0.121 Z:+0.206  std[dps] 0.033
+                      AccelBias[g]  X:-0.0024 Y:-0.0112
+Robot Initialize Finish
+# rock_debug: estop=0 sig=0 vel=(0,0,0) last_valid_ms_ago=2921
+# frames=1109,1071,875,1090 status=1,1,1,1
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=26,0,4,-16
+# rock_debug: estop=1 sig=0 vel=(0,0,0) last_valid_ms_ago=0
+# frames=2093,2056,1789,2074 status=1,1,1,1
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=-3,0,-29,8
+# frames=3072,3032,2825,3052 status=1,1,1,1
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=2,0,19,11
+# rock_debug: estop=1 sig=0 vel=(0,0,0) last_valid_ms_ago=0
+# frames=4051,4011,3740,4032 status=1,1,1,1
+# path_test vx=0 volt=-2,0,2,0 tgt=0,0,0,0 meas=33,0,-45,-9
+# frames=5032,4992,4551,5014 status=1,1,1,1
+# path_test vx=0 volt=-1,0,1,0 tgt=0,0,0,0 meas=26,0,-24,19
+# rock_debug: estop=1 sig=0 vel=(0,0,0) last_valid_ms_ago=1
+# frames=6015,5971,5469,5996 status=1,1,1,1
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=-1,0,8,-1
+# frames=6997,6952,6331,6978 status=1,1,1,1
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=-18,0,11,2
+# rx_stall wheel=2 t=4453 SR=0x00C0 CR3=0x0041 NDTR=920 EN=1 RxState=0x22 Err=0x00
+# rock_debug: estop=1 sig=0 vel=(0,0,0) last_valid_ms_ago=2
+# frames=7980,7932,7135,7962 status=1,1,1,1
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=-26,0,-22,4
+# frames=8962,8904,8032,8944 status=1,1,1,1
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=-2,0,-8,-11
+# rock_debug: estop=1 sig=0 vel=(0,0,0) last_valid_ms_ago=4
+# frames=9945,9884,8814,9925 status=1,1,1,1
+# path_test vx=0 volt=0,-7,-1,7 tgt=0,0,0,0 meas=13,0,1,-256
+# frames=10923,10860,9711,10903 status=1,1,1,1
+# path_test vx=0 volt=-1,0,0,0 tgt=0,0,0,0 meas=29,0,-8,12
+# rock_debug: estop=1 sig=0 vel=(0,0,0) last_valid_ms_ago=3
+# frames=11906,11841,10598,11884 status=1,1,1,1
+# path_test vx=0 volt=1,-1,-1,1 tgt=0,0,0,0 meas=-37,0,-8,-48
+# rx_stall wheel=2 t=5372 SR=0x00C0 CR3=0x0041 NDTR=549 EN=1 RxState=0x22 Err=0x00
+# frames=12888,12821,11364,12866 status=1,1,1,1
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=19,0,0,0
+# rock_debug: estop=1 sig=0 vel=(0,0,0) last_valid_ms_ago=4
+# frames=13871,13801,12279,13848 status=1,1,1,1
+# path_test vx=0 volt=1,0,-1,0 tgt=0,0,0,0 meas=-3,0,-8,-19
+# frames=14855,14782,13211,14830 status=1,1,1,1
+# path_test vx=0 volt=0,0,0,0 tgt=0,0,0,0 meas=26,0,-11,-19
+# rock_debug: estop=1 sig=0 vel=(0,0,0) last_valid_ms_ago=5
+# frames=15838,15762,14082,15812 status=1,1,1,1
+# path_test vx=0 volt=2,0,-2,0 tgt=0,0,0,0 meas=-38,0,1,-9
+# frames=16821,16743,14984,16792 status=1,1,1,1
+# path_test vx=0 volt=0,0,0,1 tgt=0,0,0,0 meas=39,0,-16,-34
+# rx_stall wheel=2 t=6368 SR=0x00C0 CR3=0x0041 NDTR=542 EN=1 RxState=0x22 Err=0x00
