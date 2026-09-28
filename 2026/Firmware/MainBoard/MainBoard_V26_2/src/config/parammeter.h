@@ -109,12 +109,13 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // ⚠ 実際に Rock5A (SPI) から指令を受けて走らせる確認はまだ行っていない。低速から確かめること
 #define ROBOT_USE_VOLTAGE_CONTROL 1
 
-// 1: Rock5A からの指令 (走行・キック・ドリブル) を受け付けない。自動チューニングが完成するまでの間、
-//    Rock5A を付けたままでも ST-Link から指示したテスト (auto_tune.c) が取り消されないようにする。
-//    Rock5A の緊急停止は、信号を受信していて emergency_stop=1 のときだけ、テストを取り消して止まる安全のために見続ける
-//    (信号が来ていない間は emergency_stop が常に1なので、それは見ない)。
-//    ⚠ 1 の間は Rock5A から機体を動かせない。試合・Rock5A での走行確認の前に 0 に戻すこと
-#define AUTOTUNE_IGNORE_ROCK_COMMANDS 1
+// 0 (既定、試合用): Rock5A の信号を受けている間は Rock5A の指令で動く (ST-Link から指示したテストは取り消される)。
+//    Rock5A の信号が無い間だけ、ST-Link から指示したテスト (auto_tune.c) が走る。
+// 1 (自動チューニングの開発用): Rock5A からの指令 (走行・キック・ドリブル) を受け付けない。Rock5A を付けたままでも
+//    ST-Link から指示したテストが取り消されないようにする。Rock5A の緊急停止は、信号を受信していて emergency_stop=1 の
+//    ときだけ、テストを取り消して止まる安全のために見続ける (信号が来ていない間は emergency_stop が常に1なので、それは見ない)。
+//    ⚠ 1 の間は Rock5A から機体を動かせない。2026-09-24〜28 の床の試験は 1 で行った
+#define AUTOTUNE_IGNORE_ROCK_COMMANDS 0
 
 // TCSテスト (LocalController_TestTCSAcceleration) の出力を電圧制御にするか (1: 電圧, 0: 速度モード)
 #define TEST_TCS_USE_VOLTAGE_CONTROL 1

@@ -6,10 +6,15 @@
 
 ## 0. 状態（2026-09-29 時点）
 - 作業ディレクトリ: `c:\src\GitHub\ssl-Circuit\2026\Firmware\MainBoard\MainBoard_V26_2`
-- ブランチ: **`FW/MainBoard_V26_2_tc`**、最新 `75199ae5`（push 済み。作業ツリーは clean）
+- ブランチ: **`FW/MainBoard_V26_2_tc`**（push 済み）。**このブランチの最新は Rock5A から動かせる**（`AUTOTUNE_IGNORE_ROCK_COMMANDS 0`、下記）
 - 機体のフラッシュ: 調整値の保存は**消去済み**（`-ClearSaved`）。IMU の較正値も**もともと保存されていない**（0x000 は全部 0xFF）。
 - 既定値（`src/config/parammeter.h`）: トルク上限 2.8 V、S字の加速度 5.0 m/s²、角加速度 38 rad/s²、`ka_lin` 0.5、`ka_lat` 0.5（**変更しない結論**、4章）。
-- ⚠ **試合の前に戻すもの**: `AUTOTUNE_IGNORE_ROCK_COMMANDS 1`（Rock5A の指令を無視する開発用の設定）を **0 に戻す**。`AUTOTUNE_LOAD_SAVED 1` のままだと、フラッシュに保存された調整値が試合でも使われる（今は何も保存されていない）。
+- **Rock5A から動かせる設定**: `src/config/parammeter.h` の **`AUTOTUNE_IGNORE_ROCK_COMMANDS` を 0 にした**（2026-09-29、Rock5A から動かせる FW としてこのブランチの最新を使えるように）。
+  - 0（今）: Rock5A の信号を受けている間は Rock5A の指令で動き、ST-Link から指示したテストは取り消される。**ST-Link のテストは、Rock5A の信号が来ていない（Rock5A を外す・止める）ときだけ走る。**
+  - 1（開発用）: Rock5A の指令を無視する。2026-09-24〜28 の床の試験はすべて 1 で行った。Rock5A を付けたまま ST-Link のテストを走らせたいときは、`parammeter.h` で 1 にして書き込む（コミットには 0 で戻す）。
+  - 設定の分岐は `src/mode/main_mode.c` の `MainMode_Loop`（`rock_commands_enabled`）。起動時に 1 なら UART に `# WORKAROUND: AUTOTUNE_IGNORE_ROCK_COMMANDS=1` と出る。
+  - 参考: 1 を入れる前の、Rock5A から動かせる最後のコミットは `6aee606e`（09-24 13:13。ST-Link のテストは無い）。Rock5A から動かせるようになった修正は `c648dc8c`（`FW/MainBoard_V26.2_BugFix`、`c3d9a08a` でマージ）。
+- ⚠ `AUTOTUNE_LOAD_SAVED 1` のままだと、フラッシュに保存された調整値が試合でも使われる（今は何も保存されていない）。
 
 ## 1. 目的と到達点
 - 目的: 電圧制御（疑似トルク制御）の4輪オムニの足回りの値を、**一度書き込んで ST-Link から開始を指示すれば、機体（MainBoard）が自分で試験をくり返し、値を更新し、検証し、合格ならフラッシュに保存する**ようにする。PC は最後に結果を読むだけ。区間や動きの追加は人、決めた変数の最適化は自動。
@@ -65,7 +70,7 @@
 | 5 | 保存された調整値を消す（IMU 較正は残す。すぐ実行） | `-ClearSaved` |
 | 6 | ブザーの確認（この機体では鳴らない） | `-BeepTest` |
 | 7 | 動作パターンを ka_lat 0.75→0.5→0.75→0.5 で連続4回（間に15秒停止。値は `auto_tune.c` の `kBatchKaLat` に固定） | `-MotionBatch` |
-- 状態を見るだけ: `-Status`。開始後 10 秒待つ（LED0 速い点滅）→ 走行。Rock5A の緊急停止（信号あり）で取り消し。
+- 状態を見るだけ: `-Status`。開始後 10 秒待つ（LED0 速い点滅）→ 走行。Rock5A の緊急停止（信号あり）で取り消し。**`AUTOTUNE_IGNORE_ROCK_COMMANDS 0` の今は、Rock5A の信号が来ていると取り消される（Rock5A を外すか止めてから）。**
 - 1回だけの上書き: `-TractionV`、`-MaxAccel`、`-MaxAngAccel`、`-KaLat`（終われば既定値に戻る）。
 ### 結果の読み出し
 - `tools\read_opt_results.ps1`（最適化: 走行ごとの ka・比・更新後の ka、結果、保存したか、今の `volt_tune`）
@@ -96,7 +101,7 @@
 3. PI（`kp_lin`、`ki_lin`）を速度のステップ応答で調整。
 4. 保存する変数を増やす（調整値のブロックの予約を使う。版を上げる）。
 5. 位置のずれ・IMU と車輪の食い違いの調査（テープの実測、将来は SSL-Vision）。
-6. 試合用に戻す: `AUTOTUNE_IGNORE_ROCK_COMMANDS 0`。Rock5A からの床の走行確認（`HANDOFF_VOLTAGE_CONTROL.md` 7章の6）。見つけた加速度の上限は Rock5A 側の経路計画にも反映する必要がある。
+6. Rock5A からの床の走行確認（`AUTOTUNE_IGNORE_ROCK_COMMANDS` は 0 にしてある）（`HANDOFF_VOLTAGE_CONTROL.md` 7章の6）。見つけた加速度の上限は Rock5A 側の経路計画にも反映する必要がある。
 
 ## 8. 主なファイル
 - `src/control/auto_tune.c/.h`（開始の入口）、`optimizer.c/.h`（自動最適化）、`ramp_test.c/.h`（ランプ・FF 試験、`PH_HOME`、`ff_drift`）、`motion_summary.c/.h`（動作パターンの区間の要約）、`local_controller.c`（動作パターン本体）、`traction_control.c`（S字・スリップ検知）
