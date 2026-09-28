@@ -1,5 +1,7 @@
 # 電圧制御の自動チューニング 引き継ぎ
 
+> **次のチャットは、まず [`HANDOFF_AUTOTUNE_NEXT.md`](HANDOFF_AUTOTUNE_NEXT.md)（2026-09-29 の状態・進め方・次にやること）を読む。** この文書は経緯と詳細。2章の「現状」は古い。
+
 最終更新: 2026-09-24　／　前提の文書: [`HANDOFF_VOLTAGE_CONTROL.md`](HANDOFF_VOLTAGE_CONTROL.md)（特に 5.8〜5.10、6章）
 
 ## 1. やりたいこと
