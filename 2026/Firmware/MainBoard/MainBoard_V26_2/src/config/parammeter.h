@@ -86,6 +86,11 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // 回転 I [V/(rad/s·s)]。0.4 では旋回の最後の3°を詰めるのに約2秒かかった (小さな指令だと摩擦を超えない)
 #define VEL_FB_KI_ANG 1.5f
 #define VEL_FB_I_MAX_V 2.0f  // 積分項の上限 [V] (ワインドアップ防止)
+// 積分を 0 へ戻す時定数 [s]。指令 0 の間は全軸、車輪は回るのに機体が回らない間は回転を戻す
+#define VEL_FB_I_DECAY_TAU_S 0.1f
+// 「回っていない」の判定: |車輪から出した ω| がこれを超え、ジャイロがその割合未満
+#define VEL_FB_ROT_STALL_ODOM 1.0f    // [rad/s]
+#define VEL_FB_ROT_STALL_RATIO 0.3f
 
 // 電圧制御のトルク上限 (トラクション制御): 各輪の電圧を、その輪の実際の回転数で転がり続ける電圧
 // ± VOLT_TRACTION_LIMIT_V に抑える (＝モータトルクの上限。超えるときは4輪を同じ比率で縮め、

@@ -84,6 +84,7 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   for (int k = 0; k < 3; k++) self->vel_fb_integral[k] = 0.0f;
   self->volt_saturated = false;
   self->volt_pi_saturated = false;
+  self->vel_fb_rot_stalled = false;
   self->volt_traction_limited = false;
 #if OMNI_TX_AVOID_HEADER_BYTE
   // 応急処置が入ったFWであることをログで確認できるようにする (引き継ぎ文書 5.4)
@@ -182,11 +183,25 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     // 積分: スリップ中 (オドメトリが当てにならない) は全軸止める。出力を縮めている間は並進を止める
     // (目標が実機より先に行って誤差が溜まり、加速の終わりで行き過ぎるのを防ぐ)。回転は、PIの分まで
     // 縮めたときだけ止める (向きを直す力を残しつつ、効かない間に溜まって後で振れるのを防ぐ)
-    if (!tcs->is_slipping) {
+    // 指令 0 の間 (上位の指令も S 字の後も 0) は全軸の積分を 0 へ戻す。回れない間 (浮かせた・押さえられた)
+    // に溜まった分が指令 0 の後も残り、車輪が 50〜60 rad/s で回り続けたため。
+    // 車輪は回るのに機体が回らない間は、回転の積分を足さずに 0 へ戻す (溜まると指令よりずっと速く回る)
+    bool cmd_zero = (vel_x == 0 && vel_y == 0 && vel_angle == 0) && fabsf(cmd_vx) < 1e-3f &&
+                    fabsf(cmd_vy) < 1e-3f && fabsf(cmd_omega) < 1e-3f;
+    bool rot_stalled = (imu != NULL) && fabsf(in.odom_omega) > VEL_FB_ROT_STALL_ODOM &&
+                       fabsf(meas_omega) < VEL_FB_ROT_STALL_RATIO * fabsf(in.odom_omega);
+    self->vel_fb_rot_stalled = rot_stalled;
+    const float decay = fmaxf(1.0f - dt / VEL_FB_I_DECAY_TAU_S, 0.0f);
+    if (cmd_zero) {
+      for (int k = 0; k < 3; k++) self->vel_fb_integral[k] *= decay;
+    } else if (rot_stalled) {
+      self->vel_fb_integral[2] *= decay;
+    }
+    if (!tcs->is_slipping && !cmd_zero) {
       const float ki[3] = {vt->ki_lin, vt->ki_lin, vt->ki_ang};
       for (int k = 0; k < 3; k++) {
         if (k < 2 && self->volt_saturated) continue;
-        if (k == 2 && self->volt_pi_saturated) continue;
+        if (k == 2 && (self->volt_pi_saturated || rot_stalled)) continue;
         self->vel_fb_integral[k] = Constrain(self->vel_fb_integral[k] + ki[k] * err[k] * dt,
                                              -vt->i_max_v, vt->i_max_v);
       }
@@ -327,6 +342,7 @@ void OmniDrive_SetFree(OmniDrive* self) {
   for (int k = 0; k < 3; k++) self->vel_fb_integral[k] = 0.0f;
   self->volt_saturated = false;
   self->volt_pi_saturated = false;
+  self->vel_fb_rot_stalled = false;
   self->volt_traction_limited = false;
   int16_t m[4] = {0, 0, 0, 0};
   OmniDrive_Send(self, m, 0);  // command: 0 (Free)
