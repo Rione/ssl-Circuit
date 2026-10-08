@@ -209,7 +209,11 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     //    IMUが無いとき (浮かせた確認) は center=0 とし、電圧上限だけで縮める
     bool use_traction_limit = (imu != NULL);
 
-    float center[4], ff_excess[4], pi_excess[4], allowed[4];
+    //  - 超える分に許す範囲は輪ごとに [lo, hi] (向きで別)。電圧上限は |center| を大きくする向きにだけ効く。
+    //    以前は両向きとも 4.9V − |center| にしていたため、空転などで center が 4.9V に届くと許す範囲が
+    //    0 になり、減速 (0V に近づける向き) も含めて全輪の FF・PI が0倍に縮められ、出力が center の
+    //    ままになって回り続けた (center は今の回転数を保つ電圧なので、自分では抜けられない)
+    float center[4], ff_excess[4], pi_excess[4], lo[4], hi[4];
     for (int i = 0; i < 4; i++) {
       // 加減速ぶんとPIの補正は、機体の加速度・補正を「力の配分」(force_alloc) で4輪に配る。
       // 以前は車輪の角加速度 (運動学) で配っていたため、左右は前後と同じ係数になり、1輪あたり約1.4倍の
@@ -228,26 +232,32 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
       }
       ff_excess[i] = WheelVoltage_Feedforward(i, target_wheel_angular[i]) + accel_volt - center[i];
       pi_excess[i] = a[0] * ux + a[1] * uy + a[2] * uw;
-      // 超える分に許す大きさ (電圧上限までの余裕と、トルク上限の小さい方)
-      allowed[i] = fmaxf(WHEEL_VOLT_MAX - fabsf(center[i]), 0.0f);
-      if (use_traction_limit) allowed[i] = fminf(allowed[i], vt->traction_limit_v);
+      // 超える分に許す範囲 (電圧上限までの余裕と、トルク上限の狭い方)。0 は必ず含める
+      // (center が上限ちょうどでも、超える分0なら出力は上限内に収まる)
+      hi[i] = fmaxf(WHEEL_VOLT_MAX - center[i], 0.0f);
+      lo[i] = fminf(-WHEEL_VOLT_MAX - center[i], 0.0f);
+      if (use_traction_limit) {
+        hi[i] = fminf(hi[i], vt->traction_limit_v);
+        lo[i] = fmaxf(lo[i], -vt->traction_limit_v);
+      }
     }
 
-    // 1) PI の分だけで上限を超える輪があれば、PI の分を縮める (このとき FF の分は0)
+    // 1) PI の分だけで範囲を超える輪があれば、PI の分を縮める (このとき FF の分は0)
     float pi_scale = 1.0f;
     for (int i = 0; i < 4; i++) {
-      float mag = fabsf(pi_excess[i]);
-      if (mag > allowed[i]) pi_scale = fminf(pi_scale, allowed[i] / mag);
+      float p = pi_excess[i];
+      if (p > hi[i]) pi_scale = fminf(pi_scale, hi[i] / p);
+      if (p < lo[i]) pi_scale = fminf(pi_scale, lo[i] / p);
     }
-    // 2) PI の分を残したうえで入れられる FF の分の最大の比率。|s·f + p| ≤ a を満たす s の上限
-    //    (|p| ≤ a なので s=0 は必ず満たす)
+    // 2) PI の分を残したうえで入れられる FF の分の最大の比率。lo ≤ s·f + p ≤ hi を満たす s の上限
+    //    (lo ≤ p ≤ hi なので s=0 は必ず満たす)
     float ff_scale = 1.0f;
     for (int i = 0; i < 4; i++) {
       float f = ff_excess[i];
       if (fabsf(f) < 1e-6f) continue;
       float p = pi_scale * pi_excess[i];
-      float hi = (f > 0.0f) ? (allowed[i] - p) / f : (-allowed[i] - p) / f;
-      ff_scale = fminf(ff_scale, hi);
+      float s_max = (f > 0.0f) ? (hi[i] - p) / f : (lo[i] - p) / f;
+      ff_scale = fminf(ff_scale, s_max);
     }
     ff_scale = fmaxf(ff_scale, 0.0f);
 
