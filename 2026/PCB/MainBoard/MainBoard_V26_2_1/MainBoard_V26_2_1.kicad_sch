@@ -10292,6 +10292,12 @@
 		(uuid "141ed900-06fb-4882-9aed-1a7683146498")
 	)
 	(junction
+		(at 316.23 212.09)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "15195005-fc32-41c8-b940-96b4ba068e1f")
+	)
+	(junction
 		(at 127 38.1)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -10688,12 +10694,6 @@
 		(uuid "b3e11d4b-5d0d-49af-b588-cd8a3670042d")
 	)
 	(junction
-		(at 316.23 212.09)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b9f5a7a7-acf7-4c55-ae78-5053de4635eb")
-	)
-	(junction
 		(at 350.52 312.42)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -10982,10 +10982,6 @@
 	(no_connect
 		(at 135.89 110.49)
 		(uuid "cc9dc237-ab2d-4a16-aab5-f2ae9ea34d5f")
-	)
-	(no_connect
-		(at 135.89 107.95)
-		(uuid "d919093f-b765-4a57-89aa-9bd22c96cfce")
 	)
 	(no_connect
 		(at 129.54 320.04)
@@ -11336,6 +11332,16 @@
 			(type default)
 		)
 		(uuid "10ff460d-dd1c-45ec-85d7-99a42d9e98a2")
+	)
+	(wire
+		(pts
+			(xy 316.23 212.09) (xy 316.23 217.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "11032b68-4969-4b80-ba1e-a460826e936a")
 	)
 	(wire
 		(pts
@@ -13349,16 +13355,6 @@
 	)
 	(wire
 		(pts
-			(xy 316.23 212.09) (xy 316.23 229.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "88a679cd-d725-4d60-a785-860c6920fb7e")
-	)
-	(wire
-		(pts
 			(xy 482.6 198.12) (xy 482.6 199.39)
 		)
 		(stroke
@@ -13796,6 +13792,16 @@
 			(type default)
 		)
 		(uuid "9cfa7657-7b2d-4585-a7f0-b7bf8bf8d31c")
+	)
+	(wire
+		(pts
+			(xy 316.23 224.79) (xy 316.23 229.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9e1bb401-251a-4a77-a105-131c32896623")
 	)
 	(wire
 		(pts
@@ -17334,17 +17340,17 @@
 	)
 	(global_label "STM_Audio"
 		(shape output)
-		(at 166.37 140.97 180)
+		(at 135.89 107.95 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "9126a175-f8cf-4886-bbc0-76993e8ef73f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 153.6483 140.97 0)
+			(at 148.6117 107.95 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -17352,7 +17358,7 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
 	)
@@ -21542,7 +21548,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "3f4380ed-1187-4052-ba55-874e9c3adf6d")
-		(property "Reference" "B5819W-TP"
+		(property "Reference" "B5819W-TP2"
 			(at 434.34 40.6399 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21564,7 +21570,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 431.8 41.91 0)
 			(hide yes)
 			(show_name no)
@@ -21628,7 +21634,7 @@
 		(instances
 			(project "MainBoard_V26_2_1"
 				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
-					(reference "B5819W-TP")
+					(reference "B5819W-TP2")
 					(unit 1)
 				)
 			)
@@ -25033,6 +25039,109 @@
 			(project "MainBoard_V26_2_1"
 				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
 					(reference "R16")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D")
+		(at 316.23 220.98 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "78a4b8ac-9de6-47d0-b942-3df64d9f70d4")
+		(property "Reference" "B5819W-TP1"
+			(at 301.752 217.932 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "D"
+			(at 312.42 220.472 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SOD-123"
+			(at 316.23 220.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 316.23 220.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Diode"
+			(at 316.23 220.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 316.23 220.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 316.23 220.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "09e458c6-0d98-479f-b6c8-c68ce2bf8dff")
+		)
+		(pin "1"
+			(uuid "a99419ec-8cb0-4338-91cc-92b05d9d8ba3")
+		)
+		(instances
+			(project "MainBoard_V26_2_1"
+				(path "/1e41cf15-e032-452e-b093-2e98e4f5d157"
+					(reference "B5819W-TP1")
 					(unit 1)
 				)
 			)
