@@ -38,6 +38,9 @@ typedef struct {
   float cmd_voltage[4];               // 直近に送った印加電圧 [V] (ログ用。速度モード中は0)
   // 電圧制御の機体速度PIの積分項 [V] (x, y: 並進、w: 回転。OmniDrive_SetFree で0に戻す)
   float vel_fb_integral[3];
+  // 並進の積分を指令の向きに合わせて回すための、前周期の指令の向き [rad] (has_cmd_dir が false なら無い)
+  float vel_fb_cmd_dir;
+  bool vel_fb_has_cmd_dir;
   bool volt_saturated;                // 前周期にどれかの輪の電圧が上限に張り付いたか (積分を止める)
   bool volt_pi_saturated;             // 前周期に PI の分まで縮めたか (回転の積分も止める)
   bool vel_fb_rot_stalled;            // 車輪は回るのに機体が回っていない (回転の積分を戻している)

@@ -91,6 +91,10 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // 「回っていない」の判定: |車輪から出した ω| がこれを超え、ジャイロがその割合未満
 #define VEL_FB_ROT_STALL_ODOM 1.0f    // [rad/s]
 #define VEL_FB_ROT_STALL_RATIO 0.3f
+// 並進の積分を指令の向きに合わせて回す (omni_drive.c)。指令の速さがこれ以下なら向きが定まらないので回さない [m/s]
+#define VEL_FB_I_ROT_MIN_SPEED 0.05f
+// 1 周期 (1 ms) に回す角度の上限 [rad]。回りながらの並進で要るのは ω·dt (ω 10 rad/s で 0.01 rad)
+#define VEL_FB_I_ROT_MAX_RAD 0.02f
 
 // 電圧制御のトルク上限 (トラクション制御): 各輪の電圧を、その輪の実際の回転数で転がり続ける電圧
 // ± VOLT_TRACTION_LIMIT_V に抑える (＝モータトルクの上限。超えるときは4輪を同じ比率で縮め、
