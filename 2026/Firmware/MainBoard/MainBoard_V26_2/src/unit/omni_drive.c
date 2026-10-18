@@ -208,10 +208,16 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
           if (d > kPi) d -= 2.0f * kPi;
           if (d < -kPi) d += 2.0f * kPi;
           d = Constrain(d, -VEL_FB_I_ROT_MAX_RAD, VEL_FB_I_ROT_MAX_RAD);
-          const float c = cosf(d), s = sinf(d);
-          const float ix = self->vel_fb_integral[0], iy = self->vel_fb_integral[1];
-          self->vel_fb_integral[0] = c * ix - s * iy;
-          self->vel_fb_integral[1] = s * ix + c * iy;
+          // 機体が回っていて (ジャイロ)、指令の向きがその回りと同じ向き (機体が左へ回れば機体の座標の
+          // 指令は右へ回る) に変わるときだけ回す。機体が回らずに指令の向きだけ変わる omni の脚の変わり目で
+          // 回すと、左の脚で溜めた横の積分が後ろ向きの脚の始めにほぼ 180° 回されて機体を右へ押した
+          // (lab 2026-10-18-fw-pi-rot-trace)。円 (機体の座標で一定の指令) は指令の向きが変わらないので回さない
+          if (fabsf(meas_omega) > VEL_FB_I_ROT_MIN_OMEGA && d * -meas_omega > 0.0f) {
+            const float c = cosf(d), s = sinf(d);
+            const float ix = self->vel_fb_integral[0], iy = self->vel_fb_integral[1];
+            self->vel_fb_integral[0] = c * ix - s * iy;
+            self->vel_fb_integral[1] = s * ix + c * iy;
+          }
         }
         self->vel_fb_cmd_dir = dir;
         self->vel_fb_has_cmd_dir = true;

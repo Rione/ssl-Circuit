@@ -95,6 +95,8 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define VEL_FB_I_ROT_MIN_SPEED 0.05f
 // 1 周期 (1 ms) に回す角度の上限 [rad]。回りながらの並進で要るのは ω·dt (ω 10 rad/s で 0.01 rad)
 #define VEL_FB_I_ROT_MAX_RAD 0.02f
+// 機体の回りの速さ (ジャイロ) がこれ以下なら並進の積分を回さない [rad/s] (omni の脚の変わり目で回さない)
+#define VEL_FB_I_ROT_MIN_OMEGA 0.3f
 
 // 電圧制御のトルク上限 (トラクション制御): 各輪の電圧を、その輪の実際の回転数で転がり続ける電圧
 // ± VOLT_TRACTION_LIMIT_V に抑える (＝モータトルクの上限。超えるときは4輪を同じ比率で縮め、
