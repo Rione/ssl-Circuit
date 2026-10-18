@@ -95,6 +95,11 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define VEL_FB_I_ROT_MIN_SPEED 0.05f
 // 1 周期 (1 ms) に回す角度の上限 [rad]。回りながらの並進で要るのは ω·dt (ω 10 rad/s で 0.01 rad)
 #define VEL_FB_I_ROT_MAX_RAD 0.02f
+// 実験だけ (ssl-RAVEN-Alula lab 2026-10-18-fw-pi-integral-log): 並進の積分 [V] を SPI の電池の電圧のバイト (iy) と
+// キッカーのコンデンサのバイト (ix) に詰めて送る。バイト = 128 + 積分 × 60 (±2 V → 8〜248)。
+// **電池の電圧とコンデンサの値は送られなくなる** (電池の警報は -no-battery-alarm で切ってある)。試合には使わない
+#define LAB_LOG_PI_INTEGRAL 1
+#define LAB_LOG_PI_SCALE 60.0f
 
 // 電圧制御のトルク上限 (トラクション制御): 各輪の電圧を、その輪の実際の回転数で転がり続ける電圧
 // ± VOLT_TRACTION_LIMIT_V に抑える (＝モータトルクの上限。超えるときは4輪を同じ比率で縮め、

@@ -229,6 +229,11 @@ static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst) 
   dst[1] = info->battery_voltage * 5;
   dst[2] = info->dribble_status.data;
   dst[3] = info->kicker_status.cap_val;
+#if LAB_LOG_PI_INTEGRAL
+  // 実験だけ: 電池の電圧のバイトに並進の積分の横 (iy)、コンデンサのバイトに前後 (ix) を詰める (parammeter.h)
+  dst[1] = (uint8_t)Constrain(128.0f + self->omni_drive.vel_fb_integral[1] * LAB_LOG_PI_SCALE, 0.0f, 255.0f);
+  dst[3] = (uint8_t)Constrain(128.0f + self->omni_drive.vel_fb_integral[0] * LAB_LOG_PI_SCALE, 0.0f, 255.0f);
+#endif
   int16_t wheel_scaled[4] = {
       (int16_t)Constrain(self->omni_drive.vel_wheel_angular[0] * 100.0f, -32767.0f, 32767.0f),
       (int16_t)Constrain(self->omni_drive.vel_wheel_angular[1] * 100.0f, -32767.0f, 32767.0f),
