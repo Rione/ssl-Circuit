@@ -82,7 +82,6 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   self->rx_monitor_started = false;
   self->use_voltage_control = false;
   for (int k = 0; k < 3; k++) self->vel_fb_integral[k] = 0.0f;
-  self->vel_fb_has_cmd_dir = false;
   self->volt_saturated = false;
   self->volt_pi_saturated = false;
   self->vel_fb_rot_stalled = false;
@@ -192,32 +191,19 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     bool rot_stalled = (imu != NULL) && fabsf(in.odom_omega) > VEL_FB_ROT_STALL_ODOM &&
                        fabsf(meas_omega) < VEL_FB_ROT_STALL_RATIO * fabsf(in.odom_omega);
     self->vel_fb_rot_stalled = rot_stalled;
-    // 並進の積分を、指令の向き (機体の座標) が回った分だけ回す。積分が打ち消すのは床の負荷など
-    // 進む向きにそろって要る分で、機体の座標で溜めたままだと、回りながら世界の座標で真っすぐ進む
-    // (機体の座標の指令が回り続ける) ときに積分が付いていけず、ファームのオドメトリで指令の
-    // 65% しか出なかった (ssl-RAVEN-Alula lab 2026-10-16-fw-pi-odom-view)。機体の座標で一定の
-    // 指令 (円を描く) では指令の向きが変わらないので、今までと同じになる。指令が小さい間は
-    // 向きが定まらないので回さず、1 周期に回す角度は VEL_FB_I_ROT_MAX_RAD までにする (反転で跳ねない)
+    // 並進の積分を、機体が回った角 (ジャイロ、無ければ車輪から出した ω) の分だけ逆に回し、世界の座標で
+    // 向きを保つ。回りながら世界の座標で真っすぐ進む (機体の座標の指令が回り続ける) ときに、機体の座標で
+    // 溜めたままだと積分が付いていけず、ファームのオドメトリで指令の 65% しか出なかった
+    // (ssl-RAVEN-Alula lab 2026-10-16-fw-pi-odom-view)。以前は指令の向きが回った分だけ回していたが、
+    // 機体が回らずに指令の向きだけ変わる (omni の脚の変わり目) ときも回してしまい、左の脚で溜めた横の
+    // 積分が後ろ向きの脚の始めにほぼ 180° 回されて機体を右へ押した (lab 2026-10-18-fw-pi-rot-trace)。
+    // 1 周期に回す角度は VEL_FB_I_ROT_MAX_RAD までにする (ジャイロの跳ねで積分が飛ばない)
     {
-      const float cmd_speed = sqrtf(cmd_vx * cmd_vx + cmd_vy * cmd_vy);
-      if (cmd_speed > VEL_FB_I_ROT_MIN_SPEED) {
-        const float dir = atan2f(cmd_vy, cmd_vx);
-        if (self->vel_fb_has_cmd_dir) {
-          const float kPi = 3.14159265f;  // -std=c11 では M_PI が無い
-          float d = dir - self->vel_fb_cmd_dir;
-          if (d > kPi) d -= 2.0f * kPi;
-          if (d < -kPi) d += 2.0f * kPi;
-          d = Constrain(d, -VEL_FB_I_ROT_MAX_RAD, VEL_FB_I_ROT_MAX_RAD);
-          const float c = cosf(d), s = sinf(d);
-          const float ix = self->vel_fb_integral[0], iy = self->vel_fb_integral[1];
-          self->vel_fb_integral[0] = c * ix - s * iy;
-          self->vel_fb_integral[1] = s * ix + c * iy;
-        }
-        self->vel_fb_cmd_dir = dir;
-        self->vel_fb_has_cmd_dir = true;
-      } else {
-        self->vel_fb_has_cmd_dir = false;
-      }
+      const float d = Constrain(-meas_omega * dt, -VEL_FB_I_ROT_MAX_RAD, VEL_FB_I_ROT_MAX_RAD);
+      const float c = cosf(d), s = sinf(d);
+      const float ix = self->vel_fb_integral[0], iy = self->vel_fb_integral[1];
+      self->vel_fb_integral[0] = c * ix - s * iy;
+      self->vel_fb_integral[1] = s * ix + c * iy;
     }
     const float decay = fmaxf(1.0f - dt / VEL_FB_I_DECAY_TAU_S, 0.0f);
     if (cmd_zero) {
@@ -368,7 +354,6 @@ void OmniDrive_SetFree(OmniDrive* self) {
     self->cmd_voltage[i] = 0.0f;
   }
   for (int k = 0; k < 3; k++) self->vel_fb_integral[k] = 0.0f;
-  self->vel_fb_has_cmd_dir = false;
   self->volt_saturated = false;
   self->volt_pi_saturated = false;
   self->vel_fb_rot_stalled = false;
