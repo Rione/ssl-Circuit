@@ -86,6 +86,11 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define VEL_FF_LOAD_X_V 0.38f
 #define VEL_FF_LOAD_Y_V 1.30f
 #define VEL_FF_LOAD_SPEED_W 0.1f
+// 剛体の回転の項の FF [V/(m/s^2)]。加速度の FF (ka_lin・ka_lat) は S 字の後の指令 (機体の座標) の微分だけで、
+// 機体が回るときに要る ω×v (機体の座標の速度を回し続ける向心の分) を欠く。円 (機体の座標で一定の指令 + 回転) では
+// PI がこの分を左右に 0.3〜0.5V 出し、回る向きと逆へ指令の約 2 割流れた。K·(−ω·vy, ω·vx) を足す
+// (K は円の記録の当てはめ、ssl-RAVEN-Alula lab 2026-10-19-fw-lat-ff-desk の F-095。理屈の値は ka の 0.5)
+#define VEL_FF_ROT_K 0.32f
 #define WHEEL_VOLT_MAX 4.9f        // 印加電圧の上限 [V] (WheelUnitは +5.0V ちょうどが1秒続くと出力を切る)
 
 // 電圧制御の機体速度フィードバック (PI)。機体の3自由度で誤差を計算し、逆運動学で4輪に配る

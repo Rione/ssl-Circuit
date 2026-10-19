@@ -257,7 +257,7 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     //    0 になり、減速 (0V に近づける向き) も含めて全輪の FF・PI が0倍に縮められ、出力が center の
     //    ままになって回り続けた (center は今の回転数を保つ電圧なので、自分では抜けられない)
     float center[4], ff_excess[4], pi_excess[4], lo[4], hi[4];
-    // 機体の座標の負荷分の FF (parammeter.h の VEL_FF_LOAD_*)。FF の分に入れるので、上限で先に縮む
+    // 機体の座標の負荷分と剛体の回転の項の FF (parammeter.h の VEL_FF_*)。FF の分に入れるので、上限で先に縮む
     float load_x = 0.0f, load_y = 0.0f;
 #if WHEEL_VOLT_USE_LOAD_FF
     {
@@ -266,6 +266,9 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
       load_y = VEL_FF_LOAD_Y_V * cmd_vy / sp;
     }
 #endif
+    // 剛体の回転の項 (parammeter.h の VEL_FF_ROT_K): 回りながらの並進に要る ω×v の分
+    load_x += -VEL_FF_ROT_K * cmd_omega * cmd_vy;
+    load_y += VEL_FF_ROT_K * cmd_omega * cmd_vx;
     for (int i = 0; i < 4; i++) {
       // 加減速ぶんとPIの補正は、機体の加速度・補正を「力の配分」(force_alloc) で4輪に配る。
       // 以前は車輪の角加速度 (運動学) で配っていたため、左右は前後と同じ係数になり、1輪あたり約1.4倍の
