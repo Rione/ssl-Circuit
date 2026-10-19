@@ -76,6 +76,16 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define WHEEL_VOLT_KA_ANG_BODY 0.0175f
 // 床の上の負荷分の電圧 (輪ごとの値は wheel_voltage.c) を足すか。浮かせて試すときは 0 にする
 #define WHEEL_VOLT_USE_LOAD_FF 1
+// 機体の座標の負荷分の FF [V] (WHEEL_VOLT_USE_LOAD_FF のときだけ)。上の車輪ごとの負荷分 (kLoadVolt) に足す。
+// 車輪ごとの負荷分は前後と左右を分けないが、床では左右に進むときだけ電圧が大きく足りず、速度の PI がそれを
+// 積分に溜めていた (回らない段差で P + 積分 = 前後 0.38·向き・左右 1.30·向き [V]、ssl-RAVEN-Alula lab
+// 2026-10-19-fw-lat-ff-desk の F-094)。溜めるのを待つので左右の立ち上がりが遅く (t50 0.8s、前後 0.2s)、
+// 溜まった積分は脚の変わり目で指令の向きと一緒に回されて機体を逆へ押した (同 2026-10-18-fw-pi-rot-trace)。
+// 指令 (TCS の後、機体の座標) の向きに、前後・左右それぞれの値を掛けて force_alloc で4輪に配る。
+// 指令が VEL_FF_LOAD_SPEED_W [m/s] より小さい間は速さに比例して小さくする (0 付近で向きが跳ねない)
+#define VEL_FF_LOAD_X_V 0.38f
+#define VEL_FF_LOAD_Y_V 1.30f
+#define VEL_FF_LOAD_SPEED_W 0.1f
 #define WHEEL_VOLT_MAX 4.9f        // 印加電圧の上限 [V] (WheelUnitは +5.0V ちょうどが1秒続くと出力を切る)
 
 // 電圧制御の機体速度フィードバック (PI)。機体の3自由度で誤差を計算し、逆運動学で4輪に配る

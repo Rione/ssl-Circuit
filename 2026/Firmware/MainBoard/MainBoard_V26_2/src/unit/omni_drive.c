@@ -257,6 +257,15 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     //    0 になり、減速 (0V に近づける向き) も含めて全輪の FF・PI が0倍に縮められ、出力が center の
     //    ままになって回り続けた (center は今の回転数を保つ電圧なので、自分では抜けられない)
     float center[4], ff_excess[4], pi_excess[4], lo[4], hi[4];
+    // 機体の座標の負荷分の FF (parammeter.h の VEL_FF_LOAD_*)。FF の分に入れるので、上限で先に縮む
+    float load_x = 0.0f, load_y = 0.0f;
+#if WHEEL_VOLT_USE_LOAD_FF
+    {
+      const float sp = fmaxf(sqrtf(cmd_vx * cmd_vx + cmd_vy * cmd_vy), VEL_FF_LOAD_SPEED_W);
+      load_x = VEL_FF_LOAD_X_V * cmd_vx / sp;
+      load_y = VEL_FF_LOAD_Y_V * cmd_vy / sp;
+    }
+#endif
     for (int i = 0; i < 4; i++) {
       // 加減速ぶんとPIの補正は、機体の加速度・補正を「力の配分」(force_alloc) で4輪に配る。
       // 以前は車輪の角加速度 (運動学) で配っていたため、左右は前後と同じ係数になり、1輪あたり約1.4倍の
@@ -273,7 +282,8 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
       if (use_traction_limit) {
         center[i] = WheelVoltage_Feedforward(i, self->vel_wheel_angular[i]);
       }
-      ff_excess[i] = WheelVoltage_Feedforward(i, target_wheel_angular[i]) + accel_volt - center[i];
+      ff_excess[i] = WheelVoltage_Feedforward(i, target_wheel_angular[i]) + accel_volt +
+                     a[0] * load_x + a[1] * load_y - center[i];
       pi_excess[i] = a[0] * ux + a[1] * uy + a[2] * uw;
       // 超える分に許す範囲 (電圧上限までの余裕と、トルク上限の狭い方)。0 は必ず含める
       // (center が上限ちょうどでも、超える分0なら出力は上限内に収まる)
