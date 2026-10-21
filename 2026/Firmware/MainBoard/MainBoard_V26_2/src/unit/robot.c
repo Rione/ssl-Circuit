@@ -41,6 +41,9 @@ volatile uint16_t adc_val[1];
 static uint8_t rock_spi_tx_buf[2][ROCK_SPI_FRAME_SIZE];
 static uint8_t rock_spi_rx_buf[2][ROCK_SPI_FRAME_SIZE];
 static volatile uint8_t rock_spi_tx_arm_idx = 0;
+#if LAB_LOG_WHEEL_VOLT
+static volatile uint32_t rock_spi_done_count = 0;  // 終わったトランザクションの数 (記録の輪の順番)
+#endif
 
 static uint8_t rock_spi_rx_window[ROCK_SPI_RX_WINDOW_SIZE];  // 再同期用 2 フレーム分
 static volatile uint8_t rock_rx_ready = 0;
@@ -78,6 +81,9 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef* hspi) {
   // 使われなくなるのでメインループが安全に読み出せる。
   rock_spi_rx_ready_idx = rock_spi_tx_arm_idx;
   rock_rx_ready = 1;
+#if LAB_LOG_WHEEL_VOLT
+  rock_spi_done_count++;
+#endif
   rock_spi_tx_arm_idx = 1U - rock_spi_tx_arm_idx;
   Robot_RockArm();
 }
@@ -224,9 +230,37 @@ void Robot_UpdateSensor(Robot* self) {
   Imu_Update(&self->imu);
 }
 
+#if LAB_LOG_WHEEL_VOLT
+// parammeter.h の LAB_LOG_WHEEL_VOLT の形で、次に送るトランザクションの 1 バイトを作る
+static uint8_t Robot_LabWheelVoltByte(Robot* self) {
+  static uint16_t word[4];
+  static uint32_t latched_round = 0xFFFFFFFFU;
+  const uint32_t n = rock_spi_done_count + 1U;  // このバッファは次のトランザクションで送られる
+  const uint32_t round = n / 12U;
+  const uint32_t slot = n % 12U;
+  if (round != latched_round) {
+    latched_round = round;
+    const OmniDrive* od = &self->omni_drive;
+    const float s = od->log_ff_scale;
+    const uint16_t ff = (s >= 0.999f) ? 3U : (s >= 0.67f) ? 2U : (s >= 0.33f) ? 1U : 0U;
+    for (int i = 0; i < 4; i++) {
+      int32_t v = (int32_t)lroundf(Constrain(od->cmd_voltage[i] / WHEEL_VOLT_MAX * 255.0f, -255.0f, 255.0f));
+      word[i] = (uint16_t)((((uint32_t)v & 0x1FFU) << 3) | (ff << 1) | (od->volt_pi_saturated ? 1U : 0U));
+    }
+  }
+  const uint32_t wheel = slot / 3U, phase = slot % 3U;
+  const uint8_t nib = (uint8_t)((word[wheel] >> (8U - 4U * phase)) & 0x0FU);
+  return (uint8_t)((wheel << 6) | (phase << 4) | nib);
+}
+#endif
+
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst) {
   dst[0] = ROCK_SPI_HEADER;
+#if LAB_LOG_WHEEL_VOLT
+  dst[1] = Robot_LabWheelVoltByte(self);
+#else
   dst[1] = info->battery_voltage * 5;
+#endif
   dst[2] = info->dribble_status.data;
   dst[3] = info->kicker_status.cap_val;
   int16_t wheel_scaled[4] = {

@@ -180,4 +180,11 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // 運用: 1 で書き込み → 静止させて起動し "saved to flash" を確認 → 0 に戻して書き込む
 #define IMU_CALIBRATE_ON_BOOT 0
 
+// 実験の記録 (ssl-RAVEN-Alula lab 2026-10-22-fw-wheel-volt-log-floor)。1 のとき、SPI の電池の電圧のバイト (dst[1]) で
+// 4 輪の印加電圧と FF・PI を縮めたかを送る (電池の電圧は送らない)。制御は変えない。
+// 送るたびに 1 バイト、12 回で 1 周: 周の始めに 4 輪の値を同時に取り、輪ごとに 12 bit を 4 bit ずつ 3 回で送る。
+//   バイト = [輪 2 bit][何回目 2 bit (0〜2)][4 bit]
+//   12 bit = [電圧 9 bit 2 の補数 (V ÷ 4.9 × 255)][FF の比率 2 bit (3: 0.999 以上・2: 0.67 以上・1: 0.33 以上・0: それ未満)][PI を縮めた 1 bit]
+#define LAB_LOG_WHEEL_VOLT 1
+
 #endif  // __PARAMMETER_H_

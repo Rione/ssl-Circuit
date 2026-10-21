@@ -324,10 +324,12 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     self->volt_saturated = (ff_scale < 0.999f) || (pi_scale < 0.999f);
     self->volt_pi_saturated = (pi_scale < 0.999f);
     self->volt_traction_limited = self->volt_saturated;
+    self->log_ff_scale = ff_scale;
     OmniDrive_Send(self, mv, 2);  // command: 2 (Voltage)
     return;
   }
   for (int i = 0; i < 4; i++) self->cmd_voltage[i] = 0.0f;
+  self->log_ff_scale = 1.0f;
 
   // 3. 出力整形・最大角速度クランプ
   int16_t m[4];
