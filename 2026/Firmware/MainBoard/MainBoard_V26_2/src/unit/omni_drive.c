@@ -87,6 +87,7 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   self->volt_pi_saturated = false;
   self->vel_fb_rot_stalled = false;
   self->volt_traction_limited = false;
+  self->volt_braking = false;
 #if OMNI_TX_AVOID_HEADER_BYTE
   // 応急処置が入ったFWであることをログで確認できるようにする (引き継ぎ文書 5.4)
   printf("# WORKAROUND: OMNI_TX_AVOID_HEADER_BYTE=1 (avoid 0xAA in WheelUnit TX data)\n");
@@ -295,6 +296,28 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
       }
     }
 
+    // 止めるときのトルク上限 (parammeter.h の VOLT_BRAKE_*): 並進で減速している間は、回っている向きと逆の
+    // 超える分を VOLT_BRAKE_LIMIT_V までにする (車輪を機体より先に止めて滑らせない)
+#if VOLT_BRAKE_LIMIT_ENABLE
+    if (use_traction_limit) {
+      const float odom_sp = sqrtf(in.odom_vx * in.odom_vx + in.odom_vy * in.odom_vy);
+      self->volt_braking = false;
+      if (odom_sp > VOLT_BRAKE_MIN_SPEED) {
+        const float cmd_along = (cmd_vx * in.odom_vx + cmd_vy * in.odom_vy) / odom_sp;
+        self->volt_braking = cmd_along < odom_sp - VOLT_BRAKE_MARGIN;
+      }
+      if (self->volt_braking) {
+        for (int i = 0; i < 4; i++) {
+          if (self->vel_wheel_angular[i] > VOLT_BRAKE_MIN_W) {
+            lo[i] = fmaxf(lo[i], -VOLT_BRAKE_LIMIT_V);
+          } else if (self->vel_wheel_angular[i] < -VOLT_BRAKE_MIN_W) {
+            hi[i] = fminf(hi[i], VOLT_BRAKE_LIMIT_V);
+          }
+        }
+      }
+    }
+#endif
+
     // 1) PI の分だけで範囲を超える輪があれば、PI の分を縮める (このとき FF の分は0)
     float pi_scale = 1.0f;
     for (int i = 0; i < 4; i++) {
@@ -383,6 +406,7 @@ void OmniDrive_SetFree(OmniDrive* self) {
   self->volt_pi_saturated = false;
   self->vel_fb_rot_stalled = false;
   self->volt_traction_limited = false;
+  self->volt_braking = false;
   int16_t m[4] = {0, 0, 0, 0};
   OmniDrive_Send(self, m, 0);  // command: 0 (Free)
 }

@@ -121,6 +121,19 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // 電圧制御のときのS字の角加速度上限 [rad/s^2] (速度モードの TCS_MAX_ANG_ACCEL=60 では回りすぎた)
 #define VOLT_MODE_MAX_ANG_ACCEL 38.0f
 
+// 止めるときのトルク上限 (電圧制御): 機体が並進で減速している間 (下の判定)、回っている向きと逆の「超える分」を
+// 各輪 VOLT_BRAKE_LIMIT_V までにする (上の VOLT_TRACTION_LIMIT_V 2.8V より小さく)。2.8V では止まり際に 4 輪とも
+// 機体より先に止まって逆に回り (車輪 −0.13m/s・機体 +0.2m/s)、機体は床の上を滑りながら止まっていた
+// (ssl-RAVEN-Alula lab 2026-10-21-fw-lat-stop-desk、F-130)。1.3V は「車輪はほぼ滑らず加減速 約2.5m/s²」の値
+// (VOLT_TRACTION_LIMIT_V の注釈)。減速の判定: オドメトリの並進の速さが VOLT_BRAKE_MIN_SPEED を超え、
+// 指令 (S 字の後) のその向きの成分がオドメトリの速さより VOLT_BRAKE_MARGIN 以上小さい (逆向きを含む)。
+// 輪の回転数が VOLT_BRAKE_MIN_W 以下の輪には掛けない (止まった輪を逆に回し始めるのは加速として扱う)
+#define VOLT_BRAKE_LIMIT_ENABLE 1
+#define VOLT_BRAKE_LIMIT_V 1.3f
+#define VOLT_BRAKE_MIN_SPEED 0.15f  // [m/s]
+#define VOLT_BRAKE_MARGIN 0.10f     // [m/s]
+#define VOLT_BRAKE_MIN_W 5.0f       // [rad/s]
+
 // 試合の経路 (Rock5A からの指令、Robot_SendOmniDrive) の出力を電圧制御にするか (1: 電圧, 0: 速度モード)。
 // 床のテスト (前後・左右・斜め・旋回、動作パターンのテスト) で確かめてから 1 にした。
 // Robot_SendOmniDrive は OmniDrive_SetControlMode と IMU 付きで OmniDrive_SetVelEx を呼んでおり、

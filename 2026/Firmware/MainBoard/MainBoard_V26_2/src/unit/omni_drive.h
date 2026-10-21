@@ -45,6 +45,7 @@ typedef struct {
   bool volt_pi_saturated;             // 前周期に PI の分まで縮めたか (回転の積分も止める)
   bool vel_fb_rot_stalled;            // 車輪は回るのに機体が回っていない (回転の積分を戻している)
   bool volt_traction_limited;         // 前周期に出力を縮めたか (電圧上限・トルク上限。ログ用)
+  bool volt_braking;                  // 止めるときのトルク上限を掛けている (parammeter.h の VOLT_BRAKE_*)
   MAF maf[4];
   // 順運動学行列: 逆運動学 H (行 [-sinθi, cosθi, R]) の最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ
   // 車輪線速度 [m/s] に掛けると [vx, vy, ω] が得られる (OmniDrive_GetVel/GetVelF共通で使う。
