@@ -11,6 +11,20 @@
 
 static void OmniDrive_MonitorRx(OmniDrive* self);
 
+// PI の分 (pi_scale 倍) を残したうえで入れられる FF の分の最大の比率 (0〜1)。lo ≤ s·f + p ≤ hi を満たす s の上限
+static float OmniDrive_FfScale(const float* ff_excess, const float* pi_excess, float pi_scale, const float* lo,
+                               const float* hi) {
+  float ff_scale = 1.0f;
+  for (int i = 0; i < 4; i++) {
+    float f = ff_excess[i];
+    if (fabsf(f) < 1e-6f) continue;
+    float p = pi_scale * pi_excess[i];
+    float s_max = (f > 0.0f) ? (hi[i] - p) / f : (lo[i] - p) / f;
+    ff_scale = fminf(ff_scale, s_max);
+  }
+  return fmaxf(ff_scale, 0.0f);
+}
+
 // 逆運動学 H (4x3, 行 [-sinθi, cosθi, R]) から最小二乗疑似逆行列 (HᵀH)⁻¹Hᵀ を求める。
 // 55°/135° 配置は Σsin²θ≠Σcos²θ, Σcosθ≠0 のため、単純な Σ/2 では vx が約17%過大になる
 static void OmniDrive_ComputeForwardKinematics(OmniDrive* self) {
@@ -304,15 +318,25 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     }
     // 2) PI の分を残したうえで入れられる FF の分の最大の比率。lo ≤ s·f + p ≤ hi を満たす s の上限
     //    (lo ≤ p ≤ hi なので s=0 は必ず満たす)
-    float ff_scale = 1.0f;
-    for (int i = 0; i < 4; i++) {
-      float f = ff_excess[i];
-      if (fabsf(f) < 1e-6f) continue;
-      float p = pi_scale * pi_excess[i];
-      float s_max = (f > 0.0f) ? (hi[i] - p) / f : (lo[i] - p) / f;
-      ff_scale = fminf(ff_scale, s_max);
+    float ff_scale = OmniDrive_FfScale(ff_excess, pi_excess, pi_scale, lo, hi);
+#if VOLT_LAT_SAT_GAIN_ENABLE
+    // 縮めるときは FF の分の左右 (機体の y) の成分を増やしてから縮め直す。横は前後の約半分しか効かず、
+    // 同じ比で縮めると斜めの道が前後の軸へ曲がるため (ssl-RAVEN-Alula lab 2026-10-22-fw-lat-dir-realloc-desk F-155)。
+    // 縮めの深さで増やし方をならす (比率 1 で 1 倍、1 − VOLT_LAT_SAT_RAMP 以下で VOLT_LAT_SAT_GAIN 倍)
+    if (use_traction_limit && ff_scale < 0.999f) {
+      const float g = 1.0f + (VOLT_LAT_SAT_GAIN - 1.0f) * fminf(1.0f, (1.0f - ff_scale) / VOLT_LAT_SAT_RAMP);
+      // FF の分の左右の成分 b_y = (Hᵀf)_y / Σsin²θ (force_alloc の左右の列で配った力に戻す)
+      float sum_sin2 = 0.0f, hy_f = 0.0f;
+      for (int i = 0; i < 4; i++) {
+        const float s = SinDeg(ROBOT_MOTOR_DEGREE[i]);
+        sum_sin2 += s * s;
+        hy_f += CosDeg(ROBOT_MOTOR_DEGREE[i]) * ff_excess[i];
+      }
+      const float b_y = hy_f / sum_sin2;
+      for (int i = 0; i < 4; i++) ff_excess[i] += (g - 1.0f) * b_y * self->force_alloc[i][1];
+      ff_scale = OmniDrive_FfScale(ff_excess, pi_excess, pi_scale, lo, hi);
     }
-    ff_scale = fmaxf(ff_scale, 0.0f);
+#endif
 
     int16_t mv[4];
     for (int i = 0; i < 4; i++) {

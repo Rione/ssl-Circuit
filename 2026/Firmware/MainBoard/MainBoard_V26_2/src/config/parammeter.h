@@ -115,6 +115,12 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // テストで 2.4V→3.2V と上げ、3.2V ではスリップが50〜87%まで増えた (セグメントによっては動いている
 // 時間の大半が空転)。速さと安定感のバランスを取り、間の 2.8V に落ち着けた
 #define VOLT_TRACTION_LIMIT_V 2.8f
+// 上限で FF を縮めるとき、FF の左右の成分を最大でこの倍率にしてから縮め直す (1 で今までどおり)。
+// 縮めの比率が 1 − VOLT_LAT_SAT_RAMP 以下で最大。斜めの道が前後の軸へ曲がるのを打ち消す
+// (ssl-RAVEN-Alula lab 2026-10-22-fw-lat-dir-realloc-desk: 力の向き 54° → 60.5° に要る tan 比 1.28)
+#define VOLT_LAT_SAT_GAIN_ENABLE 1
+#define VOLT_LAT_SAT_GAIN 1.28f
+#define VOLT_LAT_SAT_RAMP 0.2f
 // 電圧制御のときのS字加減速の加速度上限 [m/s^2] (速度モードの TCS_MAX_ACCEL=18 は実機で出ない)。
 // 目標が実機より先へ行きすぎないよう、出せる加速度に近い値にする。トルク上限 2.8V に合わせる
 #define VOLT_MODE_MAX_ACCEL 5.0f
