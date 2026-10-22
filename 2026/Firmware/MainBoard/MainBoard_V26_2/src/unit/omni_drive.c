@@ -16,8 +16,8 @@ static void OmniDrive_MonitorRx(OmniDrive* self);
 static void OmniDrive_ComputeForwardKinematics(OmniDrive* self) {
   float h[4][3];
   for (int i = 0; i < 4; i++) {
-    h[i][0] = -SinDeg(ROBOT_MOTOR_DEGREE[i]);
-    h[i][1] = CosDeg(ROBOT_MOTOR_DEGREE[i]);
+    h[i][0] = -ROBOT_MOTOR_SIN[i];
+    h[i][1] = ROBOT_MOTOR_COS[i];
     h[i][2] = ROBOT_WHEEL_BASE_RADIUS;
   }
 
@@ -164,11 +164,11 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
   float target_wheel_angular[4];
   for (int i = 0; i < 4; i++) {
     float v_wheel_linear =
-        -cmd_vx * SinDeg(ROBOT_MOTOR_DEGREE[i]) +
-        cmd_vy * CosDeg(ROBOT_MOTOR_DEGREE[i]) +
+        -cmd_vx * ROBOT_MOTOR_SIN[i] +
+        cmd_vy * ROBOT_MOTOR_COS[i] +
         ROBOT_WHEEL_BASE_RADIUS * cmd_omega;
 
-    target_wheel_angular[i] = v_wheel_linear / ROBOT_WHEEL_RADIUS;
+    target_wheel_angular[i] = v_wheel_linear / ROBOT_WHEEL_RADIUS_EACH[i];
     self->target_wheel_angular[i] = target_wheel_angular[i];  // ログ用 (クランプ前)
   }
 
@@ -535,7 +535,7 @@ static void OmniDrive_MonitorRx(OmniDrive* self) {
 void OmniDrive_GetVelF(const OmniDrive* self, float* vx, float* vy, float* omega) {
   float out[3] = {0.0f, 0.0f, 0.0f};
   for (int i = 0; i < 4; i++) {
-    float v_wheel_linear = self->vel_wheel_angular[i] * ROBOT_WHEEL_RADIUS;
+    float v_wheel_linear = self->vel_wheel_angular[i] * ROBOT_WHEEL_RADIUS_EACH[i];
     for (int r = 0; r < 3; r++) out[r] += self->fk[r][i] * v_wheel_linear;
   }
   *vx = out[0];

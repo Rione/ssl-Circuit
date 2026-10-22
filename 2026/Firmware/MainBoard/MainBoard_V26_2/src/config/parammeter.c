@@ -1,3 +1,13 @@
 #include "parammeter.h"
 
 const int16_t ROBOT_MOTOR_DEGREE[4] = {55, 135, -135, -55};
+#if LAB_GEOM_ALULA
+// geometry の wheelAnglesDeg 51.50・139.60・-139.11・-49.96 と wheelRadiusM (fl・bl・br・fr)
+const float ROBOT_MOTOR_SIN[4] = {0.7826082f, 0.6481199f, -0.6546089f, -0.7655955f};
+const float ROBOT_MOTOR_COS[4] = {0.6225146f, -0.7615383f, -0.7559677f, 0.6433223f};
+const float ROBOT_WHEEL_RADIUS_EACH[4] = {0.02235f, 0.02087f, 0.02216f, 0.02126f};
+#else
+const float ROBOT_MOTOR_SIN[4] = {0.8191520f, 0.7071068f, -0.7071068f, -0.8191520f};
+const float ROBOT_MOTOR_COS[4] = {0.5735764f, -0.7071068f, -0.7071068f, 0.5735764f};
+const float ROBOT_WHEEL_RADIUS_EACH[4] = {ROBOT_WHEEL_RADIUS, ROBOT_WHEEL_RADIUS, ROBOT_WHEEL_RADIUS, ROBOT_WHEEL_RADIUS};
+#endif

@@ -4,11 +4,22 @@
 #include <stdint.h>
 
 // 機体パラメータ
-#define ROBOT_WHEEL_RADIUS 0.03f        // 車輪半径[m]
+#define ROBOT_WHEEL_RADIUS 0.03f        // 車輪半径[m] (名目。運動学には下の ROBOT_WHEEL_RADIUS_EACH を使う)
+// 運動学の寸法を Alula の geometry (ssl-RAVEN-Alula config/geometry-racoon-53118.json、2026-10-02 に vision で実測した
+// 15 番機のオドメトリの有効値) にする実験 (ssl-RAVEN-Alula lab 2026-10-22-fw-geom-alula-floor)。0 で名目 (55°・135°・30 mm・75 mm)
+#define LAB_GEOM_ALULA 1
+#if LAB_GEOM_ALULA
+#define ROBOT_WHEEL_BASE_RADIUS 0.058f  // 車輪基底径[m] (geometry の momentArmM)
+#else
 #define ROBOT_WHEEL_BASE_RADIUS 0.075f  // 車輪基底径[m]
+#endif
 #define ROBOT_RADIUS 0.089f             // ロボット半径[m]
 
-extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角度[deg]
+extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角度[deg] (名目)
+// 運動学に使う取り付け角の sin・cos と車輪半径 [m] (輪ごと。parammeter.c、LAB_GEOM_ALULA で切り替え)
+extern const float ROBOT_MOTOR_SIN[4];
+extern const float ROBOT_MOTOR_COS[4];
+extern const float ROBOT_WHEEL_RADIUS_EACH[4];
 
 // 制御
 #define ROBOT_CONTROL_LOOP_DT_US 1000  // 制御ループ周期[us]
