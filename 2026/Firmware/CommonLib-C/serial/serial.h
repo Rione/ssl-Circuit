@@ -55,8 +55,13 @@ static inline void Serial_WriteByte(Serial* self, uint8_t data) {
   HAL_UART_Transmit_DMA(self->huart, &data, 1);
 }
 
-// 複数バイト送信
+// 複数バイト送信。送信 DMA を割り当てていない UART (hdmatx が NULL) は割り込みで送る。
+// どちらも送信が終わるまで data を書き換えないこと。
 static inline void Serial_Write(Serial* self, const uint8_t* data, uint16_t len) {
+  if (self->huart->hdmatx == NULL) {
+    HAL_UART_Transmit_IT(self->huart, (uint8_t*)data, len);
+    return;
+  }
   HAL_UART_Transmit_DMA(self->huart, (uint8_t*)data, len);
 }
 

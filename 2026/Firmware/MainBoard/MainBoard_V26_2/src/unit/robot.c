@@ -12,13 +12,14 @@ volatile uint16_t adc_val[1];
 #define ADC2VOLT 0.008862304688f
 #define BATTERY_VOLTAGE_OFFSET 2.0f  // 実測とのズレを補正するオフセット
 
-// フレーム構成: [ヘッダ0xFF][ペイロード19byte][フッタ0xAA] = 21byte
-// Rock5A マスターは 1 トランザクション 21byte。スレーブも 21byte で同期させる。
-// 再同期用に直近 2 フレーム分(42byte)のスライディングウィンドウを保持する。
+// フレーム構成: [ヘッダ0xFF][ペイロード38byte][フッタ0xAA] = 40byte
+// Rock5A マスターは 1 トランザクション 40byte。スレーブも 40byte で同期させる。
+// 再同期用に直近 2 フレーム分(80byte)のスライディングウィンドウを保持する。
+// 21byte (ペイロード19byte) の Wing とはつながらない。Wing も 40byte のものにすること (SPI_PROTOCOL.md)。
 #define ROCK_SPI_HEADER 0xFFU
 #define ROCK_SPI_FOOTER 0xAAU
-#define ROCK_SPI_PAYLOAD_SIZE 19U
-#define ROCK_SPI_FRAME_SIZE (ROCK_SPI_PAYLOAD_SIZE + 2U)  // ヘッダ+ペイロード+フッタ=21
+#define ROCK_SPI_PAYLOAD_SIZE 38U
+#define ROCK_SPI_FRAME_SIZE (ROCK_SPI_PAYLOAD_SIZE + 2U)  // ヘッダ+ペイロード+フッタ=40
 #define ROCK_SPI_RX_WINDOW_SIZE (ROCK_SPI_FRAME_SIZE * 2U)
 
 // STM32 → Rock5A 送信ペイロード中のIMUデータのスケール
@@ -28,6 +29,16 @@ volatile uint16_t adc_val[1];
 // (1000だと最大レンジで約±34907となりint16をオーバーフローするため)
 #define ROCK_SPI_YAW_RATE_SCALE 900.0f  // [rad/s] -> int16 (1LSB ≈ 0.00111rad/s)
 #define ROCK_SPI_YAW_SCALE 10000.0f     // [rad]   -> int16 (1LSB = 0.0001rad)
+// OmniDrive の電圧制御の値 (フレーム位置 20〜36)
+#define ROCK_SPI_VOLT_SCALE 1000.0f      // [V] -> int16 (1LSB = 1mV)。印加電圧と速度PIの積分
+#define ROCK_SPI_FF_SCALE_SCALE 255.0f   // FF に掛けた比率 0〜1 -> uint8 0〜255
+// フレーム位置 35 の bit
+#define ROCK_SPI_DRIVE_VOLT_SATURATED 0x01U        // volt_saturated
+#define ROCK_SPI_DRIVE_VOLT_PI_SATURATED 0x02U     // volt_pi_saturated
+#define ROCK_SPI_DRIVE_ROT_STALLED 0x04U           // vel_fb_rot_stalled
+#define ROCK_SPI_DRIVE_TRACTION_LIMITED 0x08U      // volt_traction_limited
+// フレーム位置 36: bit0〜2 が tcs.slip_flags (TCS_SLIP_*)、bit7 が tcs.is_slipping
+#define ROCK_SPI_TCS_SLIPPING 0x80U
 // SPI がこの時間(ms)完了もエラーもせず BUSY のまま固まったら強制リセットする。
 // ソフト NSS のスレーブはビットずれで「完了もエラーもしない BUSY ハング」に
 // 陥ることがあり、リセットしないと復帰しない。そのストール検出用。
@@ -36,7 +47,9 @@ volatile uint16_t adc_val[1];
 // is_signal_received を強制的にクリアする(Rock5Aクラッシュ等の検知用)。
 #define ROCK_SPI_SIGNAL_TIMEOUT_MS 300U
 
-// TX/RX共にダブルバッファ (ISR が arm 中のバッファと main が読み書きするバッファを分離)
+// 送受信は DMA (SPI2_RX: DMA1_Stream3、SPI2_TX: DMA1_Stream4)。1byte ごとの割り込みが無いので
+// SPI のクロックを上げても取りこぼさない (IT 方式では 1MHz で 1byte 取りこぼしていた)。
+// TX/RX共にダブルバッファ (DMA が arm 中のバッファと main が読み書きするバッファを分離)
 // TXとRXは常に同じタイミングでフリップするため、arm indexを共用する。
 static uint8_t rock_spi_tx_buf[2][ROCK_SPI_FRAME_SIZE];
 static uint8_t rock_spi_rx_buf[2][ROCK_SPI_FRAME_SIZE];
@@ -57,6 +70,11 @@ static volatile uint32_t rock_spi_progress_tick = 0;
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst);
 static uint8_t* Robot_RockTxStaging(void);
 
+// int16 に収まらない値は端に寄せる (そのままキャストすると符号が反転する)
+static inline int16_t Robot_RockToInt16(float v) {
+  return (int16_t)lroundf(Constrain(v, -32767.0f, 32767.0f));
+}
+
 static inline void Robot_RockPackInt16(uint8_t* dst, int16_t val) {
   dst[0] = (uint8_t)(val & 0xFF);
   dst[1] = (uint8_t)((val >> 8) & 0xFF);
@@ -64,7 +82,7 @@ static inline void Robot_RockPackInt16(uint8_t* dst, int16_t val) {
 
 static void Robot_RockArm(void) {
   rock_spi_progress_tick = HAL_GetTick();
-  if (HAL_SPI_TransmitReceive_IT(
+  if (HAL_SPI_TransmitReceive_DMA(
           &hspi2, rock_spi_tx_buf[rock_spi_tx_arm_idx], rock_spi_rx_buf[rock_spi_tx_arm_idx],
           ROCK_SPI_FRAME_SIZE) != HAL_OK) {
     rock_rearm_pending = 1;
@@ -146,15 +164,32 @@ static uint8_t* Robot_RockTxStaging(void) {
   return rock_spi_tx_buf[1U - rock_spi_tx_arm_idx];
 }
 
+// DMA のストリームを止めてフラグを落とす。割り込みを止めた中で呼ぶので
+// HAL_DMA_Abort (HAL_GetTick でタイムアウトを測る) は使わず、回数で打ち切る。
+static void Robot_RockStopDma(DMA_HandleTypeDef* hdma) {
+  __HAL_DMA_DISABLE_IT(hdma, DMA_IT_TC | DMA_IT_HT | DMA_IT_TE | DMA_IT_DME);
+  __HAL_DMA_DISABLE(hdma);
+  for (uint32_t i = 0; (hdma->Instance->CR & DMA_SxCR_EN) != 0U && i < 10000U; i++) {
+  }
+  __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_TC_FLAG_INDEX(hdma) | __HAL_DMA_GET_HT_FLAG_INDEX(hdma) |
+                                 __HAL_DMA_GET_TE_FLAG_INDEX(hdma) | __HAL_DMA_GET_DME_FLAG_INDEX(hdma) |
+                                 __HAL_DMA_GET_FE_FLAG_INDEX(hdma));
+  hdma->State = HAL_DMA_STATE_READY;
+  __HAL_UNLOCK(hdma);
+}
+
 // SPI2 を待ち時間なしで初期状態に戻す。
-// HAL_SPI_Abort は IT 転送中だと TXE/RXNE 割り込みで abort 用 ISR が走るのを
-// ビジーループで待つが、スレーブでマスタークロックが来ていないとその割り込みは
-// 永久に来ず、TX/RX それぞれ 100ms 相当のタイムアウトまで待ち切る (実測で約225ms
-// 制御ループが停止していた)。RCC でペリフェラルごとリセットすれば送信バッファの
+// HAL_SPI_Abort はスレーブでマスタークロックが来ていないと、転送の終わりを
+// タイムアウトまで待ち切る (IT 方式のときに実測で約225ms 制御ループが停止していた)。
+// DMA を止めてから RCC でペリフェラルごとリセットすれば、送信バッファの
 // 残りやビットずれも含めて確実に初期化でき、待ちも発生しない。
 static void Robot_RockResetSpi(void) {
   uint32_t primask = __get_PRIMASK();
   __disable_irq();
+  Robot_RockStopDma(hspi2.hdmarx);
+  Robot_RockStopDma(hspi2.hdmatx);
+  HAL_NVIC_ClearPendingIRQ(DMA1_Stream3_IRQn);
+  HAL_NVIC_ClearPendingIRQ(DMA1_Stream4_IRQn);
   __HAL_RCC_SPI2_FORCE_RESET();
   __HAL_RCC_SPI2_RELEASE_RESET();
   HAL_NVIC_ClearPendingIRQ(SPI2_IRQn);
@@ -243,6 +278,24 @@ static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst) 
   Robot_RockPackInt16(&dst[14], (int16_t)(self->imu.accel_y * ROCK_SPI_ACCEL_SCALE));
   Robot_RockPackInt16(&dst[16], (int16_t)(self->imu.yaw_rate * ROCK_SPI_YAW_RATE_SCALE));
   Robot_RockPackInt16(&dst[18], (int16_t)(self->imu.yaw_rad * ROCK_SPI_YAW_SCALE));
+
+  // OmniDrive の電圧制御の値 (毎周期そのまま。速度モード中は電圧・比率が 0・1)
+  const OmniDrive* od = &self->omni_drive;
+  for (int i = 0; i < 4; i++) {
+    Robot_RockPackInt16(&dst[20 + i * 2], Robot_RockToInt16(od->cmd_voltage[i] * ROCK_SPI_VOLT_SCALE));
+  }
+  for (int k = 0; k < 3; k++) {
+    Robot_RockPackInt16(&dst[28 + k * 2], Robot_RockToInt16(od->vel_fb_integral[k] * ROCK_SPI_VOLT_SCALE));
+  }
+  dst[34] = (uint8_t)lroundf(Constrain(od->log_ff_scale, 0.0f, 1.0f) * ROCK_SPI_FF_SCALE_SCALE);
+  dst[35] = (uint8_t)((od->volt_saturated ? ROCK_SPI_DRIVE_VOLT_SATURATED : 0U) |
+                      (od->volt_pi_saturated ? ROCK_SPI_DRIVE_VOLT_PI_SATURATED : 0U) |
+                      (od->vel_fb_rot_stalled ? ROCK_SPI_DRIVE_ROT_STALLED : 0U) |
+                      (od->volt_traction_limited ? ROCK_SPI_DRIVE_TRACTION_LIMITED : 0U));
+  dst[36] = (uint8_t)((od->tcs.slip_flags & (TCS_SLIP_GEOM | TCS_SLIP_ROT | TCS_SLIP_ACCEL)) |
+                      (od->tcs.is_slipping ? ROCK_SPI_TCS_SLIPPING : 0U));
+  dst[37] = 0;  // 予約
+  dst[38] = 0;  // 予約
 
   dst[ROCK_SPI_FRAME_SIZE - 1] = ROCK_SPI_FOOTER;
 }
