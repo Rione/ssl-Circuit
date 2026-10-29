@@ -36,7 +36,9 @@ volatile uint16_t adc_val[1];
 // is_signal_received を強制的にクリアする(Rock5Aクラッシュ等の検知用)。
 #define ROCK_SPI_SIGNAL_TIMEOUT_MS 300U
 
-// TX/RX共にダブルバッファ (ISR が arm 中のバッファと main が読み書きするバッファを分離)
+// 送受信は DMA (SPI2_RX: DMA1_Stream3、SPI2_TX: DMA1_Stream4)。1byte ごとの割り込みが無いので
+// SPI のクロックを上げても取りこぼさない (IT 方式では 1MHz で 1byte 取りこぼしていた)。
+// TX/RX共にダブルバッファ (DMA が arm 中のバッファと main が読み書きするバッファを分離)
 // TXとRXは常に同じタイミングでフリップするため、arm indexを共用する。
 static uint8_t rock_spi_tx_buf[2][ROCK_SPI_FRAME_SIZE];
 static uint8_t rock_spi_rx_buf[2][ROCK_SPI_FRAME_SIZE];
@@ -64,7 +66,7 @@ static inline void Robot_RockPackInt16(uint8_t* dst, int16_t val) {
 
 static void Robot_RockArm(void) {
   rock_spi_progress_tick = HAL_GetTick();
-  if (HAL_SPI_TransmitReceive_IT(
+  if (HAL_SPI_TransmitReceive_DMA(
           &hspi2, rock_spi_tx_buf[rock_spi_tx_arm_idx], rock_spi_rx_buf[rock_spi_tx_arm_idx],
           ROCK_SPI_FRAME_SIZE) != HAL_OK) {
     rock_rearm_pending = 1;
@@ -146,15 +148,32 @@ static uint8_t* Robot_RockTxStaging(void) {
   return rock_spi_tx_buf[1U - rock_spi_tx_arm_idx];
 }
 
+// DMA のストリームを止めてフラグを落とす。割り込みを止めた中で呼ぶので
+// HAL_DMA_Abort (HAL_GetTick でタイムアウトを測る) は使わず、回数で打ち切る。
+static void Robot_RockStopDma(DMA_HandleTypeDef* hdma) {
+  __HAL_DMA_DISABLE_IT(hdma, DMA_IT_TC | DMA_IT_HT | DMA_IT_TE | DMA_IT_DME);
+  __HAL_DMA_DISABLE(hdma);
+  for (uint32_t i = 0; (hdma->Instance->CR & DMA_SxCR_EN) != 0U && i < 10000U; i++) {
+  }
+  __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_TC_FLAG_INDEX(hdma) | __HAL_DMA_GET_HT_FLAG_INDEX(hdma) |
+                                 __HAL_DMA_GET_TE_FLAG_INDEX(hdma) | __HAL_DMA_GET_DME_FLAG_INDEX(hdma) |
+                                 __HAL_DMA_GET_FE_FLAG_INDEX(hdma));
+  hdma->State = HAL_DMA_STATE_READY;
+  __HAL_UNLOCK(hdma);
+}
+
 // SPI2 を待ち時間なしで初期状態に戻す。
-// HAL_SPI_Abort は IT 転送中だと TXE/RXNE 割り込みで abort 用 ISR が走るのを
-// ビジーループで待つが、スレーブでマスタークロックが来ていないとその割り込みは
-// 永久に来ず、TX/RX それぞれ 100ms 相当のタイムアウトまで待ち切る (実測で約225ms
-// 制御ループが停止していた)。RCC でペリフェラルごとリセットすれば送信バッファの
+// HAL_SPI_Abort はスレーブでマスタークロックが来ていないと、転送の終わりを
+// タイムアウトまで待ち切る (IT 方式のときに実測で約225ms 制御ループが停止していた)。
+// DMA を止めてから RCC でペリフェラルごとリセットすれば、送信バッファの
 // 残りやビットずれも含めて確実に初期化でき、待ちも発生しない。
 static void Robot_RockResetSpi(void) {
   uint32_t primask = __get_PRIMASK();
   __disable_irq();
+  Robot_RockStopDma(hspi2.hdmarx);
+  Robot_RockStopDma(hspi2.hdmatx);
+  HAL_NVIC_ClearPendingIRQ(DMA1_Stream3_IRQn);
+  HAL_NVIC_ClearPendingIRQ(DMA1_Stream4_IRQn);
   __HAL_RCC_SPI2_FORCE_RESET();
   __HAL_RCC_SPI2_RELEASE_RESET();
   HAL_NVIC_ClearPendingIRQ(SPI2_IRQn);
