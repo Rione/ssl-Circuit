@@ -4,7 +4,7 @@
 
 実装: [`src/unit/robot.c`](../src/unit/robot.c) の `Robot_RockBuildTxPacket`(送信) / `Robot_RockApplyRecvPacket`(受信)
 
-IMU(LSM6DSO32XTR)からの加速度・角速度・姿勢角をRock5Aへ送れるようにしたことに伴い、送信ペイロードが18→19byteに拡張された(2026-09時点の変更)。**Rock5A側もこのフレームサイズ変更に追従する必要がある。**
+OmniDrive の電圧制御の値 (輪ごとの印加電圧・速度 PI の積分・FF を縮めた比率・状態の bit・滑りの判定) を毎周期 Rock5A へ送るため、ペイロードを19→38byte、フレームを21→40byteに拡張した(2026-10)。**21byte の Wing / ファームとはつながらないので、MainBoard のファームと Wing は 40byte のもの同士にすること。**
 
 ---
 
@@ -25,15 +25,15 @@ IMU(LSM6DSO32XTR)からの加速度・角速度・姿勢角をRock5Aへ送れる
 ### フレームフォーマット
 
 ```
-[ヘッダ 0xFF][ペイロード 19byte][フッタ 0xAA]  = 21byte / トランザクション
+[ヘッダ 0xFF][ペイロード 38byte][フッタ 0xAA]  = 40byte / トランザクション
 ```
 
-- 送信(MainBoard→Rock5A)・受信(Rock5A→MainBoard)とも同じ21byteフレーム長で同期させる。
-- MainBoardはソフトウェア的にヘッダ/フッタを検査し、直近2フレーム分(42byte)のスライディングウィンドウから正しいフレーム位置を探して再同期する(`Robot_RockFindFrame`)。ビットずれで通信がハングした場合は750ms進捗が無いことを検出して強制的に再Armする(詳細は [`HANDOVER.md` 5.1](HANDOVER.md#51-rock5a--mainboard-spi2-slave) 参照)。
+- 送信(MainBoard→Rock5A)・受信(Rock5A→MainBoard)とも同じ40byteフレーム長で同期させる。
+- MainBoardはソフトウェア的にヘッダ/フッタを検査し、直近2フレーム分(80byte)のスライディングウィンドウから正しいフレーム位置を探して再同期する(`Robot_RockFindFrame`)。ビットずれで通信がハングした場合は750ms進捗が無いことを検出して強制的に再Armする(詳細は [`HANDOVER.md` 5.1](HANDOVER.md#51-rock5a--mainboard-spi2-slave) 参照)。
 
 ---
 
-## 2. 送信ペイロード (MainBoard → Rock5A) — 19byte
+## 2. 送信ペイロード (MainBoard → Rock5A) — 38byte
 
 フレーム全体でのバイト位置(0=ヘッダ)を基準に記載。
 
@@ -51,14 +51,26 @@ IMU(LSM6DSO32XTR)からの加速度・角速度・姿勢角をRock5Aへ送れる
 | 14–15 | 2 | `accel_y` | int16 LE | ×1000 | g | IMU加速度Y (機体左右方向、**新規**) |
 | 16–17 | 2 | `yaw_rate` | int16 LE | ×900 | rad/s | IMUジャイロZ(旋回方向の角速度、**新規**) |
 | 18–19 | 2 | `yaw_rad` | int16 LE | ×10000 | rad | Madgwickフィルタによる姿勢角yaw(**新規**、詳細は3節) |
-| 20 | 1 | (フッタ) | - | - | - | 固定値 `0xAA` |
+| 20–21 | 2 | `cmd_voltage[0]` | int16 LE | ×1000 | V | ホイール0に送った印加電圧(`OmniDrive.cmd_voltage`、速度モード中は0) |
+| 22–23 | 2 | `cmd_voltage[1]` | int16 LE | ×1000 | V | ホイール1 |
+| 24–25 | 2 | `cmd_voltage[2]` | int16 LE | ×1000 | V | ホイール2 |
+| 26–27 | 2 | `cmd_voltage[3]` | int16 LE | ×1000 | V | ホイール3 |
+| 28–29 | 2 | `vel_fb_integral[0]` | int16 LE | ×1000 | V | 機体速度PIの積分 x(並進、`OmniDrive.vel_fb_integral`) |
+| 30–31 | 2 | `vel_fb_integral[1]` | int16 LE | ×1000 | V | 同 y(並進) |
+| 32–33 | 2 | `vel_fb_integral[2]` | int16 LE | ×1000 | V | 同 w(回転) |
+| 34 | 1 | `ff_scale` | uint8 | ×255 | - | 上限でFFの分に掛けた比率(`OmniDrive.log_ff_scale`)。255=1(縮めていない)、速度モード中も255 |
+| 35 | 1 | `drive_status` | uint8 (bitfield) | - | - | `volt_saturated`(bit0) / `volt_pi_saturated`(bit1) / `vel_fb_rot_stalled`(bit2) / `volt_traction_limited`(bit3)。前周期の状態 |
+| 36 | 1 | `slip_status` | uint8 (bitfield) | - | - | bit0〜2: `tcs.slip_flags`(bit0:幾何拘束残差 / bit1:旋回残差 / bit2:加速度残差) / bit7: `tcs.is_slipping` |
+| 37–38 | 2 | (予約) | - | - | - | `0x00` |
+| 39 | 1 | (フッタ) | - | - | - | 固定値 `0xAA` |
 
 実値への変換はすべて `raw / スケール`。例: `accel_x` の raw値が `1234` なら `1234 / 1000 = 1.234g`。`yaw_rad` の raw値が `15708` なら `15708 / 10000 ≈ 1.5708rad`(≈90°)。
 
 ### 変更点 (旧プロトコルとの差分)
 
 - ペイロードが18byte→19byte、フレーム全体が20byte→21byteに拡張。
-- フレーム位置12〜18(旧仕様では未使用の0埋め領域7byte)を全て使い切り、IMUの4フィールド(8byte)を追加。予備領域は残していないため、今後フィールドを追加する場合はさらなるフレーム拡張が必要。
+- フレーム位置12〜18(旧仕様では未使用の0埋め領域7byte)を全て使い切り、IMUの4フィールド(8byte)を追加。
+- 2026-10: ペイロードが19byte→38byte、フレーム全体が21byte→40byteに拡張。フレーム位置20〜36にOmniDriveの電圧制御の値(17byte)を追加し、37〜38は予約。250kHzで1トランザクション約1.3ms。
 
 ---
 
@@ -76,7 +88,7 @@ IMU(LSM6DSO32XTR)からの加速度・角速度・姿勢角をRock5Aへ送れる
 
 ---
 
-## 4. 受信ペイロード (Rock5A → MainBoard) — 19byte
+## 4. 受信ペイロード (Rock5A → MainBoard) — 38byte
 
 参考として、送信側と対になる受信フォーマットも記載する(今回のIMU対応による変更はなし)。使用実装は `Robot_RockApplyRecvPacket`。
 
@@ -96,7 +108,7 @@ IMU(LSM6DSO32XTR)からの加速度・角速度・姿勢角をRock5Aへ送れる
 | 17 | 1 | `camera.y` | uint8 | - | - | (同上) |
 | 18 | 1 | `status` | uint8 (bitfield) | - | - | bit0:`emergency_stop` / bit1:`do_direct_straight` / bit2:`do_direct_chip` / bit3:予約 / bit4:`do_charge` / bit5:`is_signal_received` / bit6:`is_ctrl_by_robot` / bit7:`parity` |
 
-受信側はフレーム位置1〜18(payload先頭18byte)のみを使用し、payload末尾1byte(フレーム位置19)は未使用(予約、`0x00`を送信すること)。送受信フレーム長は21byteで揃える必要がある点に注意。
+受信側はフレーム位置1〜18(payload先頭18byte)のみを使用し、フレーム位置19〜38は未使用(予約、`0x00`を送信すること)。送受信フレーム長は40byteで揃える必要がある点に注意。
 
 ---
 
@@ -106,4 +118,5 @@ IMU(LSM6DSO32XTR)からの加速度・角速度・姿勢角をRock5Aへ送れる
 |---|---|
 | 2026-09 | IMU(加速度xy・角速度yaw・Madgwickフィルタ姿勢yaw)を送信ペイロードに追加。ペイロード18byte→19byte、フレーム20byte→21byteに拡張。 |
 | 2026-09 | `yaw_rate`/`yaw_rad`の単位をdps/degからrad/s/radに変更(コード全体でradに統一する方針のため)。スケールは `yaw_rate` ×10→×1000、`yaw_rad`(旧`yaw_deg`) ×100→×10000に変更。バイト位置・サイズに変更なし。 |
+| 2026-10 | OmniDriveの電圧制御の値(印加電圧×4・速度PIの積分×3・FFの比率・状態のbit・滑りの判定)を送信ペイロードに追加。ペイロード19byte→38byte、フレーム21byte→40byteに拡張(受信側は予約が増えただけ)。 |
 | 2026-09 | ジャイロレンジを±500dps→±2000dpsに変更(`ROBOT_MAX_ANG_VEL`超過による飽和で高速回転時にyawが追従しなくなる不具合の修正)。それに伴い`yaw_rate`のスケールを×1000→×900に変更(int16オーバーフロー回避)。 |

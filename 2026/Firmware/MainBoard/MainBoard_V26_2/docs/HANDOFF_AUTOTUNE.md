@@ -57,7 +57,7 @@
   - デコード: t_ms u16 @0, tag u8 @2, slip u8 @3, int16 ×23 @4..48, rx_stall u8 @50, rx_restart u16 @52, 電圧 int16 ×4 @54..60（×0.01V）
   - → 上の手順は `tools/read_tcs_log.ps1` にまとめた（10.3）。
   - 過去の走行: `docs/data/motion_pattern_*.csv`、`logs/motion_*_ram.csv`（`logs/` は git 対象外）
-- MainBoard → Rock5A の SPI（`docs/SPI_PROTOCOL.md`）: 1ms ごとに **4輪の実角速度と IMU（加速度 xy・ヨー角速度・姿勢 yaw）、電池電圧**を送っている。Rock5A → MainBoard は機体速度 (vx, vy, ω) とキック等。**フレーム（21 byte）に空きは無い。**
+- MainBoard → Rock5A の SPI（`docs/SPI_PROTOCOL.md`）: 1ms ごとに **4輪の実角速度と IMU（加速度 xy・ヨー角速度・姿勢 yaw）、電池電圧**と、OmniDrive の電圧制御の値 (輪ごとの印加電圧・速度 PI の積分・FF の比率・状態の bit・滑りの判定) を送っている。Rock5A → MainBoard は機体速度 (vx, vy, ω) とキック等。フレームは 2026-10 に 40 byte に拡張し、予約が 2 byte ある。
 - UI シリアル（`Robot_UpdateFromUi`）はドリブル・キック・充電の指示だけ。パラメータを書き換えるコマンドは無い。
 - ボタン・DIP スイッチの入力は MainBoard のコードに無い。
 

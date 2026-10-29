@@ -12,13 +12,14 @@ volatile uint16_t adc_val[1];
 #define ADC2VOLT 0.008862304688f
 #define BATTERY_VOLTAGE_OFFSET 2.0f  // 実測とのズレを補正するオフセット
 
-// フレーム構成: [ヘッダ0xFF][ペイロード19byte][フッタ0xAA] = 21byte
-// Rock5A マスターは 1 トランザクション 21byte。スレーブも 21byte で同期させる。
-// 再同期用に直近 2 フレーム分(42byte)のスライディングウィンドウを保持する。
+// フレーム構成: [ヘッダ0xFF][ペイロード38byte][フッタ0xAA] = 40byte
+// Rock5A マスターは 1 トランザクション 40byte。スレーブも 40byte で同期させる。
+// 再同期用に直近 2 フレーム分(80byte)のスライディングウィンドウを保持する。
+// 21byte (ペイロード19byte) の Wing とはつながらない。Wing も 40byte のものにすること (SPI_PROTOCOL.md)。
 #define ROCK_SPI_HEADER 0xFFU
 #define ROCK_SPI_FOOTER 0xAAU
-#define ROCK_SPI_PAYLOAD_SIZE 19U
-#define ROCK_SPI_FRAME_SIZE (ROCK_SPI_PAYLOAD_SIZE + 2U)  // ヘッダ+ペイロード+フッタ=21
+#define ROCK_SPI_PAYLOAD_SIZE 38U
+#define ROCK_SPI_FRAME_SIZE (ROCK_SPI_PAYLOAD_SIZE + 2U)  // ヘッダ+ペイロード+フッタ=40
 #define ROCK_SPI_RX_WINDOW_SIZE (ROCK_SPI_FRAME_SIZE * 2U)
 
 // STM32 → Rock5A 送信ペイロード中のIMUデータのスケール
@@ -28,6 +29,16 @@ volatile uint16_t adc_val[1];
 // (1000だと最大レンジで約±34907となりint16をオーバーフローするため)
 #define ROCK_SPI_YAW_RATE_SCALE 900.0f  // [rad/s] -> int16 (1LSB ≈ 0.00111rad/s)
 #define ROCK_SPI_YAW_SCALE 10000.0f     // [rad]   -> int16 (1LSB = 0.0001rad)
+// OmniDrive の電圧制御の値 (フレーム位置 20〜36)
+#define ROCK_SPI_VOLT_SCALE 1000.0f      // [V] -> int16 (1LSB = 1mV)。印加電圧と速度PIの積分
+#define ROCK_SPI_FF_SCALE_SCALE 255.0f   // FF に掛けた比率 0〜1 -> uint8 0〜255
+// フレーム位置 35 の bit
+#define ROCK_SPI_DRIVE_VOLT_SATURATED 0x01U        // volt_saturated
+#define ROCK_SPI_DRIVE_VOLT_PI_SATURATED 0x02U     // volt_pi_saturated
+#define ROCK_SPI_DRIVE_ROT_STALLED 0x04U           // vel_fb_rot_stalled
+#define ROCK_SPI_DRIVE_TRACTION_LIMITED 0x08U      // volt_traction_limited
+// フレーム位置 36: bit0〜2 が tcs.slip_flags (TCS_SLIP_*)、bit7 が tcs.is_slipping
+#define ROCK_SPI_TCS_SLIPPING 0x80U
 // SPI がこの時間(ms)完了もエラーもせず BUSY のまま固まったら強制リセットする。
 // ソフト NSS のスレーブはビットずれで「完了もエラーもしない BUSY ハング」に
 // 陥ることがあり、リセットしないと復帰しない。そのストール検出用。
@@ -58,6 +69,11 @@ static volatile uint32_t rock_spi_progress_tick = 0;
 
 static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst);
 static uint8_t* Robot_RockTxStaging(void);
+
+// int16 に収まらない値は端に寄せる (そのままキャストすると符号が反転する)
+static inline int16_t Robot_RockToInt16(float v) {
+  return (int16_t)lroundf(Constrain(v, -32767.0f, 32767.0f));
+}
 
 static inline void Robot_RockPackInt16(uint8_t* dst, int16_t val) {
   dst[0] = (uint8_t)(val & 0xFF);
@@ -262,6 +278,24 @@ static void Robot_RockBuildTxPacket(Robot* self, RobotInfo* info, uint8_t* dst) 
   Robot_RockPackInt16(&dst[14], (int16_t)(self->imu.accel_y * ROCK_SPI_ACCEL_SCALE));
   Robot_RockPackInt16(&dst[16], (int16_t)(self->imu.yaw_rate * ROCK_SPI_YAW_RATE_SCALE));
   Robot_RockPackInt16(&dst[18], (int16_t)(self->imu.yaw_rad * ROCK_SPI_YAW_SCALE));
+
+  // OmniDrive の電圧制御の値 (毎周期そのまま。速度モード中は電圧・比率が 0・1)
+  const OmniDrive* od = &self->omni_drive;
+  for (int i = 0; i < 4; i++) {
+    Robot_RockPackInt16(&dst[20 + i * 2], Robot_RockToInt16(od->cmd_voltage[i] * ROCK_SPI_VOLT_SCALE));
+  }
+  for (int k = 0; k < 3; k++) {
+    Robot_RockPackInt16(&dst[28 + k * 2], Robot_RockToInt16(od->vel_fb_integral[k] * ROCK_SPI_VOLT_SCALE));
+  }
+  dst[34] = (uint8_t)lroundf(Constrain(od->log_ff_scale, 0.0f, 1.0f) * ROCK_SPI_FF_SCALE_SCALE);
+  dst[35] = (uint8_t)((od->volt_saturated ? ROCK_SPI_DRIVE_VOLT_SATURATED : 0U) |
+                      (od->volt_pi_saturated ? ROCK_SPI_DRIVE_VOLT_PI_SATURATED : 0U) |
+                      (od->vel_fb_rot_stalled ? ROCK_SPI_DRIVE_ROT_STALLED : 0U) |
+                      (od->volt_traction_limited ? ROCK_SPI_DRIVE_TRACTION_LIMITED : 0U));
+  dst[36] = (uint8_t)((od->tcs.slip_flags & (TCS_SLIP_GEOM | TCS_SLIP_ROT | TCS_SLIP_ACCEL)) |
+                      (od->tcs.is_slipping ? ROCK_SPI_TCS_SLIPPING : 0U));
+  dst[37] = 0;  // 予約
+  dst[38] = 0;  // 予約
 
   dst[ROCK_SPI_FRAME_SIZE - 1] = ROCK_SPI_FOOTER;
 }

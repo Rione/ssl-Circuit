@@ -10,7 +10,7 @@
 ## 1. システム全体像
 
 ```
-                 SPI (Slave, 21byteフレーム, ヘッダ0xFF/フッタ0xAA)
+                 SPI (Slave, 40byteフレーム, ヘッダ0xFF/フッタ0xAA)
   Rock5A(上位機) <───────────────────────────────► MainBoard (このボード)
   (画像処理・経路計画)                                  │
                                                         │ CAN (100kbps)
@@ -97,7 +97,7 @@ void MainApp(void) {
 ### 5.1 Rock5A ⇔ MainBoard (SPI2, Slave)
 
 - Rock5Aがマスター、MainBoardはスレーブ(`SPI2.Mode=SPI_MODE_SLAVE`)。**マスター側が周期的にクロックを出さないと通信が進まない**ため、MainBoard側から能動的に送ることはできず、割り込み(`HAL_SPI_TxRxCpltCallback`)駆動で受動的にやり取りします。
-- 1フレーム21byte固定: `[0xFF][ペイロード19byte][0xAA]`。送信・受信とも同じフレームサイズで同期させています。バイト単位の詳細な内訳は [`docs/SPI_PROTOCOL.md`](SPI_PROTOCOL.md) を参照してください。
+- 1フレーム40byte固定: `[0xFF][ペイロード38byte][0xAA]`(2026-10 に21byteから拡張)。送信・受信とも同じフレームサイズで同期させています。バイト単位の詳細な内訳は [`docs/SPI_PROTOCOL.md`](SPI_PROTOCOL.md) を参照してください。
 - ソフトウェアNSS(チップセレクトをソフトで見るタイプ)のスレーブは、ビットずれが起きると「完了もエラーもせずBUSYのまま固まる」ことがあるため、`robot.c` では
   - 直近2フレーム分(42byte)のスライディングウィンドウで受信データから正しいフレーム位置を毎回探し直す(`Robot_RockFindFrame`)、再同期の仕組み
   - 750ms(`ROCK_SPI_STALL_TIMEOUT_MS`)進捗が無ければ強制Abort→再Armするストール検出
