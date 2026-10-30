@@ -29,7 +29,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "BufferedSerial.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,13 +63,14 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 int _write(int file, char *ptr, int len) {
     // HAL_UART_Transmit(&huart2, (uint8_t *)ptr, len, 10);
-    HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, 10);
+    // huart1はDMA受信中なのでHAL_UART_Transmitは使わない (BufferedSerial.cppのuartTransmitBlocking参照)
+    uartTransmitBlocking(&huart1, (const uint8_t *)ptr, len, 10);
     return len;
 }
 
 void __io_putchar(uint8_t ch) {
     // HAL_UART_Transmit(&huart1, &ch, 1, 0xFFFFFFFF);
-    HAL_UART_Transmit(&huart1, &ch, 1, 0xFFFFFFFF);
+    uartTransmitBlocking(&huart1, &ch, 1, 0xFFFFFFFF);
 }
 
 int __io_getchar(void) {

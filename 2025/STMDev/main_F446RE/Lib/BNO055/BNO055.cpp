@@ -1,6 +1,70 @@
 #include "BNO055.hpp"
 
+// HALのI2C完了コールバックはグローバル関数なので、対応するインスタンスをここに覚えておく
+static BNO055 *asyncInstance = nullptr;
+
 BNO055::BNO055(I2C_HandleTypeDef *hi2c) : _hi2c(hi2c) {
+      asyncInstance = this;
+}
+
+bool BNO055::startReadAsync() {
+      if (asyncBusy) {
+            if (HAL_GetTick() - asyncStartTick < ASYNC_TIMEOUT_MS) {
+                  return false;
+            }
+            // 完了もエラーも来ないまま止まった場合はI2Cを初期化し直して復帰する
+            HAL_I2C_DeInit(_hi2c);
+            HAL_I2C_Init(_hi2c);
+            asyncBusy = false;
+      }
+      asyncBusy = true;
+      asyncStartTick = HAL_GetTick();
+      if (HAL_I2C_Mem_Read_IT(_hi2c, BNOAddress, BNO055_ACCEL_DATA_X_LSB_ADDR, I2C_MEMADD_SIZE_8BIT, asyncBuf, ASYNC_LEN) != HAL_OK) {
+            asyncBusy = false;
+            return false;
+      }
+      return true;
+}
+
+bool BNO055::fetchAsync(acc_t *acc, gyro_t *gyro, euler_t *euler) {
+      if (!asyncReady) {
+            return false;
+      }
+      asyncReady = false;
+      const uint8_t *d = asyncBuf;
+      acc->x = int16_t(d[1] << 8 | d[0]) / 100.0f - offsetAcc.x;
+      acc->y = int16_t(d[3] << 8 | d[2]) / 100.0f - offsetAcc.y;
+      acc->z = int16_t(d[5] << 8 | d[4]) / 100.0f - offsetAcc.z;
+      // d[6..11]はMAG(未使用)
+      gyro->x = int16_t(d[13] << 8 | d[12]) / 16.0f - offsetGyro.x;
+      gyro->y = int16_t(d[15] << 8 | d[14]) / 16.0f - offsetGyro.y;
+      gyro->z = int16_t(d[17] << 8 | d[16]) / 16.0f - offsetGyro.z;
+      // 1deg→16  1rad→900 (getEulerと同じ)
+      euler->yaw = int16_t(d[19] << 8 | d[18]) / 900.0f;
+      euler->roll = int16_t(d[21] << 8 | d[20]) / 900.0f;
+      euler->pitch = int16_t(d[23] << 8 | d[22]) / 900.0f;
+      return true;
+}
+
+void BNO055::onAsyncComplete() {
+      asyncBusy = false;
+      asyncReady = true;
+}
+
+void BNO055::onAsyncError() {
+      asyncBusy = false;
+}
+
+extern "C" void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
+      if (asyncInstance != nullptr && asyncInstance->getHi2c() == hi2c) {
+            asyncInstance->onAsyncComplete();
+      }
+}
+
+extern "C" void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
+      if (asyncInstance != nullptr && asyncInstance->getHi2c() == hi2c) {
+            asyncInstance->onAsyncError();
+      }
 }
 
 bool BNO055::check() {

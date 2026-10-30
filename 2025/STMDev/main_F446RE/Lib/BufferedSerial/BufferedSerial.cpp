@@ -1,5 +1,7 @@
 #include "BufferedSerial.hpp"
 
+#include <string.h>
+
 namespace {
 
 constexpr uint8_t kMaxBufferedSerials = 4;
@@ -33,11 +35,14 @@ bool isRxRelatedError(uint32_t errorCode) {
 
 }  // namespace
 
-BufferedSerial::BufferedSerial(UART_HandleTypeDef *huart, uint16_t rxBufSize) 
+BufferedSerial::BufferedSerial(UART_HandleTypeDef *huart, uint16_t rxBufSize, uint16_t txBufSize)
     : _huart(huart),
      _rxBuf(new uint8_t[rxBufSize]),
      rxTop(0), rxBtm(0),
      _rxBufSize(rxBufSize),
+     _txBuf(new uint8_t[txBufSize]),
+     _txBufSize(txBufSize),
+     _txStartTick(0),
      _useDMA(false),
      _rxErrorPending(false) {
 }
@@ -69,6 +74,24 @@ void BufferedSerial::onRxError() {
     _rxErrorPending = true;
 }
 
+bool BufferedSerial::write(const uint8_t *data, uint16_t len) {
+    // ブロッキング送信だとUI(22byte@115200bps)で約1.9ms、Pi(13byte@230400bps)で約0.56ms
+    // メインループが止まっていたので、DMAに任せてすぐ戻る
+    if (_huart->gState != HAL_UART_STATE_READY) {
+        if (HAL_GetTick() - _txStartTick < 100) {
+            return false;  // 前回の送信中
+        }
+        // 送信完了割り込みが来ずに送信中のまま止まった場合の復帰
+        (void)HAL_UART_AbortTransmit(_huart);
+    }
+    if (len > _txBufSize) {
+        len = _txBufSize;
+    }
+    memcpy(_txBuf, data, len);
+    _txStartTick = HAL_GetTick();
+    return HAL_UART_Transmit_DMA(_huart, _txBuf, len) == HAL_OK;
+}
+
 bool BufferedSerial::matchesUart(UART_HandleTypeDef *huart) const {
     return _huart == huart;
 }
@@ -95,6 +118,24 @@ uint8_t BufferedSerial::read() {
 void BufferedSerial::flush() {
     // 読み取り位置をDMAの現在位置まで進め、未読データを破棄する
     rxBtm = _rxBufSize - _huart->hdmarx->Instance->NDTR;
+}
+
+// HAL_UART_Transmitは送信残数をhuart->TxXferCountで数えるが、DMA受信中に受信エラー(ノイズ等)が
+// 起きるとエラー割り込み(UART_DMAAbortOnError)がTxXferCountを0にしてしまう。送信ループの
+// 「残数>0の確認」と「TxXferCount--」の間にこれが割り込むと0から減算されて65535に巻き戻り、
+// 送信データを読み進めてRAM末尾を越えHardFaultする(UART4のNEで実際に発生)。
+// 残数はローカル変数で数え、HALの状態変数に依存しない送信を行う。
+extern "C" void uartTransmitBlocking(UART_HandleTypeDef *huart, const uint8_t *data, uint16_t len, uint32_t timeout) {
+    uint32_t tickstart = HAL_GetTick();
+    for (uint16_t i = 0; i < len; i++) {
+        while (!__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE)) {
+            if (HAL_GetTick() - tickstart > timeout) return;
+        }
+        huart->Instance->DR = data[i];
+    }
+    while (!__HAL_UART_GET_FLAG(huart, UART_FLAG_TC)) {
+        if (HAL_GetTick() - tickstart > timeout) return;
+    }
 }
 
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {

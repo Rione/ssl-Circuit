@@ -221,6 +221,7 @@ typedef struct {
       acc_t acc;    // BNO055の加速度センサ
       gyro_t gyro;  // BNO055のジャイロセンサ
       vel_t vel;    // BNO055の速度
+      euler_t euler;  // BNO055の姿勢角 [rad] (yawの向きはconfig.hのIMU_FUSION参照)
     };
   } imuState;
   union {
@@ -266,6 +267,9 @@ class Robot {
   MPU6500::xyz_t att;
 
   BNO055 bno = BNO055(&hi2c1);
+  Madgwick bnoFilter;   // IMU_FUSION_STM用 (MPU6500用のfilterとは別)
+  gyro_t bnoGyroBias;   // [dps] bnoGyroCalibrateで測定した静止バイアス
+  Timer bnoDtTimer;     // bnoGet呼び出し間隔の実測用(固定dtを仮定しないため)
 
   Flash_EEPROM flash;
 
@@ -290,8 +294,9 @@ class Robot {
   void mpuget(RobotInfo_t& info);
   void mpuSetup(RobotInfo_t& info);
 
-  void bnoGet(RobotInfo_t& info);
+  void bnoGet(RobotInfo_t& info, uint16_t interval);
   void bnoCalibrate();
+  void bnoGyroCalibrate();
 
   void photoThresholdSet();
 

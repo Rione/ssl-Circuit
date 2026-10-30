@@ -7,8 +7,7 @@ Timer::Timer() {
 
 void Timer::set_ms(uint32_t ms) {
     uint32_t current_count = DWT->CYCCNT;
-    uint32_t sys_clk_freq = HAL_RCC_GetSysClockFreq();
-    uint32_t count_offset = (ms * (sys_clk_freq / 1000));
+    uint32_t count_offset = (ms * (SystemCoreClock / 1000));
     startTime = current_count - count_offset;
 }
 

@@ -209,9 +209,25 @@ class BNO055 {
       void setAttitudeZero();
       void setAngle(float rad);
 
+      // --- 割り込みによる一括読み出し (メインループを止めない) ---
+      // BNO055はクロックストレッチが長く、ブロッキングで読むと1回数msメインループが止まる。
+      // startReadAsyncでACC/MAG/GYR/EULを1トランザクションで読み始め、完了後にfetchAsyncで取り出す。
+      bool startReadAsync();  // 読み出し中ならfalse
+      bool fetchAsync(acc_t *acc, gyro_t *gyro, euler_t *euler);  // 新しいデータがあればtrue
+      void onAsyncComplete();  // HAL_I2C_MemRxCpltCallbackから呼ぶ
+      void onAsyncError();     // HAL_I2C_ErrorCallbackから呼ぶ
+      I2C_HandleTypeDef *getHi2c() { return _hi2c; }
+
       float frontRadians;
 
      private:
+      static const uint8_t ASYNC_LEN = 24;               // 0x08(ACC_X_LSB)〜0x1F(EUL_P_MSB): ACC,MAG,GYR,EUL 各6byte
+      static const uint32_t ASYNC_TIMEOUT_MS = 20;       // これ以上完了しなければI2Cを初期化し直す
+      uint8_t asyncBuf[ASYNC_LEN];
+      volatile bool asyncBusy = false;
+      volatile bool asyncReady = false;
+      uint32_t asyncStartTick = 0;
+
       const uint16_t cnt_calib = 5000;
 
       float dt;  // サンプリング周期

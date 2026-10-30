@@ -4,14 +4,23 @@ Robot::Robot() {
 }
 
 void Robot::hardwareInit() {
-      //   led1 = bno.check();
-      //   bno.setUnit(1, 1, 1, 0);
-      //   bno.setPowerMode();
-      //   // bno.setOperaitonMode(OPERATION_MODE_AMG);
-      //   bno.setOperaitonMode(OPERATION_MODE_NDOF);
-      //   // bno.accConfig();
-      //   bno.init();
-      //   // bno.getCalibration();
+      led1 = bno.check();
+      // STM32だけリセットされた場合BNO055は前回の動作モードのまま残っているので、
+      // 設定レジスタ(UNIT_SEL等)を書く前に必ずCONFIGモードへ戻す(切替に最大19ms)
+      bno.setOperaitonMode(OPERATION_MODE_CONFIG);
+      HAL_Delay(25);
+      bno.setUnit(0, 0, 1, 0);  // acc:m/s^2, gyro:dps, euler:rad (getAcc/getGyro/getEulerのスケールに合わせる)
+      bno.setPowerMode();
+#if IMU_FUSION == IMU_FUSION_STM
+      bno.setOperaitonMode(OPERATION_MODE_AMG);
+#else
+      bno.setOperaitonMode(OPERATION_MODE_IMUPLUS);
+#endif
+      // bno.setOperaitonMode(OPERATION_MODE_NDOF);  // 地磁気を使うとモーター等の磁気でyawが乱れる
+      HAL_Delay(10);  // CONFIGからの切替に7ms
+      // bno.accConfig();
+      bno.init();
+      // bno.getCalibration();
 
       can.init();
 
@@ -33,6 +42,9 @@ void Robot::hardwareInit() {
       HAL_Delay(1000);
 
       //   bnoCalibrate();
+#if IMU_FUSION == IMU_FUSION_STM
+      bnoGyroCalibrate();
+#endif
 }
 
 void Robot::rasRecvSerial(RobotInfo_t &info) {
@@ -255,7 +267,10 @@ void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
       info.capaData.chargeState = info.isKickerChargeMode;
       info.capaData.chargeVal = info.capValEstimate;
 
-      uint8_t buffer[dataSize] = {0};
+      // DMA送信は1回のwriteで1パケットを渡す必要があるので、ヘッダも含めて組み立てる
+      uint8_t packet[1 + dataSize] = {0};
+      packet[0] = HEADER;
+      uint8_t *buffer = &packet[1];
       buffer[0] = info.batteryVoltage;
       buffer[1] = info.capaData.data;
       buffer[2] = (uint8_t)info.buzzer;
@@ -275,8 +290,7 @@ void Robot::uiSendSerial(RobotInfo_t &info, uint16_t interval) {
       // エラー検知がSTM側にない場合は、とりあえず全て正常(0x0F)とする
       buffer[20] = 0x0F;
 
-      serial4.write(HEADER);
-      serial4.write(buffer, dataSize);
+      serial4.write(packet, sizeof(packet));
       // printf("send ui: bat=%d cap=%d buzzer=%d\n", buffer[0], info.capaData.chargeVal, buffer[2]);
 
       timer.reset();
@@ -308,9 +322,68 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
       }
 }
 
-void Robot::bnoGet(RobotInfo_t &info) {
-      info.imuState.vel = bno.getVel();  // 加速度から速度を計算
+void Robot::bnoGet(RobotInfo_t &info, uint16_t interval) {
+      // I2Cの読み出しは割り込みで行い、ここでは「完了したデータの処理」と「次の読み出し開始」だけを行う
+      // (ブロッキングで読むとBNO055のクロックストレッチで1回約2.4msメインループが止まっていた)
+      static Timer timer;
+      acc_t acc;
+      gyro_t gyro;
+      euler_t euler;
+      bool hasNewData = bno.fetchAsync(&acc, &gyro, &euler);
+      if (timer.read_ms() >= interval && bno.startReadAsync()) {
+            timer.reset();
+      }
+      if (!hasNewData) {
+            return;
+      }
+
+#if IMU_FUSION == IMU_FUSION_STM
+      // 呼び出し周期がブロッキング処理(printf等)で乱れても正しく積分できるよう、
+      // 前回呼び出しからの実経過時間をMadgwickに渡す(固定dt厳禁)
+      float dt = bnoDtTimer.read_us() / 1000000.0f;
+      bnoDtTimer.reset();
+      if (dt > IMU_MAX_DT_S) dt = IMU_MAX_DT_S;
+
+      gyro.x -= bnoGyroBias.x;
+      gyro.y -= bnoGyroBias.y;
+      gyro.z -= bnoGyroBias.z;
+
+      bnoFilter.setDeltaT(dt);
+      bnoFilter.updateIMU(gyro.x, gyro.y, gyro.z, acc.x, acc.y, acc.z);  // gyroは[dps]のまま渡す
+
+      info.imuState.acc = acc;
+      info.imuState.gyro = gyro;
+      info.imuState.euler.yaw = bnoFilter.getYawRadians();
+      info.imuState.euler.roll = bnoFilter.getRollRadians();
+      info.imuState.euler.pitch = bnoFilter.getPitchRadians();
+#else
+      info.imuState.acc = acc;
+      info.imuState.gyro = gyro;
+      info.imuState.euler = euler;
+#endif
       // printf("Acc: %.6f %.6f\n", info.imuState.acc.x, info.imuState.acc.y);
+}
+
+// ジャイロの静止バイアスをIMU_CALIB_SAMPLE_COUNT回サンプリングして平均する(ブロッキング、機体を静止させること)
+void Robot::bnoGyroCalibrate() {
+      printf("IMU Calibration Start (keep the robot stationary)\n");
+      HAL_Delay(100);  // AMGへ切り替えた直後は出力が揃っていないので待つ
+
+      gyro_t sum = {0, 0, 0};
+      for (uint16_t i = 0; i < IMU_CALIB_SAMPLE_COUNT; i++) {
+            gyro_t gyro = bno.getGyro();
+            sum.x += gyro.x;
+            sum.y += gyro.y;
+            sum.z += gyro.z;
+            HAL_Delay(10);
+      }
+      bnoGyroBias.x = sum.x / IMU_CALIB_SAMPLE_COUNT;
+      bnoGyroBias.y = sum.y / IMU_CALIB_SAMPLE_COUNT;
+      bnoGyroBias.z = sum.z / IMU_CALIB_SAMPLE_COUNT;
+
+      bnoFilter.setBeta(IMU_MADGWICK_BETA);
+      bnoDtTimer.reset();
+      printf("IMU Calibration Done  GyroBias[dps] X:%+.3f Y:%+.3f Z:%+.3f\n", bnoGyroBias.x, bnoGyroBias.y, bnoGyroBias.z);
 }
 
 void Robot::bnoCalibrate() {

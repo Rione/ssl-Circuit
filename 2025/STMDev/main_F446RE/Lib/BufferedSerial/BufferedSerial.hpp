@@ -5,6 +5,15 @@
 #include <stdio.h>
 
 #ifdef __cplusplus
+extern "C" {
+#endif
+// HAL_UART_Transmitの代わりに使うブロッキング送信 (理由はBufferedSerial.cpp参照)
+void uartTransmitBlocking(UART_HandleTypeDef *huart, const uint8_t *data, uint16_t len, uint32_t timeout);
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
 
 /*
  Initの順番をDMAが先になるようにする
@@ -15,19 +24,15 @@
 
 class BufferedSerial {
   public:
-    BufferedSerial(UART_HandleTypeDef *huart, uint16_t rxBufSize);
+    BufferedSerial(UART_HandleTypeDef *huart, uint16_t rxBufSize, uint16_t txBufSize = 64);
     void init(bool dma = false);
     bool available();
     uint8_t read();
     void flush();
 
-    void write(uint8_t data) {
-        HAL_UART_Transmit(_huart, &data, 1, 100);
-    }
-
-    void write(const uint8_t *data, uint16_t len) {
-        HAL_UART_Transmit(_huart, (uint8_t *)data, len, 100);
-    }
+    // DMAで送信する(送信完了を待たずに戻る)。前回の送信がまだ終わっていなければ今回分は破棄してfalseを返す。
+    // 1パケットは1回のwriteで渡すこと(連続で呼ぶと2回目が前回の送信中に当たり破棄される)
+    bool write(const uint8_t *data, uint16_t len);
 
     uint8_t getc() {
         return read();
@@ -44,6 +49,9 @@ class BufferedSerial {
     uint8_t *_rxBuf;
     uint16_t rxTop, rxBtm;
     uint16_t _rxBufSize;
+    uint8_t *_txBuf;  // DMA送信中は呼び出し元のバッファが消えている可能性があるのでコピーして送る
+    uint16_t _txBufSize;
+    uint32_t _txStartTick;
     bool _useDMA;
     volatile bool _rxErrorPending;
 };

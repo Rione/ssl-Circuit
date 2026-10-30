@@ -11,7 +11,7 @@ Timer camera_correction_timer;
 void CameraMode::loop() {
       timer.reset();
       robot->getSensors(&robot->info);
-      // robot->bnoGet(robot->info);  // BNO055からセンサデータを取得
+      robot->bnoGet(robot->info, IMU_UPDATE_INTERVAL_MS);  // BNO055からセンサデータを取得
       robot->rasSendSerial(robot->info, 8);
       robot->rasRecvSerial(robot->info);   // sync
       robot->checkRobotRest(robot->info);  // ロボットが停止しているか確認
