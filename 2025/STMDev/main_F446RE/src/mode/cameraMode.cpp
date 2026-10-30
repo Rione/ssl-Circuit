@@ -9,7 +9,6 @@ void CameraMode::after() {
 Timer camera_correction_timer;
 
 void CameraMode::loop() {
-      timer.reset();
       robot->getSensors(&robot->info);
       robot->bnoGet(robot->info, IMU_UPDATE_INTERVAL_MS);  // BNO055からセンサデータを取得
       robot->rasSendSerial(robot->info, 8);
@@ -91,5 +90,5 @@ void CameraMode::loop() {
       // }
 
       robot->led1 = robot->info.dribbleStatus.isDetectedBall;
-      while (timer.read_us() < 1000);  // 1ms time control
+      waitNextPeriod(1000);  // 1ms周期
 }

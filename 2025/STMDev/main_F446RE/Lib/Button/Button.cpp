@@ -4,7 +4,8 @@ Button::Button(GPIO_TypeDef *port, uint16_t pin)
     : button(port, pin), 
       pressState(false), 
       isPressed(false), 
-      pressedTime(0) {
+      pressedTime(0),
+      releaseEvent(false) {
 }
 
 void Button::update() {
@@ -19,6 +20,7 @@ void Button::update() {
         if (isPressed == true) {
             isPressed = false;
             pressedTime = pressedTimer.read_ms();
+            releaseEvent = true;
         }
     }
 }
@@ -34,7 +36,11 @@ bool Button::isPress() {
 }
 
 bool Button::isRelease() {
-    return (buttonState != lastButtonState) && (buttonState != pressState);
+    if (!releaseEvent) {
+        return false;
+    }
+    releaseEvent = false;
+    return true;
 }
 
 uint16_t Button::readPressedTime() {

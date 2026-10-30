@@ -4,6 +4,7 @@ Robot::Robot() {
 }
 
 void Robot::hardwareInit() {
+      bno.recoverBus();  // 前回I2Cの途中でリセットされていてもバスを使える状態にする
       led1 = bno.check();
       // STM32だけリセットされた場合BNO055は前回の動作モードのまま残っているので、
       // 設定レジスタ(UNIT_SEL等)を書く前に必ずCONFIGモードへ戻す(切替に最大19ms)
@@ -157,7 +158,7 @@ void Robot::getSensors(RobotInfo_t *info) {
       HAL_ADC_Start(&hadc1);
       HAL_ADC_PollForConversion(&hadc1, 100);
       uint32_t batt = HAL_ADC_GetValue(&hadc1);
-      info->batteryVoltage = medianBatteryValue.calc((uint8_t)((float)(batt) * 3.3 / 4095.0 * 58.5 - 5));
+      info->batteryVoltage = medianBatteryValue.calc((uint8_t)((float)(batt) * 3.3f / 4095.0f * 58.5f - 5));
       if (info->batteryVoltage < BATTERY_CUT_OFF) {
             if (underVoltageCount < 1000) underVoltageCount++;
       } else {
@@ -231,10 +232,12 @@ void Robot::sendMotor(RobotInfo_t &info, uint8_t interval) {
       int16_t __velX = meanVelX.calc((float)info.velX.vel);
       int16_t __velY = meanVelY.calc((float)info.velY.vel);
       int16_t __velAngler = meanVelAngler.calc((float)info.velAngler.vel);
-      static uint8_t md_sendcount = 0;
-      md_sendcount++;
-      if (md_sendcount % interval == 0) {  // 5msごとに送信
+      // ループ回数ではなく経過時間で送信間隔を決める
+      // (回数だとループ周期のずれがそのまま送信周期に乗り、uint8_tの桁あふれでも間隔が乱れていた)
+      static Timer timer;
+      if (timer.read_ms() >= interval) {
             motorDriver.setVelocityFF(__velX, __velY, __velAngler);
+            timer.reset();
       }
 }
 

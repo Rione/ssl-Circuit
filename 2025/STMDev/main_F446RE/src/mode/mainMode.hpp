@@ -9,7 +9,4 @@ class MainMode : public Mode {
     void after() override;
     void loop() override;
 
-  private:
-    Timer timer;
-
 };

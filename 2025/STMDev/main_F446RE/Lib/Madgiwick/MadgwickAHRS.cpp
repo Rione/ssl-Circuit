@@ -224,18 +224,12 @@ void Madgwick::updateIMU(float gx, float gy, float gz, float ax, float ay, float
 }
 
 //-------------------------------------------------------------------------------------------
-// Fast inverse square-root
-// See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
+// Inverse square-root
+// 元はFast inverse square-root(ポインタでfloatをlongとして読む)だったが、strict aliasing違反で
+// -O2では正しく動く保証がない。Cortex-M4のFPUはsqrtを命令(VSQRT)で持つので素直に計算する方が速く正確
 
 float Madgwick::invSqrt(float x) {
-	float halfx = 0.5f * x;
-	float y = x;
-	long i = *(long*)&y;
-	i = 0x5f3759df - (i>>1);
-	y = *(float*)&i;
-	y = y * (1.5f - (halfx * y * y));
-	y = y * (1.5f - (halfx * y * y));
-	return y;
+	return 1.0f / sqrtf(x);
 }
 
 //-------------------------------------------------------------------------------------------

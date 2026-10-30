@@ -1,5 +1,19 @@
 #include <MotorDriver.hpp>
 
+// 機体定数・三角関数の値は毎周期使うので起動時に一度だけfloatで求めておく
+// (F446のFPUは単精度のみで、double演算はソフトウェア計算になり重い)
+static const float SPIN_TO_MOTOR = (float)ROBOT_SPIN_TO_MOTOR_ROTATE_RATIO;
+static const float XY_TO_MOTOR = (float)VELOCITY_XY_TO_MOTOR_ROTATE_RATIO;
+static const float MOTOR_TO_WHEEL = (float)INV_GEAR_RATIO;
+// 各ホイールの取り付け角(55, 135, -135, -55度)。M0,M3のcos成分は1.05倍の補正込み
+static const float SIN_M0 = MyMath::sinDeg(55), COS_M0 = MyMath::cosDeg(55) * 1.05f;
+static const float SIN_M1 = MyMath::sinDeg(135), COS_M1 = MyMath::cosDeg(135);
+static const float SIN_M2 = MyMath::sinDeg(-135), COS_M2 = MyMath::cosDeg(-135);
+static const float SIN_M3 = MyMath::sinDeg(-55), COS_M3 = MyMath::cosDeg(-55) * 1.05f;
+// getVelocityの逆行列計算の分母
+static const float VX_DENOM = XY_TO_MOTOR * (SIN_M0 * SIN_M0 + SIN_M1 * SIN_M1 + SIN_M2 * SIN_M2 + SIN_M3 * SIN_M3);
+static const float VY_DENOM = XY_TO_MOTOR * (COS_M0 * COS_M0 + COS_M1 * COS_M1 + COS_M2 * COS_M2 + COS_M3 * COS_M3);
+
 MotorDriver::MotorDriver(CANBus* canBus) : _canBus(canBus) {
 }
 
@@ -10,7 +24,7 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
       // printf("%d, %d, %d\n", velX, velY, velAng);
       float _velX = (float)(velX);
       float _velY = (float)(velY);
-      float _velAng = (float)(velAng) / 1000.0;
+      float _velAng = (float)(velAng) / 1000.0f;
       /*================unit==============*/
       // velX, velY [mm/s]
       // velAng [m rad/s]
@@ -28,15 +42,15 @@ void MotorDriver::setVelocityFF(int16_t velX, int16_t velY, int16_t velAng) {
       //   // robot moves XY → wheelRotate → motoRotate convert constant
       //   static constexpr float velXYToMotorRotateRatio = gearRatio / (wheelDiameter / 2);
 
-      int16_t rotation = _velAng * -ROBOT_SPIN_TO_MOTOR_ROTATE_RATIO;
+      int16_t rotation = _velAng * -SPIN_TO_MOTOR;
 
       rotation = Constrain(rotation, -100, 100);
 
       /*==============calculation============*/
-      int16_t M0 = (_velX * MyMath::sinDeg(55) - _velY * MyMath::cosDeg(55) * 1.05) * VELOCITY_XY_TO_MOTOR_ROTATE_RATIO + rotation;
-      int16_t M1 = (_velX * MyMath::sinDeg(135) - _velY * MyMath::cosDeg(135)) * VELOCITY_XY_TO_MOTOR_ROTATE_RATIO + rotation;
-      int16_t M2 = (_velX * MyMath::sinDeg(-135) - _velY * MyMath::cosDeg(-135)) * VELOCITY_XY_TO_MOTOR_ROTATE_RATIO + rotation;
-      int16_t M3 = (_velX * MyMath::sinDeg(-55) - _velY * MyMath::cosDeg(-55) * 1.05) * VELOCITY_XY_TO_MOTOR_ROTATE_RATIO + rotation;
+      int16_t M0 = (_velX * SIN_M0 - _velY * COS_M0) * XY_TO_MOTOR + rotation;
+      int16_t M1 = (_velX * SIN_M1 - _velY * COS_M1) * XY_TO_MOTOR + rotation;
+      int16_t M2 = (_velX * SIN_M2 - _velY * COS_M2) * XY_TO_MOTOR + rotation;
+      int16_t M3 = (_velX * SIN_M3 - _velY * COS_M3) * XY_TO_MOTOR + rotation;
 
       /*==============send data============*/
       // printf("%f, %f, %f\n", _velX, _velY, _velAng);
@@ -71,7 +85,7 @@ void MotorDriver::sendEmg() {
 }
 
 int16_t MotorDriver::motorToWheelScaled(int16_t motor_omega) {
-      float wheel_omega = (float)motor_omega * INV_GEAR_RATIO;
+      float wheel_omega = (float)motor_omega * MOTOR_TO_WHEEL;
       int16_t scaled = (int16_t)(wheel_omega * 100.0f);
       return Constrain(scaled, WHEEL_OMEGA_SCALE_MIN, WHEEL_OMEGA_SCALE_MAX);
 }
@@ -90,13 +104,8 @@ void MotorDriver::getVelocity(int16_t* velX, int16_t* velY, int16_t* motorAngule
       }
 
       // 逆行列計算
-      float a = MyMath::sinDeg(55), b = MyMath::cosDeg(55) * 1.05f;
-      float c = MyMath::sinDeg(135), d = MyMath::cosDeg(135);
-      float e = MyMath::sinDeg(-135), f = MyMath::cosDeg(-135);
-      float g = MyMath::sinDeg(-55), h = MyMath::cosDeg(-55) * 1.05f;
-
-      float vx = (M[0] * a + M[1] * c + M[2] * e + M[3] * g) / (VELOCITY_XY_TO_MOTOR_ROTATE_RATIO * (a * a + c * c + e * e + g * g));
-      float vy = -(M[0] * b + M[1] * d + M[2] * f + M[3] * h) / (VELOCITY_XY_TO_MOTOR_ROTATE_RATIO * (b * b + d * d + f * f + h * h));
+      float vx = (M[0] * SIN_M0 + M[1] * SIN_M1 + M[2] * SIN_M2 + M[3] * SIN_M3) / VX_DENOM;
+      float vy = -(M[0] * COS_M0 + M[1] * COS_M1 + M[2] * COS_M2 + M[3] * COS_M3) / VY_DENOM;
 
       *velX = vx;
       *velY = vy;

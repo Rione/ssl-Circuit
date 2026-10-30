@@ -3,8 +3,41 @@
 // HALのI2C完了コールバックはグローバル関数なので、対応するインスタンスをここに覚えておく
 static BNO055 *asyncInstance = nullptr;
 
-BNO055::BNO055(I2C_HandleTypeDef *hi2c) : _hi2c(hi2c) {
+BNO055::BNO055(I2C_HandleTypeDef *hi2c, GPIO_TypeDef *sclPort, uint16_t sclPin, GPIO_TypeDef *sdaPort, uint16_t sdaPin)
+    : _hi2c(hi2c), _sclPort(sclPort), _sclPin(sclPin), _sdaPort(sdaPort), _sdaPin(sdaPin) {
       asyncInstance = this;
+}
+
+void BNO055::recoverBus() {
+      HAL_I2C_DeInit(_hi2c);  // ピンをI2Cから切り離す
+
+      GPIO_InitTypeDef gpio = {};
+      gpio.Mode = GPIO_MODE_OUTPUT_OD;
+      gpio.Pull = GPIO_NOPULL;
+      gpio.Speed = GPIO_SPEED_FREQ_HIGH;
+      HAL_GPIO_WritePin(_sclPort, _sclPin, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(_sdaPort, _sdaPin, GPIO_PIN_SET);
+      gpio.Pin = _sclPin;
+      HAL_GPIO_Init(_sclPort, &gpio);
+      gpio.Pin = _sdaPin;
+      HAL_GPIO_Init(_sdaPort, &gpio);
+      wait_us(5);
+
+      // BNO055が送信途中のバイトを出し切るまでSCLを送る(SDAが解放されたら終わり)
+      for (uint8_t i = 0; i < 9 && HAL_GPIO_ReadPin(_sdaPort, _sdaPin) == GPIO_PIN_RESET; i++) {
+            HAL_GPIO_WritePin(_sclPort, _sclPin, GPIO_PIN_RESET);
+            wait_us(5);
+            HAL_GPIO_WritePin(_sclPort, _sclPin, GPIO_PIN_SET);
+            wait_us(5);
+      }
+      // STOP条件 (SCL HighのままSDAをLow→High)
+      HAL_GPIO_WritePin(_sdaPort, _sdaPin, GPIO_PIN_RESET);
+      wait_us(5);
+      HAL_GPIO_WritePin(_sdaPort, _sdaPin, GPIO_PIN_SET);
+      wait_us(5);
+
+      HAL_I2C_Init(_hi2c);  // MspInitでピンがI2Cに戻り、ペリフェラルもソフトウェアリセットされる
+      asyncBusy = false;
 }
 
 bool BNO055::startReadAsync() {
@@ -12,10 +45,13 @@ bool BNO055::startReadAsync() {
             if (HAL_GetTick() - asyncStartTick < ASYNC_TIMEOUT_MS) {
                   return false;
             }
-            // 完了もエラーも来ないまま止まった場合はI2Cを初期化し直して復帰する
-            HAL_I2C_DeInit(_hi2c);
-            HAL_I2C_Init(_hi2c);
-            asyncBusy = false;
+            // 完了もエラーも来ないまま止まった場合はバスごと復旧する
+            recoverBus();
+      }
+      if (__HAL_I2C_GET_FLAG(_hi2c, I2C_FLAG_BUSY)) {
+            // バスがロックしている。このままHAL_I2C_Mem_Read_ITを呼ぶとBUSY解除を最大25ms待ってしまう
+            recoverBus();
+            return false;
       }
       asyncBusy = true;
       asyncStartTick = HAL_GetTick();

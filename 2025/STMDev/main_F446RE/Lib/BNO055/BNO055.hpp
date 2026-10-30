@@ -187,7 +187,11 @@ typedef struct {
 
 class BNO055 {
      public:
-      BNO055(I2C_HandleTypeDef *hi2c);
+      // scl/sda: I2Cバスがロックしたときに手動でクロックを送って復旧するためのピン
+      BNO055(I2C_HandleTypeDef *hi2c, GPIO_TypeDef *sclPort, uint16_t sclPin, GPIO_TypeDef *sdaPort, uint16_t sdaPin);
+      // I2Cの途中でSTM32だけがリセットされると、BNO055がSDAをLowに保持したままになりバスが使えなくなる。
+      // SCLを手動で最大9回送ってBNO055に転送を終わらせ、STOPを出してからI2Cを初期化し直す
+      void recoverBus();
       bool check();
       void init();
       void setPowerMode();
@@ -238,5 +242,9 @@ class BNO055 {
       acc_t offsetAcc = {0, 0, 0};
       gyro_t offsetGyro = {0, 0, 0};
       I2C_HandleTypeDef *_hi2c;
+      GPIO_TypeDef *_sclPort;
+      uint16_t _sclPin;
+      GPIO_TypeDef *_sdaPort;
+      uint16_t _sdaPin;
 };
 #endif

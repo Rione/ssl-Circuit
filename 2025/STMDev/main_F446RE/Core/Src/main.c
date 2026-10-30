@@ -144,7 +144,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
     setup();
     HAL_TIM_Base_Start_IT(&htim10); // ハ�??��トビート用タイマ�??��割り込みスター?��?
-    HAL_TIM_Base_Start_IT(&htim3);  // 4KHz
+    // HAL_TIM_Base_Start_IT(&htim3);  // 4KHz (TimInterrupt4khzが空なので止めている。MPU6500を使うときに戻す)
     main_app();
     while (1) {
     /* USER CODE END WHILE */

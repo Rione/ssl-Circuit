@@ -266,7 +266,7 @@ class Robot {
   MPU6500::gyro_t gyro;
   MPU6500::xyz_t att;
 
-  BNO055 bno = BNO055(&hi2c1);
+  BNO055 bno = BNO055(&hi2c1, GPIOB, GPIO_PIN_6, GPIOB, GPIO_PIN_7);  // I2C1: SCL=PB6, SDA=PB7
   Madgwick bnoFilter;   // IMU_FUSION_STM用 (MPU6500用のfilterとは別)
   gyro_t bnoGyroBias;   // [dps] bnoGyroCalibrateで測定した静止バイアス
   Timer bnoDtTimer;     // bnoGet呼び出し間隔の実測用(固定dtを仮定しないため)
@@ -284,7 +284,7 @@ class Robot {
 
   void sendDribble(uint8_t power, bool forceSend = false);
   void sendKicker(RobotInfo_t& info);
-  void sendMotor(RobotInfo_t& info, uint8_t interval);
+  void sendMotor(RobotInfo_t& info, uint8_t interval);  // interval: 送信間隔[ms]
 
   void checkRobotRest(RobotInfo_t& info);
 
@@ -303,7 +303,7 @@ class Robot {
   inline __attribute__((always_inline)) void heartBeat() {
     static int i = 0;
     i++;
-    ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 1 : 5))) / 2 + 0.5);
+    ledH.write(MyMath::sinDeg(int(i / (!info.isUnderVoltage ? 1 : 5))) / 2 + 0.5f);
   }
 
   inline __attribute__((always_inline)) void setChageDoneSignal(uint16_t value) {

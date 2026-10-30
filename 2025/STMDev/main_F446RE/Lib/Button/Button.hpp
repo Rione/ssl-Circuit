@@ -10,6 +10,8 @@ class Button {
     void update();
     bool read();
     bool isPress();
+    // 前回の呼び出し以降に離されたか(呼ぶと消える)。updateは1kHz割り込みで回っているので、
+    // メインループの周期とずれても離した瞬間を取りこぼさないよう、離した事実を割り込み側で保持する
     bool isRelease();
     uint16_t readPressedTime();
 
@@ -24,7 +26,8 @@ class Button {
     bool lastButtonState;
     bool isPressed;
 
-    uint16_t pressedTime;
+    volatile uint16_t pressedTime;
+    volatile bool releaseEvent;
     Timer pressedTimer;
 };
 

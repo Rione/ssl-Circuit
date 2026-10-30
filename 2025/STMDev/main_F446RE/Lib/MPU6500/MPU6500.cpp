@@ -42,8 +42,8 @@ void MPU6500::calibrateAccGyro() {
     acc_t acc;
     gyro_t gyro;
 
-    acc_t acc_sum;
-    gyro_t gyro_sum;
+    acc_t acc_sum = {0, 0, 0};
+    gyro_t gyro_sum = {0, 0, 0};
 
     for (uint16_t i = 0; i < cnt_calib; i++) {
         readAccGyro(&acc, &gyro);
