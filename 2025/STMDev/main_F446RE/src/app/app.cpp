@@ -4,6 +4,7 @@
 #include "cameraMode.hpp"
 #include "mainMode.hpp"
 #include "testMode.hpp"
+#include "watchdog.h"
 
 Robot robot;
 CANBus::CANData canRecvData;
@@ -82,7 +83,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 }
 
 void setup() {
-      robot.hardwareInit();
+      watchdogCheckResetCause();
+      // ウォッチドッグによるリセットは試合中の可能性があるので、キャリブレーションや待ち時間を省いてすぐ動けるようにする
+      // (他の基板は起動済み・機体は動いている可能性がある)
+      const bool fastBoot = watchdogCausedReset();
+      robot.hardwareInit(fastBoot);
       HAL_Delay(100);
       if (robot.swImu.read() == 1) {
             robot.info.runMode = 0;
@@ -93,12 +98,16 @@ void setup() {
       // 0bb4dae1「app.cppの整理」でsetup()内のインライン送信がphotoThresholdSet()に
       // 切り出された際、呼び出しが追加されず送信が抜け落ちていた。これによりキッカー
       // ボードがデフォルト閾値のまま動き、ダイレクトキックの誤発火につながっていた。
-      HAL_Delay(1000);  // キッカーボードの起動待ち
+      if (!fastBoot) {
+            HAL_Delay(1000);  // キッカーボードの起動待ち
+      }
       robot.photoThresholdSet();
 }
 
 void main_app() {
+      watchdogStart(WATCHDOG_TIMEOUT_MS);
       while (1) {
+            watchdogRefresh();
             if (robot.info.runMode == 0) {
                   mainMode.loop();
             } else {

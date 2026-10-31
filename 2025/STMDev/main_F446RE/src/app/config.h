@@ -26,6 +26,17 @@
 #define IMU_CALIB_SAMPLE_COUNT 200    // ジャイロバイアス測定のサンプル数(10ms間隔で約2秒)
 #define IMU_MAX_DT_S 0.05f            // Madgwick積分1ステップのdt上限[s](呼び出し遅延時に過大な回転を積分しないため)
 #define IMU_MADGWICK_BETA 0.1f        // Madgwickフィルタのゲイン(2026年機体と同じ)
+// 静止中のジャイロバイアス追従 (IMU_FUSION_STMのみ)
+#define IMU_STILL_GYRO_DPS 0.5f       // 全軸の角速度(バイアス補正後)がこれ未満なら静止候補
+#define IMU_STILL_TIME_MS 500         // FF速度0かつ静止候補がこの時間続いたら静止とみなす
+#define IMU_BIAS_TRACK_ALPHA 0.002f   // 静止中、1サンプル(5ms)ごとにバイアスを測定値へ寄せる割合(時定数 約2.5秒)
+
+// Piとの通信途絶の判定時間[ms]。これ以上正しいパケットが届かなければ信号なし扱いにして停止する
+#define RAS_SIGNAL_TIMEOUT_MS 200
+
+// ウォッチドッグ(IWDG)のタイムアウト[ms]。メインループが止まる(HardFault等)とこの時間でリセットされる
+// (LSIの誤差で実際は約0.7〜1.9倍になる)
+#define WATCHDOG_TIMEOUT_MS 200
 
 // CAN Standard ID
 // kickboard

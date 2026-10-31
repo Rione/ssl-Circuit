@@ -46,10 +46,12 @@ bool BNO055::startReadAsync() {
                   return false;
             }
             // 完了もエラーも来ないまま止まった場合はバスごと復旧する
+            busRecoverCount++;
             recoverBus();
       }
       if (__HAL_I2C_GET_FLAG(_hi2c, I2C_FLAG_BUSY)) {
             // バスがロックしている。このままHAL_I2C_Mem_Read_ITを呼ぶとBUSY解除を最大25ms待ってしまう
+            busRecoverCount++;
             recoverBus();
             return false;
       }
@@ -88,6 +90,7 @@ void BNO055::onAsyncComplete() {
 }
 
 void BNO055::onAsyncError() {
+      i2cErrorCount++;
       asyncBusy = false;
 }
 

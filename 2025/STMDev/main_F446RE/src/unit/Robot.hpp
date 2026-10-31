@@ -277,7 +277,11 @@ class Robot {
 
   Timer manageByUserCounter;  // ユーザーがスイッチでキッカーの充電or放電をしてから15秒以上経過したらPiの指示に従う
 
-  void hardwareInit();
+  // 異常カウンタ
+  uint32_t rasSignalTimeoutCount = 0;  // Piとの通信途絶で指令を捨てて停止した回数
+  uint32_t rasPacketErrorCount = 0;    // 受信エラーを含むため捨てたPiからのパケット数
+
+  void hardwareInit(bool fastBoot);  // fastBoot: ウォッチドッグによるリセット後で、待ち時間とキャリブレーションを省く
   void rasRecvSerial(RobotInfo_t& info);
   void rasSendSerial(RobotInfo_t& info, uint16_t interval);
   void getSensors(RobotInfo_t* info);

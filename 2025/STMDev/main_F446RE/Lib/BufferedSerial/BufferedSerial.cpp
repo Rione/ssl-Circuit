@@ -71,6 +71,7 @@ void BufferedSerial::restartRxDma() {
 }
 
 void BufferedSerial::onRxError() {
+    rxErrorCount++;
     _rxErrorPending = true;
 }
 
@@ -79,6 +80,7 @@ bool BufferedSerial::write(const uint8_t *data, uint16_t len) {
     // メインループが止まっていたので、DMAに任せてすぐ戻る
     if (_huart->gState != HAL_UART_STATE_READY) {
         if (HAL_GetTick() - _txStartTick < 100) {
+            txDropCount++;
             return false;  // 前回の送信中
         }
         // 送信完了割り込みが来ずに送信中のまま止まった場合の復帰

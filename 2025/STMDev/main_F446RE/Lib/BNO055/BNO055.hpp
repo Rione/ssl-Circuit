@@ -222,6 +222,10 @@ class BNO055 {
       void onAsyncError();     // HAL_I2C_ErrorCallbackから呼ぶ
       I2C_HandleTypeDef *getHi2c() { return _hi2c; }
 
+      // 異常カウンタ
+      uint32_t busRecoverCount = 0;           // 動作中にI2Cバスのロック・停止を検出して復旧した回数(起動時の復旧は数えない)
+      volatile uint32_t i2cErrorCount = 0;    // 割り込み読み出しがエラーで終わった回数
+
       float frontRadians;
 
      private:

@@ -1,9 +1,19 @@
 #include "Robot.hpp"
 
+#include <math.h>
+
+// 電源を切らないリセット(ウォッチドッグ)の前後で残すジャイロバイアス。高速起動時はキャリブレーションの代わりに使う
+// (試合中は機体が動いている可能性があり、その場でキャリブレーションすると誤ったバイアスになる)
+static const uint32_t IMU_PERSIST_MAGIC = 0x494D5542;  // "IMUB"
+static struct {
+      uint32_t magic;
+      gyro_t gyroBias;
+} imuPersist __attribute__((section(".noinit")));
+
 Robot::Robot() {
 }
 
-void Robot::hardwareInit() {
+void Robot::hardwareInit(bool fastBoot) {
       bno.recoverBus();  // 前回I2Cの途中でリセットされていてもバスを使える状態にする
       led1 = bno.check();
       // STM32だけリセットされた場合BNO055は前回の動作モードのまま残っているので、
@@ -40,7 +50,18 @@ void Robot::hardwareInit() {
       // mpu.init();
 
       // bno.setAttitudeZero();
-      HAL_Delay(1000);
+#if IMU_FUSION == IMU_FUSION_STM
+      if (fastBoot && imuPersist.magic == IMU_PERSIST_MAGIC) {
+            bnoGyroBias = imuPersist.gyroBias;
+            bnoFilter.setBeta(IMU_MADGWICK_BETA);
+            bnoDtTimer.reset();
+            printf("IMU fast boot: reuse GyroBias[dps] X:%+.3f Y:%+.3f Z:%+.3f\n", bnoGyroBias.x, bnoGyroBias.y, bnoGyroBias.z);
+            return;
+      }
+#endif
+      if (!fastBoot) {
+            HAL_Delay(1000);
+      }
 
       //   bnoCalibrate();
 #if IMU_FUSION == IMU_FUSION_STM
@@ -55,6 +76,25 @@ void Robot::rasRecvSerial(RobotInfo_t &info) {
       static uint8_t index = 0;             // 受信したデータのインデックスカウンター
       static uint8_t data[dataSize] = {0};  // 受信したデータ
       static Timer timeoutTimer;            // 最後にバイトを受信してからの経過時間
+      // 最後に正しいパケットを受信した時刻[ms]。DWTのTimerは約23.8秒で一周するので、長時間の途絶も
+      // 判定できるようHAL_GetTickを使う
+      static uint32_t lastPacketTick = 0;
+      // ヘッダ受信時点の受信エラー数。パケットの途中で受信エラー(ノイズ等)が起きていたらそのパケットは捨てる
+      // (このプロトコルにはチェックサムが無く、線が浮いているとノイズが正しいパケットとして解釈されていた)
+      static uint32_t rxErrorCountAtHeader = 0;
+
+      // Piが落ちた・ケーブルが抜けた場合、最後の指令(速度・キック・isSignalReceived)が残ったままだと
+      // ロボットが最後の速度で走り続けてしまう。一定時間パケットが来なければ指令を捨てて停止させる
+      if (HAL_GetTick() - lastPacketTick > RAS_SIGNAL_TIMEOUT_MS && info.status.data != 0) {
+            info.status.data = 0;  // isSignalReceived=0 → 各モードで待機(停止)処理になる
+            info.velX.vel = 0;
+            info.velY.vel = 0;
+            info.velAngler.vel = 0;
+            info.dribblePower = 0;
+            info.kicker.straight = 0;
+            info.kicker.chip = 0;
+            rasSignalTimeoutCount++;
+      }
 
       if (!serial5.available() && timeoutTimer.read_ms() > 1000) {
             // 1秒間受信がない場合は受信状態とバッファをリセットする
@@ -76,6 +116,7 @@ void Robot::rasRecvSerial(RobotInfo_t &info) {
                   if (receivedByte == HEADER) {
                         // ヘッダを受信したらデータの受信を開始
                         headerReceived = true;  // ヘッダを受信したフラグを立てる
+                        rxErrorCountAtHeader = serial5.rxErrorCount;
                                                 // printf("header received %d\n ", receivedByte);
                   } else {
                         headerReceived = false;  // ヘッダではないのでフラグをリセット
@@ -88,7 +129,12 @@ void Robot::rasRecvSerial(RobotInfo_t &info) {
                         // printf("data[%d]: %d\n", index, data[index]);
                         index++;
 
-                        if (index == dataSize) {
+                        if (index == dataSize && serial5.rxErrorCount != rxErrorCountAtHeader) {
+                              // パケットの途中で受信エラーが起きていたので、中身を信用せず捨てる
+                              rasPacketErrorCount++;
+                              headerReceived = false;
+                              index = 0;
+                        } else if (index == dataSize) {
                               // データ受信完了
                               info.velX.L = data[0];
                               info.velX.H = data[1];
@@ -110,6 +156,7 @@ void Robot::rasRecvSerial(RobotInfo_t &info) {
                               info.camera.y = data[16];
 
                               info.status.data = data[17];
+                              lastPacketTick = HAL_GetTick();
 
                               headerReceived = false;  // 次のヘッダを待つ準備をする
                               index = 0;               // インデックスをリセット
@@ -347,6 +394,23 @@ void Robot::bnoGet(RobotInfo_t &info, uint16_t interval) {
       bnoDtTimer.reset();
       if (dt > IMU_MAX_DT_S) dt = IMU_MAX_DT_S;
 
+      // --- 静止中のバイアス追従 ---
+      // 起動時に測ったバイアスも温度等でゆっくり変わり、残りがyawのドリフトになる。止まっている間は
+      // 測定値へ少しずつ寄せる。「FF速度指令が0(isRobotStopFF)」かつ「補正後の角速度が全軸小さい」状態が
+      // 続いたときだけ行うので、押されて回っている等、実際に回転しているときは追従しない
+      static uint32_t stillSinceTick = 0;
+      const bool isCalm = fabsf(gyro.x - bnoGyroBias.x) < IMU_STILL_GYRO_DPS &&
+                          fabsf(gyro.y - bnoGyroBias.y) < IMU_STILL_GYRO_DPS &&
+                          fabsf(gyro.z - bnoGyroBias.z) < IMU_STILL_GYRO_DPS;
+      if (!(info.isRobotStopFF && isCalm)) {
+            stillSinceTick = HAL_GetTick();
+      } else if (HAL_GetTick() - stillSinceTick >= IMU_STILL_TIME_MS) {
+            bnoGyroBias.x += IMU_BIAS_TRACK_ALPHA * (gyro.x - bnoGyroBias.x);
+            bnoGyroBias.y += IMU_BIAS_TRACK_ALPHA * (gyro.y - bnoGyroBias.y);
+            bnoGyroBias.z += IMU_BIAS_TRACK_ALPHA * (gyro.z - bnoGyroBias.z);
+            imuPersist.gyroBias = bnoGyroBias;
+      }
+
       gyro.x -= bnoGyroBias.x;
       gyro.y -= bnoGyroBias.y;
       gyro.z -= bnoGyroBias.z;
@@ -383,6 +447,9 @@ void Robot::bnoGyroCalibrate() {
       bnoGyroBias.x = sum.x / IMU_CALIB_SAMPLE_COUNT;
       bnoGyroBias.y = sum.y / IMU_CALIB_SAMPLE_COUNT;
       bnoGyroBias.z = sum.z / IMU_CALIB_SAMPLE_COUNT;
+
+      imuPersist.gyroBias = bnoGyroBias;
+      imuPersist.magic = IMU_PERSIST_MAGIC;
 
       bnoFilter.setBeta(IMU_MADGWICK_BETA);
       bnoDtTimer.reset();

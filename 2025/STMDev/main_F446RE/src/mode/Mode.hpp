@@ -39,6 +39,9 @@ class Mode {
         const uint32_t period = periodUs * (SystemCoreClock / 1000000);
         loopDeadline += period;
         const int32_t late = (int32_t)(DWT->CYCCNT - loopDeadline);
+        if (late > 0) {
+            loopOverrunCount++;  // 処理が周期内に終わらなかった
+        }
         if (late > (int32_t)period || late < -(int32_t)period) {
             loopDeadline = DWT->CYCCNT;
             return;
@@ -48,6 +51,11 @@ class Mode {
 
     char modeName[24];
     uint32_t loopDeadline = 0;
+
+  public:
+    uint32_t loopOverrunCount = 0;  // 異常カウンタ: 処理が周期(1ms)内に終わらなかった回数
+
+  protected:
     char modeLetter;
     Robot *robot;
 };

@@ -41,6 +41,10 @@ class BufferedSerial {
     void onRxError();
     bool matchesUart(UART_HandleTypeDef *huart) const;
 
+    // 異常カウンタ
+    volatile uint32_t rxErrorCount = 0;  // 受信エラー(ノイズ・フレーミング・オーバーラン等)の回数
+    uint32_t txDropCount = 0;            // 前回の送信中で送れなかった回数
+
   private:
     void startRxDma();
     void restartRxDma();
