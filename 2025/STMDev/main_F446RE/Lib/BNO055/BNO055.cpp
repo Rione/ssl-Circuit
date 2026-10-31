@@ -107,9 +107,8 @@ extern "C" void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
 }
 
 bool BNO055::check() {
-      uint8_t data;
-      HAL_I2C_Mem_Read(_hi2c, BNOAddress, BNO055_CHIP_ID_ADDR, I2C_MEMADD_SIZE_8BIT, &data, 1, 100);
-      if (data != 0xA0) {
+      uint8_t data = 0;  // 応答が無いと読み出し先は書き換わらないので、偶然0xA0と判定しないよう初期化しておく
+      if (HAL_I2C_Mem_Read(_hi2c, BNOAddress, BNO055_CHIP_ID_ADDR, I2C_MEMADD_SIZE_8BIT, &data, 1, 100) != HAL_OK || data != 0xA0) {
             printf("BNO055 not found\n");
             return false;
       } else {

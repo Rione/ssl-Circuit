@@ -15,23 +15,34 @@ Robot::Robot() {
 
 void Robot::hardwareInit(bool fastBoot) {
       bno.recoverBus();  // 前回I2Cの途中でリセットされていてもバスを使える状態にする
-      led1 = bno.check();
-      // STM32だけリセットされた場合BNO055は前回の動作モードのまま残っているので、
-      // 設定レジスタ(UNIT_SEL等)を書く前に必ずCONFIGモードへ戻す(切替に最大19ms)
-      bno.setOperaitonMode(OPERATION_MODE_CONFIG);
-      HAL_Delay(25);
-      bno.setUnit(0, 0, 1, 0);  // acc:m/s^2, gyro:dps, euler:rad (getAcc/getGyro/getEulerのスケールに合わせる)
-      bno.setPowerMode();
+      // IMUを載せていない機体もあるので、起動時に一度だけ有無を確かめ、無ければIMUの処理を全て省く
+      // (省かないと、キャリブレーションで待たされたり、I2C線が浮いている場合は読み出しのたびに待たされる)。
+      // BNO055は電源投入から応答するまで約650msかかるので、通常起動では起動後1秒までは確かめ直す。
+      // ウォッチドッグによる高速起動ではBNO055の電源は入ったままなので1回だけ確かめる
+      imuAvailable = bno.check();
+      while (!imuAvailable && !fastBoot && HAL_GetTick() < IMU_DETECT_TIMEOUT_MS) {
+            HAL_Delay(50);
+            imuAvailable = bno.check();
+      }
+      led1 = imuAvailable;
+      if (imuAvailable) {
+            // STM32だけリセットされた場合BNO055は前回の動作モードのまま残っているので、
+            // 設定レジスタ(UNIT_SEL等)を書く前に必ずCONFIGモードへ戻す(切替に最大19ms)
+            bno.setOperaitonMode(OPERATION_MODE_CONFIG);
+            HAL_Delay(25);
+            bno.setUnit(0, 0, 1, 0);  // acc:m/s^2, gyro:dps, euler:rad (getAcc/getGyro/getEulerのスケールに合わせる)
+            bno.setPowerMode();
 #if IMU_FUSION == IMU_FUSION_STM
-      bno.setOperaitonMode(OPERATION_MODE_AMG);
+            bno.setOperaitonMode(OPERATION_MODE_AMG);
 #else
-      bno.setOperaitonMode(OPERATION_MODE_IMUPLUS);
+            bno.setOperaitonMode(OPERATION_MODE_IMUPLUS);
 #endif
-      // bno.setOperaitonMode(OPERATION_MODE_NDOF);  // 地磁気を使うとモーター等の磁気でyawが乱れる
-      HAL_Delay(10);  // CONFIGからの切替に7ms
-      // bno.accConfig();
-      bno.init();
-      // bno.getCalibration();
+            // bno.setOperaitonMode(OPERATION_MODE_NDOF);  // 地磁気を使うとモーター等の磁気でyawが乱れる
+            HAL_Delay(10);  // CONFIGからの切替に7ms
+            // bno.accConfig();
+            bno.init();
+            // bno.getCalibration();
+      }
 
       can.init();
 
@@ -50,8 +61,11 @@ void Robot::hardwareInit(bool fastBoot) {
       // mpu.init();
 
       // bno.setAttitudeZero();
+      if (!imuAvailable) {
+            printf("IMU not available: skip IMU calibration and reading\n");
+      }
 #if IMU_FUSION == IMU_FUSION_STM
-      if (fastBoot && imuPersist.magic == IMU_PERSIST_MAGIC) {
+      if (imuAvailable && fastBoot && imuPersist.magic == IMU_PERSIST_MAGIC) {
             bnoGyroBias = imuPersist.gyroBias;
             bnoFilter.setBeta(IMU_MADGWICK_BETA);
             bnoDtTimer.reset();
@@ -65,7 +79,9 @@ void Robot::hardwareInit(bool fastBoot) {
 
       //   bnoCalibrate();
 #if IMU_FUSION == IMU_FUSION_STM
-      bnoGyroCalibrate();
+      if (imuAvailable) {
+            bnoGyroCalibrate();
+      }
 #endif
 }
 
@@ -375,6 +391,9 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
 void Robot::bnoGet(RobotInfo_t &info, uint16_t interval) {
       // I2Cの読み出しは割り込みで行い、ここでは「完了したデータの処理」と「次の読み出し開始」だけを行う
       // (ブロッキングで読むとBNO055のクロックストレッチで1回約2.4msメインループが止まっていた)
+      if (!imuAvailable) {
+            return;  // IMUを載せていない機体 (imuStateは0のまま)
+      }
       static Timer timer;
       acc_t acc;
       gyro_t gyro;

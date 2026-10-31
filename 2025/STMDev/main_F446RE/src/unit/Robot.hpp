@@ -268,7 +268,8 @@ class Robot {
 
   BNO055 bno = BNO055(&hi2c1, GPIOB, GPIO_PIN_6, GPIOB, GPIO_PIN_7);  // I2C1: SCL=PB6, SDA=PB7
   Madgwick bnoFilter;   // IMU_FUSION_STM用 (MPU6500用のfilterとは別)
-  gyro_t bnoGyroBias;   // [dps] bnoGyroCalibrateで測定した静止バイアス
+  bool imuAvailable = false;     // 起動時にBNO055が見つかったか (IMUを載せていない機体ではfalse)
+  gyro_t bnoGyroBias = {0, 0, 0};  // [dps] bnoGyroCalibrateで測定した静止バイアス
   Timer bnoDtTimer;     // bnoGet呼び出し間隔の実測用(固定dtを仮定しないため)
 
   Flash_EEPROM flash;

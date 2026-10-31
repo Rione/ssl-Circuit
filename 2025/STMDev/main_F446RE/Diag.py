@@ -17,6 +17,7 @@ from ImuMonitor import ELF, OpenOcd
 
 # (表示名, gdbで評価する式, 型)
 COUNTERS = [
+    ("IMU(BNO055)の有無", "robot.imuAvailable", "bool"),
     ("ウォッチドッグによるリセット", "persistResetCount", "u32"),
     ("Pi通信途絶で停止", "robot.rasSignalTimeoutCount", "u32"),
     ("Piパケット破棄(受信エラー)", "robot.rasPacketErrorCount", "u32"),
@@ -57,7 +58,12 @@ def show(ocd, addrs):
     lines = []
     for (name, _, kind), addr in zip(COUNTERS, addrs):
         w = read_word(ocd, addr)
-        value = f"{struct.unpack('<f', struct.pack('<I', w))[0]:+.4f}" if kind == "f32" else str(w)
+        if kind == "f32":
+            value = f"{struct.unpack('<f', struct.pack('<I', w))[0]:+.4f}"
+        elif kind == "bool":
+            value = "あり" if w & 0xFF else "なし"
+        else:
+            value = str(w)
         lines.append(f"  {name:<28} {value:>10}")
     esr = read_word(ocd, CAN1_ESR)
     state = "バスオフ" if esr & 0x4 else "エラーパッシブ" if esr & 0x2 else "エラー警告" if esr & 0x1 else "正常"
