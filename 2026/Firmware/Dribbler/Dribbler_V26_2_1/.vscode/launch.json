@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "STM32F303 SWDデバッグ",
+      "type": "cortex-debug",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "executable": "${workspaceFolder}/build/Dribbler_V26_2_1.elf",
+      "servertype": "stlink",
+      "serverpath": "/Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.stlink-gdb-server.macosaarch64_1.0.100.202604010938/tools/bin/ST-LINK_gdbserver",
+      "interface": "swd",
+      "device": "STM32F303K8Tx",
+      "runToEntryPoint": "MainApp",
+      "preLaunchTask": "build-firmware",
+      "showDevDebugOutput": "raw",
+      "gdbPath": "/Applications/ArmGNUToolchain/15.3.rel2/arm-none-eabi/bin/arm-none-eabi-gdb"
+    }
+  ]
+}
