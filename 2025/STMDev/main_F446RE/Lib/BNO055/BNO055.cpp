@@ -70,6 +70,14 @@ bool BNO055::fetchAsync(acc_t *acc, gyro_t *gyro, euler_t *euler) {
       }
       asyncReady = false;
       const uint8_t *d = asyncBuf;
+      lastRawAllZero = true;
+      static const uint8_t rawIdx[] = {0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 16, 17};  // 加速度 d[0..5]・ジャイロ d[12..17]
+      for (uint8_t i : rawIdx) {
+            if (d[i] != 0) {
+                  lastRawAllZero = false;
+                  break;
+            }
+      }
       acc->x = int16_t(d[1] << 8 | d[0]) / 100.0f - offsetAcc.x;
       acc->y = int16_t(d[3] << 8 | d[2]) / 100.0f - offsetAcc.y;
       acc->z = int16_t(d[5] << 8 | d[4]) / 100.0f - offsetAcc.z;
@@ -168,6 +176,10 @@ void BNO055::setOperaitonMode(uint8_t mode) {
             return;
       }
       HAL_I2C_Mem_Write(_hi2c, BNOAddress, BNO055_OPR_MODE_ADDR, I2C_MEMADD_SIZE_8BIT, &mode, 1, 100);
+}
+
+bool BNO055::readOperationMode(uint8_t *mode) {
+      return HAL_I2C_Mem_Read(_hi2c, BNOAddress, BNO055_OPR_MODE_ADDR, I2C_MEMADD_SIZE_8BIT, mode, 1, 100) == HAL_OK;
 }
 
 void BNO055::setUnit(bool acc, bool gyro, bool euler, bool temp) {

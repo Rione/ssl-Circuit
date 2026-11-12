@@ -196,6 +196,8 @@ class BNO055 {
       void init();
       void setPowerMode();
       void setOperaitonMode(uint8_t mode);
+      // OPR_MODEを読み返す。読めなければfalse (ブロッキング。起動時と設定し直すときだけ使う)
+      bool readOperationMode(uint8_t *mode);
       void getCalibration();
       void setUnit(bool acc, bool gyro, bool euler, bool temp);
       void accConfig();
@@ -225,6 +227,9 @@ class BNO055 {
       // 異常カウンタ
       uint32_t busRecoverCount = 0;           // 動作中にI2Cバスのロック・停止を検出して復旧した回数(起動時の復旧は数えない)
       volatile uint32_t i2cErrorCount = 0;    // 割り込み読み出しがエラーで終わった回数
+      // 直近のfetchAsyncで、加速度とジャイロの生の値が全て0だったか。止まっていても加速度には重力が
+      // かかるので、全て0なのはBNO055がCONFIGモードのまま (データのレジスタが0) のとき
+      bool lastRawAllZero = false;
 
       float frontRadians;
 

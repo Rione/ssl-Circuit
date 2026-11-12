@@ -33,6 +33,8 @@ COUNTERS = [
     ("UART送信スキップ Pi(UART5)", "robot.serial5.txDropCount", "u32"),
     ("I2Cバス復旧(BNO055)", "robot.bno.busRecoverCount", "u32"),
     ("I2C読み出しエラー(BNO055)", "robot.bno.i2cErrorCount", "u32"),
+    ("IMU全て0で捨てた(CONFIGのまま)", "robot.imuZeroSampleCount", "u32"),
+    ("IMU設定し直し", "robot.imuReconfigCount", "u32"),
     ("CAN送信できず破棄", "robot.can.txDropCount", "u32"),
     ("ジャイロバイアスX[dps]", "robot.bnoGyroBias.x", "f32"),
     ("ジャイロバイアスY[dps]", "robot.bnoGyroBias.y", "f32"),

@@ -269,6 +269,8 @@ class Robot {
   BNO055 bno = BNO055(&hi2c1, GPIOB, GPIO_PIN_6, GPIOB, GPIO_PIN_7);  // I2C1: SCL=PB6, SDA=PB7
   Madgwick bnoFilter;   // IMU_FUSION_STM用 (MPU6500用のfilterとは別)
   bool imuAvailable = false;     // 起動時にBNO055が見つかったか (IMUを載せていない機体ではfalse)
+  uint32_t imuZeroSampleCount = 0;  // 異常カウンタ: 生の値が全て0で捨てたサンプル数 (BNO055がCONFIGのまま)
+  uint32_t imuReconfigCount = 0;    // 異常カウンタ: BNO055を設定し直した回数 (起動時の読み返しの失敗を含む)
   uint32_t imuLastUpdateTick = 0;  // BNO055から最後に新しい値を読めた時刻[ms] (Piへ送るimu_valid)
   volatile bool newDribblerDetected = false;  // 2025年版ドリブラー基板からDRIBBLE_RECVを受信したか (CAN受信割り込みで立てる)
   gyro_t bnoGyroBias = {0, 0, 0};  // [dps] bnoGyroCalibrateで測定した静止バイアス
@@ -304,6 +306,7 @@ class Robot {
   void mpuSetup(RobotInfo_t& info);
 
   void bnoGet(RobotInfo_t& info, uint16_t interval);
+  bool bnoConfigure();  // BNO055を計測のモードにし、OPR_MODEを読み返して確かめる
   void bnoCalibrate();
   void bnoGyroCalibrate();
 

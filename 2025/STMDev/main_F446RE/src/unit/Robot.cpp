@@ -28,19 +28,19 @@ void Robot::hardwareInit(bool fastBoot) {
       }
       led1 = imuAvailable;
       if (imuAvailable) {
-            // STM32だけリセットされた場合BNO055は前回の動作モードのまま残っているので、
-            // 設定レジスタ(UNIT_SEL等)を書く前に必ずCONFIGモードへ戻す(切替に最大19ms)
-            bno.setOperaitonMode(OPERATION_MODE_CONFIG);
-            HAL_Delay(25);
-            bno.setUnit(0, 0, 1, 0);  // acc:m/s^2, gyro:dps, euler:rad (getAcc/getGyro/getEulerのスケールに合わせる)
-            bno.setPowerMode();
-#if IMU_FUSION == IMU_FUSION_STM
-            bno.setOperaitonMode(OPERATION_MODE_AMG);
-#else
-            bno.setOperaitonMode(OPERATION_MODE_IMUPLUS);
-#endif
-            // bno.setOperaitonMode(OPERATION_MODE_NDOF);  // 地磁気を使うとモーター等の磁気でyawが乱れる
-            HAL_Delay(10);  // CONFIGからの切替に7ms
+            // 書き込みがI2Cの不調で抜けると、BNO055はCONFIGモードのまま残り、データのレジスタが全て0になる
+            // (読み出し自体は成功するので、0がそのまま正しい値として使われていた)。読み返して確かめ、合わなければ設定し直す
+            bool configured = false;
+            for (uint8_t i = 0; i < IMU_CONFIG_RETRY && !configured; i++) {
+                  if (i > 0) {
+                        imuReconfigCount++;
+                        bno.recoverBus();
+                  }
+                  configured = bnoConfigure();
+            }
+            if (!configured) {
+                  printf("BNO055: operation mode did not take effect (will retry while running)\n");
+            }
             // bno.accConfig();
             bno.init();
             // bno.getCalibration();
@@ -418,6 +418,25 @@ void Robot::uiRecvSerial(RobotInfo_t &info) {
       }
 }
 
+bool Robot::bnoConfigure() {
+      // STM32だけリセットされた場合BNO055は前回の動作モードのまま残っているので、
+      // 設定レジスタ(UNIT_SEL等)を書く前に必ずCONFIGモードへ戻す(切替に最大19ms)
+      bno.setOperaitonMode(OPERATION_MODE_CONFIG);
+      HAL_Delay(25);
+      bno.setUnit(0, 0, 1, 0);  // acc:m/s^2, gyro:dps, euler:rad (getAcc/getGyro/getEulerのスケールに合わせる)
+      bno.setPowerMode();
+#if IMU_FUSION == IMU_FUSION_STM
+      const uint8_t target = OPERATION_MODE_AMG;
+#else
+      const uint8_t target = OPERATION_MODE_IMUPLUS;
+#endif
+      // bno.setOperaitonMode(OPERATION_MODE_NDOF);  // 地磁気を使うとモーター等の磁気でyawが乱れる
+      bno.setOperaitonMode(target);
+      HAL_Delay(10);  // CONFIGからの切替に7ms
+      uint8_t mode = 0xFF;
+      return bno.readOperationMode(&mode) && (mode & 0x0F) == target;
+}
+
 void Robot::bnoGet(RobotInfo_t &info, uint16_t interval) {
       // I2Cの読み出しは割り込みで行い、ここでは「完了したデータの処理」と「次の読み出し開始」だけを行う
       // (ブロッキングで読むとBNO055のクロックストレッチで1回約2.4msメインループが止まっていた)
@@ -428,6 +447,23 @@ void Robot::bnoGet(RobotInfo_t &info, uint16_t interval) {
       acc_t acc;
       gyro_t gyro;
       euler_t euler;
+#ifdef BNO_FAULT_TEST
+      // 試験用: 起動から8秒後に一度だけBNO055をCONFIGモードに戻し、データが0になる状態を再現する
+      static volatile uint8_t faultInjected = 0;  // 0: まだ / 1以上: CONFIGになったと読み返せるまでに書いた回数 / 0xFF: 失敗
+      if (faultInjected == 0 && HAL_GetTick() > 8000) {
+            bno.recoverBus();
+            faultInjected = 0xFF;
+            for (uint8_t i = 1; i <= 20; i++) {
+                  bno.setOperaitonMode(OPERATION_MODE_CONFIG);
+                  HAL_Delay(25);
+                  uint8_t mode = 0xFF;
+                  if (bno.readOperationMode(&mode) && (mode & 0x0F) == OPERATION_MODE_CONFIG) {
+                        faultInjected = i;
+                        break;
+                  }
+            }
+      }
+#endif
       bool hasNewData = bno.fetchAsync(&acc, &gyro, &euler);
       if (timer.read_ms() >= interval && bno.startReadAsync()) {
             timer.reset();
@@ -435,6 +471,22 @@ void Robot::bnoGet(RobotInfo_t &info, uint16_t interval) {
       if (!hasNewData) {
             return;
       }
+      static uint32_t zeroRun = 0;  // 生の値が全て0のサンプルが続いた数
+      if (bno.lastRawAllZero) {
+            // BNO055がCONFIGモードのまま (起動時の設定が抜けた・BNO055だけ電源が瞬断した等)。
+            // 0を正しい値として使わない (imu_validを立てない)。続いたら設定し直す
+            static uint32_t lastReconfigTick = 0;
+            imuZeroSampleCount++;
+            if (++zeroRun >= IMU_ZERO_RECONFIG_COUNT && HAL_GetTick() - lastReconfigTick >= IMU_RECONFIG_MIN_INTERVAL_MS) {
+                  zeroRun = 0;
+                  lastReconfigTick = HAL_GetTick();
+                  imuReconfigCount++;
+                  bno.recoverBus();  // 割り込み読み出しの途中でも、状態を揃えてから書く
+                  bnoConfigure();
+            }
+            return;
+      }
+      zeroRun = 0;
       imuLastUpdateTick = HAL_GetTick();  // Piへ送るIMUの値が新しいか (rasSendSerialのimu_valid)
 
 #if IMU_FUSION == IMU_FUSION_STM

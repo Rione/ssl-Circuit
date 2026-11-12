@@ -20,6 +20,9 @@
 #define IMU_FUSION IMU_FUSION_STM
 
 #define IMU_UPDATE_INTERVAL_MS 5      // BNO055の読み出し周期[ms] (AMGのジャイロ出力は約100Hz)
+#define IMU_CONFIG_RETRY 3            // 起動時、OPR_MODEを読み返して合わなければ設定し直す回数
+#define IMU_ZERO_RECONFIG_COUNT 20    // 生の値が全て0のサンプルがこれだけ続いたら (5ms×20=100ms) 設定し直す
+#define IMU_RECONFIG_MIN_INTERVAL_MS 1000  // 動作中に設定し直す最短の間隔 (1回約50msメインループが止まる)
 #define IMU_DETECT_TIMEOUT_MS 1000    // 起動後この時間[ms]まではBNO055の応答を待つ (電源投入から応答まで約650ms)
 #define IMU_CALIB_SAMPLE_COUNT 200    // ジャイロバイアス測定のサンプル数(10ms間隔で約2秒)
 #define IMU_MAX_DT_S 0.05f            // Madgwick積分1ステップのdt上限[s](呼び出し遅延時に過大な回転を積分しないため)
