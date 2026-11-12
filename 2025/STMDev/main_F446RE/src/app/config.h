@@ -11,7 +11,7 @@
 // (ドリブラーからボール保持/検知のフィードバックをCAN受信)
 #define DRIBBLER_OLD 0
 #define DRIBBLER_NEW 1
-#define DRIBBLER_VERSION DRIBBLER_NEW
+#define DRIBBLER_VERSION DRIBBLER_OLD
 
 // IMU(BNO055)の姿勢推定方式の選択
 // IMU_FUSION_STM: BNO055はAMGモード(生データ)で使い、STM側で起動時ジャイロバイアス補正+Madgwick(地磁気なし)
