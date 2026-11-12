@@ -42,9 +42,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
                         robot.kickerBoard.minusCapValEstimate(canRecvData.data[0]);
                         break;
                   case KICKER_BOARD_PACKET:  // フォトセンサの値・充電完了信号の受信
-#if DRIBBLER_VERSION == DRIBBLER_OLD
-                        robot.info.photoSensorValue = (uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8;  // フォトセンサの値の処理
-#endif
+                        // 2024年版ドリブラー基板の機体では、フォトセンサの値はキッカーボードから届く
+                        if (!robot.newDribblerDetected) {
+                              robot.info.photoSensorValue = (uint16_t)(canRecvData.data[0]) | (uint16_t)(canRecvData.data[1]) << 8;
+                        }
                         robot.kickerBoard.updateChargeFeedback(canRecvData.data[2], canRecvData.data[3]);
                         robot.setChageDoneSignal(canRecvData.data[2]);                      // 充電完了信号（LED等）
                         robot.setKickerBoardChargeMode(canRecvData.data[3]);                // 充電モード信号の処理
@@ -52,14 +53,13 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
                         // uint16_t photoSensorThreshold = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;
                         robot.led0 = !robot.led0;
                         break;
-#if DRIBBLER_VERSION == DRIBBLER_NEW
-                  case DRIBBLE_RECV:
+                  case DRIBBLE_RECV:  // 2025年版ドリブラー基板だけが送ってくる
+                        robot.newDribblerDetected = true;
                         robot.info.dribbleStatus.isHoldBall = (canRecvData.data[0] != 0);
                         // data[1],data[2,3]ドリブラ検知の値は無視　CAN監視用
                         robot.info.dribbleStatus.isDetectedBall = (canRecvData.data[4] != 0);
                         robot.info.photoSensorValue = (uint16_t)(canRecvData.data[5]) | (uint16_t)(canRecvData.data[6]) << 8;
                         break;
-#endif
                   case MD0_RECV:
                         robot.info.mdStatus.motorAngularVelocity[0] =
                             (int16_t)(canRecvData.data[0] | (canRecvData.data[1] << 8));

@@ -4,14 +4,11 @@
 #define PHOTOSENSOR_THRESHOLD 750
 #define BATTERY_CUT_OFF 150
 
-// ドリブラーボードのバージョン選択
-// DRIBBLER_OLD: 2024年版基板
-// (フォトセンサのみで保持判定。ドリブラーへは送信のみでフィードバックなし)
-// DRIBBLER_NEW: 2025年版基板
-// (ドリブラーからボール保持/検知のフィードバックをCAN受信)
-#define DRIBBLER_OLD 0
-#define DRIBBLER_NEW 1
-#define DRIBBLER_VERSION DRIBBLER_OLD
+// ドリブラーボードは、CANの受信から自動で判別する (Robot::newDribblerDetected)。
+// 2025年版基板: DRIBBLE_RECV(0xF5)を10msごとに送ってくる (ボール保持/検知/フォトセンサの値)。
+//              電源投入から送り始めるまで約5秒かかる。
+// 2024年版基板: 何も送ってこない。フォトセンサの値はキッカーボードからKICKER_BOARD_PACKETで届く。
+// 0xF5を1回でも受信したら2025年版基板と決め、以後は戻さない。
 
 // IMU(BNO055)の姿勢推定方式の選択
 // IMU_FUSION_STM: BNO055はAMGモード(生データ)で使い、STM側で起動時ジャイロバイアス補正+Madgwick(地磁気なし)
@@ -57,11 +54,8 @@
 #define MD3_RECV 0x203
 
 // dribbler board
-#if DRIBBLER_VERSION == DRIBBLER_OLD
-#define DRIBBLE 0x14 // 20
-#else
-#define DRIBBLE_SEND 0xF4
-#define DRIBBLE_RECV 0xF5
-#endif
+#define DRIBBLE 0x14       // 20  2024年版基板への出力指令
+#define DRIBBLE_SEND 0xF4  // 244 2025年版基板への出力指令
+#define DRIBBLE_RECV 0xF5  // 245 2025年版基板からのボール保持/検知
 
 #endif

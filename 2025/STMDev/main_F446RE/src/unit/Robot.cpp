@@ -190,7 +190,7 @@ void Robot::rasSendSerial(RobotInfo_t &info, uint16_t interval) {
             return;
       }
 
-      info.dribbleStatus.isNewDrib = true;  // 新機体
+      info.dribbleStatus.isNewDrib = newDribblerDetected;  // 2025年版ドリブラー基板か
 
       const int16_t *motor = info.mdStatus.motorAngularVelocity;
       const int16_t wheel_scaled[4] = {
@@ -230,12 +230,13 @@ void Robot::getSensors(RobotInfo_t *info) {
       info->isUnderVoltage = (underVoltageCount == 0);
       info->capValEstimate = kickerBoard.getCapValEstimate();
 
-#if DRIBBLER_VERSION == DRIBBLER_OLD
-      // 旧基板はドリブラーからのフィードバックがないため、フォトセンサのみでボール保持/検知を判定する
-      bool isBallDetected = (medianPhotoValue.calc(info->photoSensorValue) < PHOTOSENSOR_THRESHOLD);
-      info->dribbleStatus.isDetectedBall = isBallDetected;
-      info->dribbleStatus.isHoldBall = isBallDetected;
-#endif
+      // 2024年版基板はドリブラーからのフィードバックがないため、フォトセンサのみでボール保持/検知を判定する
+      // (2025年版基板では、DRIBBLE_RECVの受信時に保持/検知を更新する)
+      if (!newDribblerDetected) {
+            bool isBallDetected = (medianPhotoValue.calc(info->photoSensorValue) < PHOTOSENSOR_THRESHOLD);
+            info->dribbleStatus.isDetectedBall = isBallDetected;
+            info->dribbleStatus.isHoldBall = isBallDetected;
+      }
 }
 
 void Robot::sendDribble(uint8_t power, bool forceSend) {
@@ -246,18 +247,21 @@ void Robot::sendDribble(uint8_t power, bool forceSend) {
             if (timer.read_ms() < 100)  // パワーが変わっていない場合は送信しない。 forceSendがtrueの場合は100msごとに送信する
                   return;
       }
-#if DRIBBLER_VERSION == DRIBBLER_OLD
-      CANBus::CANData canData = {
-          .stdId = DRIBBLE,
-          .data = {power, 0, 0, 0, 0, 0, 0, 0},
-      };
-#else
-      power = (power != 0) ? 100 : 0;
-      CANBus::CANData canData = {
-          .stdId = DRIBBLE_SEND,
-          .data = {power, 0, 0, 0, 0, 0, 0, 0},
-      };
-#endif
+      // 送り先は判別の結果で1つに決める (両方へ送るとCANの送信メールボックスが埋まり、モーターの指令を捨てることがある)。
+      // 2025年版基板は、指令を受け付けられるようになる直前にDRIBBLE_RECVを送り始めるので、
+      // 受信するまで2024年版基板へ送っていても、2025年版基板への指令が遅れることはない
+      CANBus::CANData canData;
+      if (newDribblerDetected) {
+            canData = {
+                .stdId = DRIBBLE_SEND,
+                .data = {(uint8_t)((power != 0) ? 100 : 0), 0, 0, 0, 0, 0, 0, 0},  // 2025年版基板は0か100だけ
+            };
+      } else {
+            canData = {
+                .stdId = DRIBBLE,
+                .data = {power, 0, 0, 0, 0, 0, 0, 0},
+            };
+      }
       can.send(canData);
       timer.reset();
       dribblePowerPrev = power;

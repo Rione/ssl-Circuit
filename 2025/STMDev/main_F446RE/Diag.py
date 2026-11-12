@@ -18,6 +18,8 @@ from ImuMonitor import ELF, OpenOcd
 # (表示名, gdbで評価する式, 型)
 COUNTERS = [
     ("IMU(BNO055)の有無", "robot.imuAvailable", "bool"),
+    ("2025年版ドリブラー基板", "robot.newDribblerDetected", "bool"),
+    ("フォトセンサの値", "robot.info.photoSensorValue", "u16"),
     ("ウォッチドッグによるリセット", "persistResetCount", "u32"),
     ("Pi通信途絶で停止", "robot.rasSignalTimeoutCount", "u32"),
     ("Piパケット破棄(受信エラー)", "robot.rasPacketErrorCount", "u32"),
@@ -57,7 +59,12 @@ def read_word(ocd, addr):
 def show(ocd, addrs):
     lines = []
     for (name, _, kind), addr in zip(COUNTERS, addrs):
-        w = read_word(ocd, addr)
+        if kind in ("bool", "u16"):
+            # 4byte境界にないことがあるので、境界から読んでずらす
+            w = read_word(ocd, addr & ~3) >> ((addr & 3) * 8)
+            w &= 0xFF if kind == "bool" else 0xFFFF
+        else:
+            w = read_word(ocd, addr)
         if kind == "f32":
             value = f"{struct.unpack('<f', struct.pack('<I', w))[0]:+.4f}"
         elif kind == "bool":
