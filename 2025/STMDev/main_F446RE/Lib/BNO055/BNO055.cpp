@@ -23,6 +23,12 @@ void BNO055::recoverBus() {
       HAL_GPIO_Init(_sdaPort, &gpio);
       wait_us(5);
 
+      // BNO055はクロックストレッチでSCLをLowに保つことがある。保っている間にクロックとSTOPを送っても
+      // 効かず、あとでBNO055が線を放したときにI2CがBUSYを立て直す (復旧が2回続く)。放すまで待つ
+      for (uint16_t i = 0; i < RECOVER_SCL_WAIT_US / 10 && HAL_GPIO_ReadPin(_sclPort, _sclPin) == GPIO_PIN_RESET; i++) {
+            wait_us(10);
+      }
+
       // BNO055が送信途中のバイトを出し切るまでSCLを送る(SDAが解放されたら終わり)
       for (uint8_t i = 0; i < 9 && HAL_GPIO_ReadPin(_sdaPort, _sdaPin) == GPIO_PIN_RESET; i++) {
             HAL_GPIO_WritePin(_sclPort, _sclPin, GPIO_PIN_RESET);
@@ -36,7 +42,12 @@ void BNO055::recoverBus() {
       HAL_GPIO_WritePin(_sdaPort, _sdaPin, GPIO_PIN_SET);
       wait_us(5);
 
-      HAL_I2C_Init(_hi2c);  // MspInitでピンがI2Cに戻り、ペリフェラルもソフトウェアリセットされる
+      HAL_I2C_Init(_hi2c);  // MspInitでピンがI2Cに戻り、ペリフェラルもソフトウェアリセット(SWRST)される
+      if (__HAL_I2C_GET_FLAG(_hi2c, I2C_FLAG_BUSY)) {
+            // 初期化の途中で線が動くとBUSYが残ることがある。線が空いていればもう一度ソフトウェアリセットする
+            recoverStillBusyCount++;
+            HAL_I2C_Init(_hi2c);
+      }
       asyncBusy = false;
 }
 
@@ -47,17 +58,29 @@ bool BNO055::startReadAsync() {
             }
             // 完了もエラーも来ないまま止まった場合はバスごと復旧する
             busRecoverCount++;
+            recoverTimeoutCount++;
             recoverBus();
       }
       if (__HAL_I2C_GET_FLAG(_hi2c, I2C_FLAG_BUSY)) {
             // バスがロックしている。このままHAL_I2C_Mem_Read_ITを呼ぶとBUSY解除を最大25ms待ってしまう
             busRecoverCount++;
+            recoverBusyCount++;
+            const bool sdaLow = HAL_GPIO_ReadPin(_sdaPort, _sdaPin) == GPIO_PIN_RESET;
+            const bool sclLow = HAL_GPIO_ReadPin(_sclPort, _sclPin) == GPIO_PIN_RESET;
+            const uint32_t sr1 = _hi2c->Instance->SR1;
+            const uint32_t sr2 = _hi2c->Instance->SR2;  // SR1のあとにSR2を読むとADDRが消えるが、ここでは使わない
+            if (sdaLow) busySdaLowCount++;
+            if (sclLow) busySclLowCount++;
+            if (!sdaLow && !sclLow) busyLinesHighCount++;
+            if (sr1 & (I2C_SR1_RXNE | I2C_SR1_BTF)) busyRxDataCount++;
+            if (sr2 & I2C_SR2_MSL) busyMslCount++;
             recoverBus();
             return false;
       }
       asyncBusy = true;
       asyncStartTick = HAL_GetTick();
       if (HAL_I2C_Mem_Read_IT(_hi2c, BNOAddress, BNO055_ACCEL_DATA_X_LSB_ADDR, I2C_MEMADD_SIZE_8BIT, asyncBuf, ASYNC_LEN) != HAL_OK) {
+            startFailCount++;
             asyncBusy = false;
             return false;
       }
@@ -93,12 +116,18 @@ bool BNO055::fetchAsync(acc_t *acc, gyro_t *gyro, euler_t *euler) {
 }
 
 void BNO055::onAsyncComplete() {
+      asyncOkCount++;
       asyncBusy = false;
       asyncReady = true;
 }
 
 void BNO055::onAsyncError() {
       i2cErrorCount++;
+      const uint32_t e = _hi2c->ErrorCode;
+      if (e & HAL_I2C_ERROR_AF) errAfCount++;
+      if (e & HAL_I2C_ERROR_BERR) errBerrCount++;
+      if (e & HAL_I2C_ERROR_ARLO) errArloCount++;
+      if (e & HAL_I2C_ERROR_OVR) errOvrCount++;
       asyncBusy = false;
 }
 

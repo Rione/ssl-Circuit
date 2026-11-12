@@ -227,6 +227,21 @@ class BNO055 {
       // 異常カウンタ
       uint32_t busRecoverCount = 0;           // 動作中にI2Cバスのロック・停止を検出して復旧した回数(起動時の復旧は数えない)
       volatile uint32_t i2cErrorCount = 0;    // 割り込み読み出しがエラーで終わった回数
+      // busRecoverCountの内訳と、割り込み読み出しの結果 (I2Cの不調の切り分け用)
+      uint32_t recoverTimeoutCount = 0;       // 読み出しがASYNC_TIMEOUT_MSのあいだ完了もエラーも来なかった
+      uint32_t recoverBusyCount = 0;          // 次の読み出しを始めるときにバスがBUSYのままだった (STOPが出ていない等)
+      uint32_t busySdaLowCount = 0;           //   そのときSDAがLow (BNO055が送り続けている: 最後のNACKをACKと読み違えた等)
+      uint32_t busySclLowCount = 0;           //   そのときSCLがLow (どちらかがクロックを止めている)
+      uint32_t busyRxDataCount = 0;           //   そのときSTM32が受信したバイトを持ったまま (SR1のRXNEかBTF。余分に1バイト受け取った)
+      uint32_t busyMslCount = 0;              //   そのときSTM32がまだマスターのつもり (SR2のMSL。STOPを出せていない)
+      uint32_t busyLinesHighCount = 0;        //   そのときSDAもSCLもHigh (線は空いているのにBUSYの印だけ残った)
+      uint32_t recoverStillBusyCount = 0;     // 復旧の初期化のあともBUSYが残り、もう一度ソフトウェアリセットした
+      uint32_t startFailCount = 0;            // HAL_I2C_Mem_Read_ITがHAL_OKを返さなかった
+      volatile uint32_t asyncOkCount = 0;     // 割り込み読み出しが完了した回数
+      volatile uint32_t errAfCount = 0;       // エラーの内訳: NACK (応答なし)
+      volatile uint32_t errBerrCount = 0;     //               バスエラー (想定外のSTART/STOP。ノイズ・立ち上がりの遅れ)
+      volatile uint32_t errArloCount = 0;     //               アービトレーション負け (SDAが思った値にならない)
+      volatile uint32_t errOvrCount = 0;      //               オーバーラン
       // 直近のfetchAsyncで、加速度とジャイロの生の値が全て0だったか。止まっていても加速度には重力が
       // かかるので、全て0なのはBNO055がCONFIGモードのまま (データのレジスタが0) のとき
       bool lastRawAllZero = false;
@@ -236,6 +251,7 @@ class BNO055 {
      private:
       static const uint8_t ASYNC_LEN = 24;               // 0x08(ACC_X_LSB)〜0x1F(EUL_P_MSB): ACC,MAG,GYR,EUL 各6byte
       static const uint32_t ASYNC_TIMEOUT_MS = 20;       // これ以上完了しなければI2Cを初期化し直す
+      static const uint16_t RECOVER_SCL_WAIT_US = 2000;  // 復旧の前に、BNO055がSCLを放すのを待つ最長の時間
       uint8_t asyncBuf[ASYNC_LEN];
       volatile bool asyncBusy = false;
       volatile bool asyncReady = false;

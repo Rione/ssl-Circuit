@@ -24,6 +24,8 @@ void Robot::hardwareInit(bool fastBoot) {
       imuAvailable = bno.check();
       while (!imuAvailable && !fastBoot && HAL_GetTick() < IMU_DETECT_TIMEOUT_MS) {
             HAL_Delay(50);
+            // 前の起動のI2Cの途中で止まった等で、BNO055がバスを保ったままのことがある。確かめ直す前に毎回復旧する
+            bno.recoverBus();
             imuAvailable = bno.check();
       }
       led1 = imuAvailable;
