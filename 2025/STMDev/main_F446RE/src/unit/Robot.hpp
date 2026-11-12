@@ -137,9 +137,9 @@ typedef struct {
   } status;
 
   // Infomation STM32→RaspberryPi -------------------------
-  // serial5, 14 bytes: 0xFF | battery(1) | dribbleStatus(1) | capVal(1)
-  //   | FL wheel ω(2) | BL(2) | BR(2) | FR(2) | 0xAA
-  // wheel ω: int16 LE, rad/s × 100 (motor ω / GEAR_RATIO)
+  // serial5: COBS(ペイロード22byte ‖ CRC16) ‖ 0x00 の26byte (src/unit/RasProtocol.hpp、docs/UART_PROTOCOL.md)
+  //   type 0x01 | seq | battery | status (dribbleStatus のbit0〜2 + imu_valid) | capVal
+  //   | wheel ω M0〜M3 (int16 LE, rad/s × 100) | accel x, y | yaw_rate | yaw | rx_bad
   union {
     struct {
       bool isDetectedBall : 1;  // ボール検知（フォトセンサーの検知）2024版のisHolDBall
@@ -269,6 +269,7 @@ class Robot {
   BNO055 bno = BNO055(&hi2c1, GPIOB, GPIO_PIN_6, GPIOB, GPIO_PIN_7);  // I2C1: SCL=PB6, SDA=PB7
   Madgwick bnoFilter;   // IMU_FUSION_STM用 (MPU6500用のfilterとは別)
   bool imuAvailable = false;     // 起動時にBNO055が見つかったか (IMUを載せていない機体ではfalse)
+  uint32_t imuLastUpdateTick = 0;  // BNO055から最後に新しい値を読めた時刻[ms] (Piへ送るimu_valid)
   volatile bool newDribblerDetected = false;  // 2025年版ドリブラー基板からDRIBBLE_RECVを受信したか (CAN受信割り込みで立てる)
   gyro_t bnoGyroBias = {0, 0, 0};  // [dps] bnoGyroCalibrateで測定した静止バイアス
   Timer bnoDtTimer;     // bnoGet呼び出し間隔の実測用(固定dtを仮定しないため)
@@ -282,6 +283,8 @@ class Robot {
   // 異常カウンタ
   uint32_t rasSignalTimeoutCount = 0;  // Piとの通信途絶で指令を捨てて停止した回数
   uint32_t rasPacketErrorCount = 0;    // 受信エラーを含むため捨てたPiからのパケット数
+  uint32_t rasCrcErrorCount = 0;       // CRC・長さ・typeが合わないため捨てたPiからのパケット数
+  uint8_t rasTxSeq = 0;                // Piへ送るテレメトリーのseq
 
   void hardwareInit(bool fastBoot);  // fastBoot: ウォッチドッグによるリセット後で、待ち時間とキャリブレーションを省く
   void rasRecvSerial(RobotInfo_t& info);

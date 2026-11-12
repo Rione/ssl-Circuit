@@ -32,6 +32,12 @@
 // Piとの通信途絶の判定時間[ms]。これ以上正しいパケットが届かなければ信号なし扱いにして停止する
 #define RAS_SIGNAL_TIMEOUT_MS 200
 
+// Piとのパケット (COBS + CRC16、src/unit/RasProtocol.hpp・docs/UART_PROTOCOL.md)
+// 指令のパケットは区切りを除いて23byte。これより長く区切りが来なければ、次の0x00まで読み捨てる
+#define RAS_RX_PACKET_MAX 32
+// BNO055の値がこの時間[ms]より古ければ、Piへ送るテレメトリーのimu_validを0にする (I2Cが止まったときなど)
+#define RAS_IMU_STALE_MS 50
+
 // ウォッチドッグ(IWDG)のタイムアウト[ms]。メインループが止まる(HardFault等)とこの時間でリセットされる
 // (LSIの誤差で実際は約0.7〜1.9倍になる)
 #define WATCHDOG_TIMEOUT_MS 200

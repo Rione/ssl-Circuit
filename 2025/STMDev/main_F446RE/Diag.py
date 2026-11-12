@@ -23,6 +23,7 @@ COUNTERS = [
     ("ウォッチドッグによるリセット", "persistResetCount", "u32"),
     ("Pi通信途絶で停止", "robot.rasSignalTimeoutCount", "u32"),
     ("Piパケット破棄(受信エラー)", "robot.rasPacketErrorCount", "u32"),
+    ("Piパケット破棄(CRC・形式)", "robot.rasCrcErrorCount", "u32"),
     ("ループ周期オーバー(main)", "mainMode.loopOverrunCount", "u32"),
     ("ループ周期オーバー(camera)", "cameraMode.loopOverrunCount", "u32"),
     ("UART受信エラー PC(USART1)", "robot.serial1.rxErrorCount", "u32"),

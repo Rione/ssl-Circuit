@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#include "RasProtocol.hpp"
+
 // 電源を切らないリセット(ウォッチドッグ)の前後で残すジャイロバイアス。高速起動時はキャリブレーションの代わりに使う
 // (試合中は機体が動いている可能性があり、その場でキャリブレーションすると誤ったバイアスになる)
 static const uint32_t IMU_PERSIST_MAGIC = 0x494D5542;  // "IMUB"
@@ -85,19 +87,21 @@ void Robot::hardwareInit(bool fastBoot) {
 #endif
 }
 
+// Piからの指令を受け取る。パケット = COBS(ペイロード20byte ‖ CRC16) ‖ 0x00 (docs/UART_PROTOCOL.md)。
+// 0x00が来たらそこがパケットの区切り。CRC・長さ・typeが合うものだけを使い、合わないものは捨てて数える
+// (旧形式はチェックサムが無く、線が浮いているとノイズが正しいパケットとして解釈されていた)。
+// 旧形式(0xFFで始まる19byte)の指令は形が合わないので使わない (RACOON-Pi2では動かせない)。
 void Robot::rasRecvSerial(RobotInfo_t &info) {
-      static const uint8_t HEADER = 0xFF;   // ヘッダ
-      static const uint8_t dataSize = 18;   // データのサイズ
-      static bool headerReceived = false;   // ヘッダを受信したかどうか
-      static uint8_t index = 0;             // 受信したデータのインデックスカウンター
-      static uint8_t data[dataSize] = {0};  // 受信したデータ
-      static Timer timeoutTimer;            // 最後にバイトを受信してからの経過時間
+      static uint8_t buf[RAS_RX_PACKET_MAX];  // 区切りまでのバイト (COBSで符号化されたまま)
+      static uint8_t len = 0;
+      static bool skipping = false;           // 区切りが来ないまま長くなったので、次の0x00まで読み捨てている
+      static Timer timeoutTimer;              // 最後にバイトを受信してからの経過時間
       // 最後に正しいパケットを受信した時刻[ms]。DWTのTimerは約23.8秒で一周するので、長時間の途絶も
       // 判定できるようHAL_GetTickを使う
       static uint32_t lastPacketTick = 0;
-      // ヘッダ受信時点の受信エラー数。パケットの途中で受信エラー(ノイズ等)が起きていたらそのパケットは捨てる
-      // (このプロトコルにはチェックサムが無く、線が浮いているとノイズが正しいパケットとして解釈されていた)
-      static uint32_t rxErrorCountAtHeader = 0;
+      // パケットの最初のバイトを受け取った時点の受信エラー数。パケットの途中で受信エラー(ノイズ等)が
+      // 起きていたら、CRCが合っていてもそのパケットは捨てる
+      static uint32_t rxErrorCountAtStart = 0;
 
       // Piが落ちた・ケーブルが抜けた場合、最後の指令(速度・キック・isSignalReceived)が残ったままだと
       // ロボットが最後の速度で走り続けてしまう。一定時間パケットが来なければ指令を捨てて停止させる
@@ -115,75 +119,87 @@ void Robot::rasRecvSerial(RobotInfo_t &info) {
       if (!serial5.available() && timeoutTimer.read_ms() > 1000) {
             // 1秒間受信がない場合は受信状態とバッファをリセットする
             serial5.flush();
-            headerReceived = false;
-            index = 0;
+            len = 0;
+            skipping = false;
             timeoutTimer.reset();
             return;
       }
 
       while (serial5.available()) {
-            // 1バイト読み込み
-            uint8_t receivedByte = serial5.read();
+            const uint8_t receivedByte = serial5.read();
             timeoutTimer.reset();
-            // printf("received %d\n ", receivedByte);
 
-            if (!headerReceived) {
-                  index = 0;
-                  if (receivedByte == HEADER) {
-                        // ヘッダを受信したらデータの受信を開始
-                        headerReceived = true;  // ヘッダを受信したフラグを立てる
-                        rxErrorCountAtHeader = serial5.rxErrorCount;
-                                                // printf("header received %d\n ", receivedByte);
-                  } else {
-                        headerReceived = false;  // ヘッダではないのでフラグをリセット
-                                                 // printf("error: Header is not received %d\n", receivedByte);
+            if (receivedByte != ras::kDelimiter) {
+                  if (skipping) {
+                        continue;
                   }
-            } else {  // ヘッダを受信した後の処理
-                  if (index < dataSize) {
-                        // データ受信
-                        data[index] = receivedByte;
-                        // printf("data[%d]: %d\n", index, data[index]);
-                        index++;
-
-                        if (index == dataSize && serial5.rxErrorCount != rxErrorCountAtHeader) {
-                              // パケットの途中で受信エラーが起きていたので、中身を信用せず捨てる
-                              rasPacketErrorCount++;
-                              headerReceived = false;
-                              index = 0;
-                        } else if (index == dataSize) {
-                              // データ受信完了
-                              info.velX.L = data[0];
-                              info.velX.H = data[1];
-                              info.velY.L = data[2];
-                              info.velY.H = data[3];
-                              info.velAngler.L = data[4];
-                              info.velAngler.H = data[5];
-                              info.dribblePower = data[6];
-                              info.kicker.straight = data[7];
-                              info.kicker.chip = data[8];
-
-                              info.relativePositionX.L = data[9];
-                              info.relativePositionX.H = data[10];
-                              info.relativePositionY.L = data[11];
-                              info.relativePositionY.H = data[12];
-                              info.relativeTheta.L = data[13];
-                              info.relativeTheta.H = data[14];
-                              info.camera.x = data[15];
-                              info.camera.y = data[16];
-
-                              info.status.data = data[17];
-                              lastPacketTick = HAL_GetTick();
-
-                              headerReceived = false;  // 次のヘッダを待つ準備をする
-                              index = 0;               // インデックスをリセット
-                        }
+                  if (len == 0) {
+                        rxErrorCountAtStart = serial5.rxErrorCount;
                   }
+                  if (len >= sizeof(buf)) {
+                        // 区切りが来ないまま長くなった (ノイズ・ボーレートの誤り)。次の0x00まで読み捨てる
+                        rasCrcErrorCount++;
+                        skipping = true;
+                        len = 0;
+                        continue;
+                  }
+                  buf[len++] = receivedByte;
+                  continue;
             }
+
+            // 区切りの0x00
+            const uint8_t n = len;
+            len = 0;
+            if (skipping) {
+                  skipping = false;
+                  continue;
+            }
+            if (n == 0) {
+                  continue;  // 区切りが続いた
+            }
+            if (serial5.rxErrorCount != rxErrorCountAtStart) {
+                  // パケットの途中で受信エラーが起きていたので、中身を信用せず捨てる
+                  rasPacketErrorCount++;
+                  continue;
+            }
+            uint8_t payload[ras::kCommandPayloadSize];
+            if (ras::openPacket(buf, n, ras::kTypeCommand, ras::kCommandPayloadSize, payload) != ras::OpenResult::kOk) {
+                  rasCrcErrorCount++;  // CRC・長さ・typeが合わない
+                  continue;
+            }
+
+            // 18byteの並びは旧形式(0xFFのあとの18byte)と同じ
+            const uint8_t *data = &payload[ras::kCommandBody];
+            info.velX.L = data[0];
+            info.velX.H = data[1];
+            info.velY.L = data[2];
+            info.velY.H = data[3];
+            info.velAngler.L = data[4];
+            info.velAngler.H = data[5];
+            info.dribblePower = data[6];
+            info.kicker.straight = data[7];
+            info.kicker.chip = data[8];
+
+            info.relativePositionX.L = data[9];
+            info.relativePositionX.H = data[10];
+            info.relativePositionY.L = data[11];
+            info.relativePositionY.H = data[12];
+            info.relativeTheta.L = data[13];
+            info.relativeTheta.H = data[14];
+            info.camera.x = data[15];
+            info.camera.y = data[16];
+
+            info.status.data = data[17];
+            lastPacketTick = HAL_GetTick();
       }
 }
 
+// Piへテレメトリーを送る。パケット = COBS(ペイロード22byte ‖ CRC16) ‖ 0x00 (docs/UART_PROTOCOL.md)。
+// IMUの値は、IMUが見つかっていて直近RAS_IMU_STALE_MS以内に新しい値が読めたときだけ載せ、
+// statusのbit3 (imu_valid) を立てる。単位とスケールは新機体のSPIと同じ。
 void Robot::rasSendSerial(RobotInfo_t &info, uint16_t interval) {
-      static const uint8_t packetSize = 13;
+      static const float GRAVITY = 9.80665f;          // [m/s^2] BNO055の加速度 [m/s^2] → [g]
+      static const float DEG2RAD = 0.01745329252f;    // BNO055のジャイロ [dps] → [rad/s]
       static Timer timer;
 
       if (timer.read_ms() < interval) {
@@ -192,26 +208,36 @@ void Robot::rasSendSerial(RobotInfo_t &info, uint16_t interval) {
 
       info.dribbleStatus.isNewDrib = newDribblerDetected;  // 2025年版ドリブラー基板か
 
+      ras::Telemetry t = {};
+      t.seq = rasTxSeq++;
+      t.batteryDeciVolts = info.batteryVoltage;
+      t.capValEstimate = info.capValEstimate;
+      // ホイールはモーターの番号の順 (M0 55°、M1 135°、M2 -135°、M3 -55°)。Wingのwheel0〜3と同じ
       const int16_t *motor = info.mdStatus.motorAngularVelocity;
-      const int16_t wheel_scaled[4] = {
-          MotorDriver::motorToWheelScaled(motor[3]),  // FL (M3, -55°)
-          MotorDriver::motorToWheelScaled(motor[1]),  // BL (M1, 135°)
-          MotorDriver::motorToWheelScaled(motor[2]),  // BR (M2, -135°)
-          MotorDriver::motorToWheelScaled(motor[0]),  // FR (M0, 55°)
-      };
-
-      uint8_t buffer[packetSize];
-      buffer[0] = 0xFF;
-      buffer[1] = info.batteryVoltage;
-      buffer[2] = info.dribbleStatus.data;
-      buffer[3] = info.capValEstimate;
       for (int i = 0; i < 4; i++) {
-            buffer[4 + i * 2] = (uint8_t)(wheel_scaled[i] & 0xFF);
-            buffer[5 + i * 2] = (uint8_t)((wheel_scaled[i] >> 8) & 0xFF);
+            t.wheel[i] = MotorDriver::motorToWheelScaled(motor[i]);
       }
-      buffer[12] = 0xAA;
 
-      serial5.write(buffer, packetSize);
+      const bool imuValid = imuAvailable && (HAL_GetTick() - imuLastUpdateTick) <= RAS_IMU_STALE_MS;
+      t.status = (uint8_t)((info.dribbleStatus.data & ras::kStatusSensorMask) | (imuValid ? ras::kStatusImuValid : 0));
+      if (imuValid) {
+            t.accelX = ras::scaleToInt16(info.imuState.acc.x / GRAVITY, 1000.0f);
+            t.accelY = ras::scaleToInt16(info.imuState.acc.y / GRAVITY, 1000.0f);
+            t.yawRate = ras::scaleToInt16(info.imuState.gyro.z * DEG2RAD, 900.0f);
+#if IMU_FUSION == IMU_FUSION_BNO_IMUPLUS
+            // BNO055のフュージョンのyawは時計回りが正なので、反時計回りが正になるよう反転する
+            t.yaw = ras::scaleToInt16(-info.imuState.euler.yaw, 10000.0f);
+#else
+            t.yaw = ras::scaleToInt16(info.imuState.euler.yaw, 10000.0f);
+#endif
+      }
+      t.rxBad = (uint8_t)(rasPacketErrorCount + rasCrcErrorCount);  // 255の次は0
+
+      uint8_t payload[ras::kTelemetryPayloadSize];
+      ras::packTelemetry(t, payload);
+      uint8_t packet[ras::kTelemetryPacketSize];
+      const size_t n = ras::buildPacket(payload, sizeof(payload), packet);
+      serial5.write(packet, (uint16_t)n);  // 26byteなのでDMAの送信バッファ(64byte)に収まる
       timer.reset();
 }
 
@@ -409,6 +435,7 @@ void Robot::bnoGet(RobotInfo_t &info, uint16_t interval) {
       if (!hasNewData) {
             return;
       }
+      imuLastUpdateTick = HAL_GetTick();  // Piへ送るIMUの値が新しいか (rasSendSerialのimu_valid)
 
 #if IMU_FUSION == IMU_FUSION_STM
       // 呼び出し周期がブロッキング処理(printf等)で乱れても正しく積分できるよう、
