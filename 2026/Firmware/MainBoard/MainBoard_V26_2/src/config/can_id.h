@@ -8,6 +8,7 @@
 #define CAN_ID_TX_DISCHARGE ((uint16_t)0x12)      // 放電
 #define CAN_ID_TX_STRAIGHT_KICK ((uint16_t)0x13)  // ストレートキック
 #define CAN_ID_TX_CHIP_KICK ((uint16_t)0x14)      // チップキック
+#define CAN_ID_TX_DIRECT_KICK ((uint16_t)0x15)    // ダイレクトキック待機指示
 
 #define CAN_ID_TX_DRIBBLER ((uint16_t)0x20)  // ドリブル
 

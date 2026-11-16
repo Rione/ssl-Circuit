@@ -6,6 +6,8 @@
 #define KICK_MAX_DUTY 0.95f      // キックPWMデューティの上限
 #define DISCHARGE_DUTY 0.1f      // 放電中にソレノイドへ出すduty
 #define DISCHARGE_TOGGLE_MS 250  // 放電中にduty ON/OFFを切り替える周期 [ms](ビヨンビヨン動作)
+#define KICK_INTERVAL_MS 1000    // ダイレクトキックの最小間隔 [ms](MainBoardのROBOT_KICK_INTERVAL_MSと同じ)
+#define DIRECT_KICK_TIMEOUT_MS 300  // 待機指示がこの時間更新されなければ待機を解除 [ms]
 
 PwmOut kick1;
 PwmOut kick2;
@@ -27,6 +29,15 @@ KickerReq kicker_mode;  // 最後に反映したチャージ/放電指示(キッ
 
 float boost_voltage;  // 最新の昇圧電圧 [V](app側からSetで更新)
 
+// ダイレクトキック待機状態(CAN受信ISRのみで読み書きする)。
+// 時刻はHAL_GetTick()[ms]で扱う(DWTのTimerは数十秒で一周し、古い待機指示を有効と誤判定するため)
+static uint8_t direct_kick_type;      // 0=解除, 1=ストレート, 2=チップ
+static uint8_t direct_kick_power;     // 0-255
+static uint32_t direct_kick_arm_tick;  // 最後に待機指示を受けた時刻 [ms]
+static bool prev_photo_detected;      // フォトセンサの前回値(立ち上がり検出用)
+static uint32_t last_kick_tick;       // 最後にキックした時刻 [ms]
+static bool has_kicked;               // 起動後に一度でもキックしたか
+
 void Kicker_SetBoostVoltage(float voltage) { boost_voltage = voltage; }
 
 void Kicker_Init() {
@@ -43,13 +54,18 @@ void Kicker_Init() {
   is_discharging = false;
   kicker_req = KICKER_REQ_NONE;
   kicker_mode = KICKER_REQ_NONE;
+
+  direct_kick_type = 0;
+  direct_kick_power = 0;
+  prev_photo_detected = false;
+  has_kicked = false;
 }
 
-// ISRから呼ばれる。待たずにパルスを開始するだけ。
-void Kicker_Kick(int kickType, float power) {
-  if (kickType != 1 && kickType != 2) return;
+// ISRから呼ばれる。待たずにパルスを開始するだけ。キックした場合はtrueを返す。
+bool Kicker_Kick(int kickType, float power) {
+  if (kickType != 1 && kickType != 2) return false;
   // 昇圧電圧が十分なときのみキックする(DONEはFAULTと区別できないため電圧で判定)
-  if (boost_voltage < KICK_READY_VOLTAGE) return;
+  if (boost_voltage < KICK_READY_VOLTAGE) return false;
 
   DigitalOut_Write(&lt_charge, 0);
   DigitalOut_Write(&lt_discharge, 0);
@@ -68,6 +84,30 @@ void Kicker_Kick(int kickType, float power) {
 
   Timer_Reset(&kick_timer);
   is_kicking = true;
+  last_kick_tick = HAL_GetTick();
+  has_kicked = true;
+  return true;
+}
+
+// ISRから呼ばれる。MainBoardからの待機指示を記録する。
+void Kicker_SetDirectKick(uint8_t type, uint8_t power) {
+  direct_kick_type = (type == 1 || type == 2) ? type : 0;
+  direct_kick_power = power;
+  direct_kick_arm_tick = HAL_GetTick();
+}
+
+// ISRから呼ばれる。Dribblerのフォトセンサ値を受け、待機中に立ち上がりを検出したら即キックする。
+void Kicker_OnPhotoSensor(bool detected) {
+  bool rising_edge = detected && !prev_photo_detected;
+  prev_photo_detected = detected;
+  if (!rising_edge) return;
+
+  uint32_t now = HAL_GetTick();
+  if (direct_kick_type == 0 || direct_kick_power == 0) return;
+  if (now - direct_kick_arm_tick > DIRECT_KICK_TIMEOUT_MS) return;  // MainBoardからの指示が途絶えた
+  if (has_kicked && now - last_kick_tick < KICK_INTERVAL_MS) return;
+
+  Kicker_Kick(direct_kick_type, direct_kick_power / 255.0f);
 }
 
 // ISRから呼ばれる。要求を記録するだけで、実際の切り替えはKicker_Updateで行う。

@@ -90,6 +90,12 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
         Kicker_Kick(2, can_recv_data.data[0] / 255.0f);
         PwmOut_Write(&led, 0);
         break;
+      case 0x15:  // ダイレクトキック待機指示 (data[0]: 0=解除/1=ストレート/2=チップ, data[1]: 強さ)
+        Kicker_SetDirectKick(can_recv_data.data[0], can_recv_data.data[1]);
+        break;
+      case 0x70:  // Dribblerのボール情報 (data[0]: フォトセンサ反応)
+        Kicker_OnPhotoSensor(can_recv_data.data[0] != 0);
+        break;
       default:
         break;
     }

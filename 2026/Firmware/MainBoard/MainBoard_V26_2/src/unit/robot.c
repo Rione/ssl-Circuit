@@ -314,27 +314,17 @@ void Robot_SendDribble(Robot* self, uint8_t power, uint8_t force_send) {
   Dribbler_Send(&self->dribbler, power, force_send);
 }
 
-static void Robot_KickIfTriggered(Kicker* kicker, uint8_t is_straight, uint8_t power,
-                                  uint8_t do_direct, uint8_t ball_detected_edge,
-                                  uint8_t value_changed) {
-  if (power == 0) return;
-  // do_direct時はボールセンサ反応のエッジで発火、それ以外(即時キック指示)は
-  // 前回受信値からの変化がある場合のみ発火する(値が残ったままの自動再発火を防止)
-  if (do_direct) {
-    if (!ball_detected_edge) return;
-  } else if (!value_changed) {
-    return;
-  }
+// 即時キック指示: 前回受信値からの変化がある場合のみ発火する(値が残ったままの自動再発火を防止)
+static void Robot_KickIfChanged(Kicker* kicker, uint8_t is_straight, uint8_t power,
+                                uint8_t value_changed) {
+  if (power == 0 || !value_changed) return;
   Kicker_Kick(kicker, is_straight, power);
 }
 
 void Robot_SendKicker(Robot* self, RobotInfo* info) {
-  static uint8_t prev_ball_detected = 0;
   static uint8_t prev_chip_power = 0;
   static uint8_t prev_straight_power = 0;
 
-  uint8_t ball_detected = info->dribble_status.is_detected_ball;
-  uint8_t ball_detected_edge = ball_detected && !prev_ball_detected;
   uint8_t chip_changed = info->kicker.chip != prev_chip_power;
   uint8_t straight_changed = info->kicker.straight != prev_straight_power;
 
@@ -347,16 +337,23 @@ void Robot_SendKicker(Robot* self, RobotInfo* info) {
     do_direct_chip = 0;
   }
 
-  if (!do_direct_straight && info->kicker.chip > 0) {
-    Robot_KickIfTriggered(&self->kicker, KICKER_CHIP, info->kicker.chip,
-                          do_direct_chip, ball_detected_edge, chip_changed);
-  }
-  if (!do_direct_chip && info->kicker.straight > 0) {
-    Robot_KickIfTriggered(&self->kicker, KICKER_STRAIGHT, info->kicker.straight,
-                          do_direct_straight, ball_detected_edge, straight_changed);
+  // 即時キックを先に送る(待機指示の送信で送信メールボックスを埋めないため)
+  if (!do_direct_straight && !do_direct_chip) {
+    Robot_KickIfChanged(&self->kicker, KICKER_CHIP, info->kicker.chip, chip_changed);
+    Robot_KickIfChanged(&self->kicker, KICKER_STRAIGHT, info->kicker.straight,
+                        straight_changed);
   }
 
-  prev_ball_detected = ball_detected;
+  // ダイレクトキックはPowerBoardがDribblerのフォトセンサを直接見てキックする。
+  // MainBoardは待機の種別と強さを指示するだけ(停止時は強さ0で解除が送られる)。
+  if (do_direct_straight) {
+    Kicker_SendDirectKick(&self->kicker, KICKER_DIRECT_STRAIGHT, info->kicker.straight);
+  } else if (do_direct_chip) {
+    Kicker_SendDirectKick(&self->kicker, KICKER_DIRECT_CHIP, info->kicker.chip);
+  } else {
+    Kicker_SendDirectKick(&self->kicker, KICKER_DIRECT_NONE, 0);
+  }
+
   prev_chip_power = info->kicker.chip;
   prev_straight_power = info->kicker.straight;
 }
