@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "iwdg.h"
+
 Timer main_control_timer;
 
 void MainMode_Init(MainMode* self, Robot* robot) {
@@ -43,6 +45,7 @@ void MainMode_Loop(MainMode* self) {
   }
 
   Robot_UpdateHeartBeat(r);
+  HAL_IWDG_Refresh(&hiwdg);
 
   if (r->info.kicker_status.cap_val > 100) {
     DigitalOut_Write(&r->led1, 1);

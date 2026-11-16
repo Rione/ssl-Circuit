@@ -16,7 +16,7 @@ CanData can_recv_data;
 
 Timer can_trasmit_interval_timer;
 
-uint16_t adc_value[3];
+volatile uint16_t adc_value[3];  // DMAが常時上書きする
 // adc_value[0]: 電源電圧 (PB0/CH11, 分圧 10k/1k)
 // adc_value[1]: 昇圧電圧 (PB1/CH12, 分圧 1M/4.7k)
 // adc_value[2]: 内部温度センサ
@@ -54,7 +54,14 @@ void Setup() {
 
   DigitalIn_Init(&button, BUTTON_GPIO_Port, BUTTON_Pin);
 
+  if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST)) printf("Reset by IWDG\n");
+  __HAL_RCC_CLEAR_RESET_FLAGS();
+
+  // ADCは無効状態で校正してから開始する(オフセット誤差の除去)
+  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_value, 3);
+  // 値はバッファを読むだけなので、変換ごとに発生するDMA割り込み(数十万回/秒)を止める
+  __HAL_DMA_DISABLE_IT(hadc1.DMA_Handle, DMA_IT_HT | DMA_IT_TC);
 
   Kicker_Init();
 
@@ -68,11 +75,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
     Can_Recv(&can_bus, &can_recv_data);
     switch (can_recv_data.stdId) {
       case 0x11:  // 充電
-        Kicker_Charge();
+        Kicker_RequestCharge();
         PwmOut_Write(&led, 1);
         break;
       case 0x12:  // 放電
-        Kicker_Discharge();
+        Kicker_RequestDischarge();
         PwmOut_Write(&led, 0);
         break;
       case 0x13:  // ストレートキック
@@ -91,16 +98,20 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
 
 void MainApp() {
   while (1) {
+    HAL_IWDG_Refresh(&hiwdg);
+
     Kicker_SetBoostVoltage(GetBoostVoltage());  // 最新の昇圧電圧を渡す
     Kicker_Update();                            // キックパルスの終了処理(非ブロッキング)
 
     if (Timer_ReadMs(&can_trasmit_interval_timer) > 10) {
+      uint16_t boost_voltage = (uint16_t)GetBoostVoltage();  // 255Vを超えるため2byteで送る
       CanData can_send_data = {
           .stdId = 0x50,
           .data = {
               Kicker_DoneCheck(),
-              GetSupplyVoltage() * 5,  // 電源電圧 [V] * 10
-              GetBoostVoltage(),       // 昇圧電圧 [V]
+              GetSupplyVoltage() * 5,       // 電源電圧 [V] * 5
+              boost_voltage & 0xFF,         // 昇圧電圧 [V] 下位byte
+              (boost_voltage >> 8) & 0xFF,  // 昇圧電圧 [V] 上位byte
           },
       };
       Can_Send(&can_bus, &can_send_data);

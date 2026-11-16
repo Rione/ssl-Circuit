@@ -13,8 +13,8 @@ void Kicker_Init();
 void Kicker_SetBoostVoltage(float voltage);
 void Kicker_Kick(int kickType, float power);
 void Kicker_Update();
-void Kicker_Charge();
-void Kicker_Discharge();
+void Kicker_RequestCharge();
+void Kicker_RequestDischarge();
 
 bool Kicker_DoneCheck();
 

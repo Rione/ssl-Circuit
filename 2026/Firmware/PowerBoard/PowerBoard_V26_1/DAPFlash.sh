@@ -23,4 +23,4 @@ fi
 # DAPLinkを使って書き込みを行う
 # OpenOCD + CMSIS-DAP (DAPLink) Flashing
 echo "Flashing with DAPLink (OpenOCD)..."
-openocd -f interface/cmsis-dap.cfg -f target/stm32f4x.cfg -c "program $binary_path 0x08000000 verify reset exit"
+openocd -f "$CURRENT/openocd_daplink.cfg" -c "program $binary_path 0x08000000 verify reset exit"

@@ -7,6 +7,7 @@
 #include "adc.h"
 #include "can_bus.h"
 #include "digitalinout.h"
+#include "iwdg.h"
 #include "main.h"
 #include "pwm_out.h"
 #include "serial.h"
