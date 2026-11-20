@@ -122,6 +122,8 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 #define LAT_CAP_ACCEL_LO 0.3f
 #define LAT_CAP_ACCEL_HI 1.0f
 #define LAT_CAP_TAU_S 0.020f
+// 加速 (S 字の参照) と速さの向きの cos がこれ以上のときだけ上げる (0.7 = 45° 以内)。0 にすると前の判定 (a·v ≥ 0) と同じ
+#define LAT_CAP_ALIGN_COS 0.7f
 // 電圧制御のときのS字加減速の加速度上限 [m/s^2] (速度モードの TCS_MAX_ACCEL=18 は実機で出ない)。
 // 目標が実機より先へ行きすぎないよう、出せる加速度に近い値にする。トルク上限 2.8V に合わせる
 #define VOLT_MODE_MAX_ACCEL 5.0f
