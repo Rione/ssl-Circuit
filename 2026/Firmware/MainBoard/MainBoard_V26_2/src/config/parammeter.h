@@ -115,6 +115,13 @@ extern const int16_t ROBOT_MOTOR_DEGREE[4];  // モーターの取り付け角�
 // テストで 2.4V→3.2V と上げ、3.2V ではスリップが50〜87%まで増えた (セグメントによっては動いている
 // 時間の大半が空転)。速さと安定感のバランスを取り、間の 2.8V に落ち着けた
 #define VOLT_TRACTION_LIMIT_V 2.8f
+// 横へ加速しているときだけのトルク上限 [V] (src/control/lat_cap.h、ssl-RAVEN-Alula lab 2026-11-19-fw-noslip-nullfb-floor の B)。
+// VOLT_TRACTION_LIMIT_V 以下にすると無効 (出力は変更前と同じ)。減速・前後・止まっている間は VOLT_TRACTION_LIMIT_V のまま
+//   ACCEL_LO〜HI: 指令 (S 字の参照) の加速がこの間で 0 → 1 に効かせる [m/s^2]、TAU_S: 上限のならし [s]
+#define LAT_CAP_LIMIT_V 3.2f
+#define LAT_CAP_ACCEL_LO 0.3f
+#define LAT_CAP_ACCEL_HI 1.0f
+#define LAT_CAP_TAU_S 0.020f
 // 電圧制御のときのS字加減速の加速度上限 [m/s^2] (速度モードの TCS_MAX_ACCEL=18 は実機で出ない)。
 // 目標が実機より先へ行きすぎないよう、出せる加速度に近い値にする。トルク上限 2.8V に合わせる
 #define VOLT_MODE_MAX_ACCEL 5.0f

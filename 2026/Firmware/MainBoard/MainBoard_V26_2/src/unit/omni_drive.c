@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "lat_cap.h"
 #include "volt_tune.h"
 #include "wheel_voltage.h"
 // BugFixブランチの OmniDrive_ComputeInverseKinematics (ik_vx/vy/omega) は、狙いが同じ
@@ -87,6 +88,7 @@ void OmniDrive_Init(OmniDrive* self, Serial* serials) {
   self->volt_pi_saturated = false;
   self->vel_fb_rot_stalled = false;
   self->volt_traction_limited = false;
+  self->lat_cap_limit_lp = 0.0f;
 #if OMNI_TX_AVOID_HEADER_BYTE
   // 応急処置が入ったFWであることをログで確認できるようにする (引き継ぎ文書 5.4)
   printf("# WORKAROUND: OMNI_TX_AVOID_HEADER_BYTE=1 (avoid 0xAA in WheelUnit TX data)\n");
@@ -257,6 +259,17 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
     //    0 になり、減速 (0V に近づける向き) も含めて全輪の FF・PI が0倍に縮められ、出力が center の
     //    ままになって回り続けた (center は今の回転数を保つ電圧なので、自分では抜けられない)
     float center[4], ff_excess[4], pi_excess[4], lo[4], hi[4];
+    // トルク上限 (lat_cap.h)。横へ加速しているときだけ LAT_CAP_LIMIT_V へ寄せ、LAT_CAP_TAU_S でならす。
+    // 無効 (LAT_CAP_LIMIT_V ≤ traction_limit_v) のときは traction_limit_v そのまま (変更前と同じ値)
+    float traction_limit = vt->traction_limit_v;
+    if (LAT_CAP_LIMIT_V > vt->traction_limit_v) {
+      float want = LatCapTractionLimit(vt->traction_limit_v, LAT_CAP_LIMIT_V, cmd_vx, cmd_vy,
+                                       tcs->current_ax, tcs->current_ay);
+      if (self->lat_cap_limit_lp < vt->traction_limit_v) self->lat_cap_limit_lp = vt->traction_limit_v;
+      if (self->lat_cap_limit_lp > LAT_CAP_LIMIT_V) self->lat_cap_limit_lp = LAT_CAP_LIMIT_V;
+      self->lat_cap_limit_lp += dt / (LAT_CAP_TAU_S + dt) * (want - self->lat_cap_limit_lp);
+      traction_limit = self->lat_cap_limit_lp;
+    }
     // 機体の座標の負荷分の FF (parammeter.h の VEL_FF_LOAD_*)。FF の分に入れるので、上限で先に縮む
     float load_x = 0.0f, load_y = 0.0f;
 #if WHEEL_VOLT_USE_LOAD_FF
@@ -290,8 +303,8 @@ void OmniDrive_SetVelEx(OmniDrive* self, int16_t vel_x, int16_t vel_y, int16_t v
       hi[i] = fmaxf(WHEEL_VOLT_MAX - center[i], 0.0f);
       lo[i] = fminf(-WHEEL_VOLT_MAX - center[i], 0.0f);
       if (use_traction_limit) {
-        hi[i] = fminf(hi[i], vt->traction_limit_v);
-        lo[i] = fmaxf(lo[i], -vt->traction_limit_v);
+        hi[i] = fminf(hi[i], traction_limit);
+        lo[i] = fmaxf(lo[i], -traction_limit);
       }
     }
 
@@ -383,6 +396,7 @@ void OmniDrive_SetFree(OmniDrive* self) {
   self->volt_pi_saturated = false;
   self->vel_fb_rot_stalled = false;
   self->volt_traction_limited = false;
+  self->lat_cap_limit_lp = 0.0f;
   int16_t m[4] = {0, 0, 0, 0};
   OmniDrive_Send(self, m, 0);  // command: 0 (Free)
 }
