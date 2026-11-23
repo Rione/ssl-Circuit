@@ -1,5 +1,6 @@
 #include "app.h"
 
+#include "ModePolicy.hpp"
 #include "RobotSequence.hpp"
 #include "cameraMode.hpp"
 #include "mainMode.hpp"
@@ -11,7 +12,9 @@ CANBus::CANData canRecvData;
 
 MainMode mainMode('M', "Main Mode", &robot);
 TestMode testMode('T', "Test Mode", &robot);
+#if BENCH_MODES
 CameraMode cameraMode('C', "Camera Mode", &robot);
+#endif
 
 void TimInterrupt1khz() {
       robot.heartBeat();
@@ -89,11 +92,10 @@ void setup() {
       const bool fastBoot = watchdogCausedReset();
       robot.hardwareInit(fastBoot);
       HAL_Delay(100);
-      if (robot.swImu.read() == 1) {
-            robot.info.runMode = 0;
-      } else {
-            robot.info.runMode = 1;
-      }
+      // 台上用のビルドだけ、起動時に IMU スイッチ (SW5) を押していればカメラモードにする。試合用のビルドは常にメインモード
+      robot.info.runMode = (uint8_t)mode_policy::selectRunMode(BENCH_MODES != 0, robot.swImu.read());
+      printf("run mode: %s (BENCH_MODES=%d)\n",
+             robot.info.runMode == (uint8_t)mode_policy::RunMode::kCamera ? "camera" : "main", BENCH_MODES);
       // フォトセンサしきい値をキッカーボードへ送信する。
       // 0bb4dae1「app.cppの整理」でsetup()内のインライン送信がphotoThresholdSet()に
       // 切り出された際、呼び出しが追加されず送信が抜け落ちていた。これによりキッカー
@@ -108,10 +110,12 @@ void main_app() {
       watchdogStart(WATCHDOG_TIMEOUT_MS);
       while (1) {
             watchdogRefresh();
-            if (robot.info.runMode == 0) {
-                  mainMode.loop();
-            } else {
+#if BENCH_MODES
+            if (robot.info.runMode == (uint8_t)mode_policy::RunMode::kCamera) {
                   cameraMode.loop();
+                  continue;
             }
+#endif
+            mainMode.loop();
       }
 }

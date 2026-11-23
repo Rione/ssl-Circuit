@@ -4,6 +4,16 @@
 #define PHOTOSENSOR_THRESHOLD 750
 #define BATTERY_CUT_OFF 150
 
+// 台上の試験用の動作を入れたビルドか (0: 試合用、既定 / 1: 台上用)。
+// 台上用の動作は 2 つで、どちらも Pi (RAVEN) の速度の指令を見ずに足回りやドリブラを動かす。
+//   カメラモード: 起動時に IMU スイッチ (基板の SW5「IMU」) を押していると入る。機体のカメラのボールへ寄り、
+//                見えなければその場で回る
+//   UI の走行試験: タッチパネルのモーター試験 (100 mm/s で 3 秒前進) とドリブラ試験。非常停止も見ない
+// 試合用のビルドにはどちらも入らない (src/mode/ModePolicy.hpp)。台上用は make BENCH_MODES=1 で build-bench/ に作る。
+#ifndef BENCH_MODES
+#define BENCH_MODES 0
+#endif
+
 // ドリブラーボードは、CANの受信から自動で判別する (Robot::newDribblerDetected)。
 // 2025年版基板: DRIBBLE_RECV(0xF5)を10msごとに送ってくる (ボール保持/検知/フォトセンサの値)。
 //              電源投入から送り始めるまで約5秒かかる。

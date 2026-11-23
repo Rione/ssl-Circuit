@@ -1,5 +1,7 @@
 #include "RobotSequence.hpp"
 
+#include "ModePolicy.hpp"
+
 // Robot.hppとの切り分け
 // class Robot内の関数を使用したシーケンスの記述
 
@@ -19,7 +21,11 @@ void stopRobot(uint16_t interval) {
 
 void uiKickControl(RobotInfo_t &info) {
     // testCommand を最優先（放電とキックが同時に走らないようにする）
-    if (info.testCommand != 0) {
+    if (info.testCommand != 0 && !mode_policy::acceptsUiCommand(BENCH_MODES != 0, info.testCommand)) {
+        // 試合用のビルドでは、UIのドリブラ試験・モーター試験を受け付けない (src/mode/ModePolicy.hpp)。
+        // 受け付けなかった指令はUIの操作として数えない (Piの充放電の指令を止める15秒を始めない)
+        info.testCommand = 0;
+    } else if (info.testCommand != 0) {
         if (info.testCommand == 1) { // CMD_KICK
             robot.kickerBoard.kick(STRAIGHT, 100);
             if (info.isKickerChargeMode) {

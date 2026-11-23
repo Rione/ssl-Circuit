@@ -1,5 +1,7 @@
 #include "mainMode.hpp"
 
+#include "ModePolicy.hpp"
+
 void MainMode::before() {
 }
 
@@ -30,8 +32,11 @@ void MainMode::loop() {
     robot->info.isMotorTesting = false;
   }
 
-  if (isTestingMotor || isTestingDribbler) {
-    // === UIテスト中（2026の仕様に合わせ、安全裁定をバイパス） ===
+  const mode_policy::Drive drive = mode_policy::arbitrate(BENCH_MODES != 0, isTestingMotor || isTestingDribbler,
+                                                          robot->info.status.emergencyStop,
+                                                          robot->info.status.isSignalReceived);
+  if (drive == mode_policy::Drive::kUiTest) {
+    // === UIテスト中（台上用のビルドだけ。非常停止と信号より先に動く） ===
     if (isTestingMotor) {
       robot->motorDriver.setVelocityFF(100, 0, 0); // モーターテスト: 100 mm/s 前進
     } else {
@@ -45,9 +50,7 @@ void MainMode::loop() {
     }
     
     robot->sendKicker(robot->info);
-  } else if (robot->info.status.emergencyStop) {
-    stopRobot(500);
-  } else if (robot->info.status.isSignalReceived) {
+  } else if (drive == mode_policy::Drive::kFollowPi) {
     // === 通常の試合中 (RasPiからの信号あり) ===
     robot->sendDribble(robot->info.dribblePower);
     robot->sendKicker(robot->info);
@@ -57,7 +60,7 @@ void MainMode::loop() {
     }
     robot->sendMotor(robot->info, 10);
   } else {
-    // === 待機状態 ===
+    // === 非常停止・待機状態 ===
     stopRobot(500);
   }
 

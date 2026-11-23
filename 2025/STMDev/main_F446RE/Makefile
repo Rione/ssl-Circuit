@@ -32,11 +32,20 @@ DEBUG = 1
 OPT = -O2
 
 
+# 台上の試験用の動作 (カメラモード・UIの走行試験) を入れるか (src/app/config.h の BENCH_MODES)。
+# 既定の 0 が試合用。台上用は make BENCH_MODES=1 で、試合用と混ざらないよう build-bench/ に作る
+# (書き込みの台本 SWDFlash.sh・DAPFlash.sh・SerialFlash.sh は build/ の試合用を書く)
+BENCH_MODES ?= 0
+
 #######################################
 # paths
 #######################################
 # Build path
+ifeq ($(BENCH_MODES), 0)
 BUILD_DIR = build
+else
+BUILD_DIR = build-bench
+endif
 
 ######################################
 # source
@@ -138,7 +147,8 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32F446xx
+-DSTM32F446xx \
+-DBENCH_MODES=$(BENCH_MODES)
 
 
 # AS includes

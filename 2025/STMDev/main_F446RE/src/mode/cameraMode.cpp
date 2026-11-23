@@ -1,5 +1,9 @@
 #include "cameraMode.hpp"
 
+// カメラモードは台上用のビルドだけに入れる (config.h の BENCH_MODES)。
+// 信号を受けていて非常停止でない間、Pi の速度の指令でなく、カメラのボールで足回りを動かす
+#if BENCH_MODES
+
 void CameraMode::before() {
 }
 
@@ -92,3 +96,5 @@ void CameraMode::loop() {
       robot->led1 = robot->info.dribbleStatus.isDetectedBall;
       waitNextPeriod(1000);  // 1ms周期
 }
+
+#endif  // BENCH_MODES
