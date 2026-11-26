@@ -25,8 +25,18 @@ bool isStop, isStopPrev = false;
 uint8_t boardId = 0;
 
 bool gainChanged = false;
-float pGain = 0.005;
-float iGain = 0.05;
+// 速度の PI のゲイン。PID のタイマーを直した (lib/PID/PID.cpp) ので、I は本当の係数で効く。直す前は I が約 37 倍
+// (0.05 × 36.9 = 1.84 相当) に効いていた。P 0.05・I 1.0 は持ち上げと床の模型で行き過ぎ 0・遅れが今より短い候補
+// (Rione/ssl-RAVEN-Alula の lab/exp/2026-11-26-ident-md-pi-timer-oldgen-desk の results/design.json)。
+// 実験の版はビルドのときに -DMD_PID_P=… -DMD_PID_I=… で変える。
+#ifndef MD_PID_P
+#define MD_PID_P 0.05f
+#endif
+#ifndef MD_PID_I
+#define MD_PID_I 1.0f
+#endif
+float pGain = MD_PID_P;
+float iGain = MD_PID_I;
 
 typedef union {
   int16_t data;
@@ -186,7 +196,7 @@ void main_app() {
   }
 
   // モータのPIDゲイン設定
-  motor.setPIDGain(0.005, 0.05, 0);
+  motor.setPIDGain(MD_PID_P, MD_PID_I, 0);
 
   // イニシャライズ完了
   for (size_t i = 0; i < 3; i++) {

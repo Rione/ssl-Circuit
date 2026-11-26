@@ -28,14 +28,14 @@ void PID::reset() {
     lastError = 0;
 }
 
-void PID::compute() {
+void PID::compute(float step) {
     // please append error before compute
     float _error = error;
-    integral += (abs(_output) > limit ? 0 : _error * dt); // アンチワインドアップ
+    integral += (abs(_output) > limit ? 0 : _error * step); // アンチワインドアップ
 
-    pTerm = p * _error;                    // 比例
-    iTerm = i * integral;                  // 積分
-    dTerm = d * (_error - lastError) / dt; // 微分
+    pTerm = p * _error;                      // 比例
+    iTerm = i * integral;                    // 積分
+    dTerm = d * (_error - lastError) / step; // 微分
     lastError = _error;
 
     _output = (pTerm + iTerm + dTerm);
@@ -44,7 +44,15 @@ void PID::compute() {
 }
 
 float PID::getPID() {
-    // if (dt != 0) compute();
-    if (timer.read() > dt) compute();
+    // dt ごとに計算する。前はタイマーを戻さず、最初の dt の後は毎ループ計算して積分に毎回 dt を足していたので、
+    // ループの周期が dt より短いと I が dt / 周期 倍 (旧機体の MD で約 37 倍) に効いていた
+    // (Rione/ssl-RAVEN-Alula の lab/exp/2026-11-26-ident-md-pi-timer-oldgen-desk、F-261)。
+    // 積分と微分には、前に計算してから実際に経った時間を使う。ただし drive() が呼ばれない間 (止めている間) の後の
+    // 1 回目は経った時間が長いので、dt の 10 倍を超えたら dt を使う (積分が一度に跳ねないように)。
+    float elapsed = timer.read();
+    if (elapsed >= dt) {
+        timer.reset();
+        compute(elapsed > 10 * dt ? dt : elapsed);
+    }
     return output;
 }

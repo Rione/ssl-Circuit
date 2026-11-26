@@ -25,7 +25,7 @@ class PID {
 
     Timer timer;
 
-    void compute();
+    void compute(float step);  // step: 前に計算してから経った時間 [s]
 
   public:
     PID(float _p, float _i, float _d, float _dt);
